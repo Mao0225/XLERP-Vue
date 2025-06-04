@@ -14,6 +14,7 @@
         :key="item.path"
         :label="item.title"
         :name="item.path"
+        :closable="item.path !== '/dashboard'"
       ></el-tab-pane>
     </el-tabs>
   </div>
@@ -32,7 +33,16 @@ const tabsList = computed(() => store.tabsList)
 const activeTab = ref(route.path)
 
 onMounted(() => {
-  addTab(route)
+  // 确保首页标签始终存在
+  store.addTab({
+    title: '首页',
+    path: '/dashboard'
+  })
+  
+  // 如果当前路由不是首页，添加当前路由标签
+  if (route.path !== '/dashboard') {
+    addTab(route)
+  }
 })
 
 watch(
@@ -57,19 +67,45 @@ const handleTabClick = (tab) => {
 }
 
 const removeTab = (targetPath) => {
-  if (activeTab.value === targetPath) {
-    tabsList.value.forEach((tab, index) => {
-      if (tab.path === targetPath) {
-        const nextTab = tabsList.value[index + 1] || tabsList.value[index - 1]
-        if (nextTab) {
-          activeTab.value = nextTab.path
-          router.push(nextTab.path)
-        }
-      }
-    })
+  // 防止删除首页
+  if (targetPath === '/dashboard') {
+    return
   }
   
+  // 如果要删除的是当前激活的标签
+  if (activeTab.value === targetPath) {
+    const currentIndex = tabsList.value.findIndex(tab => tab.path === targetPath)
+    
+    // 寻找下一个要激活的标签
+    let nextTab = null
+    
+    // 先尝试激活右边的标签
+    if (currentIndex < tabsList.value.length - 1) {
+      nextTab = tabsList.value[currentIndex + 1]
+    } 
+    // 再尝试激活左边的标签
+    else if (currentIndex > 0) {
+      nextTab = tabsList.value[currentIndex - 1]
+    }
+    
+    // 如果有下一个标签，跳转到它；否则跳转到首页
+    if (nextTab && nextTab.path !== targetPath) {
+      activeTab.value = nextTab.path
+      router.push(nextTab.path)
+    } else {
+      activeTab.value = '/dashboard'
+      router.push('/dashboard')
+    }
+  }
+  
+  // 删除标签
   store.delTab(targetPath)
+  
+  // 如果删除完其他标签后只剩首页，确保跳转到首页
+  if (tabsList.value.length === 1 && tabsList.value[0].path === '/dashboard') {
+    activeTab.value = '/dashboard'
+    router.push('/dashboard')
+  }
 }
 </script>
 
@@ -142,6 +178,21 @@ const removeTab = (targetPath) => {
 
             &:hover {
               background-color: rgba(255, 255, 255, 0.2);
+            }
+          }
+
+          // 首页标签特殊样式
+          &[aria-controls*="dashboard"] {
+            .el-tabs__item__close {
+              display: none; // 隐藏首页的关闭按钮
+            }
+            
+            // 首页标签添加特殊标识
+            &::after {
+              content: '🏠';
+              margin-left: 4px;
+              font-size: 12px;
+              opacity: 0.8;
             }
           }
         }

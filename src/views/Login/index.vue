@@ -2,13 +2,13 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1>企业ERP管理系统</h1>
+        <!-- <h1>四平器材公司ERP管理系统</h1> -->
         <div class="logo-container">
-          <img src="@/assets/logo.svg" alt="系统Logo" class="system-logo">
+          <img src="@/assets/XLerplogo.png" alt="系统Logo" class="system-logo">
         </div>
       </div>
       <div class="login-form">
-        <h2>用户登录</h2>
+        <!-- <h2>用户登录</h2> -->
         <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" @keyup.enter="handleLogin">
           <el-form-item prop="username">
             <el-input 
@@ -125,7 +125,7 @@ export default defineComponent({
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #3a8ee6, #13c2c2);
+  background: linear-gradient(135deg, #3a8ee6, #c8e0e0);
   overflow: hidden;
 }
 

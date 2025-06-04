@@ -5,7 +5,7 @@
     </el-header>
     
     <el-container class="layout-content">
-      <el-aside :width="isCollapse ? '64px' : '200px'" class="layout-aside">
+      <el-aside :width="isCollapse ? '64px' : '120px'" class="layout-aside">
         <app-menu />
       </el-aside>
       

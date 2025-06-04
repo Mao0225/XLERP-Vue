@@ -17,8 +17,11 @@ const viewComponents = {
   'system/user': () => import('@/views/system/user.vue'),
   'system/menu': () => import('@/views/system/menu.vue'),
   'system/department': () => import('@/views/system/department.vue'),
+  //物料管理
   'item/basitem': () => import('@/views/item/basitem.vue'),
+  //合同管理
   'contract/list': () => import('@/views/contract/bascontract/contractList.vue'),
+  'contract/baspurchase': () => import('@/views/contract/baspurchaseorder/index.vue'),
   // 可以根据需要添加更多组件映射
 }
 

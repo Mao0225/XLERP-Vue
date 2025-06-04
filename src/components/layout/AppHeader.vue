@@ -4,10 +4,10 @@
       <img src="@/assets/XLerplogo.png" class="logo" alt="企业标识" />
       <!-- <h1 class="company-name">四平器材公司ERP</h1> -->
     </div>
-    <div class="menu-toggle" @click="toggleCollapse">
+    <!-- <div class="menu-toggle" @click="toggleCollapse">
       <el-icon v-if="isCollapse"><Expand /></el-icon>
       <el-icon v-else><Fold /></el-icon>
-    </div>
+    </div> -->
     <div class="term-selector">
       当前期间：
       <el-select
