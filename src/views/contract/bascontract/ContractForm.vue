@@ -454,7 +454,7 @@ const form = reactive({
 // form.term = currentTerm.value
 console.log('表格区间',form.term);
 const currentProduct = reactive({
-  id: null,
+  id: undefined,
   no: null,
   itemid: null,
   itemNo: '',
@@ -529,7 +529,7 @@ const addProduct = () => {
   isProductEdit.value = false;
   editingProductIndex.value = -1;
   Object.assign(currentProduct, {
-    id: null,
+    id: undefined,
     no: form.no,
     itemid: null,
     itemNo: '',

@@ -22,6 +22,9 @@ const viewComponents = {
   //合同管理
   'contract/list': () => import('@/views/contract/bascontract/contractList.vue'),
   'contract/baspurchase': () => import('@/views/contract/baspurchaseorder/index.vue'),
+  //图纸管理
+  'tuzhi/tuzhi': () => import('@/views/tuzhi/tuzhi.vue'),
+
   // 可以根据需要添加更多组件映射
 }
 
