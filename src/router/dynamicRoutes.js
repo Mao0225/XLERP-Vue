@@ -17,6 +17,9 @@ const viewComponents = {
   'system/user': () => import('@/views/system/user.vue'),
   'system/menu': () => import('@/views/system/menu.vue'),
   'system/department': () => import('@/views/system/department.vue'),
+  'system/basorg': () => import('@/views/system/basorg.vue'),
+
+
   //物料管理
   'item/basitem': () => import('@/views/item/basitem.vue'),
   //合同管理
@@ -24,7 +27,8 @@ const viewComponents = {
   'contract/baspurchase': () => import('@/views/contract/baspurchaseorder/index.vue'),
   //图纸管理
   'tuzhi/tuzhi': () => import('@/views/tuzhi/tuzhi.vue'),
-
+  'hruser/hruserlist': () => import('@/views/hruser/hruserlist.vue'),
+  
   // 可以根据需要添加更多组件映射
 }
 
