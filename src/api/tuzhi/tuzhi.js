@@ -70,3 +70,4 @@ export function updateTuzhi(data) {
 export function deleteTuzhi(params) {
   return del('/bastuzhi/delete', params)
 }
+ 
