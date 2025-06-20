@@ -4,7 +4,7 @@
       <div class="login-header">
         <!-- <h1>四平器材公司ERP管理系统</h1> -->
         <div class="logo-container">
-          <img src="@/assets/XLerplogo.png" alt="系统Logo" class="system-logo">
+          <img src="@/assets/login.jpg" alt="系统Logo" class="system-logo">
         </div>
       </div>
       <div class="login-form">
@@ -154,7 +154,7 @@ export default defineComponent({
   margin-bottom: 20px;
   
   .system-logo {
-    height: 60px;
+    height: 90px;
   }
 }
 

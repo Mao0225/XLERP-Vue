@@ -1,7 +1,7 @@
 <template>
   <div class="app-header">
     <div class="logo-container">
-      <img src="@/assets/XLerplogo.png" class="logo" alt="企业标识" />
+      <img src="@/assets/logopower.jpg" class="logo" alt="企业标识" />
       <!-- <h1 class="company-name">四平器材公司ERP</h1> -->
     </div>
     <!-- <div class="menu-toggle" @click="toggleCollapse">
@@ -139,7 +139,7 @@ onMounted(() => {
     align-items: center;
 
     .logo {
-      height: 50px;
+      height: 90px;
       margin-right: 10px;
     }
 
