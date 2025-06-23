@@ -29,6 +29,10 @@ const viewComponents = {
   'tuzhi/tuzhi': () => import('@/views/tuzhi/tuzhi.vue'),
   'hruser/hruserlist': () => import('@/views/hruser/hruserlist.vue'),
   
+  'plmanage/plentityid': () => import('@/views/plmanage/plentityid/plentityid.vue'),
+
+  'plmanage/plinoutstore': () => import('@/views/plmanage/plinoutstore/plinoutstore.vue'),
+
   // 可以根据需要添加更多组件映射
 }
 

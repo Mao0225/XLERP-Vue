@@ -32,8 +32,12 @@
         </el-table-column>
         <el-table-column prop="icon" label="图标" width="100" align="center">
           <template #default="{ row }">
-            <el-icon v-if="row.icon"><component :is="row.icon" /></el-icon>
-            <span v-else>-</span>
+            <el-icon v-if="row.icon">
+              <component :is="row.icon.replace('el-icon-', '')" />
+            </el-icon>
+            <template v-else>
+              <div :class="`i-svg:${row.icon}`" />
+            </template>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
@@ -48,19 +52,7 @@
         </el-table-column>
       </el-table>
 
-      <!-- 分页组件 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="queryParams.pageNumber"
-          v-model:page-size="queryParams.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          background
-        />
-      </div>
+
     </el-card>
 
     <!-- 菜单表单对话框 -->
@@ -101,14 +93,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="菜单图标" prop="icon">
-          <el-select v-model="form.icon" placeholder="请选择图标" clearable filterable style="width: 100%">
-            <el-option v-for="icon in iconList" :key="icon" :label="icon" :value="icon">
-              <div class="icon-option">
-                <el-icon><component :is="icon" /></el-icon>
-                <span style="margin-left: 8px">{{ icon }}</span>
-              </div>
-            </el-option>
-          </el-select>
+          <IconSelect v-model="form.icon" />
         </el-form-item>
         <!-- <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" controls-position="right" style="width: 100%" />
@@ -129,11 +114,11 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getMenus, getMenuById, createMenu, updateMenu, deleteMenu } from '@/api/system/menu'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import IconSelect from '@/components/common/IconSelect.vue';
 
 // 查询参数
 const queryParams = reactive({
-  pageNumber: 1,
-  pageSize: 10
+
 })
 
 // 菜单列表数据
@@ -187,17 +172,11 @@ const rules = {
 const getMenuList = async () => {
   loading.value = true
   try {
-    const res = await getMenus(queryParams)
-    console.log('菜单列表数据：', res.data)
+    const res = await getMenus() // 修改为调用新的接口
     if (res.code === 200) {
-      console.log('菜单列表数据：', res.data)
-      const allMenus = res.data.page.list
-      console.log('所有菜单数据：', allMenus)
-      // 构建树形结构
+      const allMenus = res.data.list // 注意数据结构变化
       menuList.value = buildTree(allMenus, 0)
-      total.value = res.data.page.totalRow
-      console.log('菜单列表数据：', menuList.value)
-      // 同时更新树形选择器的数据
+      // 更新树形选择器的数据
       menuTreeData.value = [
         { id: 0, title: '顶级菜单', children: buildTree([...allMenus], 0) }
       ]
@@ -224,18 +203,6 @@ const buildTree = (menus, parentId) => {
         children: children.length ? children : undefined
       }
     })
-}
-
-// 处理分页大小变化
-const handleSizeChange = (size) => {
-  queryParams.pageSize = size
-  getMenuList()
-}
-
-// 处理当前页变化
-const handleCurrentChange = (page) => {
-  queryParams.pageNumber = page
-  getMenuList()
 }
 
 // 重置表单
@@ -310,14 +277,19 @@ const handleDelete = (row) => {
 }
 
 // 提交表单
+// 提交表单
 const submitForm = () => {
   if (!formRef.value) return
   
   formRef.value.validate(async (valid) => {
     if (valid) {
-      // 处理parent_id，如果未选择则设为0
-      const submitData = { ...form }
-      submitData.parentid = submitData.parentid === undefined ? 0 : submitData.parentid
+      // 准备提交数据
+      const submitData = { 
+        ...form,
+        parentid: form.parentid === undefined ? 0 : form.parentid,
+        // 移除 icon 字段的 el-icon- 前缀（如果存在）
+        icon: form.icon?.replace(/^el-icon-/, '') || ''
+      }
       
       submitLoading.value = true
       try {
@@ -350,6 +322,8 @@ onMounted(() => {
   getMenuList()
 })
 </script>
+
+
 
 <style scoped>
 .menu-management {

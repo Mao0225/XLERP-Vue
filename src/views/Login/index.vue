@@ -4,7 +4,7 @@
       <div class="login-header">
         <!-- <h1>四平器材公司ERP管理系统</h1> -->
         <div class="logo-container">
-          <img src="@/assets/login.jpg" alt="系统Logo" class="system-logo">
+          <img src="@/assets/sipinglogo.jpg" alt="系统Logo" class="system-logo">
         </div>
       </div>
       <div class="login-form">
@@ -14,7 +14,7 @@
             <el-input 
               v-model="loginForm.username" 
               placeholder="用户名" 
-              prefix-icon="el-icon-user"
+              prefix-icon="user"
               clearable
               autocomplete="off">
             </el-input>
@@ -23,7 +23,7 @@
             <el-input 
               v-model="loginForm.password" 
               placeholder="密码" 
-              prefix-icon="el-icon-lock" 
+              prefix-icon="lock" 
               show-password
               clearable
               type="password"
@@ -33,7 +33,7 @@
           <el-form-item>
             <div class="login-options">
               <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-              <span class="forget-password">忘记密码?</span>
+              <!-- <span class="forget-password">忘记密码?</span> -->
             </div>
           </el-form-item>
           <el-form-item>
@@ -125,7 +125,9 @@ export default defineComponent({
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #3a8ee6, #c8e0e0);
+  // background: linear-gradient(135deg, #3a8ee6, #c8e0e0);
+  background-image: url(@/assets/backgroundimg2.png);
+  background-size: cover;
   overflow: hidden;
 }
 
@@ -154,7 +156,7 @@ export default defineComponent({
   margin-bottom: 20px;
   
   .system-logo {
-    height: 90px;
+    height: 80px;
   }
 }
 
