@@ -1,10 +1,10 @@
-
 <template>
   <div class="compact-form-container">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" class="compact-form">
-      <!-- 基本信息区 -->
+      
+      <!-- 物料基本信息 -->
       <div class="form-section">
-        <h4 class="section-title">基本信息</h4>
+        <div class="section-title">物料基本信息</div>
         <el-row :gutter="16">
           <el-col :span="8">
             <el-form-item label="物料编号" prop="materialno">
@@ -32,6 +32,28 @@
             </el-form-item>
           </el-col>
           <el-col :span="6">
+            <el-form-item label="类别" prop="leibie">
+              <el-input v-model="form.leibie" placeholder="类别" clearable size="small" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="图号" prop="tuhao">
+              <el-input v-model="form.tuhao" placeholder="图号" clearable size="small" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="单重" prop="weight">
+              <el-input-number v-model="form.weight" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 数量价格信息 -->
+      <div class="form-section">
+        <div class="section-title">数量价格信息</div>
+        <el-row :gutter="16">
+          <el-col :span="6">
             <el-form-item label="数量" prop="quantity">
               <el-input-number v-model="form.quantity" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
             </el-form-item>
@@ -46,12 +68,40 @@
               <el-input-number v-model="form.totalmoney" :min="0" :precision="2" controls-position="right" disabled size="small" style="width: 100%" />
             </el-form-item>
           </el-col>
+          <el-col :span="6">
+            <el-form-item label="现行价格" prop="nowprice">
+              <el-input-number v-model="form.nowprice" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="16">
+          <el-col :span="8">
+            <el-form-item label="请领数量" prop="qingling">
+              <el-input-number v-model="form.qingling" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="发票状态" prop="fapiao">
+              <el-radio-group v-model="form.fapiao" size="small">
+                <el-radio :label="0">无发票</el-radio>
+                <el-radio :label="1">有发票</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="盘点状态" prop="pandian">
+              <el-select v-model="form.pandian" placeholder="盘点状态" clearable size="small" style="width: 100%">
+                <el-option v-for="item in pandianOptions" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-row>
       </div>
 
-      <!-- 出入库信息区 -->
+      <!-- 出入库信息 -->
       <div class="form-section">
-        <h4 class="section-title">出入库信息</h4>
+        <div class="section-title">出入库信息</div>
         <el-row :gutter="16">
           <el-col :span="8">
             <el-form-item label="出入类型" prop="isin">
@@ -84,23 +134,21 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="form.status" placeholder="状态" clearable size="small" style="width: 100%">
-                <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
+            <el-form-item label="单据号" prop="orderno">
+              <el-input v-model="form.orderno" placeholder="单据号" clearable size="small" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="单据号" prop="orderno">
-              <el-input v-model="form.orderno" placeholder="单据号" clearable size="small" />
+            <el-form-item label="子单据号" prop="childorderno">
+              <el-input v-model="form.childorderno" placeholder="子单据号" clearable size="small" />
             </el-form-item>
           </el-col>
         </el-row>
       </div>
 
-      <!-- 详细信息区 -->
+      <!-- 单位人员信息 -->
       <div class="form-section">
-        <h4 class="section-title">详细信息</h4>
+        <div class="section-title">单位人员信息</div>
         <el-row :gutter="16">
           <el-col :span="8">
             <el-form-item label="送货单位" prop="deliverunit">
@@ -113,18 +161,51 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="经手人" prop="handleperson">
-              <el-input v-model="form.handleperson" placeholder="经手人" clearable size="small" />
+            <el-form-item label="购货单位" prop="gouhuounitname">
+              <el-input v-model="form.gouhuounitname" placeholder="购货单位" clearable size="small" />
             </el-form-item>
           </el-col>
         </el-row>
         
         <el-row :gutter="16">
           <el-col :span="8">
+            <el-form-item label="经手人" prop="handleperson">
+              <el-input v-model="form.handleperson" placeholder="经手人" clearable size="small" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="库保员" prop="username">
               <el-input v-model="form.username" placeholder="库保员" clearable size="small" />
             </el-form-item>
           </el-col>
+          <el-col :span="8">
+            <el-form-item label="领料人" prop="lingliaoperson">
+              <el-input v-model="form.lingliaoperson" placeholder="领料人" clearable size="small" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="16">
+          <el-col :span="8">
+            <el-form-item label="负责人" prop="fuzeren">
+              <el-input v-model="form.fuzeren" placeholder="负责人" clearable size="small" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="检查部门" prop="jianchaunit">
+              <el-input v-model="form.jianchaunit" placeholder="检查部门" clearable size="small" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <!-- 占位 -->
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 项目合同信息 -->
+      <div class="form-section">
+        <div class="section-title">项目合同信息</div>
+        <el-row :gutter="16">
           <el-col :span="8">
             <el-form-item label="工程名称" prop="projectname">
               <el-input v-model="form.projectname" placeholder="工程名称" clearable size="small" />
@@ -135,25 +216,7 @@
               <el-input v-model="form.contactno" placeholder="合同号" clearable size="small" />
             </el-form-item>
           </el-col>
-        </el-row>
-        
-        <el-row :gutter="16">
-          <el-col :span="6">
-            <el-form-item label="类别" prop="leibie">
-              <el-input v-model="form.leibie" placeholder="类别" clearable size="small" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="图号" prop="tuhao">
-              <el-input v-model="form.tuhao" placeholder="图号" clearable size="small" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="单重" prop="weight">
-              <el-input-number v-model="form.weight" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="期间" prop="term">
               <el-input v-model="form.term" placeholder="期间" clearable size="small" />
             </el-form-item>
@@ -161,102 +224,58 @@
         </el-row>
       </div>
 
-      <!-- 扩展信息区（可折叠） -->
-      <el-collapse v-model="expandedSections" class="extra-info">
-        <el-collapse-item title="更多信息" name="extra">
-          <el-row :gutter="16">
-            <el-col :span="8">
-              <el-form-item label="子单据号" prop="childorderno">
-                <el-input v-model="form.childorderno" placeholder="子单据号" clearable size="small" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="订单状态" prop="orderstatus">
-                <el-select v-model="form.orderstatus" placeholder="订单状态" clearable size="small" style="width: 100%">
-                  <el-option v-for="item in orderStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="类型" prop="type">
-                <el-input v-model="form.type" placeholder="类型" clearable size="small" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-          
-          <el-row :gutter="16">
-            <el-col :span="8">
-              <el-form-item label="规则" prop="rule">
-                <el-input v-model="form.rule" placeholder="规则" clearable size="small" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="领料人" prop="lingliaoperson">
-                <el-input v-model="form.lingliaoperson" placeholder="领料人" clearable size="small" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="检查部门" prop="jianchaunit">
-                <el-input v-model="form.jianchaunit" placeholder="检查部门" clearable size="small" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-          
-          <el-row :gutter="16">
-            <el-col :span="8">
-              <el-form-item label="请领数量" prop="qingling">
-                <el-input-number v-model="form.qingling" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="现行价格" prop="nowprice">
-                <el-input-number v-model="form.nowprice" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="运输方式" prop="transportway">
-                <el-input v-model="form.transportway" placeholder="运输方式" clearable size="small" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-          
-          <el-row :gutter="16">
-            <el-col :span="8">
-              <el-form-item label="负责人" prop="fuzeren">
-                <el-input v-model="form.fuzeren" placeholder="负责人" clearable size="small" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="购货单位" prop="gouhuounitname">
-                <el-input v-model="form.gouhuounitname" placeholder="购货单位" clearable size="small" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="发票状态" prop="fapiao">
-                <el-radio-group v-model="form.fapiao" size="small">
-                  <el-radio :label="0">无发票</el-radio>
-                  <el-radio :label="1">有发票</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          
-          <el-row :gutter="16">
-            <el-col :span="12">
-              <el-form-item label="盘点状态" prop="pandian">
-                <el-select v-model="form.pandian" placeholder="盘点状态" clearable size="small" style="width: 100%">
-                  <el-option v-for="item in pandianOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="备注" prop="memo">
-                <el-input v-model="form.memo" type="textarea" :rows="2" placeholder="备注信息" clearable />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-collapse-item>
-      </el-collapse>
+      <!-- 其他信息 -->
+      <div class="form-section">
+        <div class="section-title">其他信息</div>
+        <el-row :gutter="16">
+          <el-col :span="8">
+            <el-form-item label="订单状态" prop="orderstatus">
+              <el-select v-model="form.orderstatus" placeholder="订单状态" clearable size="small" style="width: 100%">
+                <el-option v-for="item in orderStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="类型" prop="type">
+              <el-input v-model="form.type" placeholder="类型" clearable size="small" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="运输方式" prop="transportway">
+              <el-input v-model="form.transportway" placeholder="运输方式" clearable size="small" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="备注" prop="memo">
+              <el-input v-model="form.memo" type="textarea" :rows="2" placeholder="备注信息" clearable />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <!-- 占位 -->
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 注释的字段（暂时隐藏） -->
+      <!-- 
+      <el-row :gutter="16">
+        <el-col :span="8">
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="form.status" placeholder="状态" clearable size="small" style="width: 100%">
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="规则" prop="rule">
+            <el-input v-model="form.rule" placeholder="规则" clearable size="small" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      -->
 
       <!-- 操作按钮 -->
       <div class="form-actions">
@@ -264,38 +283,35 @@
         <el-button @click="handleReset">重置</el-button>
         <el-button v-if="showSaveAsDraft" type="info" @click="handleSaveDraft">保存草稿</el-button>
       </div>
+      
     </el-form>
   </div>
 </template>
 
 <script>
+import { useTermStore } from '@/store/term.js';
+import { ElMessage } from 'element-plus';
+import { cloneDeep } from 'lodash';
+
 export default {
   name: 'PlinoutstoreForm',
   props: {
-    formData: {  // 父组件传递的表单数据
+    formData: {
       type: Object,
       default: () => ({})
     },
-    showSaveAsDraft: {  // 是否显示"存草稿"按钮
+    showSaveAsDraft: {
+      type: Boolean,
+      default: false
+    },
+    edit: {
       type: Boolean,
       default: false
     }
   },
   data() {
     return {
-      expandedSections: [], // 控制折叠面板
-      form: {
-        ...this.formData,
-        // 添加新字段的默认值
-        fapiao: 0,
-        pandian: 0,
-        qingling: 0,
-        nowprice: 0,
-        transportway: '',
-        fuzeren: '',
-        gouhuounitname: ''
-      },
-      // 下拉选项数据
+      form: {}, // Form will be initialized in initFormData
       unitOptions: ['件', '套', '个', '块', '根', '袋', '箱', '捆', '托', '纸箱'],
       storeOptions: ['原材料库', '成品库', '半成品库', '废品库', '其他库'],
       flagOptions: [
@@ -320,7 +336,6 @@ export default {
         { value: 1, label: '盘赢' },
         { value: 2, label: '盘亏' }
       ],
-      // 表单验证规则
       rules: {
         materialno: [{ required: true, message: '物料编号不能为空', trigger: 'blur' }],
         materialname: [{ required: true, message: '物料名称不能为空', trigger: 'blur' }],
@@ -330,38 +345,92 @@ export default {
         isin: [{ required: true, message: '请选择出入类型', trigger: 'change' }],
         flag: [{ required: true, message: '请选择业务类型', trigger: 'change' }]
       }
-    }
+    };
   },
   methods: {
-    // 表单提交处理
+    // 定义默认表单值（仅用于新增模式）
+    getDefaultForm() {
+      const termStore = useTermStore();
+      console.log('termStore.term:', termStore.term);
+      return {
+        materialno: '',
+        materialname: '',
+        spec: '',
+        unit: '',
+        quantity: 0,
+        price: 0,
+        totalmoney: 0,
+        isin: 1, // 默认入库
+        flag: '',
+        store: '',
+        receivedate: '',
+        status: 0, // 默认正常
+        orderno: '',
+        deliverunit: '',
+        receiveunit: '',
+        handleperson: '',
+        username: '',
+        projectname: '',
+        contactno: '',
+        leibie: '',
+        tuhao: '',
+        weight: 0,
+        term: termStore.term || '', // 使用 store 的 term 值
+        childorderno: '',
+        orderstatus: '',
+        type: '',
+        rule: '',
+        lingliaoperson: '',
+        jianchaunit: '',
+        qingling: 0,
+        nowprice: 0,
+        transportway: '',
+        fuzeren: '',
+        gouhuounitname: '',
+        fapiao: 0, // 默认无发票
+        pandian: 0, // 默认正常
+        memo: ''
+      };
+    },
+    // 初始化表单数据
+    initFormData(data) {
+      if (this.edit) {
+        // 编辑模式：直接使用传入的 formData
+        this.form = cloneDeep(data);
+      } else {
+        // 新增模式：使用默认值并覆盖部分传入的 formData（如果有）
+        this.form = { ...this.getDefaultForm()};
+      }
+      this.calculateTotalMoney();
+      // 重置表单验证
+      this.$nextTick(() => {
+        if (this.$refs.formRef) {
+          this.$refs.formRef.clearValidate();
+        }
+      });
+    },
+    // 表单提交
     handleSubmit() {
       this.$refs.formRef.validate((valid) => {
         if (valid) {
-          // 计算金额（防止计算逻辑被覆盖）
           this.calculateTotalMoney();
-          
-          // 提交表单数据给父组件
-          this.$emit('submit', this.form);
+          this.$emit('submit', cloneDeep(this.form));
         } else {
           this.$message.error('请填写完整表单内容');
           return false;
         }
       });
     },
-    
     // 重置表单
     handleReset() {
-      this.$refs.formRef.resetFields();
-      this.$emit('reset');
+      this.initFormData({}); // 根据模式重置
     },
-    
     // 保存草稿
     handleSaveDraft() {
       this.calculateTotalMoney();
-      this.$emit('save-draft', this.form);
+      this.$emit('save-draft', cloneDeep(this.form));
     },
-    
-    // 金额计算逻辑
+    // 计算总金额
     calculateTotalMoney() {
       if (this.form.quantity && this.form.price) {
         this.form.totalmoney = parseFloat(
@@ -370,34 +439,33 @@ export default {
       } else {
         this.form.totalmoney = 0;
       }
-    },
-    
-    // 初始化表单数据（对外暴露的方法）
-    initFormData(data) {
-      this.form = {...this.form, ...data};
     }
   },
+  async created() {
+    // 使用传入的 formData 初始化表单
+    this.initFormData(this.formData);
+  },
   watch: {
-     formData: {
-      immediate: true, // 立即执行一次
+    formData: {
       handler(newVal) {
-        this.form = { ...newVal } // 深拷贝避免引用问题
-      }
+        this.initFormData(newVal); // formData 变化时重新初始化表单
+      },
+      deep: true,
+      immediate: true
     },
-    // 数量或价格变化时自动计算金额
-    'form.quantity'(val) {
+    'form.quantity'() {
       this.calculateTotalMoney();
     },
-    'form.price'(val) {
+    'form.price'() {
       this.calculateTotalMoney();
     }
   }
-}
+};
 </script>
 
 <style scoped>
 .compact-form-container {
-  max-width: 900px;
+  max-width: 1000px;
   padding: 16px;
   background: #fff;
 }
@@ -407,39 +475,20 @@ export default {
 }
 
 .form-section {
-  margin-bottom: 16px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 4px;
-  border-left: 3px solid #409eff;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  background: #fafafa;
 }
 
 .section-title {
-  margin: 0 0 12px 0;
   font-size: 14px;
   font-weight: 600;
   color: #303133;
-  display: flex;
-  align-items: center;
-}
-
-.section-title::before {
-  content: '';
-  width: 3px;
-  height: 12px;
-  background: #409eff;
-  margin-right: 6px;
-  border-radius: 1px;
-}
-
-.extra-info {
-  margin-bottom: 16px;
-}
-
-.extra-info .el-collapse-item__header {
-  font-size: 14px;
-  font-weight: 600;
-  color: #606266;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e4e7ed;
 }
 
 .form-actions {
@@ -486,14 +535,13 @@ export default {
     padding: 12px;
   }
   
-  .form-section {
-    padding: 8px;
-    margin-bottom: 12px;
-  }
-  
   .form-actions .el-button {
     margin: 4px 2px;
     min-width: 70px;
+  }
+  
+  .form-section {
+    padding: 12px;
   }
 }
 </style>

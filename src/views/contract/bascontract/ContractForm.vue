@@ -11,32 +11,53 @@
         <template #header>
           <span class="card-title">合同信息</span>
         </template>
-        
+        <el-row :gutter="12" >
+          <el-col :span="5">
+            <el-form-item label="器材合同号" prop="equipno" >
+              <el-input v-model="form.equipno" placeholder="器材合同号"  />
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item label="国网经法合同号" prop="ecpno" label-width="100px">
+              <el-input v-model="form.ecpno" placeholder="国网经法合同号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item label="采购方总部编码" prop="purchaserHqCode" label-width="100px">
+              <el-input v-model="form.purchaserHqCode" placeholder="采购方总部编码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item label="供应商编码" prop="supplierCode">
+              <el-input v-model="form.supplierCode" placeholder="供应商编码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="供应商名称" prop="supplierName">
+              <el-input v-model="form.supplierName" placeholder="供应商名称" />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-row :gutter="12">
-          <el-col :span="3">
-            <el-form-item label="合同号" prop="no" >
+          <el-col :span="4">
+            <el-form-item label="厂内合同号" prop="no" label-width="90px" >
               <el-input v-model="form.no" placeholder="合同号" />
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="4">
             <el-form-item label="工程名称" prop="name">
               <el-input v-model="form.name" placeholder="工程名称" />
             </el-form-item>
           </el-col>
           <el-col :span="3">
             <el-form-item label="电网编号" prop="gridno">
-              <el-input v-model.number="form.gridno" placeholder="电网编号"/>
+              <el-input v-model.number="form.gridno" placeholder="电网编号" />
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item label="签定时间" prop="signdate">
-              <el-date-picker
-                v-model="form.signdate"
-                type="date"
-                placeholder="签定时间"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                style="width: 100%"
-              />
+              <el-date-picker v-model="form.signdate" type="date" placeholder="签定时间" value-format="YYYY-MM-DD HH:mm:ss"
+                style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="4">
@@ -58,7 +79,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-row :gutter="12">
           <el-col :span="4">
             <el-form-item label="客户代理人">
@@ -77,13 +98,8 @@
           </el-col>
           <el-col :span="4">
             <el-form-item label="交货时间">
-              <el-date-picker
-                v-model="form.itemsenddate"
-                type="date"
-                placeholder="交货时间"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
+              <el-date-picker v-model="form.itemsenddate" type="date" placeholder="交货时间" value-format="YYYY-MM-DD"
+                style="width: 100%" />
             </el-form-item>
           </el-col>
           <el-col :span="4">
@@ -177,27 +193,28 @@
             </el-form-item>
           </el-col>
           <el-col :span="5">
-            <el-form-item label="期间" >
-                  <el-select v-model="form.term" placeholder="选择当前期间" size="small" allow-create filterable style="width: 100%">
-                    <el-option v-for="term in terms" :key="term.id" :label="term.term" :value="term.term" />
-                  </el-select>
+            <el-form-item label="期间">
+              <el-select v-model="form.term" placeholder="选择当前期间" size="small" allow-create filterable
+                style="width: 100%">
+                <el-option v-for="term in terms" :key="term.id" :label="term.term" :value="term.term" />
+              </el-select>
             </el-form-item>
           </el-col>
-          
+
         </el-row>
-        <el-row >
+        <el-row>
           <el-col :span="10" style="text-align: center;">
             <el-form-item label="其他条款">
               <el-input type="textarea" :rows="7" v-model="form.other" placeholder="其他条款" />
             </el-form-item>
-            
-          </el-col>
-            
-        </el-row>
-        <div  style="display: flex; justify-content: center;">
-                    <el-button type="primary" @click="submitForm">保存合同信息</el-button>
 
-          </div>
+          </el-col>
+
+        </el-row>
+        <div style="display: flex; justify-content: center;">
+          <el-button type="primary" @click="submitForm" :disabled="isConfirmed">保存合同信息</el-button>
+
+        </div>
       </el-card>
 
       <!-- 产品信息 -->
@@ -208,7 +225,7 @@
             <div class="summary-info">
               <span>总金额: ¥{{ totalAmount.toFixed(2) }}</span>
               <span style="margin: 0 20px;">总重量: {{ totalWeight.toFixed(2) }}kg</span>
-              <el-button type="primary" size="small" @click="addProduct">添加产品</el-button>
+              <el-button type="primary" size="small" @click="addProduct" :disabled="isConfirmed">添加产品</el-button>
             </div>
           </div>
         </template>
@@ -226,12 +243,12 @@
           <el-table-column prop="itemmemo" label="备注" min-width="80" />
           <el-table-column label="操作" width="150">
             <template #default="{ row, $index }">
-              <el-button type="primary" size="small" @click="editProduct($index, row)">编辑</el-button>
-              <el-button type="danger" size="small" @click="removeProduct($index, row)">删除</el-button>
+              <el-button type="primary" size="small" @click="editProduct($index, row)" :disabled="isConfirmed">编辑</el-button>
+              <el-button type="danger" size="small" @click="removeProduct($index, row)" :disabled="isConfirmed">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
-        
+
         <div v-if="productList.length === 0" class="empty-product">
           <p>暂无产品信息，请点击添加产品</p>
         </div>
@@ -239,28 +256,13 @@
     </el-form>
 
     <!-- 产品添加/编辑弹窗 -->
-    <el-dialog 
-      v-model="productDialogVisible" 
-      :title="isProductEdit ? '编辑产品' : '添加产品'" 
-      width="600px" 
-      :close-on-click-modal="false"
-    >
-      <el-form 
-        ref="productFormRef" 
-        :model="currentProduct" 
-        :rules="rules" 
-        label-width="100px" 
-        size="small"
-      >
+    <el-dialog v-model="productDialogVisible" :title="isProductEdit ? '编辑产品' : '添加产品'" width="600px"
+      :close-on-click-modal="false">
+      <el-form ref="productFormRef" :model="currentProduct" :rules="rules" label-width="100px" size="small">
         <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item label="产品名称" prop="itemName">
-              <el-input 
-                v-model="currentProduct.itemName" 
-                placeholder="点击选择产品" 
-                readonly 
-                @click="selectProduct"
-              >
+              <el-input v-model="currentProduct.itemName" placeholder="点击选择产品" readonly @click="selectProduct">
                 <template #append>
                   <el-button @click="selectProduct">选择</el-button>
                 </template>
@@ -272,12 +274,8 @@
         <el-row :gutter="5">
           <el-col :span="8">
             <el-form-item label="数量" prop="itemnum">
-              <el-input-number 
-                v-model="currentProduct.itemnum" 
-                :min="1" 
-                style="width: 100%" 
-                @change="updateCalculations"
-              />
+              <el-input-number v-model="currentProduct.itemnum" :min="1" style="width: 100%"
+                @change="updateCalculations" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -287,13 +285,8 @@
           </el-col>
           <el-col :span="10">
             <el-form-item label="单价(¥)" prop="itemprice">
-              <el-input-number 
-                v-model="currentProduct.itemprice" 
-                :min="0" 
-                :precision="2" 
-                style="width: 100%" 
-                @change="updateCalculations"
-              />
+              <el-input-number v-model="currentProduct.itemprice" :min="0" :precision="2" style="width: 100%"
+                @change="updateCalculations" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -301,22 +294,13 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="单重(kg)" prop="itemweight">
-              <el-input-number 
-                v-model="currentProduct.itemweight" 
-                :min="0" 
-                :precision="2" 
-                style="width: 100%" 
-                @change="updateCalculations"
-              />
+              <el-input-number v-model="currentProduct.itemweight" :min="0" :precision="2" style="width: 100%"
+                @change="updateCalculations" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="总重(kg)">
-              <el-input 
-                v-model="currentProduct.itemgrossweight" 
-                readonly 
-                placeholder="自动计算"
-              />
+              <el-input v-model="currentProduct.itemgrossweight" readonly placeholder="自动计算" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -324,21 +308,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="总金额(¥)">
-              <el-input 
-                v-model="currentProduct.itemsum" 
-                readonly 
-                placeholder="自动计算"
-              />
+              <el-input v-model="currentProduct.itemsum" readonly placeholder="自动计算" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="备注">
-              <el-input 
-                v-model="currentProduct.itemmemo" 
-                type="textarea" 
-                :rows="3" 
-                placeholder="请输入备注"
-              />
+              <el-input v-model="currentProduct.itemmemo" type="textarea" :rows="3" placeholder="请输入备注" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -346,33 +321,20 @@
 
       <template #footer>
         <el-button @click="productDialogVisible = false">取消</el-button>
-        <el-button 
-          type="primary" 
-          @click="confirmProduct" 
-          :loading="addProductLoading"
-        >
+        <el-button type="primary" @click="confirmProduct" :loading="addProductLoading">
           {{ isProductEdit ? '确认修改' : '确认添加' }}
         </el-button>
       </template>
     </el-dialog>
 
     <!-- 产品选择弹窗 -->
-    <ProductSelector 
-      v-model="productSelectorVisible" 
-      @select="handleProductSelect" 
-    />
+    <ProductSelector v-model="productSelectorVisible" @select="handleProductSelect" />
 
     <!-- 销售员选择弹窗 -->
-    <SalesmanSelector 
-      v-model="salesmanSelectorVisible" 
-      @select="handleSalesmanSelect" 
-    />
+    <SalesmanSelector v-model="salesmanSelectorVisible" @select="handleSalesmanSelect" />
 
     <!-- 客户选择弹窗 -->
-    <CustomerSelector 
-      v-model="customerSelectorVisible" 
-      @select="handleCustomerSelect" 
-    />
+    <CustomerSelector v-model="customerSelectorVisible" @select="handleCustomerSelect" />
   </div>
 </template>
 
@@ -416,6 +378,7 @@ const customerSelectorVisible = ref(false);
 const productDialogVisible = ref(false);
 const addProductLoading = ref(false);
 
+const isConfirmed = ref(false);
 const form = reactive({
   no: '',
   userid: '',
@@ -449,10 +412,11 @@ const form = reactive({
   customerName: '',
   legalrepresent: '',
   taxnum: '',
-  signdate: ''
+  signdate: '',
+  status: 10,
 });
 // form.term = currentTerm.value
-console.log('表格区间',form.term);
+console.log('表格区间', form.term);
 const currentProduct = reactive({
   id: undefined,
   no: null,
@@ -499,6 +463,9 @@ const loadContractData = async () => {
     const res = await getContractInfoByNo({ contractNo: props.contractNo });
     const { contractInfo, itemList } = res.data;
     Object.assign(form, contractInfo || {});
+    if (form.status > 10) {
+      isConfirmed.value = true;
+    }
     productList.value = itemList || [];
   } catch (error) {
     ElMessage.error('加载合同数据失败');
@@ -652,7 +619,7 @@ const removeProduct = async (index, row) => {
 
 const submitForm = () => {
   if (!formRef.value) return;
-  
+
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
@@ -799,4 +766,5 @@ onMounted(() => {
 :deep(.el-table th) {
   background-color: #fafafa;
 }
+
 </style>

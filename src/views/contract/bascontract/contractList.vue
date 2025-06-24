@@ -17,8 +17,10 @@
 
     <el-table :data="contractList" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
-      <el-table-column prop="no" label="合同号" width="120" />
+      <el-table-column prop="no" label="厂内合同号" width="120" />
       <el-table-column prop="gridno" label="电网编号" width="120" />
+      <el-table-column prop="ecpno" label="国网经法合同号" width="120" />
+      <el-table-column prop="equipno" label="器材合同号" width="120" />
       <el-table-column prop="name" label="工程名称" />
       <el-table-column prop="salesmanName" label="销售员" width="100" />
       <el-table-column prop="customerName" label="客户名称" />

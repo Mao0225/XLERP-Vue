@@ -21,19 +21,39 @@
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
-        style="width: 300px; margin-right: 10px;"
+        style="flex: 0 0 250px;margin-right: 10px;"
       />
       
-      <el-button type="primary" @click="getPlinoutstoreList">搜索</el-button>
+      <el-button type="primary" @click="getPlinoutstoreListpage">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
         <el-icon><Refresh /></el-icon> 刷新
+      </el-button>
+      
+      <!-- 批量删除按钮 -->
+      <el-button 
+        type="danger" 
+        :disabled="selectedIds.length === 0"
+        @click="handleBatchDelete"
+        style="margin-left: 10px;"
+      >
+        批量删除
       </el-button>
       
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增记录</el-button>
     </div>
     
-    <el-table :data="plinoutstoreList" border v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
+    <el-table 
+      :data="plinoutstoreList" 
+      border 
+      v-loading="loading" 
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
+    >
+      <!-- 添加多选框列 -->
+      <el-table-column type="selection" width="55" align="center" />
+      
+      <el-table-column type="index" label="序号" width="80" />
+      <!-- <el-table-column prop="id" label="ID" width="80" /> -->
       <el-table-column prop="materialno" label="物料编号" width="120" />
       <el-table-column prop="materialname" label="物料名称" width="150" />
       <el-table-column prop="spec" label="规格型号" width="120" />
@@ -79,12 +99,13 @@
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="900px"
+      width="1000px"
       @closed="resetForm"
     >
       <PlinoutstoreForm
         ref="formRef"
         :form-data="form"
+        :edit="isEdit"
         @submit="submitForm"
         @cancel="dialogVisible = false"
       />
@@ -101,7 +122,8 @@ import {
   getPlinoutstoreById, 
   createPlinoutstore, 
   updatePlinoutstore, 
-  deletePlinoutstore 
+  deletePlinoutstore,
+  batchDeletePlinoutstore
 } from '@/api/plmanage/plinoutstore'
 
 // 查询参数
@@ -114,6 +136,7 @@ const queryParams = reactive({
   pageSize: 10
 })
 
+const isEdit = ref(false)
 // 日期范围
 const dateRange = ref([])
 
@@ -121,6 +144,9 @@ const dateRange = ref([])
 const plinoutstoreList = ref([])
 const total = ref(0)
 const loading = ref(false)
+
+// 选中的ID数组
+const selectedIds = ref([])
 
 // 弹窗表单相关
 const dialogVisible = ref(false)
@@ -167,6 +193,38 @@ const form = reactive({
   gouhuounitname: ''
 })
 
+// 处理表格多选
+const handleSelectionChange = (selection) => {
+  selectedIds.value = selection.map(item => item.id)
+}
+
+
+// 批量删除
+const handleBatchDelete = () => {
+  if (selectedIds.value.length === 0) {
+    ElMessage.warning('请至少选择一条记录')
+    return
+  }
+  
+  ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 条记录吗？`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    try {
+      await batchDeletePlinoutstore(selectedIds.value)
+      ElMessage.success('批量删除成功')
+      selectedIds.value = [] // 清空选中
+      getPlinoutstoreListpage()
+    } catch (error) {
+      console.error('批量删除失败', error)
+      // 显示后端返回的错误信息
+      const errorMsg = error.response?.data?.message || '批量删除失败'
+      ElMessage.error(errorMsg)
+    }
+  }).catch(() => {})
+}
+
 // 获取出入库记录列表
 const getPlinoutstoreListpage = async () => {
   loading.value = true
@@ -209,14 +267,12 @@ const handleRefresh = () => {
   queryParams.isin = ''
   dateRange.value = []
   queryParams.pageNumber = 1
+  selectedIds.value = [] // 清空选中
   getPlinoutstoreListpage()
 }
 
 // 重置表单
 const resetForm = () => {
-  if (formRef.value) {
-    formRef.value.resetForm()
-  }
   Object.assign(form, {
     id: undefined,
     materialno: '',
@@ -260,31 +316,23 @@ const resetForm = () => {
 
 // 新增记录
 const handleAdd = () => {
+  isEdit.value = false
   dialogType.value = 'add'
   form.receivedate = new Date().toISOString().split('T')[0] // 默认当天
   dialogVisible.value = true
 }
 
 // 编辑记录
-// 定义异步函数 handleEdit，用于处理编辑操作，接收 row 参数（当前行数据）
 const handleEdit = async (row) => {
-  // 设置对话框类型为 'edit'（编辑模式）
   dialogType.value = 'edit'
-  
+  isEdit.value = true
   try {
-    // 异步调用 API 方法 getPlinoutstoreById，传入当前行的 id 获取详情数据
     const res = await getPlinoutstoreById({ id: row.id })
-    
-    // 将接口返回的数据(res.data.plinoutstore)合并到表单对象 form 中
     Object.assign(form, res.data.plinoutstore)
-    
-    // 显示对话框
     dialogVisible.value = true
-    
   } catch (error) {
-    // 捕获并处理错误
-    console.error('获取记录详情失败', error)  // 打印错误日志
-    ElMessage.error('获取记录详情失败')      // 显示错误提示消息
+    console.error('获取记录详情失败', error)
+    ElMessage.error('获取记录详情失败')
   }
 }
 

@@ -47,10 +47,10 @@ export function deletePlinoutstore(params) {
 
 /**
  * 批量删除出入库记录
- * @param {Object} data - 删除参数
- * @param {Array<number>} data.ids - 出入库记录 ID 数组
+ * @param {Array<number>} ids - 出入库记录ID数组
  * @returns {Promise} - 返回删除结果 Promise
  */
-export function batchDeletePlinoutstore(data) {
-  return del('/plinoutstore/batchDelete', data)
+export function batchDeletePlinoutstore(ids) {
+  const idsString = ids.join(',')
+  return del(`/plinoutstore/batchdelete?ids=${encodeURIComponent(idsString)}`)
 }
