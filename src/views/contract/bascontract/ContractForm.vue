@@ -382,6 +382,8 @@ const isConfirmed = ref(false);
 const form = reactive({
   no: '',
   userid: '',
+  ecpno: '',
+  equipno:'',
   term: currentTerm,
   salesmanid: null,
   salesmanName: '',

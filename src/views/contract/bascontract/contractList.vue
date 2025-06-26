@@ -136,9 +136,8 @@ const handleEdit = (row) => {
 
 const handleCloseContractForm = (success = false) => {
   showContractForm.value = false
-  if (success) {
-    getContractListData()
-  }
+  getContractListData()
+
 }
 
 const handleDelete = (row) => {
