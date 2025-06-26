@@ -23,7 +23,9 @@
     </div>
     
     <el-table :data="hruserList" border v-loading="loading" table-layout="auto">
-      <el-table-column prop="id" label="ID" width="80" />
+      <!-- 序号 -->
+       <el-table-column type="index" label="序号" width="80" />
+      <!-- <el-table-column prop="id" label="ID" width="80" /> -->
       <el-table-column prop="no" label="人员编号" width="120" />
       <el-table-column prop="name" label="人员姓名" width="120" />
       <el-table-column prop="sex" label="性别"  />

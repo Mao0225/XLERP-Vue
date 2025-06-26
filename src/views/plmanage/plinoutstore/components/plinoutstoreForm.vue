@@ -13,7 +13,11 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="物料名称" prop="materialname">
-              <el-input v-model="form.materialname" placeholder="物料名称" clearable size="small" />
+              <el-input v-model="form.materialname" placeholder="点击选择物料" readonly @click="selectProduct">
+                <template #append>
+                  <el-button @click="selectProduct">选择</el-button>
+                </template>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -26,7 +30,7 @@
         <el-row :gutter="16">
           <el-col :span="6">
             <el-form-item label="计量单位" prop="unit">
-              <el-select v-model="form.unit" placeholder="单位" clearable size="small" style="width: 100%">
+              <el-select v-model="form.unit" placeholder="单位" clearable size="small" style="width: 100%" allow-create filterable>
                 <el-option v-for="unit in unitOptions" :key="unit" :label="unit" :value="unit" />
               </el-select>
             </el-form-item>
@@ -286,14 +290,24 @@
       
     </el-form>
   </div>
+
+  <ProductSelector v-model="productSelectorVisible" @select="handleProductSelect" />
+  <CustomerSelector v-model="customerSelectorVisible" @select="handleCustomerSelect" />
+
 </template>
 
 <script>
 import { useTermStore } from '@/store/term.js';
-import { ElMessage } from 'element-plus';
 import { cloneDeep } from 'lodash';
+import ProductSelector from './ProductSelector.vue';
+import CustomerSelector from './CustomerSelector.vue';
 
 export default {
+  components: {
+    ProductSelector,
+    CustomerSelector
+  },
+
   name: 'PlinoutstoreForm',
   props: {
     formData: {
@@ -311,6 +325,8 @@ export default {
   },
   data() {
     return {
+      productSelectorVisible : false,
+      customerSelectorVisible : false,
       form: {}, // Form will be initialized in initFormData
       unitOptions: ['件', '套', '个', '块', '根', '袋', '箱', '捆', '托', '纸箱'],
       storeOptions: ['原材料库', '成品库', '半成品库', '废品库', '其他库'],
@@ -391,6 +407,28 @@ export default {
         pandian: 0, // 默认正常
         memo: ''
       };
+    },
+    
+    selectCustomer () {
+      this.customerSelectorVisible = true;
+    },
+
+    handleCustomerSelect(customer){
+      this.form.customerid = customer.id;
+      this.form.customerName = customer.descr;
+    },
+
+    selectProduct () {
+      this.productSelectorVisible= true;
+    },
+    handleProductSelect(product) {
+      this.form.materialno = product.no;
+      this.form.materialname = product.name;
+      this.form.spec = product.spec;//规格型号
+      this.form.price = product.planned_price;
+      this.form.leibie = product.inclass;
+      this.form.unit = product.unit;
+      this.form.weight = product.weight;
     },
     // 初始化表单数据
     initFormData(data) {

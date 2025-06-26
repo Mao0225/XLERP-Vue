@@ -23,7 +23,9 @@
     </div>
     
     <el-table :data="basItemList" border v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="80" />
+      <!-- 序号 -->
+       <el-table-column type="index" label="序号" width="80" />
+      <!-- <el-table-column prop="id" label="ID" width="80" /> -->
       <el-table-column prop="no" label="物料编号" />
             <el-table-column prop="spec" label="规格型号" />
       <el-table-column prop="name" label="物料名称" />

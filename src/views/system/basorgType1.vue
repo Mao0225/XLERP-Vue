@@ -1,16 +1,11 @@
 <template>
   <div class="basorg-management">
     <div class="action-bar">
-      <el-input v-model="queryParams.no" placeholder="请输入客户编号查询" style="width: 200px; margin-right: 10px;"
+      <el-input v-model="queryParams.no" placeholder="请输入供应商编号查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasOrgList" @keyup.enter="getBasOrgList" />
-      <el-input v-model="queryParams.descr" placeholder="请输入客户名称查询" style="width: 200px; margin-right: 10px;"
+      <el-input v-model="queryParams.descr" placeholder="请输入供应商名称查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasOrgList" @keyup.enter="getBasOrgList" />
-      <el-select v-model="queryParams.type" placeholder="选择客户类型" style="width: 200px; margin-right: 10px;">
-        <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
-      </el-select>
-      <el-select v-model="queryParams.area" placeholder="选择所属区域" style="width: 200px; margin-right: 10px;">
-        <el-option v-for="item in areaOptions" :key="item" :label="item" :value="item" />
-      </el-select>
+
 
       <el-button type="primary" @click="getBasOrgList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
@@ -19,17 +14,17 @@
         </el-icon> 刷新
       </el-button>
 
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增客户</el-button>
+      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增供应商</el-button>
     </div>
     
     <el-table :data="basOrgList" border v-loading="loading" style="width: 100%">
       <el-table-column prop="id" label="ID"  />
-      <el-table-column prop="no" label="客户编号" />
-      <el-table-column prop="descr" label="客户名称" />
+      <el-table-column prop="no" label="供应商编号" />
+      <el-table-column prop="descr" label="供应商名称" />
       <el-table-column prop="contactname" label="联系人" />
       <el-table-column prop="phone" label="联系电话" width="120" />
       <el-table-column prop="email" label="邮箱" width="150" />
-      <el-table-column prop="type" label="客户类型" width="100">
+      <el-table-column prop="type" label="供应商类型" width="100">
         <template #default="{ row }">
           {{ getTypeLabel(row.type) }}
         </template>
@@ -72,21 +67,19 @@
           <el-tab-pane label="基本信息" name="basic">
             <el-row :gutter="20">
               <el-col :span="12">
-                <el-form-item label="客户编号" prop="no">
-                  <el-input v-model="form.no" placeholder="请输入客户编号" />
+                <el-form-item label="供应商编号" prop="no">
+                  <el-input v-model="form.no" placeholder="请输入供应商编号" />
                 </el-form-item>
-                <el-form-item label="客户名称" prop="descr">
-                  <el-input v-model="form.descr" placeholder="请输入客户名称" />
+                <el-form-item label="供应商名称" prop="descr">
+                  <el-input v-model="form.descr" placeholder="请输入供应商名称" />
                 </el-form-item>
-                <el-form-item label="客户类型" prop="type">
-                  <el-select v-model="form.type" placeholder="请选择客户类型">
+                <el-form-item label="客户类型" prop="type" >
+                  <el-select v-model="form.type" placeholder="请选择供应商类型" :disabled="true">
                     <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
                   </el-select>
                 </el-form-item>
                 <el-form-item label="所属区域" prop="area">
-                  <el-select v-model="form.area" placeholder="请选择或输入区域" allow-create filterable>
-                    <el-option v-for="item in areaOptions" :key="item" :label="item" :value="item" />
-                  </el-select>
+                    <el-input v-model="form.area" placeholder="请输入所属区域" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -168,27 +161,16 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBasOrgs, getBasOrgById, createBasOrg, updateBasOrg, deleteBasOrg } from '@/api/system/basorg'
 
-// 客户类型选项
-// 取值1表示供应商,2表示运输商,3表示客户,4表仓库,10表示分厂，11表示分厂中外加工，12表示外协部，20表示部门
+// 供应商类型选项
+//取值1表示供应商,2表示运输商,3表示客户，4表仓库,10表示分厂，11表示分厂中外加工，12表示外协部，20表示部门
 const typeLabelOptions = [
   { id: 1, value: '供应商' },
   { id: 2, value: '运输商' },
   { id: 3, value: '客户' },
-  { id: 4, value: '仓库' },
-  { id: 10, value: '分厂' },
-  { id: 11, value: '分厂中外加工' },
-  { id: 12, value: '外协部' },
-  { id: 20, value: '部门' },
   { id: 99, value: '其他' }
 ]
 
-// 区域选项
-const areaOptions = [
-  '华北地区', '华东地区', '华南地区', '华中地区', '西南地区', 
-  '西北地区', '东北地区', '港澳台地区', '海外地区'
-]
-
-// 获取客户类型标签
+// 获取供应商类型标签
 const getTypeLabel = (type) => {
   const item = typeLabelOptions.find(option => option.id === type)
   return item ? item.value : '未知'
@@ -198,13 +180,12 @@ const getTypeLabel = (type) => {
 const queryParams = reactive({
   no: '',
   descr: '',
-  type: '',
-  area: '',
+  type: 1,
   pageNumber: 1,
   pageSize: 10
 })
 
-// 客户列表数据
+// 供应商列表数据
 const basOrgList = ref([])
 const total = ref(0)
 const loading = ref(false)
@@ -212,7 +193,7 @@ const loading = ref(false)
 // 弹窗表单相关
 const dialogVisible = ref(false)
 const dialogType = ref('add')
-const dialogTitle = computed(() => dialogType.value === 'add' ? '新增客户' : '编辑客户')
+const dialogTitle = computed(() => dialogType.value === 'add' ? '新增供应商' : '编辑供应商')
 const formRef = ref(null)
 const activeTab = ref('basic')
 
@@ -235,7 +216,7 @@ const form = reactive({
   isdelete: 0,
   memo: '',
   status: 0,
-  type: 1,
+  type: 1,//1代表供应商
   contactheadship: '',
   flag: null,
   area: ''
@@ -244,11 +225,11 @@ const form = reactive({
 // 表单验证规则
 const rules = {
   no: [
-    { required: true, message: '请输入客户编号', trigger: 'blur' },
+    { required: true, message: '请输入供应商编号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   descr: [
-    { required: true, message: '请输入客户名称', trigger: 'blur' },
+    { required: true, message: '请输入供应商名称', trigger: 'blur' },
     { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
   ],
   bankcode: [
@@ -291,10 +272,6 @@ const rules = {
   memo: [
     { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
   ],
-  type: [
-    { required: true, message: '请选择客户类型', trigger: 'change' },
-    { type: 'number', message: '请选择有效的客户类型', trigger: ['blur', 'change'] }
-  ],
   contactheadship: [
     { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
   ],
@@ -303,7 +280,7 @@ const rules = {
   ]
 }
 
-// 获取客户列表
+// 获取供应商列表
 const getBasOrgList = async () => {
   loading.value = true
   try {
@@ -311,8 +288,8 @@ const getBasOrgList = async () => {
     basOrgList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
-    console.error('获取客户列表失败', error)
-    ElMessage.error('获取客户列表失败')
+    console.error('获取供应商列表失败', error)
+    ElMessage.error('获取供应商列表失败')
   } finally {
     loading.value = false
   }
@@ -354,7 +331,7 @@ const resetForm = () => {
     isdelete: 0,
     memo: '',
     status: 0,
-    type: 0,
+    type: 1,
     contactheadship: '',
     flag: null,
     area: ''
@@ -366,19 +343,17 @@ const resetForm = () => {
 const handleRefresh = () => {
   queryParams.no = ''
   queryParams.descr = ''
-  queryParams.type = ''
-  queryParams.area = ''
   queryParams.pageNumber = 1
   getBasOrgList()
 }
 
-// 新增客户
+// 新增供应商
 const handleAdd = () => {
   dialogType.value = 'add'
   dialogVisible.value = true
 }
 
-// 编辑客户
+// 编辑供应商
 const handleEdit = async (row) => {
   dialogType.value = 'edit'
   try {
@@ -386,14 +361,14 @@ const handleEdit = async (row) => {
     Object.assign(form, res.data.basOrg)
     dialogVisible.value = true
   } catch (error) {
-    console.error('获取客户详情失败', error)
-    ElMessage.error('获取客户详情失败')
+    console.error('获取供应商详情失败', error)
+    ElMessage.error('获取供应商详情失败')
   }
 }
 
-// 删除客户
+// 删除供应商
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`确认删除客户"${row.no}"吗？`, '提示', {
+  ElMessageBox.confirm(`确认删除供应商"${row.no}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -403,8 +378,8 @@ const handleDelete = (row) => {
       ElMessage.success('删除成功')
       getBasOrgList()
     } catch (error) {
-      console.error('删除客户失败', error)
-      ElMessage.error('删除客户失败')
+      console.error('删除供应商失败', error)
+      ElMessage.error('删除供应商失败')
     }
   }).catch(() => {})
 }
@@ -426,8 +401,8 @@ const submitForm = () => {
         dialogVisible.value = false
         getBasOrgList()
       } catch (error) {
-        console.error('保存客户失败', error)
-        ElMessage.error('保存客户失败')
+        console.error('保存供应商失败', error)
+        ElMessage.error('保存供应商失败')
       }
     }
   })

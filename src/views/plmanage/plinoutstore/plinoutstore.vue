@@ -116,7 +116,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import PlinoutstoreForm from './component/plinoutstoreForm.vue'
+import PlinoutstoreForm from './components/plinoutstoreForm.vue'
 import { 
   getPlinoutstoreList, 
   getPlinoutstoreById, 

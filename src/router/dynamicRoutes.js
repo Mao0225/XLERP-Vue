@@ -17,7 +17,8 @@ const viewComponents = {
   'system/user': () => import('@/views/system/user.vue'),
   'system/menu': () => import('@/views/system/menu.vue'),
   'system/department': () => import('@/views/system/department.vue'),
-  'system/basorg': () => import('@/views/system/basorg.vue'),
+  'system/basorg': () => import('@/views/system/basorg.vue'),//组织管理
+  'system/basorgType1': () => import('@/views/system/basorgType1.vue'),//type=1表示供应商管理
 
 
   //物料管理
@@ -29,16 +30,13 @@ const viewComponents = {
   'tuzhi/tuzhi': () => import('@/views/tuzhi/tuzhi.vue'),
   //人员管理
   'hruser/hruserlist': () => import('@/views/hruser/hruserlist.vue'),
-<<<<<<< Updated upstream
   
   'plmanage/plentityid': () => import('@/views/plmanage/plentityid/plentityid.vue'),
 
   'plmanage/plinoutstore': () => import('@/views/plmanage/plinoutstore/plinoutstore.vue'),
 
-=======
   //通知管理
   'tongzhi/tongzhilist': () => import('@/views/tongzhi/tongzhilist.vue'),
->>>>>>> Stashed changes
   // 可以根据需要添加更多组件映射
 }
 
