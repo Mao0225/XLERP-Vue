@@ -176,6 +176,13 @@
           <el-table-column prop="noticedrawno" label="图纸编号" min-width="50" />
           <el-table-column prop="noticeinstead" label="替代型号" min-width="30" />
           <el-table-column prop="noticename" label="通知名称" min-width="60" />
+          <el-table-column prop="noticeauther" label="作者" min-width="60" />
+          <el-table-column 
+            prop="noticebuilddate" 
+            label="日期" 
+            min-width="60"
+            :formatter="formatDate" 
+          />
           <el-table-column prop="noticecomment" label="通知备注" min-width="60" />
           <el-table-column label="操作" width="100">
             <template #default="scope">
@@ -243,6 +250,25 @@
               <el-input v-model="editForm.noticename" placeholder="通知名称" />
             </el-form-item>
           </el-col>
+          <el-col :span="4">
+            <el-form-item label="通知作者" prop="noticeauther">
+              <el-input v-model="editForm.noticeauther" placeholder="通知作者" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="通知制定日期" prop="noticebuilddate">
+              <el-date-picker
+                v-model="editForm.noticebuilddate"
+                type="date"
+                placeholder="选择日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="12">
           <el-col :span="5">
             <el-form-item label="通知备注" prop="noticecomment">
               <el-input 
@@ -351,7 +377,9 @@ const editForm = reactive({
   noticedrawno: '',
   noticeinstead: '',
   noticename: '',
-  noticecomment: ''
+  noticecomment: '',
+  noticeauther: '',
+  noticebuilddate: ''
 });
 const currentEditIndex = ref(-1); // 当前编辑的产品在列表中的索引
 
@@ -360,7 +388,9 @@ const editRules = {
   noticedrawno: [{ required: true, message: '请选择图纸编号', trigger: 'blur' }],
   noticeinstead: [{ required: true, message: '请输入替代型号', trigger: 'blur' }],
   noticename: [{ required: true, message: '请输入通知名称', trigger: 'blur' }],
-  noticecomment: [{ required: true, message: '请输入通知备注', trigger: 'blur' }]
+  noticecomment: [{ required: true, message: '请输入通知备注', trigger: 'blur' }],
+  noticeauther: [{ required: true, message: '请输入通知作者', trigger: 'blur' }],
+  noticebuilddate: [{ required: true, message: '请选择通知制定日期', trigger: 'change' }]
 };
 
 const calculateTotal = (key, fallbackKey = null) => {
@@ -381,6 +411,18 @@ const rules = {
   customerid: [{ required: true, message: '请选择客户', trigger: 'change' }],
   signdate: [{ required: true, message: '请选择签定时间', trigger: 'change' }],
   term: [{ required: true, message: '请选择合同所属期间', trigger: 'change' }],
+};
+//转换日期
+// 格式化日期为 yyyy-mm-dd 格式
+const formatDate = (row, column, cellValue) => {
+  if (!cellValue) return '';
+  
+  const date = new Date(cellValue);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
 };
 
 const loadContractData = async () => {
@@ -424,6 +466,15 @@ const closeForm = () => {
   emit('close');
 };
 
+// 获取当前日期，格式为YYYY-MM-DD
+const getCurrentDate = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // 打开编辑对话框
 const openEditDialog = (row) => {
   console.log('打开编辑对话框', row);
@@ -440,6 +491,15 @@ const openEditDialog = (row) => {
   // 当通知名称为"N/A"时，设置默认值为工程名称
   if (editForm.noticename === 'N/A') {
     editForm.noticename = form.name;
+  }
+  
+  // 设置通知作者和通知制定日期的默认值
+  if (!editForm.noticeauther) {
+    editForm.noticeauther = ''; // 可根据实际情况设置默认值，例如当前登录用户
+  }
+  
+  if (!editForm.noticebuilddate) {
+    editForm.noticebuilddate = getCurrentDate();
   }
   
   // 记录当前编辑的行索引
@@ -498,8 +558,8 @@ const saveProduct = async () => {
         await updatetuzhiItem(updatedItem);
         
         // 更新成功后，更新本地数据
+        //Object.assign(productList.value[currentEditIndex.value], editForm);
         Object.assign(productList.value[currentEditIndex.value], updatedItem);
-        
         ElMessage.success('产品信息更新成功');
         editDialogVisible.value = false;
       } catch (error) {
@@ -643,4 +703,4 @@ onMounted(() => {
 :deep(.el-dialog) {
   display: block !important;
 }
-</style>
+</style>    
