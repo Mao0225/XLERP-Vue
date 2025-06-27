@@ -490,14 +490,15 @@ const saveProduct = async () => {
         // 准备要更新的数据
         const updatedItem = {
           ...productList.value[currentEditIndex.value],
-          ...editForm
+          ...editForm,
+          noticestatus: 10 // 添加通知状态参数，值为10
         };
         
         // 调用API更新数据
         await updatetuzhiItem(updatedItem);
         
         // 更新成功后，更新本地数据
-        Object.assign(productList.value[currentEditIndex.value], editForm);
+        Object.assign(productList.value[currentEditIndex.value], updatedItem);
         
         ElMessage.success('产品信息更新成功');
         editDialogVisible.value = false;
