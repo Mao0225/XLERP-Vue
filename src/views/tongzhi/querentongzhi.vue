@@ -19,15 +19,15 @@
       <el-table-column prop="noticename" label="通知名称" />
       <el-table-column prop="noticedeliver" label="通知校验人" />
       <el-table-column prop="noticeauther" label="通知作者" />
-      <el-table-column 
-        prop="noticestatus" 
+      <el-table-column
+        prop="noticestatus"
         label="通知状态"
         :formatter="formatNoticeStatus"
       />
       <el-table-column prop="contractno" label="合同编号" />
       <el-table-column prop="contractname" label="合同名称" />
-      <el-table-column 
-        prop="noticebuilddate" 
+      <el-table-column
+        prop="noticebuilddate"
         label="通知创建日期"
         :formatter="formatDate"
       />
@@ -44,15 +44,36 @@
         :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total"
         @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
+
+    <!-- 查看通知详情弹窗 -->
+    <el-dialog
+      v-model="viewNoticeVisible"
+      title="查看通知详情"
+      width="80%"
+      top="5vh"
+      destroy-on-close
+      :before-close="handleViewNoticeClose"
+      append-to-body
+      :modal-append-to-body="true"
+    >
+      <!-- 使用v-if控制组件渲染，确保只有在弹窗显示时才渲染 -->
+      <ChakanTongZhi 
+        v-if="viewNoticeVisible"
+        :noticeid="viewNoticeId"
+        :visible="viewNoticeVisible"
+        @close="handleViewNoticeClose"
+      />
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus'; // 添加 ElMessageBox 导入
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { getQuerenTongzhi, confirmNotice } from '@/api/tongzhi/querentongzhi.js';
 import { useRouter } from 'vue-router';
 import { Refresh } from '@element-plus/icons-vue';
+import ChakanTongZhi from './chakantongzhi.vue'; // 引入查看通知组件
 
 // 查询参数
 const queryParams = reactive({
@@ -69,6 +90,10 @@ const loading = ref(false);
 
 const router = useRouter();
 
+// 查看通知相关状态
+const viewNoticeVisible = ref(false);
+const viewNoticeId = ref('');
+
 // 格式化通知状态
 const formatNoticeStatus = (row, column, cellValue) => {
   const statusMap = {
@@ -83,12 +108,12 @@ const formatNoticeStatus = (row, column, cellValue) => {
 // 格式化日期
 const formatDate = (row, column, cellValue) => {
   if (!cellValue) return '';
-  
+
   const date = new Date(cellValue);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
+
   return `${year}-${month}-${day}`;
 };
 
@@ -143,25 +168,33 @@ const handleRefresh = () => {
 
 // 查看通知
 const handleViewNotice = (row) => {
-  router.push({
-    name: 'chakantongzhi', 
-    query: {
-      noticeid: row.noticeid
-    }
+  // 先设置通知ID
+  viewNoticeId.value = row.noticeid;
+  
+  // 使用nextTick确保DOM更新后再显示弹窗
+  nextTick(() => {
+    viewNoticeVisible.value = true;
   });
+};
+
+// 关闭查看通知弹窗
+const handleViewNoticeClose = () => {
+  viewNoticeVisible.value = false;
+  // 重置通知ID
+  viewNoticeId.value = '';
 };
 
 // 确认通知
 const handleConfirmNotice = async (row) => {
   // 打印 row 对象，用于调试
   console.log('确认通知时的 row 对象:', row);
-  
+
   // 检查 noticeid 是否存在
   if (!row.noticeid) {
     ElMessage.error('通知ID不能为空，请刷新页面重试');
     return;
   }
-  
+
   // 显示确认对话框
   ElMessageBox.confirm(
     `你确定要确认通知吗？通知ID：${row.noticeid}`,
@@ -174,22 +207,21 @@ const handleConfirmNotice = async (row) => {
   )
   .then(async () => {
     // 用户点击确定后执行的代码
-    const tongzhideliver = localStorage.getItem('realName');
-    
+    const noticedeliver = localStorage.getItem('realName');
+
     // 构造请求参数并打印
-    const queryParams = { 
-      noticeid: row.noticeid, 
-      tongzhideliver:tongzhideliver
+    const queryParams = {
+      noticeid: row.noticeid
     };
-    
+
     console.log('确认通知请求参数:', queryParams);
-    
+
     try {
       // 打印请求URL，用于调试
       console.log('确认通知请求URL:', '/tongzhi/querentongzhi');
       console.log('确认通知请求参数:', queryParams);
       const res = await confirmNotice(queryParams);
-      
+
       if (res.success) {
         ElMessage.success(res.msg);
         getQuerenTongzhiList(); // 刷新界面
