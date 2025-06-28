@@ -477,7 +477,8 @@ const getCurrentDate = () => {
 };
 
 // 打开编辑对话框
-const openEditDialog = async (row) => {
+// 打开编辑对话框
+const openEditDialog = (row) => {
   console.log('打开编辑对话框', row);
   
   // 复制数据到编辑表单
@@ -493,11 +494,12 @@ const openEditDialog = async (row) => {
     editForm.noticename = form.name;
   }
   
-  // 从本地存储获取用户信息
-   
+  const userStore = useUserStore()
+  const userDesc = userStore.desc || ''
+  
   // 设置通知作者的默认值
-  if (!editForm.noticeauther || editForm.noticeauther.trim() === '' || editForm.noticeauther === 'N/A') {
-    editForm.noticeauther = localStorage.getItem('realName');
+  if (!editForm.noticeauther || editForm.noticeauther === 'N/A') {
+    editForm.noticeauther = userDesc // 使用用户信息中的desc字段
   }
   
   // 设置通知制定日期的默认值
@@ -512,7 +514,23 @@ const openEditDialog = async (row) => {
   editDialogVisible.value = true;
   
   // 添加日志以确认对话框状态
-  console.log('对话框状态:', editDialogVisible.value); 
+  console.log('对话框状态:', editDialogVisible.value);
+  
+  // 延迟执行，确保DOM更新完成
+  setTimeout(() => {
+    const dialogElement = document.querySelector('.el-dialog');
+    if (dialogElement) {
+      console.log('对话框元素存在');
+    } else {
+      console.log('对话框元素不存在');
+      
+      // 尝试强制显示对话框
+      editDialogVisible.value = false;
+      setTimeout(() => {
+        editDialogVisible.value = true;
+      }, 100);
+    }
+  }, 0);
 };
 
 // 保存产品信息

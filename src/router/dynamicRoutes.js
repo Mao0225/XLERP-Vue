@@ -37,6 +37,10 @@ const viewComponents = {
 
   //通知管理
   'tongzhi/tongzhilist': () => import('@/views/tongzhi/tongzhilist.vue'),
+
+   //通知管理
+   'tongzhi/querentongzhi': () => import('@/views/tongzhi/querentongzhi.vue'),
+   'tongzhi/chakantongzhi': () => import('@/views/tongzhi/chakantongzhi.vue'),
   // 可以根据需要添加更多组件映射
 }
 

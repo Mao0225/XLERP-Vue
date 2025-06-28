@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
   const roles = ref([])
   const permissions = ref([])
   const menuTree = ref([])
+  const descr = ref(localStorage.getItem('descr') || '') // 新增 desc 状态
 
   // 在state部分修改isLoggedIn的初始化
   const isLoggedIn = computed(() => !!token.value) // 改为根据token判断登录状态
@@ -34,12 +35,15 @@ export const useUserStore = defineStore('user', () => {
         userId.value = userData.id.toString()
         username.value = userData.username
         avatar.value = userData.avatar
-        
+        realName.value = userData.descr // 修正为 realName
+        descr.value = userData.descr || '' // 保存 desc 字段
         // 保存token和用户信息到localStorage
         localStorage.setItem('token', authToken)
         localStorage.setItem('userId', userData.id.toString())
         localStorage.setItem('username', userData.username)
         localStorage.setItem('avatar', userData.avatar)
+        localStorage.setItem('realName', userData.descr)
+        localStorage.setItem('descr', descr.value) // 保存 desc 到 localStorage
         
         // Fetch menu tree data after successful login
         await fetchMenuTree(userId.value)
@@ -72,6 +76,7 @@ export const useUserStore = defineStore('user', () => {
       realName.value = userInfo.descr
       localStorage.setItem('realName', userInfo.descr)
     }
+   
   }
   const fetchMenuTree = async (userIdParam) => {
     try {
@@ -125,12 +130,15 @@ export const useUserStore = defineStore('user', () => {
     roles.value = []
     permissions.value = []
     menuTree.value = []
+    descr.value = '' // 清空 desc 状态
     
     // 清除localStorage数据
     localStorage.removeItem('token')
     localStorage.removeItem('userId')
     localStorage.removeItem('username')
     localStorage.removeItem('avatar')
+    localStorage.removeItem('realName')
+    localStorage.removeItem('descr') // 移除 desc 从 localStorage
     
     // 跳转到登录页
     router.push('/login')
@@ -142,6 +150,7 @@ export const useUserStore = defineStore('user', () => {
     const storageUserId = localStorage.getItem('userId')
     const storageUsername = localStorage.getItem('username')
     const storageAvatar = localStorage.getItem('avatar')
+    const storageDescr = localStorage.getItem('descr') // 获取 desc 从 localStorage
     
     if (storageToken && storageUserId) {
       // 恢复用户状态
@@ -149,6 +158,7 @@ export const useUserStore = defineStore('user', () => {
       userId.value = storageUserId
       username.value = storageUsername
       avatar.value = storageAvatar
+      descr.value = storageDescr // 恢复 desc 状态
       
       // 从服务器重新获取最新的菜单数据
       console.log('重新从服务器获取菜单数据...')
@@ -170,7 +180,8 @@ export const useUserStore = defineStore('user', () => {
       realName: realName.value,
       avatar: avatar.value,
       permissions: permissions.value,
-      menuTree: menuTree.value
+      menuTree: menuTree.value,
+      descr: descr.value // 返回 desc 字段
     }
   }
 
@@ -191,6 +202,7 @@ export const useUserStore = defineStore('user', () => {
     roles,
     permissions,
     menuTree,
+    descr, // 导出 desc 状态
     
     // Computed properties
     isLoggedIn,
