@@ -41,7 +41,9 @@ const viewComponents = {
    //确认通知功能
    'tongzhi/querentongzhi': () => import('@/views/tongzhi/querentongzhi.vue'),
     //校验通知功能
-    'tongzhi/jiaoyantongzhi': () => import('@/views/tongzhi/jiaoyantongzhi.vue'),
+   'tongzhi/jiaoyantongzhi': () => import('@/views/tongzhi/jiaoyantongzhi.vue'),
+   //审核通知功能
+   'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
   // 可以根据需要添加更多组件映射
 }
 

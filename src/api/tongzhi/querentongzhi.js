@@ -14,7 +14,7 @@ export function getQuerenTongzhi(params) {
 }
 
 /**
- * 获取分页通知列表
+ * 获取分页通知列表 
  * @param {Object} params - 分页及查询参数
  * @param {number} params.pageNumber - 页码
  * @param {number} params.pageSize - 每页大小
@@ -25,6 +25,20 @@ export function getQuerenTongzhi(params) {
 export function getJiaoYanTongZhi(params) {
   return get('/tongzhi/gettongzhipage', params)
 }
+
+/**
+ * 获取分页通知列表 
+ * @param {Object} params - 分页及查询参数
+ * @param {number} params.pageNumber - 页码
+ * @param {number} params.pageSize - 每页大小
+ * @param {string} params.noticeid - 通知ID
+ * @param {string} params.noticename - 通知名称
+ * @returns {Promise} - 返回通知列表Promise
+ */
+export function getShenHeTongZhi(params) {
+  return get('/tongzhi/gettongzhipage', params)
+}
+
 /**
  * 确认通知
  * @param {Object} params - 确认通知所需参数
@@ -57,11 +71,18 @@ export function unverifyNotice(params) {
   return get('/tongzhi/fanjiaoyantongzhi', params)
 }
 
+/**
+ * 审核通知 
+ * @param {Object} params - 确认通知所需参数
+ * @param {string} params.noticeid - 通知ID
+ * @param {string} params.noticeshenhe - 通知ID
+ * @returns {Promise} - 返回确认通知操作结果的Promise
+ */
 export function shenhenNotice(params) {
   return get('/tongzhi/shenhetongzhi', params)
 }
 /**
- * 确认通知 
+ * 反审核通知 
  * @param {Object} params - 确认通知所需参数
  * @param {string} params.noticeid - 通知ID
  * @returns {Promise} - 返回确认通知操作结果的Promise
