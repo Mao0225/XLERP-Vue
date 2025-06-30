@@ -199,102 +199,97 @@
     </el-form>
 
     <!-- 编辑产品对话框 -->
-<el-dialog v-model="editDialogVisible" title="编辑产品信息" width="80%">
-  <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="80px" size="small">
-    <el-row :gutter="12">
-      <el-col :span="4">
-        <el-form-item label="产品编号" prop="itemNo">
-          <el-input v-model="editForm.itemNo" placeholder="产品编号" readonly />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="产品名称" prop="itemName">
-          <el-input v-model="editForm.itemName" placeholder="产品名称" readonly />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="规格型号" prop="itemSpec">
-          <el-input v-model="editForm.itemSpec" placeholder="规格型号" readonly />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="数量" prop="itemnum">
-          <el-input-number v-model.number="editForm.itemnum" placeholder="数量" :min="1" readonly />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="单位" prop="itemunit">
-          <el-input v-model="editForm.itemunit" placeholder="单位" readonly />
-        </el-form-item>
-      </el-col>
-    </el-row>
-    
-    <el-row :gutter="12">
-      <el-col :span="4">
-        <el-form-item label="通知编号" prop="noticeid">
-          <el-input v-model="editForm.noticeid" placeholder="通知编号" />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="图纸ID" prop="noticetuzhiid">
-          <el-input v-model="editForm.noticetuzhiid" placeholder="图纸ID" readonly />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="图纸编号" prop="noticedrawno">
-          <el-input v-model="editForm.noticedrawno" placeholder="图纸编号" />
-          <el-button type="primary" size="small" @click="openTuzhiDialog">选择图纸</el-button>
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="替代型号" prop="noticeinstead">
-          <el-input v-model="editForm.noticeinstead" placeholder="替代型号" />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="通知名称" prop="noticename">
-          <el-input v-model="editForm.noticename" placeholder="通知名称" />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="通知作者" prop="noticeauther">
-          <el-input v-model="editForm.noticeauther" placeholder="通知作者" />
-        </el-form-item>
-      </el-col>
-      <el-col :span="4">
-        <el-form-item label="通知制定日期" prop="noticebuilddate">
-          <el-date-picker
-            v-model="editForm.noticebuilddate"
-            type="date"
-            placeholder="选择日期"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
-    
-    <el-row :gutter="12">
-      <el-col :span="5">
-        <el-form-item label="通知备注" prop="noticecomment">
-          <el-input 
-            v-model="editForm.noticecomment" 
-            type="textarea" 
-            :rows="3" 
-            placeholder="通知备注" 
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
-  </el-form>
-  
-  <template #footer>
-    <div class="dialog-footer">
-      <el-button @click="editDialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="saveProduct">保存</el-button>
-    </div>
-  </template>
-</el-dialog>
+    <el-dialog v-model="editDialogVisible" title="编辑产品信息" width="80%">
+      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="80px" size="small">
+        <el-row :gutter="12">
+          <el-col :span="4">
+            <el-form-item label="产品编号" prop="itemNo">
+              <el-input v-model="editForm.itemNo" placeholder="产品编号" readonly />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="产品名称" prop="itemName">
+              <el-input v-model="editForm.itemName" placeholder="产品名称" readonly />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="规格型号" prop="itemSpec">
+              <el-input v-model="editForm.itemSpec" placeholder="规格型号" readonly />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="数量" prop="itemnum">
+              <el-input-number v-model.number="editForm.itemnum" placeholder="数量" :min="1" readonly />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="单位" prop="itemunit">
+              <el-input v-model="editForm.itemunit" placeholder="单位" readonly />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="12">
+          <el-col :span="4">
+            <el-form-item label="通知编号" prop="noticeid">
+              <el-input v-model="editForm.noticeid" placeholder="通知编号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="图纸编号" prop="noticedrawno">
+              <el-input v-model="editForm.noticedrawno" placeholder="图纸编号" />
+              <el-button type="primary" size="small" @click="openTuzhiDialog">选择图纸</el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="替代型号" prop="noticeinstead">
+              <el-input v-model="editForm.noticeinstead" placeholder="替代型号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="通知名称" prop="noticename">
+              <el-input v-model="editForm.noticename" placeholder="通知名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="通知作者" prop="noticeauther">
+              <el-input v-model="editForm.noticeauther" placeholder="通知作者" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="通知制定日期" prop="noticebuilddate">
+              <el-date-picker
+                v-model="editForm.noticebuilddate"
+                type="date"
+                placeholder="选择日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="12">
+          <el-col :span="5">
+            <el-form-item label="通知备注" prop="noticecomment">
+              <el-input 
+                v-model="editForm.noticecomment" 
+                type="textarea" 
+                :rows="3" 
+                placeholder="通知备注" 
+              />
+           </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="saveProduct">保存</el-button>
+        </div>
+      </template>
+    </el-dialog>
 
     <!-- 选择图纸对话框 -->
     <el-dialog v-model="tuzhiDialogVisible" title="选择图纸" width="80%">
@@ -579,7 +574,6 @@ const openTuzhiDialog = () => {
 // 处理选择图纸事件
 const handleSelectTuzhi = (tuzhi) => {
   editForm.noticedrawno = tuzhi.tuzhibianhao;
-  editForm.noticetuzhiid = tuzhi.id; // 将选择的图纸id赋值给noticetuzhiid
   tuzhiDialogVisible.value = false;
 };
 

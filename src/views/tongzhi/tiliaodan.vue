@@ -1,7 +1,7 @@
 <template>
     <div class="chakantongzhi">
       <el-table :data="tongzhiDetails" border style="width: 100%">
-        <el-table-column prop="no" label="合同编号" />
+        <el-table-column prop="itemno" label="物料编码" />
         <el-table-column prop="spec" label="规格" />
         <el-table-column prop="itemnum" label="数量" />
         <el-table-column prop="unit" label="单位" />
