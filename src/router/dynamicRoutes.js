@@ -44,8 +44,12 @@ const viewComponents = {
    'tongzhi/jiaoyantongzhi': () => import('@/views/tongzhi/jiaoyantongzhi.vue'),
    //审核通知功能
    'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
-  // 可以根据需要添加更多组件映射
+   //按照审核后通知生成提料单
+   'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
+
 }
+
+  // 可以根据需要添加更多组件映射 tongzhitiliaodan
 
 // 动态导入组件函数 - 使用预定义的映射
 const importComponent = (componentPath) => {

@@ -40,6 +40,19 @@ export function getShenHeTongZhi(params) {
 }
 
 /**
+ * 获取分页通知列表 获取审核后通知，用于制作提料单
+ * @param {Object} params - 分页及查询参数
+ * @param {number} params.pageNumber - 页码
+ * @param {number} params.pageSize - 每页大小
+ * @param {string} params.noticeid - 通知ID
+ * @param {string} params.noticename - 通知名称
+ * @returns {Promise} - 返回通知列表Promise
+ */
+export function getshenhehoutongzhi(params) {
+  return get('/tongzhi/getshenhehoutongzhipage', params)
+}
+
+/**
  * 确认通知
  * @param {Object} params - 确认通知所需参数
  * @param {string} params.noticeid - 通知ID

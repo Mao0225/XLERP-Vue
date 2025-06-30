@@ -1,3 +1,4 @@
+ <!-- 显示通知的功能，显示所有的通知，基于 noticeid，noticename 等公共属性 -->
 <template>
   <div class="contract-management">
     <div class="action-bar">

@@ -1,7 +1,7 @@
 <template>
     <div class="chakantongzhi">
       <el-table :data="tongzhiDetails" border style="width: 100%">
-        <el-table-column prop="itemno" label="产品型号" />
+        <el-table-column prop="no" label="合同编号" />
         <el-table-column prop="spec" label="规格" />
         <el-table-column prop="itemnum" label="数量" />
         <el-table-column prop="unit" label="单位" />
@@ -39,9 +39,9 @@
       <el-dialog v-model="editDialogVisible" title="编辑通知详情">
        
           <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="120px">
-            <el-form-item label="物料编号" prop="itemno">
-            <el-input v-model="editForm.itemno" />
-          </el-form-item>
+            <el-form-item label="合同编号" prop="no">
+              <el-input v-model="editForm.no" />
+            </el-form-item>
             <el-form-item label="规格" prop="spec">
               <el-input v-model="editForm.spec" />
             </el-form-item>

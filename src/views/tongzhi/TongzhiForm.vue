@@ -1,3 +1,4 @@
+<!-- 查看一个通知的详情 -->
 <template>
   <div class="contract-form">
     <!-- 确保 form 数据加载完成后再渲染 -->
