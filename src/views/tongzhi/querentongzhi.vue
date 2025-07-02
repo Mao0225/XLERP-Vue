@@ -13,6 +13,7 @@
       </el-button>
     </div>
 
+
     <el-table :data="querentongzhiList" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="noticeid" label="通知编号" />
@@ -32,7 +33,7 @@
         label="通知创建日期"
         :formatter="formatDate"
       />
-      <el-table-column label="操作" width="320">
+      <el-table-column label="操作" width="420">
         <template #default="{ row }">
           <el-button 
             type="success" 
@@ -47,15 +48,23 @@
             :disabled="row.noticestatus !== '20'"
           >反确认通知</el-button>
           <el-button type="primary" size="small" @click="handleViewNotice(row)">查看通知</el-button>
+          <el-button 
+            type="info" 
+            size="small" 
+            @click="handleViewBeiliaoPlan(row)"
+            :disabled="row.noticestatus === '10'"
+          >查看备料计划</el-button>
         </template>
       </el-table-column>
     </el-table>
+
 
     <div class="pagination-container">
       <el-pagination v-model:current-page="queryParams.pageNumber" v-model:page-size="queryParams.pageSize"
         :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total"
         @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
+
 
     <!-- 查看通知详情弹窗 -->
     <el-dialog
@@ -68,7 +77,6 @@
       append-to-body
       :modal-append-to-body="true"
     >
-      <!-- 使用v-if控制组件渲染，确保只有在弹窗显示时才渲染 -->
       <ChakanTongZhi 
         v-if="viewNoticeVisible"
         :noticeid="viewNoticeId"
@@ -76,8 +84,32 @@
         @close="handleViewNoticeClose"
       />
     </el-dialog>
+
+
+    <!-- 查看备料计划弹窗 -->
+    <el-dialog
+      v-model="viewBeiliaoVisible"
+      title="查看备料计划"
+      width="90%"
+      top="5vh"
+      destroy-on-close
+      :before-close="handleViewBeiliaoClose"
+      append-to-body
+      :modal-append-to-body="true"
+    >
+      <ChakanBeiliaoDan 
+        v-if="viewBeiliaoVisible"
+        :noticeid="viewBeiliaoNoticeId"
+        :noticedrawno="viewBeiliaoNoticeDrawno"
+        :contractno="viewBeiliaoContractNo"
+        :contractname="viewBeiliaoContractName"
+        :visible="viewBeiliaoVisible"
+        @close="handleViewBeiliaoClose"
+      />
+    </el-dialog>
   </div>
 </template>
+
 
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue';
@@ -85,7 +117,9 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { getQuerenTongzhi, confirmNotice, fanConfirmNotice } from '@/api/tongzhi/querentongzhi.js';
 import { useRouter } from 'vue-router';
 import { Refresh } from '@element-plus/icons-vue';
-import ChakanTongZhi from './chakantongzhi.vue'; // 引入查看通知组件
+import ChakanTongZhi from './chakantongzhi.vue'; 
+import ChakanBeiliaoDan from './chakanbeiliaodan.vue'; // 引入查看备料单组件
+
 
 // 查询参数
 const queryParams = reactive({
@@ -95,16 +129,28 @@ const queryParams = reactive({
   pageSize: 10,
 });
 
+
 // 通知列表数据
 const querentongzhiList = ref([]);
 const total = ref(0);
 const loading = ref(false);
 
+
 const router = useRouter();
+
 
 // 查看通知相关状态
 const viewNoticeVisible = ref(false);
 const viewNoticeId = ref('');
+
+
+// 查看备料计划相关状态
+const viewBeiliaoVisible = ref(false);
+const viewBeiliaoNoticeId = ref('');
+const viewBeiliaoNoticeDrawno = ref('');
+const viewBeiliaoContractNo = ref('');
+const viewBeiliaoContractName = ref('');
+
 
 // 格式化通知状态
 const formatNoticeStatus = (row, column, cellValue) => {
@@ -117,17 +163,21 @@ const formatNoticeStatus = (row, column, cellValue) => {
   return statusMap[cellValue] || cellValue;
 };
 
+
 // 格式化日期
 const formatDate = (row, column, cellValue) => {
   if (!cellValue) return '';
+
 
   const date = new Date(cellValue);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
 
+
   return `${year}-${month}-${day}`;
 };
+
 
 // 获取通知列表
 const getQuerenTongzhiList = async () => {
@@ -155,6 +205,7 @@ const getQuerenTongzhiList = async () => {
   }
 };
 
+
 // 处理分页大小变化
 const handleSizeChange = (size) => {
   queryParams.pageSize = size;
@@ -163,12 +214,14 @@ const handleSizeChange = (size) => {
   getQuerenTongzhiList();
 };
 
+
 // 处理当前页变化
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page;
   console.log('当前页变更:', queryParams.pageNumber);
   getQuerenTongzhiList();
 };
+
 
 // 刷新
 const handleRefresh = () => {
@@ -178,42 +231,38 @@ const handleRefresh = () => {
   getQuerenTongzhiList();
 };
 
+
 // 查看通知
 const handleViewNotice = (row) => {
-  // 先设置通知ID
   viewNoticeId.value = row.noticeid;
   
-  // 使用nextTick确保DOM更新后再显示弹窗
   nextTick(() => {
     viewNoticeVisible.value = true;
   });
 };
 
+
 // 关闭查看通知弹窗
 const handleViewNoticeClose = () => {
   viewNoticeVisible.value = false;
-  // 重置通知ID
   viewNoticeId.value = '';
 };
 
+
 // 确认通知
 const handleConfirmNotice = async (row) => {
-  // 打印 row 对象，用于调试
-  console.log('确认通知时的 row 对象:', row);
-
-  // 检查 noticeid 是否存在
   if (!row.noticeid) {
     ElMessage.error('通知ID不能为空，请刷新页面重试');
     return;
   }
 
-  // 检查状态是否为10（录入）
+
   if (row.noticestatus !== '10') {
     ElMessage.warning('只有状态为"录入"的通知才能进行确认操作');
     return;
   }
 
-  // 显示确认对话框
+
   ElMessageBox.confirm(
     `你确定要确认通知吗？通知ID：${row.noticeid}`,
     '确认通知',
@@ -224,25 +273,24 @@ const handleConfirmNotice = async (row) => {
     }
   )
   .then(async () => {
-    // 用户点击确定后执行的代码
     const noticedeliver = localStorage.getItem('realName');
 
-    // 构造请求参数并打印
+
     const queryParams = {
       noticeid: row.noticeid
     };
 
+
     console.log('确认通知请求参数:', queryParams);
 
+
     try {
-      // 打印请求URL，用于调试
-      console.log('确认通知请求URL:', '/tongzhi/querentongzhi');
-      console.log('确认通知请求参数:', queryParams);
       const res = await confirmNotice(queryParams);
+
 
       if (res.success) {
         ElMessage.success(res.msg);
-        getQuerenTongzhiList(); // 刷新界面
+        getQuerenTongzhiList(); 
       } else {
         ElMessage.error(res.msg);
       }
@@ -252,26 +300,25 @@ const handleConfirmNotice = async (row) => {
     }
   })
   .catch(() => {
-    // 用户点击取消后执行的代码
     ElMessage.info('已取消操作');
   });
 };
 
+
 // 反确认通知
 const handleUnconfirmNotice = async (row) => {
-  // 检查 noticeid 是否存在
   if (!row.noticeid) {
     ElMessage.error('通知ID不能为空，请刷新页面重试');
     return;
   }
 
-  // 检查状态是否为20（确认）
+
   if (row.noticestatus !== '20') {
     ElMessage.warning('只有状态为"确认"的通知才能进行反确认操作');
     return;
   }
 
-  // 显示确认对话框
+
   ElMessageBox.confirm(
     `你确定要反确认通知吗？通知ID：${row.noticeid}`,
     '反确认通知',
@@ -283,12 +330,11 @@ const handleUnconfirmNotice = async (row) => {
   )
   .then(async () => {
     try {
-      // 调用反确认通知接口
       const res = await fanConfirmNotice({ noticeid: row.noticeid });
       
       if (res.success) {
         ElMessage.success(res.msg);
-        getQuerenTongzhiList(); // 刷新界面
+        getQuerenTongzhiList(); 
       } else {
         ElMessage.error(res.msg);
       }
@@ -302,21 +348,49 @@ const handleUnconfirmNotice = async (row) => {
   });
 };
 
+
+// 查看备料计划
+const handleViewBeiliaoPlan = (row) => {
+  // 设置备料计划弹窗所需参数
+  viewBeiliaoNoticeId.value = row.noticeid;
+  viewBeiliaoNoticeDrawno.value = row.noticedrawno || '';
+  viewBeiliaoContractNo.value = row.contractno;
+  viewBeiliaoContractName.value = row.contractname;
+  
+  nextTick(() => {
+    viewBeiliaoVisible.value = true;
+  });
+};
+
+
+// 关闭查看备料计划弹窗
+const handleViewBeiliaoClose = () => {
+  viewBeiliaoVisible.value = false;
+  viewBeiliaoNoticeId.value = '';
+  viewBeiliaoNoticeDrawno.value = '';
+  viewBeiliaoContractNo.value = '';
+  viewBeiliaoContractName.value = '';
+};
+
+
 // 页面初始化
 onMounted(() => {
   getQuerenTongzhiList();
 });
 </script>
 
+
 <style scoped>
 .querentongzhi-management {
   padding: 20px;
 }
 
+
 .action-bar {
   display: flex;
   margin-bottom: 20px;
 }
+
 
 .pagination-container {
   margin-top: 20px;

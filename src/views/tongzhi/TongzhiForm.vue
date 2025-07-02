@@ -310,6 +310,8 @@
       <beiliaodan 
         :noticeid="currentNoticeId" 
         :noticedrawno="currentNoticeDrawNo"
+        :contractno="form.no"  
+        :contractname="form.name"  
         @close="beiliaodanDialogVisible = false"
       />
       <template #footer>
@@ -600,12 +602,12 @@ const handleSelectTuzhi = (tuzhi) => {
 // 备料计划相关
 const beiliaodanDialogVisible = ref(false);
 const currentNoticeId = ref('');
-const currentNoticeDrawNo = ref('');
+const currentNoticeDrawNo = ref(''); 
 
 // 打开备料计划对话框
 const openBeiliaodanDialog = (row) => {
   currentNoticeId.value = row.noticeid;
-  currentNoticeDrawNo.value = row.noticedrawno;
+  currentNoticeDrawNo.value = row.noticedrawno; 
   beiliaodanDialogVisible.value = true;
 };
 

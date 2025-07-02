@@ -25,7 +25,13 @@
       </el-row>
     </el-form>
 
-    <el-table :data="beiliaoList" border size="small" style="width: 100%">
+    <el-table 
+      :data="beiliaoList" 
+      border 
+      size="small" 
+      style="width: 100%"
+      :span-method="objectSpanMethod"
+    >
       <!--el-table-column prop="contractno" label="合同编号" />
       <el-table-column prop="contractname" label="工程名称" /-->
       <el-table-column prop="itemno" label="订货产品编码" />
@@ -48,11 +54,11 @@
       <el-table-column prop="bianzhiren" label="编制人" />
       <el-table-column prop="jiaoyanren" label="校验人" />
       <el-table-column prop="shenheren" label="审核人" />
-      <el-table-column label="操作" width="100">
+      <!--el-table-column label="操作" width="100">
         <template #default="scope">
           <el-button size="small" type="primary" @click="openEditDialog(scope.row)">编辑</el-button>
         </template>
-      </el-table-column>
+      </el-table-column-->
     </el-table>
 
     <el-pagination
@@ -215,7 +221,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage, ElLoading } from 'element-plus';
-import { getBeiliaojihuaPage, saveBeiliaojihua } from '@/api/tongzhi/beiliaodan.js';
+import { getbeiliaojihuabynoticepage, saveBeiliaojihua } from '@/api/tongzhi/beiliaodan.js';
 
 const props = defineProps({
   noticeid: {
@@ -252,6 +258,9 @@ const queryParams = reactive({
 const beiliaoList = ref([]);
 const total = ref(0);
 
+// 用于存储合并规则的数组
+const spanArr = ref([]);
+
 // 编辑对话框相关
 const editDialogVisible = ref(false);
 const editForm = reactive({});
@@ -279,6 +288,51 @@ const calculatePlanPickup = () => {
   }
 };
 
+// 处理表格行合并
+const objectSpanMethod = ({ row, column, rowIndex, columnIndex }) => {
+  // 只合并前5列
+  if (columnIndex < 5) {
+    return {
+      rowspan: spanArr.value[rowIndex],
+      colspan: 1
+    };
+  }
+};
+
+// 计算合并规则
+const calculateSpan = () => {
+  // 重置合并规则数组
+  spanArr.value = [];
+  
+  if (!beiliaoList.value || beiliaoList.value.length === 0) return;
+  
+  // 初始化合并规则数组，每个元素表示当前行的前5列应合并的行数
+  beiliaoList.value.forEach(() => {
+    spanArr.value.push(1);
+  });
+  
+  // 计算合并规则
+  for (let i = 0; i < beiliaoList.value.length - 1; i++) {
+    // 如果当前行已被合并，则跳过
+    if (spanArr.value[i] === 0) continue;
+    
+    // 比较当前行与下一行的前5列是否全部相同
+    const isSameGroup = 
+      beiliaoList.value[i].itemno === beiliaoList.value[i+1].itemno &&
+      beiliaoList.value[i].spec === beiliaoList.value[i+1].spec &&
+      beiliaoList.value[i].name === beiliaoList.value[i+1].name &&
+      beiliaoList.value[i].unit === beiliaoList.value[i+1].unit &&
+      beiliaoList.value[i].dinghuotaoshu === beiliaoList.value[i+1].dinghuotaoshu;
+      
+    if (isSameGroup) {
+      // 如果相同，则当前行合并行数+1
+      spanArr.value[i] += 1;
+      // 下一行标记为隐藏
+      spanArr.value[i+1] = 0;
+    }
+  }
+};
+
 // 加载备料计划数据
 const loadBeiliaoData = async () => {
   let loading = null;
@@ -289,10 +343,22 @@ const loadBeiliaoData = async () => {
       background: 'rgba(0, 0, 0, 0.7)'
     });
 
-    const res = await getBeiliaojihuaPage(queryParams);
+    const res = await getbeiliaojihuabynoticepage(queryParams);
     if (res.success) {
       beiliaoList.value = res.data.page.list || [];
+      
+      // 按照前五列排序，确保相同数据连续排列
+      beiliaoList.value.sort((a, b) => {
+        if (a.itemno !== b.itemno) return a.itemno.localeCompare(b.itemno);
+        if (a.spec !== b.spec) return a.spec.localeCompare(b.spec);
+        if (a.name !== b.name) return a.name.localeCompare(b.name);
+        if (a.unit !== b.unit) return a.unit.localeCompare(b.unit);
+        return a.dinghuotaoshu - b.dinghuotaoshu;
+      });
+      
       total.value = res.data.page.totalRow || 0;
+      // 计算合并规则
+      calculateSpan();
     } else {
       ElMessage.error(res.msg || '获取备料计划失败');
     }
@@ -409,4 +475,3 @@ onMounted(() => {
   justify-content: flex-end;
 }
 </style>
-    

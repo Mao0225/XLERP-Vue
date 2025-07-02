@@ -32,7 +32,7 @@
         label="通知创建日期"
         :formatter="formatDate"
       />
-      <el-table-column label="操作" width="320">
+      <el-table-column label="操作" width="420">
         <template #default="{ row }">
           <el-button 
             type="success" 
@@ -47,6 +47,12 @@
             :disabled="row.noticestatus !== '30'"
           >反校验通知</el-button>
           <el-button type="primary" size="small" @click="handleViewNotice(row)">查看通知</el-button>
+          <el-button 
+            type="info" 
+            size="small" 
+            @click="handleViewBeiliaoPlan(row)"
+            :disabled="row.noticestatus !== '30'"
+          >查看备料计划</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -76,6 +82,25 @@
         @close="handleViewNoticeClose"
       />
     </el-dialog>
+
+    <!-- 查看备料计划弹窗 -->
+    <el-dialog
+      v-model="viewBeiliaoVisible"
+      title="查看备料计划"
+      width="90%"
+      top="5vh"
+      destroy-on-close
+      :before-close="handleViewBeiliaoClose"
+      append-to-body
+      :modal-append-to-body="true"
+    >
+      <ChakanBeiliaoJiHua 
+        v-if="viewBeiliaoVisible"
+        :noticeid="viewBeiliaoNoticeId"
+        :visible="viewBeiliaoVisible"
+        @close="handleViewBeiliaoClose"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -86,6 +111,7 @@ import { getJiaoYanTongZhi, verifyNotice, unverifyNotice } from '@/api/tongzhi/q
 import { useRouter } from 'vue-router'; 
 import { Refresh } from '@element-plus/icons-vue';
 import ChakanJiaoYanTongZhi from './chakanjiaoyantongzhi.vue'; // 引入查看校验通知组件
+import ChakanBeiliaoJiHua from './chakanbeiliaodan.vue'; // 引入查看备料计划组件
 
 // 查询参数
 const queryParams = reactive({
@@ -105,6 +131,10 @@ const router = useRouter();
 // 查看通知相关状态
 const viewNoticeVisible = ref(false);
 const viewNoticeId = ref('');
+
+// 查看备料计划相关状态
+const viewBeiliaoVisible = ref(false);
+const viewBeiliaoNoticeId = ref('');
 
 // 格式化通知状态
 const formatNoticeStatus = (row, column, cellValue) => {
@@ -303,6 +333,28 @@ const handleUnverifyNotice = async (row) => {
   });
 };
 
+// 查看备料计划
+const handleViewBeiliaoPlan = (row) => {
+  // 检查状态是否为30（通过校验）
+  if (row.noticestatus !== '30') {
+    ElMessage.warning('只有状态为"通过校验"的通知才能查看备料计划');
+    return;
+  }
+  
+  // 设置备料计划弹窗所需参数
+  viewBeiliaoNoticeId.value = row.noticeid;
+  
+  nextTick(() => {
+    viewBeiliaoVisible.value = true;
+  });
+};
+
+// 关闭查看备料计划弹窗
+const handleViewBeiliaoClose = () => {
+  viewBeiliaoVisible.value = false;
+  viewBeiliaoNoticeId.value = '';
+};
+
 // 页面初始化
 onMounted(() => {
   getJiaoYanTongZhiList();
@@ -323,4 +375,4 @@ onMounted(() => {
   margin-top: 20px;
   text-align: right;
 }
-</style>    
+</style>  
