@@ -30,11 +30,14 @@ const viewComponents = {
   'tuzhi/tuzhi': () => import('@/views/tuzhi/tuzhi.vue'),
   //人员管理
   'hruser/hruserlist': () => import('@/views/hruser/hruserlist.vue'),
-  
+  //实物ID
   'plmanage/plentityid': () => import('@/views/plmanage/plentityid/plentityid.vue'),
-
+  //出入库
   'plmanage/plinoutstore': () => import('@/views/plmanage/plinoutstore/plinoutstore.vue'),
-
+  //生产订单
+  'plmanage/plshengchandingdan': () => import('@/views/plmanage/plshengchandingdan/shengchandingdan.vue'),
+  //生产工单
+  'plmanage/plshengchangongdan': () => import('@/views/plmanage/plshengchangongdan/shengchangongdan.vue'),
   //通知管理
   'tongzhi/tongzhilist': () => import('@/views/tongzhi/tongzhilist.vue'),
 
