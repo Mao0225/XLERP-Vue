@@ -2,17 +2,10 @@
   <div class="production-workorder-management">
     <!-- 操作栏 -->
     <div class="action-bar">
-      <el-input v-model="queryParams.purchaserHqCode" placeholder="请输入采购方总部编码查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getWorkorderList" @keyup.enter="getWorkorderList" />
       <el-input v-model="queryParams.ipoNo" placeholder="请输入供应商生产订单序号查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getWorkorderList" @keyup.enter="getWorkorderList" />
-      <el-input v-model="queryParams.supplierName" placeholder="请输入供应商名称查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getWorkorderList" @keyup.enter="getWorkorderList" />
       <el-input v-model="queryParams.woNo" placeholder="请输入生产工单编码查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getWorkorderList" @keyup.enter="getWorkorderList" />
-      <el-select v-model="queryParams.woStatus" placeholder="选择工单状态" style="width: 200px; margin-right: 10px;">
-        <el-option v-for="item in statusOptions" :key="item.id" :label="item.value" :value="item.id" />
-      </el-select>
 
       <el-button type="primary" @click="getWorkorderList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
@@ -29,14 +22,14 @@
       <!-- 序号 -->
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="purchaserHqCode" label="采购方总部编码" />
-      <el-table-column prop="ipoNo" label="供应商生产订单序号" />
-      <el-table-column prop="supplierName" label="供应商名称" />
+      <el-table-column prop="ipoNo" label="生产订单号" />
+      <!-- <el-table-column prop="supplierName" label="供应商名称" /> -->
       <el-table-column prop="woNo" label="生产工单编码" />
-      <el-table-column prop="categoryCode" label="品类编码" />
-      <el-table-column prop="subclassCode" label="种类编码" />
-      <el-table-column prop="materialsCode" label="厂家物料编码" />
-      <el-table-column prop="amount" label="生产数量" />
-      <el-table-column prop="unit" label="计量单位" />
+      <!-- <el-table-column prop="categoryCode" label="品类编码" /> -->
+      <!-- <el-table-column prop="subclassCode" label="种类编码" /> -->
+      <!-- <el-table-column prop="materialsCode" label="厂家物料编码" /> -->
+      <!-- <el-table-column prop="amount" label="生产数量" /> -->
+      <!-- <el-table-column prop="unit" label="计量单位" /> -->
       <el-table-column prop="planStartDate" label="计划开始日期" width="180">
         <template #default="{ row }">
           {{ formatDate(row.planStartDate) }}
@@ -58,7 +51,7 @@
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
           <!-- 新增批量操作按钮 -->
-          <el-button type="danger" size="small" @click="handleBatchDelete([row.id])">批量删除</el-button>
+          <!-- <el-button type="danger" size="small" @click="handleBatchDelete([row.id])">批量删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -124,11 +117,8 @@ const formatDate = (date) => {
 
 // 查询参数
 const queryParams = reactive({
-  purchaserHqCode: '',
   ipoNo: '',
-  supplierName: '',
   woNo: '',
-  woStatus: '',
   pageNumber: 1,
   pageSize: 10
 })
@@ -148,10 +138,9 @@ const getWorkorderList = async () => {
   loading.value = true
   try {
     const res = await getPlshengchangongdanList(queryParams)
-    // 假设接口返回格式为 {rows: list, total: total}
-    // 这里根据实际接口返回数据结构调整
-    workorderList.value = res.data || []
-    total.value = res.total || 0
+
+    workorderList.value = res.data.page.list
+    total.value = res.data.page.totalRow
   } catch (error) {
     console.error('获取生产工单列表失败', error)
     ElMessage.error('获取生产工单列表失败')
@@ -174,11 +163,8 @@ const handleCurrentChange = (page) => {
 
 // 刷新
 const handleRefresh = () => {
-  queryParams.purchaserHqCode = ''
   queryParams.ipoNo = ''
-  queryParams.supplierName = ''
   queryParams.woNo = ''
-  queryParams.woStatus = ''
   queryParams.pageNumber = 1
   getWorkorderList()
 }

@@ -2,306 +2,234 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="1200px"
+    width="1400px"
     @closed="resetForm"
   >
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" size="small">
-      <!-- 基本信息 -->
-      <div class="form-section">
-        <div class="section-title">基本信息</div>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="采购方总部编码" prop="purchaserHqCode">
-              <el-input v-model="form.purchaserHqCode" placeholder="请输入采购方总部编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="订单类型" prop="ipoType">
-              <el-select v-model="form.ipoType" placeholder="请选择订单类型" style="width: 100%">
-                <el-option v-for="item in typeOptions" :key="item.id" :label="item.value" :value="item.id" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="生产订单号" prop="ipoNo">
-              <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+    <!-- 生产订单信息区域 -->
+    <div class="order-section">
+      <div class="section-header">
+        <h3>生产订单信息</h3>
+        <el-button type="primary" @click="saveOrderInfo" :loading="orderSaving">
+          保存订单信息
+        </el-button>
+      </div>
+      
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" size="small">
+        <!-- 基本信息 -->
+        <div class="form-section">
+          <div class="section-title">基本信息</div>
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item label="采购方总部编码" prop="purchaserHqCode">
+                <el-input v-model="form.purchaserHqCode" placeholder="请输入采购方总部编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="订单类型" prop="ipoType">
+                <el-select v-model="form.ipoType" placeholder="请选择订单类型" style="width: 100%">
+                  <el-option v-for="item in typeOptions" :key="item.id" :label="item.value" :value="item.id" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="生产订单号" prop="ipoNo">
+                <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" readonly  />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+
+        <!-- 供应商信息 -->
+        <div class="form-section">
+          <div class="section-title">供应商信息</div>
+          <el-row :gutter="10">
+            <el-col :span="12">
+              <el-form-item label="供应商编码" prop="supplierCode">
+                <el-input disabled v-model="form.supplierCode" placeholder="请输入供应商编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="供应商名称" prop="supplierName">
+                <el-input disabled v-model="form.supplierName" placeholder="请输入供应商名称" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="10">
+            <el-col :span="12">
+              <el-form-item label="合同编号" prop="contractNo">
+                <el-input 
+                  v-model="form.contractNo" 
+                  placeholder="选择合同编号" 
+                  readonly 
+                  @click.stop="openContractSelector"
+                >
+                  <template #append>
+                    <el-button @click="openContractSelector" size="small">选择</el-button>
+                  </template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="合同名称" prop="contractName">
+                <el-input 
+                  disabled
+                  v-model="form.contractName" 
+                  placeholder="合同名称" 
+                  readonly 
+                  :class="{ 'has-select': !!form.contractNo }"
+                  @click.stop
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+
+        <!-- 其他基本信息 -->
+        <div class="form-section">
+          <div class="section-title">其他信息</div>
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item label="品类编码" prop="categoryCode">
+                <el-input v-model="form.categoryCode" placeholder="请输入品类编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="种类编码" prop="subclassCode">
+                <el-input v-model="form.subclassCode" placeholder="请输入种类编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="生产订单状态" prop="ipoStatus">
+                <el-select v-model="form.ipoStatus" placeholder="请选择生产订单状态" style="width: 100%">
+                  <el-option v-for="item in statusOptions" :key="item.id" :label="item.value" :value="item.id" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <!-- 时间计划 -->
+          <el-row :gutter="10">
+            <el-col :span="6">
+              <el-form-item label="计划开始日期" prop="planStartDate">
+                <el-date-picker
+                  v-model="form.planStartDate"
+                  type="date"
+                  placeholder="选择计划开始日期"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="计划完成日期" prop="planFinishDate">
+                <el-date-picker
+                  v-model="form.planFinishDate"
+                  type="date"
+                  placeholder="选择计划完成日期"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="实际开始日期" prop="actualStartDate">
+                <el-date-picker
+                  v-model="form.actualStartDate"
+                  type="date"
+                  placeholder="选择实际开始日期"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="实际完成日期" prop="actualFinishDate">
+                <el-date-picker
+                  v-model="form.actualFinishDate"
+                  type="date"
+                  placeholder="选择实际完成日期"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+      </el-form>
+    </div>
+
+    <!-- 物料信息区域 -->
+    <div class="material-section">
+      <div class="section-header">
+        <h3>物料信息</h3>
+        <!-- 提示要先保存才能添加物料 -->
+         <el-tooltip content="请先保存" placement="top"></el-tooltip>
+        <el-button 
+          type="success" 
+          @click="openMaterialSelector" 
+          :disabled="!form.contractNo || !form.ipoNo"
+        >
+          添加物料
+        </el-button>
       </div>
 
-      <!-- 供应商信息 -->
-      <div class="form-section">
-        <div class="section-title">供应商信息</div>
-        <el-row :gutter="10">
-          <el-col :span="12">
-            <el-form-item label="供应商编码" prop="supplierCode">
-              <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="供应商名称" prop="supplierName">
-              <el-input v-model="form.supplierName" placeholder="请输入供应商名称" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </div>
+      <!-- 物料列表 -->
+      <el-table :data="materialList" border size="small" style="width: 100%">
+        <el-table-column prop="itemname" label="物料名称" min-width="120" />
+        <el-table-column prop="productModel" label="规格型号" width="100" />
+        <el-table-column prop="amount" label="数量" width="80" />
+        <el-table-column prop="unit" label="单位" width="80" />
+        <el-table-column prop="workshopName" label="生产车间" min-width="150" />
+        <el-table-column prop="memo" label="备注" min-width="120" />
+        <el-table-column label="操作" width="160">
+          <template #default="{ row }">
+            <!-- <el-button type="primary" size="small" @click="editMaterial(row)">编辑</el-button> -->
+            <el-button type="danger" size="small" @click="deleteMaterial(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-      <!-- 物料信息 -->
-      <div class="form-section">
-        <div class="section-title">物料信息</div>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="品类编码" prop="categoryCode">
-              <el-input v-model="form.categoryCode" placeholder="请输入品类编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="种类编码" prop="subclassCode">
-              <el-input v-model="form.subclassCode" placeholder="请输入种类编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="厂家物料编码" prop="materialsCode">
-              <el-input v-model="form.materialsCode" placeholder="请输入厂家物料编码" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="厂家物料名称" prop="materialsName">
-              <el-input v-model="form.materialsName" placeholder="请输入厂家物料名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="厂家物资单位" prop="materialsUnit">
-              <el-input v-model="form.materialsUnit" placeholder="请输入厂家物资单位" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="厂家物料描述" prop="materialsDesc">
-              <el-input v-model="form.materialsDesc" placeholder="请输入厂家物料描述" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <div v-if="materialList.length === 0" class="empty-material">
+        <p>暂无物料信息，请先保存订单信息后添加物料</p>
       </div>
-
-      <!-- 生产信息 -->
-      <div class="form-section">
-        <div class="section-title">生产信息</div>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="生产数量" prop="amount">
-              <el-input v-model.number="form.amount" placeholder="请输入生产数量" type="number" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="计量单位" prop="unit">
-              <el-input v-model="form.unit" placeholder="请输入计量单位" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="生产订单状态" prop="ipoStatus">
-              <el-select v-model="form.ipoStatus" placeholder="请选择生产订单状态" style="width: 100%">
-                <el-option v-for="item in statusOptions" :key="item.id" :label="item.value" :value="item.id" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="生产工厂名称" prop="plantName">
-              <el-input v-model="form.plantName" placeholder="请输入生产工厂名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="生产车间名称" prop="workshopName">
-              <el-input v-model="form.workshopName" placeholder="请输入生产车间名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="生产中心" prop="center">
-              <el-input v-model="form.center" placeholder="请输入生产中心" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </div>
-
-      <!-- 时间计划 -->
-      <div class="form-section">
-        <div class="section-title">时间计划</div>
-        <el-row :gutter="10">
-          <el-col :span="6">
-            <el-form-item label="计划开始日期" prop="planStartDate">
-              <el-date-picker
-                v-model="form.planStartDate"
-                type="date"
-                placeholder="选择计划开始日期"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="计划完成日期" prop="planFinishDate">
-              <el-date-picker
-                v-model="form.planFinishDate"
-                type="date"
-                placeholder="选择计划完成日期"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="实际开始日期" prop="actualStartDate">
-              <el-date-picker
-                v-model="form.actualStartDate"
-                type="date"
-                placeholder="选择实际开始日期"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="实际完成日期" prop="actualFinishDate">
-              <el-date-picker
-                v-model="form.actualFinishDate"
-                type="date"
-                placeholder="选择实际完成日期"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </div>
-
-      <!-- 扩展信息 -->
-      <div class="form-section">
-        <div class="section-title">扩展信息</div>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="排产计划编码" prop="scheduleCode">
-              <el-input v-model="form.scheduleCode" placeholder="请输入排产计划编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="采购订单行项目ID" prop="poItemId">
-              <el-input v-model.number="form.poItemId" placeholder="请输入采购订单行项目ID" type="number" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="数据关联类型" prop="dataType">
-              <el-input v-model.number="form.dataType" placeholder="请输入数据关联类型" type="number" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="销售订单行项目号" prop="soItemNo">
-              <el-input v-model.number="form.soItemNo" placeholder="请输入销售订单行项目号" type="number" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="物资ID分组" prop="productIdGrpNo">
-              <el-input v-model="form.productIdGrpNo" placeholder="请输入物资ID分组" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="物资ID类型" prop="productIdType">
-              <el-input v-model="form.productIdType" placeholder="请输入物资ID类型" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="10">
-          <el-col :span="8">
-            <el-form-item label="产品型号" prop="productModel">
-              <el-input v-model="form.productModel" placeholder="请输入产品型号" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="数据来源" prop="dataSource">
-              <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
-              <el-date-picker
-                v-model="form.dataSourceCreateTime"
-                type="datetime"
-                placeholder="选择来源数据创建时间"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="10">
-          <el-col :span="12">
-            <el-form-item label="数据拥有方" prop="ownerId">
-              <el-input v-model="form.ownerId" placeholder="请输入数据拥有方" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="数据可见方" prop="openId">
-              <el-input v-model="form.openId" placeholder="请输入数据可见方" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </div>
-    </el-form>
+    </div>
     
+    <!-- 合同选择器组件 -->
+    <ContractSelector
+      v-model:modelValue="contractSelectorVisible"
+      :onSelect="handleContractSelect"
+    />
+
+    <!-- 物料选择组件 -->
+    <MaterialSelector
+      v-model:modelValue="materialSelectorVisible"
+      :contractNo="form.contractNo"
+      :ipoNo="form.ipoNo"
+      :onSelect="handleMaterialSelect"
+    />
+
     <template #footer>
-      <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="submitForm">确定</el-button>
+      <el-button @click="handleCancel">关闭</el-button>
     </template>
   </el-dialog>
 </template>
 
-
-<style scoped>
-/* 简化后的样式 */
-.form-section {
-  margin-bottom: 5px; /* 减少底部间距 */
-  padding: 8px;       /* 减少内边距 */
-}
-
-.section-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 8px; /* 减少标题底部间距 */
-  border-bottom: none; /* 去掉底部边框 */
-}
-
-/* 去掉标题的伪元素装饰 */
-.section-title::before {
-  display: none;
-}
-
-/* 调整表单项间距 */
-:deep(.el-form-item) {
-  margin-bottom: 8px; /* 减少表单项底部间距 */
-}
-
-/* 简化输入框样式 */
-:deep(.el-input__inner),
-:deep(.el-textarea__inner),
-:deep(.el-select .el-input__inner) {
-  border-radius: 4px;
-  height: 30px; /* 稍减小高度 */
-}
-
-/* 统一字体和颜色 */
-:deep(.el-form-item__label) {
-  font-weight: 400; /* 降低标题字体权重 */
-  color: #666;
-  font-size: 13px;
-}
-</style>
-
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { createPlshengchandingdan, updatePlshengchandingdan } from '@/api/plmanage/plshengchandingdan'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { 
+  createPlshengchandingdan, 
+  updatePlshengchandingdan,
+  getDingdanItemList,
+  deleteDingdanItem
+} from '@/api/plmanage/plshengchandingdan'
+import ContractSelector from './components/ContractSelector.vue'
+import MaterialSelector from './components/ContracItemSelect.vue'
+import { useUserStore } from '@/store/user'
 
+const userStore = useUserStore()
+
+const getWriterName = () =>{
+  console.log("获取登录用户名称",userStore.descr)
+  return userStore.descr
+}
 // Props
 const props = defineProps({
   visible: {
@@ -350,6 +278,28 @@ const dialogTitle = computed(() => props.type === 'add' ? '新增生产订单' :
 // 表单引用
 const formRef = ref(null)
 
+// 合同选择器显示状态
+const contractSelectorVisible = ref(false)
+// 物料选择器显示状态
+const materialSelectorVisible = ref(false)
+
+// 订单保存状态
+const orderSaving = ref(false)
+
+// 物料列表
+const materialList = ref([])
+// 生成生产订单号
+const generateIpoNo = () => {
+  const now = new Date()
+  const timestamp = now.getFullYear() + 
+    String(now.getMonth() + 1).padStart(2, '0') + 
+    String(now.getDate()).padStart(2, '0') + 
+    String(now.getHours()).padStart(2, '0') + 
+    String(now.getMinutes()).padStart(2, '0') + 
+    String(now.getSeconds()).padStart(2, '0')
+  
+  return `SCDD${timestamp}`
+}
 // 表单数据
 const form = reactive({
   id: undefined,
@@ -357,9 +307,9 @@ const form = reactive({
   ipoType: 2, // 默认生产订单
   supplierCode: '1000014491', // 默认供应商编码
   supplierName: '中国电建集团四平线路器材有限公司', // 默认供应商名称
-  ipoNo: '',
+   ipoNo: generateIpoNo(), 
   categoryCode: '60', // 默认品类编码
-  subclassCode: '',
+  subclassCode: '60004',
   scheduleCode: '',
   poItemId: undefined,
   dataType: undefined,
@@ -384,7 +334,10 @@ const form = reactive({
   dataSource: '',
   dataSourceCreateTime: '',
   ownerId: '',
-  openId: ''
+  openId: '',
+  contractNo: '',    // 合同编号
+  contractName: '',  // 合同名称
+  writer:getWriterName() //获取登录用户名称
 })
 
 // 表单验证规则
@@ -413,50 +366,8 @@ const rules = {
     { required: true, message: '请输入品类编码', trigger: 'blur' },
     { max: 10, message: '长度不能超过10个字符', trigger: 'blur' }
   ],
-  subclassCode: [
-    { required: true, message: '请输入种类编码', trigger: 'blur' },
-    { max: 10, message: '长度不能超过10个字符', trigger: 'blur' }
-  ],
-  poItemId: [
-    { required: true, message: '请输入采购订单行项目ID', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change'] }
-  ],
-  materialsCode: [
-    { required: true, message: '请输入厂家物料编码', trigger: 'blur' },
-    { max: 48, message: '长度不能超过48个字符', trigger: 'blur' }
-  ],
-  materialsName: [
-    { required: true, message: '请输入厂家物料名称', trigger: 'blur' },
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
-  materialsUnit: [
-    { required: true, message: '请输入厂家物资单位', trigger: 'blur' },
-    { max: 10, message: '长度不能超过10个字符', trigger: 'blur' }
-  ],
-  materialsDesc: [
-    { required: true, message: '请输入厂家物料描述', trigger: 'blur' },
-    { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
-  ],
-  amount: [
-    { required: true, message: '请输入生产数量', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change'] }
-  ],
-  unit: [
-    { required: true, message: '请输入计量单位', trigger: 'blur' },
-    { max: 10, message: '长度不能超过10个字符', trigger: 'blur' }
-  ],
-  planStartDate: [
-    { required: true, message: '请选择计划开始日期', trigger: 'change' }
-  ],
-  planFinishDate: [
-    { required: true, message: '请选择计划完成日期', trigger: 'change' }
-  ],
-  dataSource: [
-    { required: true, message: '请输入数据来源', trigger: 'blur' },
-    { max: 60, message: '长度不能超过60个字符', trigger: 'blur' }
-  ],
-  dataSourceCreateTime: [
-    { required: true, message: '请选择来源数据创建时间', trigger: 'change' }
+  contractNo: [
+    { required: true, message: '请选择合同编号', trigger: 'blur' }
   ]
 }
 
@@ -481,6 +392,11 @@ watch(() => props.formData, (newData) => {
       processedData.dataSourceCreateTime = new Date(processedData.dataSourceCreateTime)
     }
     Object.assign(form, processedData)
+    
+    // 如果是编辑模式且有订单号，加载物料列表
+    if (props.type === 'edit' && form.ipoNo) {
+      loadMaterialList()
+    }
   }
 }, { immediate: true, deep: true })
 
@@ -492,12 +408,12 @@ const resetForm = () => {
   Object.assign(form, {
     id: undefined,
     purchaserHqCode: '',
-    ipoType: 2, // 默认生产订单
-    supplierCode: '1000014491', // 默认供应商编码
-    supplierName: '中国电建集团四平线路器材有限公司', // 默认供应商名称
-    ipoNo: '',
-    categoryCode: '60', // 默认品类编码
-    subclassCode: '',
+    ipoType: 2,
+    supplierCode: '1000014491',
+    supplierName: '中国电建集团四平线路器材有限公司',
+     ipoNo: generateIpoNo(), 
+    categoryCode: '60',
+    subclassCode: '60004',
     scheduleCode: '',
     poItemId: undefined,
     dataType: undefined,
@@ -517,39 +433,209 @@ const resetForm = () => {
     actualFinishDate: '',
     plantName: '',
     workshopName: '',
-    ipoStatus: 1, // 默认待处理
+    ipoStatus: 1,
     center: '',
     dataSource: '',
     dataSourceCreateTime: '',
     ownerId: '',
-    openId: ''
+    openId: '',
+    contractNo: '',
+    contractName: '',
+    writer:getWriterName() //获取登录用户名称
+
   })
+  materialList.value = []
 }
 
-// 提交表单
-const submitForm = () => {
+// 打开合同选择器
+const openContractSelector = (e) => {
+  e.stopPropagation() // 阻止事件冒泡
+  contractSelectorVisible.value = true
+}
+
+// 打开物料选择器
+const openMaterialSelector = (e) => {
+  e.stopPropagation()
+  if (!form.contractNo) {
+    ElMessage.error('请先选择合同！')
+    return
+  }
+  if (!form.ipoNo) {
+    ElMessage.error('请先保存订单信息！')
+    return
+  }
+  materialSelectorVisible.value = true
+}
+
+// 处理合同选择
+const handleContractSelect = (contract) => {
+  if (contract) {
+    form.contractNo = contract.no // 填充合同编号
+    form.contractName = contract.name // 填充合同名称
+  }
+  contractSelectorVisible.value = false
+}
+
+// 处理物料选择
+const handleMaterialSelect = (materials) => {
+  materialSelectorVisible.value = false
+  // 刷新物料列表
+  loadMaterialList()
+}
+
+// 保存订单信息
+const saveOrderInfo = () => {
   if (!formRef.value) return
   
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        orderSaving.value = true
+        // 移除合同名称字段（根据需求，合同名称不存储）
+        const formData = { ...form }
+        delete formData.contractName
+        
         if (props.type === 'add') {
-          await createPlshengchandingdan(form)
+          await createPlshengchandingdan(formData)
+          ElMessage.success('订单信息保存成功')
         } else {
-          await updatePlshengchandingdan(form)
+          await updatePlshengchandingdan(formData)
+          ElMessage.success('订单信息更新成功')
         }
-        emit('submit')
       } catch (error) {
         console.error('保存生产订单失败', error)
         ElMessage.error('保存生产订单失败')
+      } finally {
+        orderSaving.value = false
       }
     }
   })
+}
+
+// 加载物料列表
+const loadMaterialList = async () => {
+  if (!form.ipoNo) return
+  
+  try {
+    const res = await getDingdanItemList({ ipoNo: form.ipoNo })
+    materialList.value = res.data.itemList || []
+  } catch (error) {
+    console.error('加载物料列表失败', error)
+    ElMessage.error('加载物料列表失败')
+  }
+}
+
+// 编辑物料
+const editMaterial = (material) => {
+  // 这里可以实现物料编辑功能
+  ElMessage.info('物料编辑功能待实现')
+}
+
+// 删除物料
+const deleteMaterial = async (material) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这个物料吗？', '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    await deleteDingdanItem({ id: material.id })
+    ElMessage.success('删除成功')
+    loadMaterialList() // 刷新列表
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除物料失败', error)
+      ElMessage.error('删除物料失败')
+    }
+  }
 }
 
 // 取消按钮处理
 const handleCancel = () => {
   emit('cancel')
 }
-
 </script>
+
+<style scoped>
+.order-section,
+.material-section {
+  margin-bottom: 20px;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.form-section {
+  margin-bottom: 0px;
+  padding: 0px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 8px;
+}
+
+:deep(.el-input__inner),
+:deep(.el-textarea__inner),
+:deep(.el-select .el-input__inner) {
+  border-radius: 4px;
+  height: 30px;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 400;
+  color: #666;
+  font-size: 13px;
+}
+
+.has-select {
+  border-right: 1px solid #dcdfe6;
+  background-color: #f5f7fa;
+}
+
+:deep(.el-input--append .el-input__inner) {
+  padding-right: 80px;
+}
+
+:deep(.el-input__append) {
+  background-color: #fff;
+  border-left: 1px solid #dcdfe6;
+}
+
+:deep(.el-input__append .el-button) {
+  border-radius: 0 4px 4px 0;
+  height: 30px;
+  padding: 0 10px;
+  margin: 0;
+}
+
+.empty-material {
+  text-align: center;
+  padding: 40px 0;
+  color: #909399;
+  font-size: 14px;
+}
+</style>

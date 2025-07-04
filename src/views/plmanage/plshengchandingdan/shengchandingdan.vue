@@ -4,13 +4,6 @@
     <div class="action-bar">
       <el-input v-model="queryParams.ipoNo" placeholder="请输入生产订单号查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getPlshengchandingdanList" @keyup.enter="getshengchandingdanList" />
-      <el-input v-model="queryParams.supplierName" placeholder="请输入供应商名称查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getPlshengchandingdanList" @keyup.enter="getshengchandingdanList" />
-      <el-input v-model="queryParams.materialsName" placeholder="请输入物料名称查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getPlshengchandingdanList" @keyup.enter="getshengchandingdanList" />
-      <el-select v-model="queryParams.ipoStatus" placeholder="选择订单状态" style="width: 200px; margin-right: 10px;">
-        <el-option v-for="item in statusOptions" :key="item.id" :label="item.value" :value="item.id" />
-      </el-select>
 
       <el-button type="primary" @click="getshengchandingdanList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
@@ -27,10 +20,10 @@
       <!-- 序号 -->
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="ipoNo" label="生产订单号" />
-      <el-table-column prop="supplierName" label="供应商名称" />
-      <el-table-column prop="materialsName" label="物料名称" />
-      <el-table-column prop="amount" label="生产数量" />
-      <el-table-column prop="unit" label="计量单位" />
+      <!-- 合同编号 -->
+       <el-table-column prop="contractNo" label="合同编号" />
+       <el-table-column prop="contractName" label="合同名称" />
+       <!-- <el-table-column prop="supplierName" label="供应商名称" /> -->
       <el-table-column prop="planStartDate" label="计划开始日期" width="180">
         <template #default="{ row }">
           {{ formatDate(row.planStartDate) }}
@@ -46,7 +39,10 @@
           {{ getStatusLabel(row.ipoStatus) }}
         </template>
       </el-table-column>
-      <el-table-column prop="dataSource" label="数据来源" />
+       <el-table-column prop="writer" label="录入人名称" width="100" />
+       <el-table-column prop="writetime" label="录入时间" width="120"></el-table-column>
+
+      <!-- <el-table-column prop="dataSource" label="数据来源" /> -->
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
@@ -73,14 +69,13 @@
       v-model:visible="dialogVisible"
       :type="dialogType"
       :form-data="formData"
-      @submit="handleFormSubmit"
       @cancel="handleFormCancel"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPlshengchandingdanList, getPlshengchandingdanById, deletePlshengchandingdan } from '@/api/plmanage/plshengchandingdan'
 import ProductionOrderForm from './shengchandingdanForm.vue'
@@ -110,9 +105,6 @@ const formatDate = (date) => {
 // 查询参数
 const queryParams = reactive({
   ipoNo: '',
-  supplierName: '',
-  materialsName: '',
-  ipoStatus: '',
   pageNumber: 1,
   pageSize: 10
 })
@@ -157,9 +149,6 @@ const handleCurrentChange = (page) => {
 // 刷新
 const handleRefresh = () => {
   queryParams.ipoNo = ''
-  queryParams.supplierName = ''
-  queryParams.materialsName = ''
-  queryParams.ipoStatus = ''
   queryParams.pageNumber = 1
   getshengchandingdanList()
 }
@@ -197,17 +186,18 @@ const handleDelete = (row) => {
   }).catch(() => {})
 }
 
-// 处理表单提交
-const handleFormSubmit = () => {
-  ElMessage.success(dialogType.value === 'add' ? '新增成功' : '修改成功')
-  dialogVisible.value = false
-  getshengchandingdanList()
-}
-
 // 处理表单取消
 const handleFormCancel = () => {
+  console.log('表单取消')
   dialogVisible.value = false
 }
+// 监听弹窗关闭
+watch(dialogVisible, (newVal, oldVal) => {
+  if (oldVal && !newVal) {
+    // 弹窗从显示变为隐藏时刷新数据
+    getshengchandingdanList()
+  }
+})
 
 // 页面初始化
 onMounted(() => {
