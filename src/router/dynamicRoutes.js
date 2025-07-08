@@ -48,7 +48,7 @@ const viewComponents = {
    //审核通知功能
    'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
    //按照审核后通知生成提料单
-   'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
+   'tongzhi/tongzhibeiliaodan': () => import('@/views/tongzhi/tongzhibeiliaodan.vue'), 
 }
 
   // 可以根据需要添加更多组件映射 tongzhitiliaodan
