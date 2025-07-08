@@ -51,7 +51,7 @@
             type="info" 
             size="small" 
             @click="handleViewBeiliaoPlan(row)"
-            :disabled="!(row.noticestatus === '30' || row.noticestatus === '40')"
+            
           >查看备料计划</el-button>
         </template>
       </el-table-column>
@@ -342,10 +342,10 @@ const handleUnapproveNotice = async (row) => {
 // 查看备料计划
 const handleViewBeiliaoPlan = (row) => {
   // 检查状态是否为30（通过校验）或40（通过审核）
-  if (row.noticestatus !== '30' && row.noticestatus !== '40') {
-    ElMessage.warning('只有状态为"通过校验"或"通过审核"的通知才能查看备料计划');
-    return;
-  }
+  //if (row.noticestatus !== '30' && row.noticestatus !== '40') {
+  //  ElMessage.warning('只有状态为"通过校验"或"通过审核"的通知才能查看备料计划');
+  //  return;
+  //}
   
   // 设置备料计划弹窗所需参数
   viewBeiliaoNoticeId.value = row.noticeid;
