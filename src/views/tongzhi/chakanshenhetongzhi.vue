@@ -15,12 +15,8 @@
         <el-table-column prop="noticeshenhe" label="通知审核者" />
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="noticebuilddate" label="通知创建日期" :formatter="formatDate" />
-        <el-table-column prop="id" label="ID" />
-        <el-table-column label="操作">
-          <template #default="scope">
-            <el-button size="small" type="primary" @click="openEditDialog(scope.row)">编辑</el-button>
-          </template>
-        </el-table-column>
+       
+        
       </el-table>
   
       <div class="pagination-container">

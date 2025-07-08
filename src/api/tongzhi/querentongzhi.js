@@ -36,7 +36,7 @@ export function getJiaoYanTongZhi(params) {
  * @returns {Promise} - 返回通知列表Promise
  */
 export function getShenHeTongZhi(params) {
-  return get('/tongzhi/gettongzhipage', params)
+  return get('/tongzhi/getshenhetongzhipage', params)
 }
 
 /**
@@ -122,15 +122,4 @@ export function getTongzhiById(params) {
  */
 export function updateNoticeItem(params) {
   return put('/tongzhi/updateitem', params)
-}
-
-/**
- * 通过 noticeid获取备料计划分页数据
- * @param {Object} params - 查询参数
- * @param {string} params.noticeid - 通知编号
- * @param {number} params.pageNumber - 页码
- * @param {number} params.pageSize - 每页大小
- */
-export function getbeiliaojihuabynoticepage(params) {
-  return get('/beiliaojihua/getbeiliaojihuabynoticepage', params)
 }
