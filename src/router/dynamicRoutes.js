@@ -49,12 +49,6 @@ const viewComponents = {
    'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
    //按照审核后通知生成提料单
    'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
-
-   //学姐做的接续金具（预绞式）铝材
-   'inspection/bgxjlc': () => import('@/views/inspection/bgxjlc.vue'),
-
-   //谭做的...
-   'detection/acsr': () => import('@/views/detection/acsr/acsr.vue'),
 }
 
   // 可以根据需要添加更多组件映射 tongzhitiliaodan
