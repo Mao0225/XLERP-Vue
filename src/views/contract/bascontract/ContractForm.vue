@@ -27,12 +27,12 @@
               <el-input v-model="form.purchaserHqCode" placeholder="采购方总部编码" />
             </el-form-item>
           </el-col>
-          <el-col :span="5">
+          <el-col :span="3">
             <el-form-item label="供应商编码" prop="supplierCode">
               <el-input v-model="form.supplierCode" placeholder="供应商编码" />
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item label="供应商名称" prop="supplierName">
               <el-input v-model="form.supplierName" placeholder="供应商名称" />
             </el-form-item>
@@ -384,6 +384,9 @@ const form = reactive({
   userid: '',
   ecpno: '',
   equipno:'',
+  purchaserHqCode:'',
+  supplierCode: '1000014491',
+  supplierName: '中国电建集团四平线路器材有限公司',
   term: currentTerm,
   salesmanid: null,
   salesmanName: '',
@@ -492,6 +495,12 @@ const selectCustomer = () => {
 const handleCustomerSelect = (customer) => {
   form.customerid = customer.id;
   form.customerName = customer.descr;
+  form.fax = customer.fax;
+  form.telephone = customer.phone;
+  form.postalcode = customer.postalcode;
+  form.bank = customer.bank;
+  form.bankcode = customer.bankcode;
+
 };
 
 const addProduct = () => {
