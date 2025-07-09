@@ -32,26 +32,13 @@
         label="通知创建日期"
         :formatter="formatDate"
       />
-      <el-table-column label="操作" width="420">
+      <el-table-column label="操作" width="220">
         <template #default="{ row }">
-          <el-button 
-            type="success" 
-            size="small" 
-            @click="handleApproveNotice(row)"
-            :disabled="row.noticestatus !== '30'"
-          >审核通知</el-button>
-          <el-button 
-            type="danger" 
-            size="small" 
-            @click="handleUnapproveNotice(row)"
-            :disabled="row.noticestatus !== '40'"
-          >反审核通知</el-button>
           <el-button type="primary" size="small" @click="handleViewNotice(row)">查看通知</el-button>
           <el-button 
             type="info" 
             size="small" 
             @click="handleViewBeiliaoPlan(row)"
-            
           >查看备料计划</el-button>
         </template>
       </el-table-column>
@@ -74,7 +61,6 @@
       append-to-body
       :modal-append-to-body="true"
     >
-      <!-- 使用v-if控制组件渲染，确保只有在弹窗显示时才渲染 -->
       <ChakanShenHeTongZhi 
         v-if="viewNoticeVisible"
         :noticeid="viewNoticeId"
@@ -94,7 +80,7 @@
       append-to-body
       :modal-append-to-body="true"
     >
-      <ChakanBeiliaoDan 
+      <DayinBeiliaoDan 
         v-if="viewBeiliaoVisible"
         :noticeid="viewBeiliaoNoticeId"
         :noticedrawno="viewBeiliaoNoticeDrawno"
@@ -110,11 +96,11 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getShenHeTongZhi, shenhenNotice, fanshenheyanmNotice } from '@/api/tongzhi/querentongzhi.js';
+import { getShenHeTongZhi } from '@/api/tongzhi/querentongzhi.js'; // 移除了未使用的API导入
 import { useRouter } from 'vue-router';
 import { Refresh } from '@element-plus/icons-vue';
-import ChakanShenHeTongZhi from './chakanshenhetongzhi.vue'; // 引入查看审核通知组件
-import ChakanBeiliaoDan from './chakanbeiliaodan.vue'; // 引入查看备料单组件
+import ChakanShenHeTongZhi from './chakanshenhetongzhi.vue'; 
+import DayinBeiliaoDan from './dayinbeiliaodan.vue'; // 引入打印备料单组件
 
 // 查询参数
 const queryParams = reactive({
@@ -232,121 +218,8 @@ const handleViewNoticeClose = () => {
   viewNoticeId.value = '';
 };
 
-// 审核通知
-const handleApproveNotice = async (row) => {
-  // 打印 row 对象，用于调试
-  console.log('审核通知时的 row 对象:', row);
-
-  // 检查 noticeid 是否存在
-  if (!row.noticeid) {
-    ElMessage.error('通知ID不能为空，请刷新页面重试');
-    return;
-  }
-
-  // 检查状态是否为30（通过校验）
-  if (row.noticestatus !== '30') {
-    ElMessage.warning('只有状态为"通过校验"的通知才能进行审核操作');
-    return;
-  }
-
-  // 显示确认对话框
-  ElMessageBox.confirm(
-    `你确定要审核通知吗？通知ID：${row.noticeid}`,
-    '审核通知',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  )
-  .then(async () => {
-    // 用户点击确定后执行的代码
-    const noticeshenhe = localStorage.getItem('realName');
-
-    // 构造请求参数并打印
-    const params = {
-      noticeid: row.noticeid,
-      noticeshenhe: noticeshenhe
-    };
-
-    console.log('审核通知请求参数:', params);
-
-    try {
-      // 打印请求URL，用于调试
-      console.log('审核通知请求URL:', '/tongzhi/shenhetongzhi');
-      console.log('审核通知请求参数:', params);
-      const res = await shenhenNotice(params);
-
-      if (res.success) {
-        ElMessage.success(res.msg);
-        getShenHeTongZhiList(); // 刷新界面
-      } else {
-        ElMessage.error(res.msg);
-      }
-    } catch (error) {
-      console.error('审核通知失败:', error);
-      ElMessage.error('审核通知失败');
-    }
-  })
-  .catch(() => {
-    // 用户点击取消后执行的代码
-    ElMessage.info('已取消操作');
-  });
-};
-
-// 反审核通知
-const handleUnapproveNotice = async (row) => {
-  // 检查 noticeid 是否存在
-  if (!row.noticeid) {
-    ElMessage.error('通知ID不能为空，请刷新页面重试');
-    return;
-  }
-
-  // 检查状态是否为40（通过审核）
-  if (row.noticestatus !== '40') {
-    ElMessage.warning('只有状态为"通过审核"的通知才能进行反审核操作');
-    return;
-  }
-
-  // 显示确认对话框
-  ElMessageBox.confirm(
-    `你确定要反审核通知吗？通知ID：${row.noticeid}`,
-    '反审核通知',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  )
-  .then(async () => {
-    try {
-      // 调用反审核通知接口
-      const res = await fanshenheyanmNotice({ noticeid: row.noticeid });
-      
-      if (res.success) {
-        ElMessage.success(res.msg);
-        getShenHeTongZhiList(); // 刷新界面
-      } else {
-        ElMessage.error(res.msg);
-      }
-    } catch (error) {
-      console.error('反审核通知失败:', error);
-      ElMessage.error('反审核通知失败');
-    }
-  })
-  .catch(() => {
-    ElMessage.info('已取消操作');
-  });
-};
-
 // 查看备料计划
 const handleViewBeiliaoPlan = (row) => {
-  // 检查状态是否为30（通过校验）或40（通过审核）
-  //if (row.noticestatus !== '30' && row.noticestatus !== '40') {
-  //  ElMessage.warning('只有状态为"通过校验"或"通过审核"的通知才能查看备料计划');
-  //  return;
-  //}
-  
   // 设置备料计划弹窗所需参数
   viewBeiliaoNoticeId.value = row.noticeid;
   viewBeiliaoNoticeDrawno.value = row.noticedrawno || '';
@@ -387,5 +260,4 @@ onMounted(() => {
   margin-top: 20px;
   text-align: right;
 }
-</style>
-  
+</style>        
