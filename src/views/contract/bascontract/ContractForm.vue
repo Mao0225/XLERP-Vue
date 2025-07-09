@@ -500,6 +500,7 @@ const handleCustomerSelect = (customer) => {
   form.postalcode = customer.postalcode;
   form.bank = customer.bank;
   form.bankcode = customer.bankcode;
+  form.taxnum = customer.taxcode;
 
 };
 
