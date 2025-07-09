@@ -38,6 +38,14 @@ const viewComponents = {
   'plmanage/plshengchandingdan': () => import('@/views/plmanage/plshengchandingdan/shengchandingdan.vue'),
   //生产工单
   'plmanage/plshengchangongdan': () => import('@/views/plmanage/plshengchangongdan/shengchangongdan.vue'),
+  //排产计划
+  'plmanage/plpaichanjihua': () => import('@/views/plmanage/plpaichanjihua/paichanjihua.vue'),
+  //报工单
+  'plmanage/plbaogongdan': () => import('@/views/plmanage/plbaogongdan/baogongdan.vue'),
+  //供货单
+  'plmanage/plgonghuodan': () => import('@/views/plmanage/plgonghuodan/gonghuodan.vue'),
+
+
   //通知管理
   'tongzhi/tongzhilist': () => import('@/views/tongzhi/tongzhilist.vue'),
 
@@ -49,6 +57,14 @@ const viewComponents = {
    'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
    //按照审核后通知生成提料单
    'tongzhi/tongzhibeiliaodan': () => import('@/views/tongzhi/tongzhibeiliaodan.vue'), 
+   'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
+   //备品备件库存管理
+   'kucun/beijian': () => import('@/views/kucun/beijian.vue'),
+   //产成品库存管理
+   'kucun/chengpin': () => import('@/views/kucun/chengpin.vue'),
+   //重点原材料库存管理
+   'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
+   
 }
 
   // 可以根据需要添加更多组件映射 tongzhitiliaodan
