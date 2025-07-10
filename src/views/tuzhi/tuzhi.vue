@@ -68,10 +68,15 @@
           <el-input v-model="form.tuzhimingcheng" placeholder="请输入图纸名称" />
         </el-form-item>
         <el-form-item label="图纸作者" prop="tuzhizuozhe">
-          <el-input v-model="form.tuzhizuozhe" placeholder="请输入图纸作者" />
+          <el-input v-model="form.tuzhizuozhe" placeholder="请输入图纸作者" @blur="autoFillAuthor" />
         </el-form-item>
         <el-form-item label="创作日期" prop="chuangzuoriqi">
-          <el-input v-model="form.chuangzuoriqi" placeholder="请输入创作日期" />
+          <el-date-picker
+            v-model="form.chuangzuoriqi"
+            type="date"
+            placeholder="请选择创作日期"
+            value-format="YYYY-MM-DD"
+          />
         </el-form-item>
         <el-form-item label="图纸描述" prop="tuzhimiaoshu">
           <el-input v-model="form.tuzhimiaoshu" placeholder="请输入图纸描述" />
@@ -148,7 +153,7 @@ const queryParams = reactive({
 
 // 用户信息
 const userInfo = computed(() => ({
-  username: userStore.username || '未登录'
+  username: userStore.descr || '未知'
 }))
 
 // 图纸列表数据
@@ -197,8 +202,7 @@ const rules = {
     { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
   ],
   chuangzuoriqi: [
-    { required: true, message: '请输入创作日期', trigger: 'blur' },
-    { max: 100, message: '长度不能超过10个字符', trigger: 'blur' }
+    { required: true, message: '请选择创作日期', trigger: 'change' }
   ],
   tuzhimiaoshu: [
     { required: true, message: '请输入图纸描述', trigger: 'blur' },
@@ -249,7 +253,7 @@ const resetForm = () => {
     id: undefined,
     tuzhibianhao: '',
     tuzhimingcheng: '',
-    tuzhizuozhe: '',
+    tuzhizuozhe: userInfo.value.username,
     chuangzuoriqi: '',
     tuzhimiaoshu: '',
     memo: '',
@@ -292,6 +296,8 @@ const handleAdd = () => {
   
   // 自动填充当前用户
   form.writer = userInfo.value.username
+  // 自动填充当前日期
+  form.chuangzuoriqi = new Date().toISOString().split('T')[0]
 }
 
 // 编辑图纸
@@ -352,20 +358,37 @@ const deleteFile = (index) => {
   form.tuzhiurl = JSON.stringify(fileList)
   tuzhiFileList.value.splice(index, 1)
 }
-
+ 
 // 下载文件
 const downloadFile = (url, filename) => {
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  link.style.display = 'none'
+  // 检查文件类型
+  const fileExtension = filename.split('.').pop().toLowerCase();
+  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf'];
+  
+  if (viewableTypes.includes(fileExtension)) {
+    // 可查看的文件类型在新窗口打开
+    window.open(url, '_blank');
+  } else {
+    // 其他文件类型强制下载
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
 
-  document.body.appendChild(link)
-  link.click()
+    document.body.appendChild(link);
+    link.click();
 
-  setTimeout(() => {
-    document.body.removeChild(link)
-  }, 100)
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  }
+}
+
+// 自动填充作者
+const autoFillAuthor = () => {
+  if (!form.tuzhizuozhe || form.tuzhizuozhe.trim() === '' || form.tuzhizuozhe.trim().toLowerCase() === 'n/a') {
+    form.tuzhizuozhe = userInfo.value.username
+  }
 }
 
 // 提交表单
@@ -458,4 +481,4 @@ onMounted(() => {
 .file-link:hover {
   text-decoration: underline;
 }
-</style>
+</style>    

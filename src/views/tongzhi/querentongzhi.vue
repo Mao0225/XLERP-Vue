@@ -352,8 +352,7 @@ const handleUnconfirmNotice = async (row) => {
 // 查看备料计划
 const handleViewBeiliaoPlan = (row) => {
   // 设置备料计划弹窗所需参数
-  viewBeiliaoNoticeId.value = row.noticeid;
-  viewBeiliaoNoticeDrawno.value = row.noticedrawno || '';
+  viewBeiliaoNoticeId.value = row.noticeid; 
   viewBeiliaoContractNo.value = row.contractno;
   viewBeiliaoContractName.value = row.contractname;
   

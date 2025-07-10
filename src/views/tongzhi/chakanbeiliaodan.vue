@@ -7,11 +7,7 @@
             <el-input v-model="queryParams.noticeid" readonly />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
-          <el-form-item label="图纸编号">
-            <el-input v-model="queryParams.noticedrawno" readonly />
-          </el-form-item>
-        </el-col>
+        
         <el-col :span="6">
           <el-form-item label="合同编号">
             <el-input v-model="queryParams.contractno" readonly />
@@ -39,6 +35,7 @@
       <el-table-column prop="name" label="订货产品名称" />
       <el-table-column prop="unit" label="订货产品单位" />
       <el-table-column prop="dinghuotaoshu" label="订货套数" />
+      <el-table-column prop="noticedrawno" label="图纸编号" />
       <el-table-column prop="sxclitemno" label="所需子材料编码" />
       <el-table-column prop="sxclname" label="所需子材料名称" />
       <el-table-column prop="unit" label="单位" />
@@ -291,7 +288,7 @@ const calculatePlanPickup = () => {
 // 处理表格行合并
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }) => {
   // 只合并前5列
-  if (columnIndex < 5) {
+  if (columnIndex < 6) {
     return {
       rowspan: spanArr.value[rowIndex],
       colspan: 1
@@ -306,30 +303,34 @@ const calculateSpan = () => {
   
   if (!beiliaoList.value || beiliaoList.value.length === 0) return;
   
-  // 初始化合并规则数组，每个元素表示当前行的前5列应合并的行数
+  // 初始化合并规则数组
   beiliaoList.value.forEach(() => {
     spanArr.value.push(1);
   });
   
-  // 计算合并规则
-  for (let i = 0; i < beiliaoList.value.length - 1; i++) {
-    // 如果当前行已被合并，则跳过
-    if (spanArr.value[i] === 0) continue;
-    
-    // 比较当前行与下一行的前5列是否全部相同
-    const isSameGroup = 
-      beiliaoList.value[i].itemno === beiliaoList.value[i+1].itemno &&
-      beiliaoList.value[i].spec === beiliaoList.value[i+1].spec &&
-      beiliaoList.value[i].name === beiliaoList.value[i+1].name &&
-      beiliaoList.value[i].unit === beiliaoList.value[i+1].unit &&
-      beiliaoList.value[i].dinghuotaoshu === beiliaoList.value[i+1].dinghuotaoshu;
+  let i = 0;
+  while (i < beiliaoList.value.length) {
+    let rowspan = 1;
+    // 查找后续所有与当前行前五列相同的行
+    for (let j = i + 1; j < beiliaoList.value.length; j++) {
+      const isSameGroup = 
+        beiliaoList.value[i].itemno === beiliaoList.value[j].itemno &&
+        beiliaoList.value[i].spec === beiliaoList.value[j].spec &&
+        beiliaoList.value[i].name === beiliaoList.value[j].name &&
+        beiliaoList.value[i].unit === beiliaoList.value[j].unit &&
+        beiliaoList.value[i].dinghuotaoshu === beiliaoList.value[j].dinghuotaoshu;
       
-    if (isSameGroup) {
-      // 如果相同，则当前行合并行数+1
-      spanArr.value[i] += 1;
-      // 下一行标记为隐藏
-      spanArr.value[i+1] = 0;
+      if (isSameGroup) {
+        rowspan++;
+        spanArr.value[j] = 0; // 后续相同的行隐藏
+      } else {
+        break; // 发现不同的行，停止查找
+      }
     }
+    
+    // 设置当前行的合并行数
+    spanArr.value[i] = rowspan;
+    i += rowspan; // 跳过已经合并的行
   }
 };
 
@@ -474,4 +475,22 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
 }
-</style>
+
+/* 加粗表格线 */
+:deep(.el-table--border),
+:deep(.el-table--group) {
+  border: 3px solid #333 !important; /* 主边框加粗加黑 */
+}
+
+:deep(.el-table__header-wrapper th),
+:deep(.el-table__body-wrapper td) {
+  border-right: 3px solid #333 !important; /* 单元格右边框加粗加黑 */
+  border-bottom: 3px solid #333 !important; /* 单元格下边框加粗加黑 */
+}
+
+/* 表格头部样式 */
+:deep(.el-table__header-wrapper th) {
+  background-color: #f5f7fa;
+  font-weight: bold;
+}
+</style> 

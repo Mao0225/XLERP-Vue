@@ -97,6 +97,8 @@
       <ChakanBeiliaoJiHua 
         v-if="viewBeiliaoVisible"
         :noticeid="viewBeiliaoNoticeId"
+        :contractno="viewBeiliaoContractNo"
+        :contractname="viewBeiliaoContractName"
         :visible="viewBeiliaoVisible"
         @close="handleViewBeiliaoClose"
       />
@@ -135,6 +137,8 @@ const viewNoticeId = ref('');
 // 查看备料计划相关状态
 const viewBeiliaoVisible = ref(false);
 const viewBeiliaoNoticeId = ref('');
+const viewBeiliaoContractNo = ref(''); // 新增：合同编号
+const viewBeiliaoContractName = ref(''); // 新增：合同名称
 
 // 格式化通知状态
 const formatNoticeStatus = (row, column, cellValue) => {
@@ -343,6 +347,8 @@ const handleViewBeiliaoPlan = (row) => {
   
   // 设置备料计划弹窗所需参数
   viewBeiliaoNoticeId.value = row.noticeid;
+  viewBeiliaoContractNo.value = row.contractno; // 新增：设置合同编号
+  viewBeiliaoContractName.value = row.contractname; // 新增：设置合同名称
   
   nextTick(() => {
     viewBeiliaoVisible.value = true;
@@ -353,6 +359,8 @@ const handleViewBeiliaoPlan = (row) => {
 const handleViewBeiliaoClose = () => {
   viewBeiliaoVisible.value = false;
   viewBeiliaoNoticeId.value = '';
+  viewBeiliaoContractNo.value = ''; // 新增：重置合同编号
+  viewBeiliaoContractName.value = ''; // 新增：重置合同名称
 };
 
 // 页面初始化
@@ -375,4 +383,4 @@ onMounted(() => {
   margin-top: 20px;
   text-align: right;
 }
-</style>  
+</style>
