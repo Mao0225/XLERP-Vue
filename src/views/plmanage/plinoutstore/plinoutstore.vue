@@ -49,11 +49,11 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <!-- 添加多选框列 -->
       <el-table-column type="selection" width="55" align="center" />
-      
       <el-table-column type="index" label="序号" width="80" />
-      <!-- <el-table-column prop="id" label="ID" width="80" /> -->
+      <el-table-column prop="orderno" label="收发单号" width="150" />
+      <el-table-column prop="contractNo" label="合同号" width="150" />
+      <el-table-column prop="contractName" label="工程名称" width="180" show-overflow-tooltip />
       <el-table-column prop="materialno" label="物料编号" width="120" />
       <el-table-column prop="materialname" label="物料名称" width="150" />
       <el-table-column prop="spec" label="规格型号" width="120" />
@@ -67,14 +67,12 @@
       <el-table-column prop="totalmoney" label="金额" width="120" align="right">
         <template #default="{row}">{{ row.totalmoney.toFixed(2) }}</template>
       </el-table-column>
-      <el-table-column prop="orderno" label="单据号" width="150" />
       <el-table-column prop="store" label="仓库" width="120" />
       <el-table-column prop="isin" label="类型" width="80">
-        <template #default="{row}">{{ row.isin === 1 ? '入库' : '出库' }}</template>
+        <template #default="{row}">{{ row.isin === 1 ? '出库' : '入库' }}</template>
       </el-table-column>
       <el-table-column prop="receivedate" label="收发日期" width="120" />
-      <el-table-column prop="contactno" label="合同号" width="150" />
-      <el-table-column prop="projectname" label="工程名称" width="180" show-overflow-tooltip />
+
       <el-table-column label="操作" width="140" fixed="right">
         <template #default="{row}">
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
@@ -102,29 +100,31 @@
       width="1000px"
       @closed="resetForm"
     >
-      <PlinoutstoreForm
+      <InStoreForm
         ref="formRef"
         :form-data="form"
         :edit="isEdit"
+        :show-save-as-draft="true"
         @submit="submitForm"
         @cancel="dialogVisible = false"
+        @save-draft="saveDraft"
       />
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import PlinoutstoreForm from './components/plinoutstoreForm.vue'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import InStoreForm from './components/InStoreForm.vue';
 import { 
   getPlinoutstoreList, 
-  getPlinoutstoreById, 
+  getPlinoutstoreByOrderno, 
   createPlinoutstore, 
   updatePlinoutstore, 
   deletePlinoutstore,
   batchDeletePlinoutstore
-} from '@/api/plmanage/plinoutstore'
+} from '@/api/plmanage/plinoutstore';
 
 // 查询参数
 const queryParams = reactive({
@@ -134,76 +134,41 @@ const queryParams = reactive({
   isin: '',
   pageNumber: 1,
   pageSize: 10
-})
+});
 
-const isEdit = ref(false)
-// 日期范围
-const dateRange = ref([])
-
-// 出入库记录列表
-const plinoutstoreList = ref([])
-const total = ref(0)
-const loading = ref(false)
-
-// 选中的ID数组
-const selectedIds = ref([])
-
-// 弹窗表单相关
-const dialogVisible = ref(false)
-const dialogType = ref('add')
-const dialogTitle = computed(() => dialogType.value === 'add' ? '新增出入库记录' : '编辑出入库记录')
-const formRef = ref(null)
+const isEdit = ref(false);
+const dateRange = ref([]);
+const plinoutstoreList = ref([]);
+const total = ref(0);
+const loading = ref(false);
+const selectedIds = ref([]);
+const dialogVisible = ref(false);
+const dialogType = ref('add');
+const dialogTitle = computed(() => dialogType.value === 'add' ? '新增入库记录' : '编辑入库记录');
+const formRef = ref(null);
 const form = reactive({
-  id: undefined,
-  materialno: '',
-  materialname: '',
-  spec: '',
-  unit: '',
-  quantity: 0,
-  price: 0,
-  totalmoney: 0,
-  deliverunit: '',
-  receiveunit: '',
-  store: '',
-  handleperson: '',
-  receivedate: '',
   orderno: '',
-  isin: 1,
+  receivedate: '',
+  deliverunit: '',
+  store: '',
   flag: '',
-  status: 0,
-  type: '',
-  memo: '',
-  term: '',
-  childorderno: '',
-  orderstatus: '',
-  username: '',
-  contactno: '',
-  projectname: '',
-  lingliaoperson: '',
-  leibie: '',
-  tuhao: '',
-  jianchaunit: '',
-  weight: 0,
-  fapiao: 0,
-  pandian: 0,
-  qingling: 0,
-  nowprice: 0,
-  transportway: '',
-  fuzeren: '',
-  gouhuounitname: ''
-})
+  handleperson: '',
+  contractNo: '',
+  scheduleCode: '',
+  woNo: '',
+  materials: []
+});
 
 // 处理表格多选
 const handleSelectionChange = (selection) => {
-  selectedIds.value = selection.map(item => item.id)
-}
-
+  selectedIds.value = selection.map(item => item.id);
+};
 
 // 批量删除
 const handleBatchDelete = () => {
   if (selectedIds.value.length === 0) {
-    ElMessage.warning('请至少选择一条记录')
-    return
+    ElMessage.warning('请至少选择一条记录');
+    return;
   }
   
   ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 条记录吗？`, '提示', {
@@ -212,129 +177,120 @@ const handleBatchDelete = () => {
     type: 'warning'
   }).then(async () => {
     try {
-      await batchDeletePlinoutstore(selectedIds.value)
-      ElMessage.success('批量删除成功')
-      selectedIds.value = [] // 清空选中
-      getPlinoutstoreListpage()
+      await batchDeletePlinoutstore(selectedIds.value);
+      ElMessage.success('批量删除成功');
+      selectedIds.value = [];
+      getPlinoutstoreListpage();
     } catch (error) {
-      console.error('批量删除失败', error)
-      // 显示后端返回的错误信息
-      const errorMsg = error.response?.data?.message || '批量删除失败'
-      ElMessage.error(errorMsg)
+      console.error('批量删除失败', error);
+      const errorMsg = error.response?.data?.message || '批量删除失败';
+      ElMessage.error(errorMsg);
     }
-  }).catch(() => {})
-}
+  }).catch(() => {});
+};
 
 // 获取出入库记录列表
 const getPlinoutstoreListpage = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    // 处理日期范围参数
     const params = {
       ...queryParams,
       startDate: dateRange.value?.[0] || '',
       endDate: dateRange.value?.[1] || ''
-    }
+    };
     
-    const res = await getPlinoutstoreList(params)
-    plinoutstoreList.value = res.data.page.list
-    total.value = res.data.page.totalRow
+    const res = await getPlinoutstoreList(params);
+    plinoutstoreList.value = res.data.page.list;
+    total.value = res.data.page.totalRow;
   } catch (error) {
-    console.error('获取出入库记录失败', error)
-    ElMessage.error('获取出入库记录失败')
+    console.error('获取出入库记录失败', error);
+    ElMessage.error('获取出入库记录失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 处理分页大小变化
 const handleSizeChange = (size) => {
-  queryParams.pageSize = size
-  getPlinoutstoreListpage()
-}
+  queryParams.pageSize = size;
+  getPlinoutstoreListpage();
+};
 
 // 处理当前页变化
 const handleCurrentChange = (page) => {
-  queryParams.pageNumber = page
-  getPlinoutstoreListpage()
-}
+  queryParams.pageNumber = page;
+  getPlinoutstoreListpage();
+};
 
 // 刷新
 const handleRefresh = () => {
-  queryParams.materialno = ''
-  queryParams.materialname = ''
-  queryParams.orderno = ''
-  queryParams.isin = ''
-  dateRange.value = []
-  queryParams.pageNumber = 1
-  selectedIds.value = [] // 清空选中
-  getPlinoutstoreListpage()
-}
+  queryParams.materialno = '';
+  queryParams.materialname = '';
+  queryParams.orderno = '';
+  queryParams.isin = '';
+  dateRange.value = [];
+  queryParams.pageNumber = 1;
+  selectedIds.value = [];
+  getPlinoutstoreListpage();
+};
 
 // 重置表单
 const resetForm = () => {
   Object.assign(form, {
-    id: undefined,
-    materialno: '',
-    materialname: '',
-    spec: '',
-    unit: '',
-    quantity: 0,
-    price: 0,
-    totalmoney: 0,
-    deliverunit: '',
-    receiveunit: '',
-    store: '',
-    handleperson: '',
-    receivedate: '',
     orderno: '',
-    isin: 1,
+    receivedate: '',
+    deliverunit: '',
+    store: '',
     flag: '',
-    status: 0,
-    type: '',
-    memo: '',
-    term: '',
-    childorderno: '',
-    orderstatus: '',
-    username: '',
-    contactno: '',
-    projectname: '',
-    lingliaoperson: '',
-    leibie: '',
-    tuhao: '',
-    jianchaunit: '',
-    weight: 0,
-    fapiao: 0,
-    pandian: 0,
-    qingling: 0,
-    nowprice: 0,
-    transportway: '',
-    fuzeren: '',
-    gouhuounitname: ''
-  })
-}
+    handleperson: '',
+    contractNo: '',
+    scheduleCode: '',
+    woNo: '',
+    materials: []
+  });
+};
 
 // 新增记录
 const handleAdd = () => {
-  isEdit.value = false
-  dialogType.value = 'add'
-  form.receivedate = new Date().toISOString().split('T')[0] // 默认当天
-  dialogVisible.value = true
-}
+  isEdit.value = false;
+  dialogType.value = 'add';
+  resetForm();
+  form.receivedate = new Date().toISOString().split('T')[0];
+  dialogVisible.value = true;
+};
 
 // 编辑记录
 const handleEdit = async (row) => {
-  dialogType.value = 'edit'
-  isEdit.value = true
+  dialogType.value = 'edit';
+  isEdit.value = true;
   try {
-    const res = await getPlinoutstoreById({ id: row.id })
-    Object.assign(form, res.data.plinoutstore)
-    dialogVisible.value = true
+    const res = await getPlinoutstoreByOrderno({ orderNo: row.orderno });
+    const { storeInfo, plinoutstore } = res.data;
+    Object.assign(form, {
+      ...storeInfo,
+      orderno: row.orderno,
+      contractNo: storeInfo.contractNo || '',
+
+      materials: plinoutstore.map(item => ({
+        id: item.id,
+        scheduleCode: item.scheduleCode || '',
+        woNo: item.woNo || '',
+        ipoNo:item.ipoNo,
+        materialno: item.materialno,
+        materialname: item.materialname,
+        spec: item.spec || '',
+        unit: item.unit || '',
+        quantity: item.quantity || 0,
+        price: item.price || 0,
+        totalmoney: item.totalmoney || 0
+      }))
+    });
+    dialogVisible.value = true;
   } catch (error) {
-    console.error('获取记录详情失败', error)
-    ElMessage.error('获取记录详情失败')
+    console.error('获取记录详情失败', error);
+    ElMessage.error('获取记录详情失败');
   }
-}
+};
 
 // 删除记录
 const handleDelete = (row) => {
@@ -344,38 +300,59 @@ const handleDelete = (row) => {
     type: 'warning'
   }).then(async () => {
     try {
-      await deletePlinoutstore({ id: row.id })
-      ElMessage.success('删除成功')
-      getPlinoutstoreListpage()
+      await deletePlinoutstore({ id: row.id });
+      ElMessage.success('删除成功');
+      getPlinoutstoreListpage();
     } catch (error) {
-      console.error('删除记录失败', error)
-      ElMessage.error('删除记录失败')
+      console.error('删除记录失败', error);
+      ElMessage.error('删除记录失败');
     }
-  }).catch(() => {})
-}
+  }).catch(() => {});
+};
 
 // 提交表单
 const submitForm = async (formData) => {
   try {
-    if (dialogType.value === 'add') {
-      await createPlinoutstore(formData)
-      ElMessage.success('新增成功')
-    } else {
-      await updatePlinoutstore(formData)
-      ElMessage.success('修改成功')
+    for (const material of formData.materials) {
+      const saveData = {
+        ...formData,
+        id: material.id,
+        materialno: material.materialno,
+        materialname: material.materialname,
+        spec: material.spec,
+        unit: material.unit,
+        quantity: material.quantity,
+        price: material.price,
+        totalmoney: material.totalmoney
+      };
+      delete saveData.materials;
+      if (dialogType.value === 'edit' && material.id) {
+        await updatePlinoutstore(saveData);
+      } else {
+        await createPlinoutstore(saveData);
+      }
     }
-    dialogVisible.value = false
-    getPlinoutstoreListpage()
+    ElMessage.success(dialogType.value === 'add' ? '新增成功' : '修改成功');
+    dialogVisible.value = false;
+    getPlinoutstoreListpage();
   } catch (error) {
-    console.error('保存记录失败', error)
-    ElMessage.error('保存记录失败')
+    console.error('保存记录失败', error);
+    ElMessage.error('保存记录失败');
   }
-}
+};
+
+// 保存草稿
+const saveDraft = (formData) => {
+  // 这里可以实现保存草稿的逻辑，例如调用 API 或存储到本地
+  console.log('保存草稿:', formData);
+  ElMessage.success('草稿已保存');
+  dialogVisible.value = false;
+};
 
 // 页面初始化
 onMounted(() => {
-  getPlinoutstoreListpage()
-})
+  getPlinoutstoreListpage();
+});
 </script>
 
 <style scoped>

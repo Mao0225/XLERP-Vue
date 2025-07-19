@@ -57,13 +57,15 @@ const viewComponents = {
    'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
    //按照审核后通知生成提料单
    'tongzhi/tongzhibeiliaodan': () => import('@/views/tongzhi/tongzhibeiliaodan.vue'), 
-   'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
+  //  'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
    //备品备件库存管理
    'kucun/beijian': () => import('@/views/kucun/beijian.vue'),
    //产成品库存管理
    'kucun/chengpin': () => import('@/views/kucun/chengpin.vue'),
    //重点原材料库存管理
    'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
+   //悬垂线夹铝材
+   'clmanage/xcxjlc': () => import('@/views/clmanage/xcxjlc/xcxjlc.vue'),
    
 }
 

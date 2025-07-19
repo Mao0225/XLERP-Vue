@@ -114,7 +114,7 @@ const activeMenu = computed(() => route.path)
   overflow-y: auto;
   
   &:not(.el-menu--collapse) {
-    width: 200px;
+    width: 250px;
   }
   
   &.el-menu--collapse {

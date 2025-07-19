@@ -18,6 +18,15 @@ export function getPlinoutstoreById(params) {
 }
 
 /**
+ * 根据收发单号orderno获取出入库记录
+ * @param {string} params.orderno - 收发单号
+ * @returns {Promise} - 获取结果 Promise
+ */
+export function getPlinoutstoreByOrderno(params) {
+  return get('/plinoutstore/getByOrderNo', params)
+}
+
+/**
  * 创建出入库记录
  * @param {Object} data - 出入库记录数据
  * @returns {Promise} - 返回创建结果 Promise

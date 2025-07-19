@@ -9,7 +9,7 @@ export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
   const userId = ref(localStorage.getItem('userId') || '')
   const username = ref(localStorage.getItem('username') || '')
-  const realName = ref('')
+  const realName = ref(localStorage.getItem('descr') || '') 
   const avatar = ref(localStorage.getItem('avatar') || '')
   const roles = ref([])
   const permissions = ref([])

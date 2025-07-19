@@ -4,44 +4,69 @@
     v-model="dialogVisible"
     width="1400px"
     @closed="resetForm"
+    destroy-on-close
   >
     <!-- 生产工单信息区域 -->
     <div class="order-section">
       <div class="section-header">
         <h3>生产工单信息</h3>
-        <el-button type="primary" @click="saveWorkOrderInfo" :loading="orderSaving">
+        <el-button 
+          type="primary" 
+          @click="saveWorkOrderInfo" 
+          :loading="orderSaving"
+        >
           保存工单信息
         </el-button>
       </div>
       
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" size="small">
+      <el-form 
+        ref="formRef" 
+        :model="form" 
+        :rules="rules" 
+        label-width="120px" 
+        size="small"
+      >
         <!-- 基本信息 -->
         <div class="form-section">
           <div class="section-title">基本信息</div>
-          <el-row :gutter="10">
+          <el-row :gutter="16">
             <el-col :span="8">
               <el-form-item label="生产订单号" prop="ipoNo">
                 <el-input 
                   v-model="form.ipoNo" 
                   placeholder="选择生产订单号" 
                   readonly 
-                  @click.stop="openOrderSelector"
+                  @click="openOrderSelector"
                 >
                   <template #append>
-                    <el-button @click="openOrderSelector" size="small">选择</el-button>
+                    <el-button @click="openOrderSelector" size="small">
+                      选择
+                    </el-button>
                   </template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="工单编码" prop="woNo">
-                <el-input v-model="form.woNo" placeholder="请输入工单编码" />
+                <el-input 
+                  v-model="form.woNo" 
+                  placeholder="请输入工单编码" 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="工单状态" prop="woStatus">
-                <el-select v-model="form.woStatus" placeholder="请选择工单状态" style="width: 100%">
-                  <el-option v-for="item in statusOptions" :key="item.id" :label="item.value" :value="item.id" />
+                <el-select 
+                  v-model="form.woStatus" 
+                  placeholder="请选择工单状态" 
+                  style="width: 100%"
+                >
+                  <el-option 
+                    v-for="item in statusOptions" 
+                    :key="item.id" 
+                    :label="item.value" 
+                    :value="item.id" 
+                  />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -51,27 +76,43 @@
         <!-- 供应商信息 -->
         <div class="form-section">
           <div class="section-title">供应商信息</div>
-          <el-row :gutter="10">
+          <el-row :gutter="16">
             <el-col :span="8">
               <el-form-item label="采购方总部编码" prop="purchaserHqCode">
-                <el-input disabled v-model="form.purchaserHqCode" placeholder="采购方总部编码" />
+                <el-input 
+                  v-model="form.purchaserHqCode" 
+                  placeholder="采购方总部编码" 
+                  disabled 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="供应商编码" prop="supplierCode">
-                <el-input disabled v-model="form.supplierCode" placeholder="供应商编码" />
+                <el-input 
+                  v-model="form.supplierCode" 
+                  placeholder="供应商编码" 
+                  disabled 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="供应商名称" prop="supplierName">
-                <el-input disabled v-model="form.supplierName" placeholder="供应商名称" />
+                <el-input 
+                  v-model="form.supplierName" 
+                  placeholder="供应商名称" 
+                  disabled 
+                />
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row :gutter="10">
+          <el-row :gutter="16">
             <el-col :span="8">
               <el-form-item label="合同编号" prop="contractNo">
-                <el-input disabled v-model="form.contractNo" placeholder="合同编号" />
+                <el-input 
+                  v-model="form.contractNo" 
+                  placeholder="合同编号" 
+                  disabled 
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -80,65 +121,40 @@
         <!-- 物料信息 -->
         <div class="form-section">
           <div class="section-title">物料信息</div>
-          <el-row :gutter="10">
+          <el-row :gutter="16">
             <el-col :span="8">
               <el-form-item label="品类编码" prop="categoryCode">
-                <el-input v-model="form.categoryCode" disabled placeholder="请输入品类编码" />
+                <el-input 
+                  v-model="form.categoryCode" 
+                  placeholder="品类编码"
+                  disabled 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="种类编码" prop="subclassCode">
-                <el-input v-model="form.subclassCode" disabled placeholder="请输入种类编码" />
+                <el-input 
+                  v-model="form.subclassCode" 
+                  placeholder="种类编码"
+                  disabled 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="厂家物料编码" prop="materialsCode">
-                <el-input v-model="form.materialsCode" placeholder="请输入厂家物料编码" />
+                <el-input 
+                  v-model="form.materialsCode" 
+                  placeholder="请输入厂家物料编码" 
+                />
               </el-form-item>
             </el-col>
           </el-row>
-
-          <!-- <el-row :gutter="10">
-            <el-col :span="8">
-              <el-form-item label="物料描述" prop="materialsDescription">
-                <el-input v-model="form.materialsDescription" placeholder="请输入物料描述" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="物料批次" prop="materialsBatch">
-                <el-input v-model="form.materialsBatch" placeholder="请输入物料批次" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="产品型号规格" prop="modelSpec">
-                <el-input v-model="form.modelSpec" placeholder="请输入产品型号规格" />
-              </el-form-item>
-            </el-col>
-          </el-row> -->
-
-          <!-- <el-row :gutter="10">
-            <el-col :span="8">
-              <el-form-item label="生产数量" prop="amount">
-                <el-input v-model="form.amount" placeholder="请输入生产数量" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="计量单位" prop="unit">
-                <el-input v-model="form.unit" placeholder="请输入计量单位" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="电压等级" prop="voltageLevel">
-                <el-input v-model="form.voltageLevel" placeholder="请输入电压等级" />
-              </el-form-item>
-            </el-col>
-          </el-row> -->
         </div>
 
         <!-- 时间计划 -->
         <div class="form-section">
           <div class="section-title">时间计划</div>
-          <el-row :gutter="10">
+          <el-row :gutter="16">
             <el-col :span="6">
               <el-form-item label="计划开始日期" prop="planStartDate">
                 <el-date-picker
@@ -146,6 +162,8 @@
                   type="date"
                   placeholder="选择计划开始日期"
                   style="width: 100%"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                 />
               </el-form-item>
             </el-col>
@@ -156,6 +174,8 @@
                   type="date"
                   placeholder="选择计划完成日期"
                   style="width: 100%"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                 />
               </el-form-item>
             </el-col>
@@ -166,6 +186,8 @@
                   type="date"
                   placeholder="选择实际开始日期"
                   style="width: 100%"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                 />
               </el-form-item>
             </el-col>
@@ -176,6 +198,8 @@
                   type="date"
                   placeholder="选择实际完成日期"
                   style="width: 100%"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                 />
               </el-form-item>
             </el-col>
@@ -185,20 +209,29 @@
         <!-- 其他信息 -->
         <div class="form-section">
           <div class="section-title">其他信息</div>
-          <el-row :gutter="10">
+          <el-row :gutter="16">
             <el-col :span="8">
               <el-form-item label="实物ID" prop="entityCode">
-                <el-input v-model="form.entityCode" placeholder="请输入实物ID" />
+                <el-input 
+                  v-model="form.entityCode" 
+                  placeholder="请输入实物ID" 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="工艺路线编码" prop="processRouteNo">
-                <el-input v-model="form.processRouteNo" placeholder="请输入工艺路线编码" />
+                <el-input 
+                  v-model="form.processRouteNo" 
+                  placeholder="请输入工艺路线编码" 
+                />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="数据来源" prop="dataSource">
-                <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
+                <el-input 
+                  v-model="form.dataSource" 
+                  placeholder="请输入数据来源" 
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -210,7 +243,10 @@
     <div class="material-section">
       <div class="section-header">
         <h3>物料信息</h3>
-        <el-tooltip content="请先保存工单信息" placement="top">
+        <el-tooltip 
+          :content="!form.ipoNo || !form.woNo ? '请先保存工单信息' : ''" 
+          placement="top"
+        >
           <el-button 
             type="success" 
             @click="openMaterialSelector" 
@@ -222,23 +258,66 @@
       </div>
 
       <!-- 物料列表 -->
-      <el-table :data="materialList" border size="small" style="width: 100%">
-        <el-table-column prop="itemname" label="物料名称" min-width="120" />
-        <el-table-column prop="productModel" label="规格型号" width="100" />
-        <el-table-column prop="amount" label="数量" width="80" />
-        <el-table-column prop="unit" label="单位" width="80" />
-        <el-table-column prop="workshopName" label="生产车间" min-width="150" />
-        <el-table-column prop="memo" label="备注" min-width="120" />
-        <el-table-column label="操作" width="160">
+      <el-table 
+        :data="materialList" 
+        border 
+        size="small" 
+        style="width: 100%"
+        max-height="400"
+      >
+        <el-table-column 
+          prop="itemname" 
+          label="物料名称" 
+          min-width="120" 
+          show-overflow-tooltip
+        />
+        <el-table-column 
+          prop="productModel" 
+          label="规格型号" 
+          width="120" 
+          show-overflow-tooltip
+        />
+        <el-table-column 
+          prop="amount" 
+          label="数量" 
+          width="80" 
+          align="center"
+        />
+        <el-table-column 
+          prop="unit" 
+          label="单位" 
+          width="80" 
+          align="center"
+        />
+        <el-table-column 
+          prop="workshopName" 
+          label="生产车间" 
+          min-width="150" 
+          show-overflow-tooltip
+        />
+        <el-table-column 
+          prop="memo" 
+          label="备注" 
+          min-width="120" 
+          show-overflow-tooltip
+        />
+        <el-table-column 
+          label="操作" 
+          width="100" 
+          align="center"
+        >
           <template #default="{ row }">
-            <el-button type="danger" size="small" @click="deleteMaterial(row)">删除</el-button>
+            <el-button 
+              type="danger" 
+              size="small" 
+              @click="deleteMaterial(row)"
+            >
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <div v-if="materialList.length === 0" class="empty-material">
-        <p>暂无物料信息，请先保存工单信息后添加物料</p>
-      </div>
     </div>
     
     <!-- 生产订单选择器组件 -->
@@ -262,7 +341,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   createPlshengchangongdan, 
@@ -276,12 +355,12 @@ import { useUserStore } from '@/store/user'
 
 const userStore = useUserStore()
 
+// 获取登录用户名称
 const getWriterName = () => {
-  console.log("获取登录用户名称", userStore.descr)
-  return userStore.descr
+  return userStore.descr || '系统用户'
 }
 
-// Props
+// Props定义
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -289,7 +368,8 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'add'
+    default: 'add',
+    validator: (value) => ['add', 'edit'].includes(value)
   },
   formData: {
     type: Object,
@@ -297,8 +377,8 @@ const props = defineProps({
   }
 })
 
-// Emits
-const emit = defineEmits(['update:visible', 'submit', 'cancel'])
+// Emits定义
+const emit = defineEmits(['update:visible', 'cancel'])
 
 // 工单状态选项
 const statusOptions = [
@@ -316,20 +396,15 @@ const dialogVisible = computed({
 })
 
 // 弹窗标题
-const dialogTitle = computed(() => props.type === 'add' ? '新增生产工单' : '编辑生产工单')
+const dialogTitle = computed(() => {
+  return props.type === 'add' ? '新增生产工单' : '编辑生产工单'
+})
 
-// 表单引用
+// 响应式数据
 const formRef = ref(null)
-
-// 生产订单选择器显示状态
 const orderSelectorVisible = ref(false)
-// 物料选择器显示状态
 const materialSelectorVisible = ref(false)
-
-// 工单保存状态
 const orderSaving = ref(false)
-
-// 物料列表
 const materialList = ref([])
 
 // 生成工单编码
@@ -348,33 +423,27 @@ const generateWoNo = () => {
 // 表单数据
 const form = reactive({
   id: undefined,
-  purchaserHqCode: '', // 采购方总部编码
-  ipoNo: '', // 生产订单号
-  supplierCode: '', // 供应商编码
-  supplierName: '', // 供应商名称
-  contractNo: '', // 合同号
-  woNo: generateWoNo(), // 工单编码
-  categoryCode: '', // 品类编码
-  subclassCode: '', // 种类编码
-  materialsCode: '', // 厂家物料编码
-  materialsDescription: '', // 物料描述
-  materialsBatch: '', // 物料批次
-  amount: '', // 生产数量
-  unit: '', // 计量单位
-  planStartDate: '', // 计划开始日期
-  planFinishDate: '', // 计划完成日期
-  actualStartDate: '', // 实际开始日期
-  actualFinishDate: '', // 实际完成日期
-  woStatus: 1, // 工单状态
-  entityCode: '', // 实物ID
-  processRouteNo: '', // 工艺路线编码
-  voltageLevel: '', // 电压等级
-  dataSource: '手工录入', // 数据来源
-  dataSourceCreateTime: new Date(), // 来源数据创建时间
-  ownerId: '', // 数据拥有方
-  openId: '', // 数据可见方
-  modelSpec: '', // 产品型号规格
-  writer: getWriterName() // 登录用户名称
+  purchaserHqCode: '',
+  ipoNo: '',
+  supplierCode: '',
+  supplierName: '',
+  contractNo: '',
+  woNo: generateWoNo(),
+  categoryCode: '',
+  subclassCode: '',
+  materialsCode: '',
+  planStartDate: '',
+  planFinishDate: '',
+  actualStartDate: '',
+  actualFinishDate: '',
+  woStatus: 1,
+  entityCode: '',
+  processRouteNo: '',
+  dataSource: '手工录入',
+  dataSourceCreateTime: new Date(),
+  ownerId: '',
+  openId: '',
+  writer: getWriterName()
 })
 
 // 表单验证规则
@@ -416,39 +485,48 @@ const rules = {
 }
 
 // 监听表单数据变化
-watch(() => props.formData, (newData) => {
-  if (newData && Object.keys(newData).length > 0) {
-    // 处理日期格式
-    const processedData = { ...newData }
-    if (processedData.planStartDate) {
-      processedData.planStartDate = new Date(processedData.planStartDate)
+watch(
+  () => props.formData,
+  (newData) => {
+    if (newData && Object.keys(newData).length > 0) {
+      // 处理日期格式
+      const processedData = { ...newData }
+      const dateFields = ['planStartDate', 'planFinishDate', 'actualStartDate', 'actualFinishDate']
+      dateFields.forEach(field => {
+        if (processedData[field]) {
+          processedData[field] = new Date(processedData[field]).toISOString().split('T')[0]
+        }
+      })
+      
+      Object.assign(form, processedData)
+      
+      // 如果是编辑模式且有工单号，加载物料列表
+      if (props.type === 'edit' && form.woNo) {
+        nextTick(() => {
+          loadMaterialList()
+        })
+      }
     }
-    if (processedData.planFinishDate) {
-      processedData.planFinishDate = new Date(processedData.planFinishDate)
-    }
-    if (processedData.actualStartDate) {
-      processedData.actualStartDate = new Date(processedData.actualStartDate)
-    }
-    if (processedData.actualFinishDate) {
-      processedData.actualFinishDate = new Date(processedData.actualFinishDate)
-    }
-    if (processedData.dataSourceCreateTime) {
-      processedData.dataSourceCreateTime = new Date(processedData.dataSourceCreateTime)
-    }
-    Object.assign(form, processedData)
-    
-    // 如果是编辑模式且有工单号，加载物料列表
-    if (props.type === 'edit' && form.woNo) {
-      loadMaterialList()
+  },
+  { immediate: true, deep: true }
+)
+
+// 监听弹窗显示状态
+watch(
+  () => props.visible,
+  (visible) => {
+    if (visible && props.type === 'add') {
+      form.woNo = generateWoNo()
     }
   }
-}, { immediate: true, deep: true })
+)
 
 // 重置表单
 const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
   }
+  
   Object.assign(form, {
     id: undefined,
     purchaserHqCode: '',
@@ -460,10 +538,6 @@ const resetForm = () => {
     categoryCode: '',
     subclassCode: '',
     materialsCode: '',
-    materialsDescription: '',
-    materialsBatch: '',
-    amount: '',
-    unit: '',
     planStartDate: '',
     planFinishDate: '',
     actualStartDate: '',
@@ -471,26 +545,25 @@ const resetForm = () => {
     woStatus: 1,
     entityCode: '',
     processRouteNo: '',
-    voltageLevel: '',
     dataSource: '手工录入',
     dataSourceCreateTime: new Date(),
     ownerId: '',
     openId: '',
-    modelSpec: '',
     writer: getWriterName()
   })
+  
   materialList.value = []
+  orderSelectorVisible.value = false
+  materialSelectorVisible.value = false
 }
 
 // 打开生产订单选择器
-const openOrderSelector = (e) => {
-  e.stopPropagation()
+const openOrderSelector = () => {
   orderSelectorVisible.value = true
 }
 
 // 打开物料选择器
-const openMaterialSelector = (e) => {
-  e.stopPropagation()
+const openMaterialSelector = () => {
   if (!form.ipoNo) {
     ElMessage.error('请先选择生产订单！')
     return
@@ -524,31 +597,30 @@ const handleMaterialSelect = (materials) => {
 }
 
 // 保存工单信息
-const saveWorkOrderInfo = () => {
+const saveWorkOrderInfo = async () => {
   if (!formRef.value) return
   
-  formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        orderSaving.value = true
-        
-        const formData = { ...form }
-        
-        if (props.type === 'add') {
-          await createPlshengchangongdan(formData)
-          ElMessage.success('工单信息保存成功')
-        } else {
-          await updatePlshengchangongdan(formData)
-          ElMessage.success('工单信息更新成功')
-        }
-      } catch (error) {
-        console.error('保存生产工单失败', error)
-        ElMessage.error('保存生产工单失败')
-      } finally {
-        orderSaving.value = false
-      }
+  try {
+    const valid = await formRef.value.validate()
+    if (!valid) return
+    
+    orderSaving.value = true
+    
+    const formData = { ...form }
+    
+    if (props.type === 'add') {
+      await createPlshengchangongdan(formData)
+      ElMessage.success('工单信息保存成功')
+    } else {
+      await updatePlshengchangongdan(formData)
+      ElMessage.success('工单信息更新成功')
     }
-  })
+  } catch (error) {
+    console.error('保存生产工单失败:', error)
+    ElMessage.error('保存生产工单失败')
+  } finally {
+    orderSaving.value = false
+  }
 }
 
 // 加载物料列表
@@ -557,9 +629,9 @@ const loadMaterialList = async () => {
   
   try {
     const res = await getGongdanItemList({ woNo: form.woNo })
-    materialList.value = res.data.itemList || []
+    materialList.value = res.data?.itemList || []
   } catch (error) {
-    console.error('加载物料列表失败', error)
+    console.error('加载物料列表失败:', error)
     ElMessage.error('加载物料列表失败')
   }
 }
@@ -567,18 +639,22 @@ const loadMaterialList = async () => {
 // 删除物料
 const deleteMaterial = async (material) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个物料吗？', '确认删除', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      '确定要删除这个物料吗？', 
+      '确认删除', 
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
     
     await deleteGongdanItem({ id: material.id })
     ElMessage.success('删除成功')
-    loadMaterialList() // 刷新列表
+    loadMaterialList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除物料失败', error)
+      console.error('删除物料失败:', error)
       ElMessage.error('删除物料失败')
     }
   }
@@ -595,8 +671,9 @@ const handleCancel = () => {
 .material-section {
   margin-bottom: 20px;
   border: 1px solid #e4e7ed;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 16px;
+  background: #fff;
 }
 
 .section-header {
@@ -604,7 +681,7 @@ const handleCancel = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  padding-bottom: 8px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #e4e7ed;
 }
 
@@ -616,54 +693,122 @@ const handleCancel = () => {
 }
 
 .form-section {
-  margin-bottom: 0px;
-  padding: 0px;
+  margin-bottom: 0%;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
 }
 
 .section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #303133;
-  margin-bottom: 8px;
+  color: #409eff;
+  margin-bottom: 0px;
+  padding-left: 8px;
+  border-left: 3px solid #409eff;
 }
 
+
+/* 表单样式优化 */
 :deep(.el-form-item) {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #606266;
+  font-size: 13px;
 }
 
 :deep(.el-input__inner),
 :deep(.el-textarea__inner),
 :deep(.el-select .el-input__inner) {
   border-radius: 4px;
-  height: 30px;
-}
-
-:deep(.el-form-item__label) {
-  font-weight: 400;
-  color: #666;
-  font-size: 13px;
+  height: 32px;
 }
 
 :deep(.el-input--append .el-input__inner) {
-  padding-right: 80px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 :deep(.el-input__append) {
-  background-color: #fff;
+  background-color: #f5f7fa;
   border-left: 1px solid #dcdfe6;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
 :deep(.el-input__append .el-button) {
-  border-radius: 0 4px 4px 0;
   height: 30px;
-  padding: 0 10px;
+  padding: 0 12px;
   margin: 0;
+  border: none;
+  background: transparent;
+  color: #409eff;
 }
 
-.empty-material {
-  text-align: center;
-  padding: 40px 0;
-  color: #909399;
-  font-size: 14px;
+:deep(.el-input__append .el-button:hover) {
+  color: #66b1ff;
+}
+
+/* 表格样式优化 */
+:deep(.el-table) {
+  border-radius: 4px;
+}
+
+:deep(.el-table th) {
+  background-color: #f5f7fa;
+  color: #606266;
+  font-weight: 600;
+}
+
+:deep(.el-table--border) {
+  border: 1px solid #ebeef5;
+}
+
+:deep(.el-table--border th) {
+  border-right: 1px solid #ebeef5;
+}
+
+:deep(.el-table--border td) {
+  border-right: 1px solid #ebeef5;
+}
+
+/* 按钮样式优化 */
+:deep(.el-button--small) {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .order-section,
+  .material-section {
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .section-header h3 {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  :deep(.el-col) {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  :deep(.el-form-item__label) {
+    width: 100px !important;
+  }
 }
 </style>

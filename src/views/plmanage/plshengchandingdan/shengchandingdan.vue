@@ -19,10 +19,10 @@
     <el-table :data="plshengchandingdanList" border v-loading="loading" style="width: 100%">
       <!-- 序号 -->
       <el-table-column type="index" label="序号" width="80" />
+             <el-table-column prop="contractNo" label="合同编号" />
+
       <el-table-column prop="ipoNo" label="生产订单号" />
-      <!-- 合同编号 -->
-       <el-table-column prop="contractNo" label="合同编号" />
-       <el-table-column prop="contractName" label="合同名称" />
+       <!-- <el-table-column prop="contractName" label="合同名称" /> -->
        <!-- <el-table-column prop="supplierName" label="供应商名称" /> -->
       <el-table-column prop="planStartDate" label="计划开始日期" width="180">
         <template #default="{ row }">
