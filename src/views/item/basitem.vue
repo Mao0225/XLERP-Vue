@@ -19,7 +19,7 @@
         </el-icon> 刷新
       </el-button>
 
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增合同</el-button>
+      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增物料</el-button>
     </div>
     
     <el-table :data="basItemList" border v-loading="loading" style="width: 100%">
