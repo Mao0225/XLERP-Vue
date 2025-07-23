@@ -260,7 +260,7 @@ const updateVisible = (value) => {
 // 处理表格行合并逻辑
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }) => {
   // 只有前6列（订货产品信息）需要合并
-  if (columnIndex < 6) {
+  if (columnIndex < 7) {
     const rowspan = spanArr.value[rowIndex];
     
     // 如果当前行的合并行数为0，说明这一行被合并到上面的行了

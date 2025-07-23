@@ -74,8 +74,7 @@
                 placeholder="选择生产车间"
                 size="small"
                 style="width: 100%"
-                collapse-tags
-                collapse-tags-tooltip
+
               >
                 <el-option 
                   v-for="workshop in workshopOptions" 

@@ -249,6 +249,32 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['update:visible', 'submit', 'cancel'])
 
+
+
+//生产车间列表对应编号
+const workshopOptions = ref([
+  { code: 'fc009', name: '外购' },
+  { code: 'fc008', name: '外协单位' },
+  { code: 'fc007', name: '铁塔分厂' },
+  { code: 'fc006', name: '机加分厂' },
+  { code: 'fc005', name: '铆焊分厂' },
+  { code: 'fc004', name: '锻造分厂' },
+  { code: 'fc003', name: '铝管分厂' },
+  { code: 'fc002', name: '铸铝分厂' },
+  { code: 'fc001', name: '铸造分厂' },
+  { code: 'scylb', name: '市场营销部' }
+])
+
+//处理编号对应的名称显示
+const getWorkshopName = (codes) => {
+  if (!codes) return ''
+  const codeArray = codes.split(',')
+  const names = codeArray.map(code => {
+    const workshop = workshopOptions.value.find(option => option.code === code.trim())
+    return workshop ? workshop.name : code
+  })
+  return names.join(',')
+}
 // 订单类型选项
 const typeOptions = [
   { id: 1, value: '采购订单' },
@@ -518,7 +544,11 @@ const loadMaterialList = async () => {
   
   try {
     const res = await getDingdanItemList({ ipoNo: form.ipoNo })
-    materialList.value = res.data.itemList || []
+    // Map workshop codes to names for each material
+    materialList.value = (res.data.itemList || []).map(item => ({
+      ...item,
+      workshopName: getWorkshopName(item.workshopName || item.workshopCode || '')
+    }))
   } catch (error) {
     console.error('加载物料列表失败', error)
     ElMessage.error('加载物料列表失败')

@@ -152,6 +152,33 @@ const selectedMaterials = ref([])
 // 是否有选中的物料
 const hasSelection = computed(() => selectedMaterials.value.length > 0)
 
+
+
+//生产车间列表对应编号
+const workshopOptions = ref([
+  { code: 'fc009', name: '外购' },
+  { code: 'fc008', name: '外协单位' },
+  { code: 'fc007', name: '铁塔分厂' },
+  { code: 'fc006', name: '机加分厂' },
+  { code: 'fc005', name: '铆焊分厂' },
+  { code: 'fc004', name: '锻造分厂' },
+  { code: 'fc003', name: '铝管分厂' },
+  { code: 'fc002', name: '铸铝分厂' },
+  { code: 'fc001', name: '铸造分厂' },
+  { code: 'scylb', name: '市场营销部' }
+])
+
+//处理编号对应的名称显示
+const getWorkshopName = (codes) => {
+  if (!codes) return ''
+  const codeArray = codes.split(',')
+  const names = codeArray.map(code => {
+    const workshop = workshopOptions.value.find(option => option.code === code.trim())
+    return workshop ? workshop.name : code
+  })
+  return names.join(',')
+}
+
 // 加载生产订单物料数据
 const loadOrderMaterialData = async () => {
   if (!props.ipoNo) {
@@ -174,7 +201,7 @@ const loadOrderMaterialData = async () => {
       productModel: item.productModel || '',
       amount: item.amount || 0,
       unit: item.unit || '',
-      workshopName: item.workshopName || '', // 生产车间直接从订单物料获取
+      workshopName: getWorkshopName(item.workshopName || item.workshopCode || ''), // 映射生产车间代码到名称
       originalMemo: item.memo || '',
       // 新增字段
       productionAmount: 0, // 生产数量

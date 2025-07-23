@@ -389,6 +389,35 @@ const statusOptions = [
   { id: 5, value: '已过期' }
 ]
 
+
+
+
+//生产车间列表对应编号
+const workshopOptions = ref([
+  { code: 'fc009', name: '外购' },
+  { code: 'fc008', name: '外协单位' },
+  { code: 'fc007', name: '铁塔分厂' },
+  { code: 'fc006', name: '机加分厂' },
+  { code: 'fc005', name: '铆焊分厂' },
+  { code: 'fc004', name: '锻造分厂' },
+  { code: 'fc003', name: '铝管分厂' },
+  { code: 'fc002', name: '铸铝分厂' },
+  { code: 'fc001', name: '铸造分厂' },
+  { code: 'scylb', name: '市场营销部' }
+])
+
+//处理编号对应的名称显示
+const getWorkshopName = (codes) => {
+  if (!codes) return ''
+  const codeArray = codes.split(',')
+  const names = codeArray.map(code => {
+    const workshop = workshopOptions.value.find(option => option.code === code.trim())
+    return workshop ? workshop.name : code
+  })
+  return names.join(',')
+}
+
+
 // 弹窗显示状态
 const dialogVisible = computed({
   get: () => props.visible,
@@ -629,7 +658,10 @@ const loadMaterialList = async () => {
   
   try {
     const res = await getGongdanItemList({ woNo: form.woNo })
-    materialList.value = res.data?.itemList || []
+    materialList.value = (res.data.itemList || []).map(item => ({
+      ...item,
+      workshopName: getWorkshopName(item.workshopName || item.workshopCode || '')
+    }))
   } catch (error) {
     console.error('加载物料列表失败:', error)
     ElMessage.error('加载物料列表失败')

@@ -17,7 +17,16 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="送货单位" prop="deliverunit">
-              <el-input v-model="form.deliverunit" placeholder="送货单位" clearable size="small" />
+              <el-input 
+                v-model="form.deliverunit" 
+                placeholder="送货单位" 
+                readonly 
+                @click="openSupplierSelector"
+              >
+                <template #append>
+                  <el-button @click="openSupplierSelector" size="small">选择</el-button>
+                </template>
+              </el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -38,7 +47,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="经手人" prop="handleperson">
-              <el-input v-model="form.handleperson" placeholder="经手人" clearable size="small" />
+              <el-input v-model="form.handleperson" placeholder="经手人" clearable size="small" readonly/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -166,11 +175,12 @@ tt          <el-table-column prop="quantity" label="数量" width="100" />
         </el-table>
       </div>
 
-      <!-- 操作按钮 -->
-      <div class="form-actions">
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+      <!-- 操作按钮 居中显示-->
+      <div style="text-align: center;">
         <el-button @click="handleCancel">取消</el-button>
-        <el-button v-if="showSaveAsDraft" type="info" @click="handleSaveDraft">保存草稿</el-button>
+                <el-button type="primary" @click="handleSubmit">确定</el-button>
+
+        <!-- <el-button v-if="showSaveAsDraft" type="info" @click="handleSaveDraft">保存草稿</el-button> -->
       </div>
     </el-form>
 
@@ -182,6 +192,11 @@ tt          <el-table-column prop="quantity" label="数量" width="100" />
     <PaichanjihuaSelector
       v-model="paichanjihuaSelectorVisible"
       :onSelect="handlePaichanjihuaSelect"
+    />
+
+    <SupplierSelector
+      v-model="supplierSelectorVisible"
+      :onSelect="handleSupplierSelect"
     />
   </div>
 </template>
@@ -195,6 +210,7 @@ import { createPlinoutstore, updatePlinoutstore, deletePlinoutstore } from '@/ap
 import ProductSelector from './ProductSelector.vue';
 import ContractSelector from './ContractSelector.vue';
 import PaichanjihuaSelector from './paichanjihuaSelector.vue';
+import SupplierSelector from './gongyingshangSelector.vue';
 import { useUserStore } from '@/store/user';
 
 // 获取用户存储
@@ -240,7 +256,7 @@ const materialFormRef = ref(null);
 const contractSelectorVisible = ref(false); // 合同选择器显示状态
 const productSelectorVisible = ref(false); // 产品选择器显示状态
 const paichanjihuaSelectorVisible = ref(false); // 排产计划选择器显示状态
-
+const supplierSelectorVisible = ref(false);
 // 响应式表单数据
 const form = reactive({
   orderno: '',
@@ -360,6 +376,11 @@ const openPaichanjihuaSelector = () => {
   paichanjihuaSelectorVisible.value = true;
 };
 
+// 打开供应商选择器
+const openSupplierSelector = () => {
+  supplierSelectorVisible.value = true;
+};
+
 // 处理合同选择
 const handleContractSelect = (contract) => {
   if (contract) {
@@ -397,6 +418,11 @@ const handlePaichanjihuaSelect = (plan) => {
   currentMaterial.unit = plan.unit;
   currentMaterial.price = plan.itemprice;
   currentMaterial.quantity = parseFloat(plan.gdamount); // 转换为浮点数
+};
+
+const handleSupplierSelect = (supplier) => {
+  form.deliverunit = supplier.descr;
+  supplierSelectorVisible.value = false;
 };
 
 // 添加或更新物料
