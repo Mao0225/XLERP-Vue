@@ -49,6 +49,8 @@
           <el-table-column prop="itemSpec" label="规格型号" min-width="100" />
           <el-table-column prop="itemunit" label="单位" width="80" />
           <el-table-column prop="itemnum" label="合同数量" width="100" />
+          <el-table-column prop="allocatedOrderAmount" label="已分配数量" width="100" />
+
           
           <!-- 生产数量输入 -->
           <el-table-column label="生产数量" width="120">
@@ -99,7 +101,7 @@
           
           <el-table-column prop="itemmemo" label="合同备注" min-width="100" />
           
-          <el-table-column label="操作" width="100">
+          <el-table-column label="操作" width="200">
             <template #default="{ row }">
               <el-button 
                 type="primary" 
@@ -108,6 +110,13 @@
                 :disabled="!canAddMaterial(row)"
               >
                 添加
+              </el-button>
+              <el-button 
+                type="primary" 
+                size="small" 
+                @click="openItemCountDetail(row.id)"
+              >
+                查看分配详情
               </el-button>
             </template>
           </el-table-column>
@@ -118,7 +127,11 @@
         </div>
       </el-card>
     </div>
-
+    <ConItemCountDetail
+      :visible="showTreeDialog"
+      :conItemId="selectedConItemId"
+      @update:visible="showTreeDialog = $event"
+    />
     <template #footer>
       <el-button @click="handleClose">关闭</el-button>
     </template>
@@ -130,6 +143,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getContractInfoByNo } from '@/api/contract/bascontract.js'
 import { saveDingdanItem } from '@/api/plmanage/plshengchandingdan'
+import ConItemCountDetail from './ConItemCountDetail.vue'
 
 const props = defineProps({
   contractNo: {
@@ -150,6 +164,15 @@ const props = defineProps({
   }
 })
 
+
+const showTreeDialog = ref(false)
+const selectedConItemId = ref('') // 从其他地方获取的conItemId
+
+// 示例：点击按钮显示弹窗
+const openItemCountDetail = (id) => {
+  selectedConItemId.value = id
+  showTreeDialog.value = true
+}
 const emit = defineEmits(['update:modelValue'])
 
 // 合同信息
@@ -201,6 +224,7 @@ const loadContractData = async () => {
       id: item.id,
       conitemId: item.id, // 合同物料ID
       itemName: item.itemName || '',
+      allocatedOrderAmount:item.allocatedOrderAmount || 0,
       itemSpec: item.itemSpec || '',
       itemnum: item.itemnum || 0,
       itemunit: item.itemunit || '',
@@ -257,6 +281,7 @@ const batchAdd = async () => {
       ipoNo: props.ipoNo,
       conitemId: item.conitemId,
       itemname: item.itemName,
+      allocatedOrderAmount: item.allocatedOrderAmount,
       productModel: item.itemSpec,
       amount: item.productionAmount.toString(),
       unit: item.itemunit,
@@ -290,6 +315,7 @@ const addSingleMaterial = async (row) => {
       ipoNo: props.ipoNo,
       conitemId: row.conitemId,
       itemname: row.itemName,
+      allocatedOrderAmount: row.allocatedOrderAmount,
       productModel: row.itemSpec,
       amount: row.productionAmount.toString(),
       unit: row.itemunit,

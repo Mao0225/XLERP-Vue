@@ -218,7 +218,8 @@ import {
   createPlshengchandingdan, 
   updatePlshengchandingdan,
   getDingdanItemList,
-  deleteDingdanItem
+  deleteDingdanItem,
+  getItemCountDetail
 } from '@/api/plmanage/plshengchandingdan'
 import ContractSelector from './components/ContractSelector.vue'
 import MaterialSelector from './components/ContracItemSelect.vue'

@@ -234,10 +234,15 @@
           <el-table-column prop="itemNo" label="产品编号" width="100" />
           <el-table-column prop="itemName" label="产品名称" min-width="80" />
           <el-table-column prop="itemSpec" label="规格型号" min-width="80" />
+          <el-table-column prop="poItemNo" label="采购行项目号" width="100" />
+          <el-table-column prop="poItemId" label="采购行项目ID" min-width="80" />
+          <el-table-column prop="poItemCode" label="国网物料编码" min-width="80" />
           <el-table-column prop="itemnum" label="数量" min-width="80" />
           <el-table-column prop="itemunit" label="单位" min-width="80" />
-          <el-table-column prop="itemprice" label="单价" min-width="80" />
-          <el-table-column prop="itemsum" label="金额" min-width="80" />
+          <el-table-column prop="itemprice" label="计划单价" min-width="80" />
+          <el-table-column prop="itemsum" label="计划总金额" min-width="80" />
+          <el-table-column prop="itemRealPrice" label="销售单价" min-width="80" />
+          <el-table-column prop="itemRealSum" label="销售总金额" min-width="80" />
           <el-table-column prop="itemweight" label="单重(kg)" min-width="80" />
           <el-table-column prop="itemgrossweight" label="总重(kg)" min-width="80" />
           <el-table-column prop="itemmemo" label="备注" min-width="80" />
@@ -249,18 +254,18 @@
           </el-table-column>
         </el-table>
 
-        <div v-if="productList.length === 0" class="empty-product">
+        <!-- <div v-if="productList.length === 0" class="empty-product">
           <p>暂无产品信息，请点击添加产品</p>
-        </div>
+        </div> -->
       </el-card>
     </el-form>
 
     <!-- 产品添加/编辑弹窗 -->
-    <el-dialog v-model="productDialogVisible" :title="isProductEdit ? '编辑产品' : '添加产品'" width="600px"
+    <el-dialog v-model="productDialogVisible" :title="isProductEdit ? '编辑产品' : '添加产品'" width="800px"
       :close-on-click-modal="false">
-      <el-form ref="productFormRef" :model="currentProduct" :rules="rules" label-width="100px" size="small">
+      <el-form ref="productFormRef" :model="currentProduct" :rules="rules" label-width="120px" size="small">
         <el-row :gutter="20">
-          <el-col :span="24">
+          <el-col :span="10">
             <el-form-item label="产品名称" prop="itemName">
               <el-input v-model="currentProduct.itemName" placeholder="点击选择产品" readonly @click="selectProduct">
                 <template #append>
@@ -269,36 +274,66 @@
               </el-input>
             </el-form-item>
           </el-col>
+                   <el-col :span="10">
+            <el-form-item label="国网物料编码" prop="poItemCode">
+              <el-input v-model="currentProduct.poItemCode" placeholder="请输入国网物料编码" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <!-- 采购相关信息 -->
+        <el-row :gutter="20">
+          <el-col :span="10">
+            <el-form-item label="采购行项目号" prop="poItemNo">
+              <el-input v-model="currentProduct.poItemNo" placeholder="请输入采购行项目号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="采购行项目ID" prop="poItemId">
+              <el-input v-model="currentProduct.poItemId" placeholder="请输入采购行项目ID" />
+            </el-form-item>
+          </el-col>
+ 
         </el-row>
 
-        <el-row :gutter="5">
-          <el-col :span="8">
+        <el-row :gutter="20">
+          <el-col :span="10">
             <el-form-item label="数量" prop="itemnum">
               <el-input-number v-model="currentProduct.itemnum" :min="1" style="width: 100%"
                 @change="updateCalculations" />
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="10">
             <el-form-item label="单位" prop="itemunit">
               <el-input v-model="currentProduct.itemunit" placeholder="请输入单位" />
             </el-form-item>
           </el-col>
+          
+        </el-row>
+
+        <!-- 销售价格信息 -->
+        <el-row :gutter="20">
           <el-col :span="10">
-            <el-form-item label="单价(¥)" prop="itemprice">
-              <el-input-number v-model="currentProduct.itemprice" :min="0" :precision="2" style="width: 100%"
+            <el-form-item label="销售单价(¥)" prop="itemRealPrice">
+              <el-input-number v-model="currentProduct.itemRealPrice" :min="0" :precision="2" style="width: 100%"
                 @change="updateCalculations" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="销售总金额(¥)">
+              <el-input v-model="currentProduct.itemRealSum" readonly placeholder="自动计算" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="20">
-          <el-col :span="12">
+          <el-col :span="10">
             <el-form-item label="单重(kg)" prop="itemweight">
               <el-input-number v-model="currentProduct.itemweight" :min="0" :precision="2" style="width: 100%"
                 @change="updateCalculations" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="10">
             <el-form-item label="总重(kg)">
               <el-input v-model="currentProduct.itemgrossweight" readonly placeholder="自动计算" />
             </el-form-item>
@@ -306,12 +341,18 @@
         </el-row>
 
         <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="总金额(¥)">
+          <el-col :span="10">
+            <el-form-item label="计划单价(¥)" prop="itemprice">
+              <el-input-number v-model="currentProduct.itemprice" :min="0" :precision="2" style="width: 100%"
+                @change="updateCalculations" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="计划总金额(¥)">
               <el-input v-model="currentProduct.itemsum" readonly placeholder="自动计算" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="20">
             <el-form-item label="备注">
               <el-input v-model="currentProduct.itemmemo" type="textarea" :rows="3" placeholder="请输入备注" />
             </el-form-item>
@@ -425,6 +466,9 @@ console.log('表格区间', form.term);
 const currentProduct = reactive({
   id: undefined,
   no: null,
+  poItemId: null,
+  poItemCode: null,
+  poItemNo: null,
   itemid: null,
   itemNo: '',
   itemName: '',
@@ -435,7 +479,9 @@ const currentProduct = reactive({
   itemweight: 0,
   itemmemo: '',
   itemgrossweight: 0,
-  itemsum: 0
+  itemsum: 0,
+  itemRealPrice: 0,
+  itemRealSum: 0,
 });
 
 const productList = ref([]);
@@ -510,6 +556,9 @@ const addProduct = () => {
   Object.assign(currentProduct, {
     id: undefined,
     no: form.no,
+    poItemId: null,
+    poItemCode: null,
+    poItemNo: null,
     itemid: null,
     itemNo: '',
     itemName: '',
@@ -520,7 +569,9 @@ const addProduct = () => {
     itemweight: 0,
     itemmemo: '',
     itemgrossweight: 0,
-    itemsum: 0
+    itemsum: 0,
+    itemRealPrice: 0,
+    itemRealSum: 0,
   });
   productDialogVisible.value = true;
 };
@@ -533,6 +584,9 @@ const editProduct = async (index, row) => {
       Object.assign(currentProduct, {
         id: item.id,
         no: item.no,
+        poItemNo: item.poItemNo || '',
+        poItemId: item.poItemId || '',
+        poItemCode: item.poItemCode ||'',
         itemid: item.itemid,
         itemNo: item.itemNo || '',
         itemName: item.itemName || '',
@@ -543,7 +597,9 @@ const editProduct = async (index, row) => {
         itemweight: item.itemweight || 0,
         itemmemo: item.itemmemo || '',
         itemgrossweight: item.itemgrossweight || 0,
-        itemsum: item.itemsum || 0
+        itemsum: item.itemsum || 0,
+        itemRealPrice: item.itemRealPrice || 0,
+        itemRealSum: item.itemRealSum || 0
       });
       isProductEdit.value = true;
       editingProductIndex.value = index;
@@ -593,6 +649,9 @@ const confirmProduct = async () => {
       const res = await createBasContractItem(productData);
       productList.value.push({
         id: res.data.itemId,
+        poItemNo: currentProduct.poItemNo,
+        poItemId: currentProduct.poItemId,
+        poItemCode: currentProduct.poItemCode,
         itemid: currentProduct.itemid,
         itemNo: currentProduct.itemNo,
         itemName: currentProduct.itemName,
@@ -603,6 +662,8 @@ const confirmProduct = async () => {
         itemsum: currentProduct.itemsum,
         itemweight: currentProduct.itemweight,
         itemgrossweight: currentProduct.itemgrossweight,
+        itemRealPrice: currentProduct.itemRealPrice,
+        itemRealSum: currentProduct.itemRealSum,
         itemmemo: currentProduct.itemmemo
       });
       ElMessage.success('产品添加成功');
@@ -665,7 +726,10 @@ const submitForm = () => {
 const updateCalculations = () => {
   currentProduct.itemgrossweight = (currentProduct.itemnum * currentProduct.itemweight).toFixed(2);
   currentProduct.itemsum = (currentProduct.itemnum * currentProduct.itemprice).toFixed(2);
+  currentProduct.itemRealSum = (currentProduct.itemnum * currentProduct.itemRealPrice).toFixed(2);
 };
+
+
 
 watch(
   () => props.contractNo,

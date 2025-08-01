@@ -97,3 +97,14 @@ export function updateDingdanItem(data) {
 export function deleteDingdanItem(params) {
   return del('/plshengchandingdan/item/delete', params)
 }
+
+
+/**
+ * 获取合同物料分解订单和工单详情
+ * @param {Object} params - 获取参数
+ * @param {string} params.conItemId - 合同物料ID
+ * @returns {Promise} - 获取结果 Promise
+ */
+export function getItemCountDetail(params) {
+  return get('/plshengchandingdan/getItemCount', params)
+}
