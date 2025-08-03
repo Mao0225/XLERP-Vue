@@ -704,7 +704,7 @@ onMounted(() => {
 
 .pagination-container {
  display: flex;
- justify-content: center;
+ justify-content: left;
  margin-top: 20px;
 }
 

@@ -78,3 +78,14 @@ export function deleteBasContractItem(param) {
 export function updateBasContractStatus(data) {
   return put('/bascontract/updateStatusById', data)
 }
+
+
+
+/**
+ * 根据Xls和xlsx文件导入合同物料列表
+ * @param {File} itemListFile 文件
+ * @return {itemList} 物料列表
+ */
+export function importContractItem(data) {
+  return post('/bascontract/importContractItem', data)
+}

@@ -157,7 +157,7 @@ const handleRowClick = (row) => {
 // 选择合同号
 const selectWoNo = (woNo) => {
   // 通知父组件选中了合同号
-  emit('select', woNo.woNo);
+  emit('select', woNo);
   // 关闭弹窗
   visible.value = false;
 };

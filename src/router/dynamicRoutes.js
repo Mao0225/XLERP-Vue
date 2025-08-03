@@ -64,9 +64,12 @@ const viewComponents = {
    'kucun/chengpin': () => import('@/views/kucun/chengpin.vue'),
    //重点原材料库存管理
    'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
-   //悬垂线夹铝材
+   //悬垂线夹铝材--tqy
    'clmanage/xcxjlc': () => import('@/views/clmanage/xcxjlc/xcxjlc.vue'),
-   
+    //并沟线夹设备线夹铝材--ljq
+    'clmanage/clbgxjsbxjlc': () => import('@/views/clmanage/clbgxjsbxjlc.vue'),
+    // 材料数据检验--学妹 芯
+    'clmanage/clproductiondata' : () => import('@/views/clmanage/clproductiondata/clproductiondata.vue'),
 }
 
   // 可以根据需要添加更多组件映射 tongzhitiliaodan

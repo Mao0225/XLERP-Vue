@@ -221,7 +221,11 @@
       <el-card v-if="isEdit" class="form-card" shadow="never">
         <template #header>
           <div class="card-header">
-            <span class="card-title">产品信息</span>
+            <div class="summary-info">
+              <span class="card-title">产品信息</span>
+            <el-button type="warning" size="small" @click="importProduct" :disabled="isConfirmed">导入产品</el-button>
+            </div>
+            
             <div class="summary-info">
               <span>总金额: ¥{{ totalAmount.toFixed(2) }}</span>
               <span style="margin: 0 20px;">总重量: {{ totalWeight.toFixed(2) }}kg</span>
@@ -376,17 +380,23 @@
 
     <!-- 客户选择弹窗 -->
     <CustomerSelector v-model="customerSelectorVisible" @select="handleCustomerSelect" />
+    <!-- 导入结果弹窗 -->
+    <ImportResultDialog 
+  v-model="importResultVisible" 
+  :import-data="importResultData"
+  @confirm="handleImportResultConfirm"
+/>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getContractInfoByNo, updateBasContract, createBasContractItem, deleteBasContractItem, getBasContractItem, updateBasContractItem, createBasContract } from '@/api/contract/bascontract.js';
+import { getContractInfoByNo, updateBasContract, createBasContractItem, deleteBasContractItem, getBasContractItem, updateBasContractItem, createBasContract,importContractItem } from '@/api/contract/bascontract.js';
 import ProductSelector from './components/ProductSelector.vue';
 import SalesmanSelector from './components/SalesmanSelector.vue';
 import CustomerSelector from './components/CustomerSelector.vue';
-
+import ImportResultDialog from './components/ImportResultDialog.vue';
 // 获取当前的期数term
 import { useTermStore } from '@/store/term.js';
 const termStore = useTermStore();
@@ -418,7 +428,8 @@ const salesmanSelectorVisible = ref(false);
 const customerSelectorVisible = ref(false);
 const productDialogVisible = ref(false);
 const addProductLoading = ref(false);
-
+const importResultVisible = ref(false);
+const importResultData = ref({});
 const isConfirmed = ref(false);
 const form = reactive({
   no: '',
@@ -550,6 +561,205 @@ const handleCustomerSelect = (customer) => {
 
 };
 
+/**
+ * 导入产品数据
+ */
+// const importProduct = () => {
+//   // 1. 创建隐藏的文件输入元素
+//   const input = document.createElement('input');
+//   input.type = 'file';
+//   input.accept = '.xls,.xlsx'; // 只接受 xls 和 xlsx 文件
+//   input.style.display = 'none';
+
+//   // 2. 添加 change 事件监听
+//   input.addEventListener('change', async (event) => {
+//     const file = event.target.files[0];
+//     if (!file) {
+//       ElMessage.error('未选择文件');
+//       return;
+//     }
+
+//     // 3. 验证文件类型
+//     const validTypes = [
+//       'application/vnd.ms-excel',
+//       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+//     ];
+//     if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+//       ElMessage.error('请选择 Excel 文件 (.xls 或 .xlsx)');
+//       return;
+//     }
+
+//     // 4. 准备 FormData
+//     const formData = new FormData();
+//     formData.append('itemListFile', file); // 注意：与后端接口的字段名一致
+//     //获取厂内合同号
+//     const contractNo = form.no;
+//     console.log('导入合同号',contractNo);
+//     formData.append('contractNo', contractNo);
+//     try {
+//       // 5. 调用导入接口
+//       const res = await importContractItem(formData);
+
+//       // 6. 检查响应是否成功
+//       if (res.code === 200 && res.data) {
+//         // 7. 提取导入详情
+//         const { successCount, failedRows, failedCount, totalRows } = res.data;
+
+//         // 8. 构建失败行详情
+//         const failedDetails = failedRows && failedRows.length > 0
+//           ? failedRows.map(row => `第 ${row.rowNumber} 行: ${row.error}`).join('<br>')
+//           : '无失败行';
+
+//         // 9. 显示导入详情弹窗
+//         ElMessageBox.alert(
+//           `
+//             <div>
+//               <p><strong>导入总数:</strong> ${totalRows} 条</p>
+//               <p><strong>成功导入:</strong> ${successCount} 条</p>
+//               <p><strong>失败数量:</strong> ${failedCount} 条</p>
+//               <p><strong>失败详情:</strong></p>
+//               <p>${failedDetails}</p>
+//             </div>
+//           `,
+//           '导入结果',
+//           {
+//             dangerouslyUseHTMLString: true,
+//             confirmButtonText: '确定',
+//             callback: () => {
+//               // 10. 刷新合同信息
+//               loadContractData();
+//             }
+//           }
+//         );
+
+//         ElMessage.success(`文件导入完成，总计 ${totalRows} 条，成功 ${successCount} 条`);
+//       } else {
+//         ElMessage.error('导入失败：' + (res.msg || '未知错误'));
+//       }
+//     } catch (error) {
+//       console.error('导入错误', error);
+//       ElMessage.error('导入物料失败');
+//     } finally {
+//       // 11. 移除临时输入元素
+//       document.body.removeChild(input);
+//     }
+//   });
+
+//   // 12. 触发文件选择对话框
+//   document.body.appendChild(input);
+//   input.click();
+// };
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * 导入产品数据
+ */
+const importProduct = () => {
+  // 创建隐藏的文件输入元素
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xls,.xlsx';
+  input.style.display = 'none';
+
+  // 添加 change 事件监听
+  input.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      ElMessage.error('未选择文件');
+      return;
+    }
+
+    // 验证文件类型
+    const validTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+      ElMessage.error('请选择 Excel 文件 (.xls 或 .xlsx)');
+      return;
+    }
+
+    // 准备 FormData
+    const formData = new FormData();
+    formData.append('itemListFile', file);
+    const contractNo = form.no;
+    console.log('导入合同号', contractNo);
+    formData.append('contractNo', contractNo);
+
+    try {
+      // 调用导入接口
+      const res = await importContractItem(formData);
+
+      // 检查响应是否成功
+      if (res.code === 200 && res.data) {
+        // 显示导入结果弹窗
+        showImportResultDialog(res.data);
+        
+        // 显示简要成功消息
+        ElMessage.success(`文件导入完成，总计 ${res.data.totalRows} 条，成功 ${res.data.successCount} 条`);
+      } else {
+        ElMessage.error('导入失败：' + (res.msg || '未知错误'));
+      }
+    } catch (error) {
+      console.error('导入错误', error);
+      ElMessage.error('导入物料失败');
+    } finally {
+      // 移除临时输入元素
+      document.body.removeChild(input);
+    }
+  });
+
+  // 触发文件选择对话框
+  document.body.appendChild(input);
+  input.click();
+};
+
+
+/**
+ * 显示导入结果弹窗
+ * @param {Object} data - 导入结果数据
+ */
+const showImportResultDialog = (data) => {
+  importResultData.value = data;
+  importResultVisible.value = true;
+};
+
+/**
+ * 导入结果确认回调
+ */
+const handleImportResultConfirm = () => {
+  // 刷新合同信息
+  loadContractData();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const addProduct = () => {
   isProductEdit.value = false;
   editingProductIndex.value = -1;
@@ -648,11 +858,11 @@ const confirmProduct = async () => {
     } else {
       const res = await createBasContractItem(productData);
       productList.value.push({
-        id: res.data.itemId,
+        id: res.data.itemId,//增加后返回的id是这个合同物料的ID
         poItemNo: currentProduct.poItemNo,
         poItemId: currentProduct.poItemId,
         poItemCode: currentProduct.poItemCode,
-        itemid: currentProduct.itemid,
+        itemid: currentProduct.itemid,//关联basItem表的ID
         itemNo: currentProduct.itemNo,
         itemName: currentProduct.itemName,
         itemSpec: currentProduct.itemSpec,
@@ -791,6 +1001,7 @@ onMounted(() => {
   font-weight: bold;
   color: #303133;
   font-size: 14px;
+  margin-right: 8px;
 }
 
 .card-header {
