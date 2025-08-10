@@ -32,8 +32,7 @@ const viewComponents = {
   'hruser/hruserlist': () => import('@/views/hruser/hruserlist.vue'),
   //实物ID
   'plmanage/plentityid': () => import('@/views/plmanage/plentityid/plentityid.vue'),
-  //出入库
-  'plmanage/plinoutstore': () => import('@/views/plmanage/plinoutstore/plinoutstore.vue'),
+
   //生产订单
   'plmanage/plshengchandingdan': () => import('@/views/plmanage/plshengchandingdan/shengchandingdan.vue'),
   //生产工单
@@ -64,6 +63,8 @@ const viewComponents = {
    'kucun/chengpin': () => import('@/views/kucun/chengpin.vue'),
    //重点原材料库存管理
    'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
+    //原材料入库
+    'kucun/plinoutstore': () => import('@/views/kucun/plinoutstore/plinoutstore.vue'),
    //悬垂线夹铝材--tqy
    'clmanage/xcxjlc': () => import('@/views/clmanage/xcxjlc/xcxjlc.vue'),
     //并沟线夹设备线夹铝材--ljq
