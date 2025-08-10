@@ -313,25 +313,25 @@ const handleDelete = (row) => {
 // 提交表单
 const submitForm = async (formData) => {
   try {
-    for (const material of formData.materials) {
-      const saveData = {
-        ...formData,
-        id: material.id,
-        materialno: material.materialno,
-        materialname: material.materialname,
-        spec: material.spec,
-        unit: material.unit,
-        quantity: material.quantity,
-        price: material.price,
-        totalmoney: material.totalmoney
-      };
-      delete saveData.materials;
-      if (dialogType.value === 'edit' && material.id) {
-        await updatePlinoutstore(saveData);
-      } else {
-        await createPlinoutstore(saveData);
-      }
-    }
+    // for (const material of formData.materials) {
+    //   const saveData = {
+    //     ...formData,
+    //     id: material.id,
+    //     materialno: material.materialno,
+    //     materialname: material.materialname,
+    //     spec: material.spec,
+    //     unit: material.unit,
+    //     quantity: material.quantity,
+    //     price: material.price,
+    //     totalmoney: material.totalmoney
+    //   };
+    //   delete saveData.materials;
+    //   if (dialogType.value === 'edit' && material.id) {
+    //     await updatePlinoutstore(saveData);
+    //   } else {
+    //     await createPlinoutstore(saveData);
+    //   }
+    // }
     ElMessage.success(dialogType.value === 'add' ? '新增成功' : '修改成功');
     dialogVisible.value = false;
     getPlinoutstoreListpage();

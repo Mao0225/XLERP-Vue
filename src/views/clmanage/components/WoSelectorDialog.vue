@@ -36,23 +36,23 @@
       @row-click="handleRowClick"
       highlight-current-row
     >
-      <el-table-column type="index" label="序号" width="80" />
-      <el-table-column prop="woNo" label="生产工单号" width="150" />
+      <el-table-column type="index" label="序号" width="60" />
+      <el-table-column prop="woNo" label="生产工单号" width="180" />
       <el-table-column prop="contractNo" label="合同编号" width="150" />
-      <el-table-column prop="ipoNo" label="生产订单号" width="150" />
-      <el-table-column prop="planStartDate" label="计划开始日期" width="130">
+      <el-table-column prop="ipoNo" label="生产订单号" width="180"/>
+      <el-table-column prop="planStartDate" label="计划开始日期">
         <template #default="{ row }">
           {{ formatDate(row.planStartDate) }}
         </template>
       </el-table-column>
-      <el-table-column prop="planFinishDate" label="计划完成日期" width="130">
+      <el-table-column prop="planFinishDate" label="计划完成日期">
         <template #default="{ row }">
           {{ formatDate(row.planFinishDate) }}
         </template>
       </el-table-column>
-      <el-table-column prop="writer" label="录入人" width="100" />
-      <el-table-column prop="writeTime" label="录入时间" width="150" />
-      <el-table-column label="操作" width="120">
+      <el-table-column prop="writer" label="录入人"/>
+      <el-table-column prop="writetime" label="录入时间"/>
+      <el-table-column label="操作" width="100">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click.stop="selectWo(row)">选择</el-button>
         </template>

@@ -45,11 +45,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item label="经手人" prop="handleperson">
-              <el-input v-model="form.handleperson" placeholder="经手人" clearable size="small" readonly/>
-            </el-form-item>
-          </el-col>
+
         </el-row>
         <el-row :gutter="16">
           <el-col :span="8">
@@ -66,7 +62,11 @@
               </el-input>
             </el-form-item>
           </el-col>
-          
+          <el-col :span="8">
+            <el-form-item label="期间" prop="term">
+              <el-input v-model="form.term" placeholder="期间" clearable size="small" readonly/>
+            </el-form-item>
+          </el-col>
         </el-row>
       </div>
 
@@ -137,13 +137,24 @@
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="单价" prop="price">
+              <el-form-item label="计划单价" prop="price">
                 <el-input-number v-model="currentMaterial.price" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="金额" prop="totalmoney">
+              <el-form-item label="计划总金额" prop="totalmoney">
                 <el-input-number v-model="currentMaterial.totalmoney" :min="0" :precision="2" controls-position="right" disabled size="small" style="width: 100%" />
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="6">
+              <el-form-item label="销售单价" prop="realprice">
+                <el-input-number v-model="currentMaterial.realprice" :min="0" :precision="2" controls-position="right" size="small" style="width: 100%" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="销售总金额" prop="realTotalMoney">
+                <el-input-number v-model="currentMaterial.realTotalMoney" :min="0" :precision="2" controls-position="right" disabled size="small" style="width: 100%" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -165,8 +176,10 @@
           <el-table-column prop="spec" label="规格型号" width="120" />
           <el-table-column prop="unit" label="计量单位" width="100" />
 tt          <el-table-column prop="quantity" label="数量" width="100" />
-          <el-table-column prop="price" label="单价" width="100" />
-          <el-table-column prop="totalmoney" label="金额" width="100" />
+          <el-table-column prop="price" label="计划单价" width="100" />
+          <el-table-column prop="totalmoney" label="计划总金额" width="100" />
+          <el-table-column prop="realprice" label="销售单价" width="100" />
+          <el-table-column prop="totalmoney" label="销售总金额" width="100" />
           <el-table-column label="操作" width="100" fixed="right">
             <template #default="{ $index, row }">
               <el-button type="danger" size="small" @click="removeMaterial($index, row)">删除</el-button>
@@ -178,7 +191,7 @@ tt          <el-table-column prop="quantity" label="数量" width="100" />
       <!-- 操作按钮 居中显示-->
       <div style="text-align: center;">
         <el-button @click="handleCancel">取消</el-button>
-                <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
 
         <!-- <el-button v-if="showSaveAsDraft" type="info" @click="handleSaveDraft">保存草稿</el-button> -->
       </div>
@@ -204,15 +217,19 @@ tt          <el-table-column prop="quantity" label="数量" width="100" />
 <script setup>
 import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { useTermStore } from '@/store/term.js';
-import { clone, cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { createPlinoutstore, updatePlinoutstore, deletePlinoutstore } from '@/api/plmanage/plinoutstore.js';
 import ProductSelector from './ProductSelector.vue';
 import ContractSelector from './ContractSelector.vue';
 import PaichanjihuaSelector from './paichanjihuaSelector.vue';
 import SupplierSelector from './gongyingshangSelector.vue';
 import { useUserStore } from '@/store/user';
-
+// 获取当前的期数term
+import { useTermStore } from '@/store/term.js';
+const termStore = useTermStore();
+const currentTerm = termStore.term;
+const terms = termStore.terms;//区间列表
+console.log('当前区间为就是iscurrent为1的区间', currentTerm);
 // 获取用户存储
 const userStore = useUserStore();
 
@@ -267,7 +284,7 @@ const form = reactive({
   handleperson: '',
   contractNo: '',
   isin: 1,
-
+  term: currentTerm,
   materials: []
 });
 
@@ -283,7 +300,9 @@ const currentMaterial = reactive({
   unit: '',
   quantity: 0,
   price: 0,
-  totalmoney: 0
+  realprice: 0,
+  totalmoney: 0,
+  realTotalMoney:0
 });
 
 // 选项数据
@@ -331,12 +350,23 @@ const generateOrderNo = () => {
   return `SFDH${timestamp}`;
 };
 
+
+const getCurrentDateTime= () =>{
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    console.log('当前时间为：${year}-${month}-${day} ${hours}:${minutes}:${seconds}');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
 // 获取默认表单数据
 const getDefaultForm = () => {
-  const termStore = useTermStore();
   return {
     orderno: generateOrderNo(),
-    receivedate: '',
+    receivedate: getCurrentDateTime(),
     deliverunit: '',
     store: '',
     flag: '',
@@ -344,7 +374,7 @@ const getDefaultForm = () => {
     contractNo: '',
     scheduleCode: '',
     isin: 1,
-
+    term: currentTerm,
     woNo: '',
     materials: []
   };
@@ -417,6 +447,7 @@ const handlePaichanjihuaSelect = (plan) => {
   currentMaterial.spec = plan.spec;
   currentMaterial.unit = plan.unit;
   currentMaterial.price = plan.itemprice;
+  currentMaterial.realprice = plan.itemRealPrice 
   currentMaterial.quantity = parseFloat(plan.gdamount); // 转换为浮点数
 };
 
@@ -471,9 +502,9 @@ const addMaterial = async () => {
       }
 
       resetCurrentMaterial();
-      if (!props.edit) {
-        form.orderno = generateOrderNo();
-      }
+      // if (!props.edit) {
+      //   form.orderno = generateOrderNo();
+      // }
     } else {
       ElMessage.error('请填写完整的表单和物料信息');
     }
@@ -517,7 +548,10 @@ const resetCurrentMaterial = () => {
       unit: '',
       quantity: 0,
       price: 0,
-      totalmoney: 0
+      realprice: 0,
+      totalmoney: 0,
+      realTotalMoney:0
+
   });
   nextTick(() => {
     materialFormRef.value?.clearValidate();
@@ -529,7 +563,9 @@ const handleSubmit = async () => {
   try {
     const valid = await new Promise(resolve => formRef.value?.validate(resolve));
     if (valid && form.materials.length > 0) {
-      emit('submit', cloneDeep(form));
+      // emit('submit', cloneDeep(form));
+    emit('cancel');
+
     } else {
       ElMessage.error('请填写完整表单内容并添加至少一个物料');
     }
@@ -548,9 +584,13 @@ const handleSaveDraft = () => {
   emit('save-draft', cloneDeep(form));
 };
 
-// 计算总金额
+// 计算计划总金额
 const totalMoney = computed(() => {
   return parseFloat((currentMaterial.quantity * currentMaterial.price).toFixed(2)) || 0;
+});
+
+const realTotal = computed(() => {
+  return parseFloat((currentMaterial.quantity * currentMaterial.realprice).toFixed(2)) || 0;
 });
 
 // 监听表单数据变化
@@ -561,11 +601,18 @@ watch(() => props.formData, (newVal) => {
 // 监听物料数量变化
 watch(() => currentMaterial.quantity, () => {
   currentMaterial.totalmoney = totalMoney.value;
+  currentMaterial.realTotalMoney = realTotal.value;
 });
 
 // 监听物料单价变化
 watch(() => currentMaterial.price, () => {
   currentMaterial.totalmoney = totalMoney.value;
+  currentMaterial.realTotalMoney = realTotal.value;
+});
+
+watch(() => currentMaterial.realprice, () => {
+  currentMaterial.totalmoney = totalMoney.value;
+  currentMaterial.realTotalMoney = realTotal.value;
 });
 
 // 页面初始化

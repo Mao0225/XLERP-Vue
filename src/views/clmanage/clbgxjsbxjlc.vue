@@ -14,7 +14,7 @@
         placeholder="原材料制造商"
         readonly
         style="width: 200px; margin-right: 10px; cursor: pointer;"
-        @focus="searchSupplierDialogVisible = true"
+        @click.stop="searchSupplierDialogVisible= true"
         :suffix-icon="'el-icon-search'"
         clearable
         @clear="clearSearchSupplier"
@@ -28,7 +28,7 @@
         placeholder="生产工单号"
         readonly
         style="width: 200px; margin-right: 10px; cursor: pointer;"
-        @focus="searchWoDialogVisible = true"
+        @click.stop="searchWoDialogVisible= true"
         :suffix-icon="'el-icon-search'"
         clearable
         @clear="clearSearchWoNo"
@@ -39,7 +39,7 @@
       </el-input>
       <el-button type="primary" @click="getList">搜索</el-button>
       <el-button type="warning" @click="resetQuery" style="margin-left: 10px;">重置</el-button>
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增并沟线夹设备线夹铝材</el-button>
+      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增铝材</el-button>
     </div>
     <el-table :data="list" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="70" />
@@ -47,15 +47,51 @@
       <el-table-column prop="orderno" label="入库单号" />
       <el-table-column prop="mafactory" label="原材料制造商" />
       <el-table-column prop="matMaterial" label="牌号" />
-      <el-table-column prop="chemAl" label="化学成分-Al(%)" />
-      <el-table-column prop="chemSi" label="化学成分-Si(%)" />
-      <el-table-column prop="chemFe" label="化学成分-Fe(%)" />
-      <el-table-column prop="chemCu" label="化学成分-Cu(%)" />
-      <el-table-column prop="chemMg" label="化学成分-Mg(%)" />
-      <el-table-column prop="chemMn" label="化学成分-Mn(%)" />
-      <el-table-column prop="chemZn" label="化学成分-Zn(%)" />
-      <el-table-column prop="chemTi" label="化学成分-Ti(%)" />
-      <el-table-column prop="chemCr" label="化学成分-Cr(%)" />
+      <el-table-column prop="chemAl" label="化学成分-Al(%)" >
+         <template #default="{ row }">
+          {{ formatChemicalValue(row.chemAl) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemSi" label="化学成分-Si(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemSi) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemFe" label="化学成分-Fe(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemFe) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemCu" label="化学成分-Cu(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemCu) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemMg" label="化学成分-Mg(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemMg) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemMn" label="化学成分-Mn(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemMn) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemZn" label="化学成分-Zn(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemZn) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemTi" label="化学成分-Ti(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemTi) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="chemCr" label="化学成分-Cr(%)" >
+        <template #default="{ row }">
+          {{ formatChemicalValue(row.chemCr) }}
+        </template>
+      </el-table-column>
       <el-table-column prop="tensileStrength" label="拉伸强度(MPa)" />
       <el-table-column prop="elongation" label="延伸率(%)" />
       <el-table-column prop="leavefactoryDate" label="原材料出厂检测日期" width="130" />
@@ -63,7 +99,7 @@
       <el-table-column label="质量证明书">
         <template #default="{ row }">
           <div v-for="(file, index) in parseCertificateForDisplay(row.certificate)" :key="index">
-            <span class="file-link" @click="previewCertificate(file.url)">{{ file.name }}</span>
+            <span class="file-link" @click="handleCertificateClick(file)">{{ file.name }}</span>
           </div>
         </template>
       </el-table-column>
@@ -72,11 +108,7 @@
       <el-table-column prop="ipoNo" label="生产订单号" />
       <el-table-column prop="writer" label="录入人" />
       <el-table-column prop="writeTime" label="录入时间" width="150" />
-      <el-table-column prop="flag" label="标志" />
-      <el-table-column prop="status" label="状态" />
-      <el-table-column prop="memo" label="备注" />
-      <el-table-column prop="type" label="类型" />
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
@@ -111,22 +143,22 @@
             <el-form-item label="合同编号" prop="contractNo">
               <el-input v-model="form.contractNo" disabled />
             </el-form-item>
-            <el-form-item label="生产订单号" prop="ipoNo">
+<el-form-item label="生产订单号" prop="ipoNo">
               <el-input v-model="form.ipoNo" disabled />
             </el-form-item>
             <el-form-item label="来料检验批次号" prop="matRecheckNo">
               <el-input v-model="form.matRecheckNo" maxlength="48" />
             </el-form-item>
-            <el-form-item label="入库单号" prop="orderno">
+         <el-form-item label="入库单号" prop="orderno">
               <el-input v-model="form.orderno" maxlength="48" />
             </el-form-item>
-            <el-form-item label="原材料制造商" prop="mafactory">
+         <el-form-item label="原材料制造商" prop="mafactory">
               <el-input
                 v-model="form.mafactory"
                 placeholder="请选择原材料制造商"
                 readonly
                 style="cursor: pointer;"
-                @click.stop="showSupplierDialog = true;"
+                @click="showSupplierDialog = true;"
               >
                 <template #append>
                   <el-button @click="showSupplierDialog = true" size="small">选择</el-button>
@@ -215,63 +247,55 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-divider></el-divider>
             <el-form-item label="拉伸强度(MPa)" prop="tensileStrength">
               <el-input v-model="form.tensileStrength" maxlength="20" @blur="handleNumberInputBlur('tensileStrength', 1)">
                 <template #append>MPa</template>
               </el-input>
               <div class="el-form-item__tip">小数保留1位</div>
             </el-form-item>
-            <el-form-item label="延伸率(%)" prop="elongation">
+         <el-form-item label="延伸率(%)" prop="elongation">
               <el-input v-model="form.elongation" maxlength="20" @blur="handleNumberInputBlur('elongation', 0)">
                 <template #append>%</template>
               </el-input>
               <div class="el-form-item__tip">小数保留0位</div>
-            </el-form-item>
-            <el-form-item label="原材料出厂检测日期" prop="leavefactoryDate">
+            </el-form-item><el-form-item label="原材料出厂检测日期" prop="leavefactoryDate">
               <el-date-picker v-model="form.leavefactoryDate" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%;" />
             </el-form-item>
-         
-            <el-form-item label="原材料入厂检测日期" prop="detectionTime">
+          <el-form-item label="原材料入厂检测日期" prop="detectionTime">
               <el-date-picker v-model="form.detectionTime" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%;" />
             </el-form-item>
-        <el-form-item label="质量证明书" prop="certificate">
+         <el-form-item label="质量证明书" prop="certificate">
           <el-upload
             ref="certificateUpload"
             :auto-upload="false"
             :on-change="handleCertificateChange"
             :limit="3"
             accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-            :file-list="certificateFileList"
+            :file-list="[]"  
+            :show-file-list="false"
           >
             <el-button type="primary">上传质量证明书</el-button>
             <div class="el-upload__tip">支持 pdf、doc、docx、xls、xlsx、jpg、jpeg、png 等格式，最多3个质量证明书</div>
           </el-upload>
-          <div class="uploaded-files" v-if="form.certificate && parseCertificateForDisplay(form.certificate).length > 0">
-            <div v-for="(file, index) in parseCertificateForDisplay(form.certificate)" :key="index" class="uploaded-file">
-              <span class="file-link" @click="previewCertificate(file.url)">{{ file.name }}</span>
+          <div class="uploaded-files" v-if="form.certificate">
+            <div v-for="(file, index) in JSON.parse(form.certificate)" :key="index" class="uploaded-file">
+              {{ file.name }}
               <el-button type="danger" size="mini" @click="deleteCertificateFile(index)">删除</el-button>
             </div>
           </div>
         </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
             <el-form-item label="录入人" prop="writer">
               <el-input v-model="form.writer" disabled />
             </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="录入时间" prop="writeTime">
               <el-input v-model="form.writeTime" disabled />
             </el-form-item>
-            <el-form-item label="标志" prop="flag">
-              <el-input v-model="form.flag" maxlength="20" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-input v-model="form.status" maxlength="20" />
-            </el-form-item>
-            <el-form-item label="备注" prop="memo">
-              <el-input v-model="form.memo" maxlength="100" />
-            </el-form-item>
-            <el-form-item label="类型" prop="type">
-              <el-input v-model="form.type" maxlength="20" />
-            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -280,16 +304,53 @@
       <WoSelectorDialog v-model="woSelectorVisible" @select="handleWoSelect" />
       <SupplierDialog v-model="showSupplierDialog" @select="handleSupplierSelect" />
     </el-dialog>
-    <el-dialog title="质量证明书" v-model="certificatePreviewVisible" width="60%" :close-on-click-modal="false">
-      <div v-if="isPreviewImage && certificatePreviewUrl">
-        <img :src="certificatePreviewUrl" style="max-width: 100%;" />
+    <!-- 质量证明书预览弹窗 -->
+    <el-dialog 
+      title="质量证明书预览" 
+      v-model="certificatePreviewVisible" 
+      width="80%" 
+      :close-on-click-modal="false"
+      :before-close="handlePreviewClose"
+    >
+      <!-- 图片预览 -->
+      <div v-if="previewFileType === 'image'" class="preview-container">
+        <img 
+          :src="certificatePreviewUrl" 
+          alt="质量证明书" 
+          style="max-width: 100%; max-height: 70vh; display: block; margin: 0 auto;"
+          @error="handleImageError"
+        />
       </div>
-      <div v-else-if="certificatePreviewUrl && isPdf(certificatePreviewUrl)" style="height: 600px;">
-        <iframe :src="certificatePreviewUrl" width="100%" height="600px" frameborder="0"></iframe>
+      <!-- PDF预览 -->
+      <div v-else-if="previewFileType === 'pdf'" class="preview-container">
+        <iframe 
+          :src="certificatePreviewUrl" 
+          width="100%" 
+          height="600px" 
+          frameborder="0"
+          @error="handlePdfError"
+        >
+          您的浏览器不支持PDF预览，请<a :href="certificatePreviewUrl" target="_blank">点击此处下载</a>
+        </iframe>
       </div>
-      <div v-else-if="certificatePreviewUrl">
-        <el-link :href="certificatePreviewUrl" target="_blank">点击下载文件</el-link>
+      <!-- 不支持预览的文件类型 -->
+      <div v-else class="preview-container">
+        <div style="text-align: center; padding: 40px;">
+          <el-icon size="64" color="#909399">
+            <Document />
+          </el-icon>
+          <p style="margin: 20px 0; color: #606266;">此文件类型不支持在线预览</p>
+          <el-button type="primary" @click="downloadFile(certificatePreviewUrl, previewFileName)">
+            下载文件
+          </el-button>
+        </div>
       </div>
+      <template #footer>
+        <el-button @click="certificatePreviewVisible = false">关闭</el-button>
+        <el-button type="primary" @click="downloadFile(certificatePreviewUrl, previewFileName)">
+          下载
+        </el-button>
+      </template>
     </el-dialog>
     <WoSelectorDialog v-model="searchWoDialogVisible" @select="handleSearchWoSelect" />
     <SupplierDialog v-model="searchSupplierDialogVisible" @select="handleSearchSupplierSelect" />
@@ -298,6 +359,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Document } from '@element-plus/icons-vue'
 import { getClbgxjsbxjlcList, getClbgxjsbxjlcById, createClbgxjsbxjlc, updateClbgxjsbxjlc, deleteClbgxjsbxjlc, getGongdanByWoNo } from '@/api/clmanage/clbgxjsbxjlc'
 import { uploadFile } from '@/api/file/file'
 import WoSelectorDialog from '@/views/clmanage/components/WoSelectorDialog.vue'
@@ -307,7 +369,7 @@ import { useUserStore } from '@/store/user'
 const userStore = useUserStore()
 // 用户信息
 const userInfo = computed(() => ({
-  username: userStore.username || '未登录'
+  username: userStore.realName || '未登录'
 }))
 
 const BASE_FILE_URL = 'http://127.0.0.1:8099'
@@ -335,11 +397,15 @@ const woSelectorVisible = ref(false)             // 表单弹窗的工单选择
 const showSupplierDialog = ref(false)            // 表单弹窗的供应商选择
 const searchWoDialogVisible = ref(false)         // 搜索栏的工单选择
 const certificateUpload = ref(null)              // 质量证明书上传组件引用
+
 // 质量证明书文件上传
 const certificateFileList = ref([]) // el-upload文件列表 (确保 url 是完整路径)
+
+// 预览相关状态
 const certificatePreviewVisible = ref(false)
 const certificatePreviewUrl = ref('')
-const isPreviewImage = ref(false) // 新增：明确指示预览文件是否为图片
+const previewFileType = ref('') // 'image', 'pdf', 'other'
+const previewFileName = ref('')
 
 function parseCertificateForDisplay(certStr) {
   if (!certStr) return [];
@@ -359,6 +425,13 @@ function parseCertificateForDisplay(certStr) {
   }
 }
 
+// 格式化化学值显示
+function formatChemicalValue(val) {
+  if (val === null || val === undefined || val === '') return '-'
+  const num = Number(val)
+  return isNaN(num) ? val : num.toFixed(3) + '%'
+}
+
 // 通用数字输入框失焦处理
 const handleNumberInputBlur = (field, decimals) => {
   const value = form.value[field];
@@ -371,6 +444,85 @@ const handleNumberInputBlur = (field, decimals) => {
       ElMessage.warning('请输入有效的数字');
     }
   }
+};
+
+// 获取文件类型
+const getFileType = (url, fileName = '') => {
+  const fileUrl = url || fileName;
+  if (/\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(fileUrl)) {
+    return 'image';
+  } else if (/\.pdf$/i.test(fileUrl)) {
+    return 'pdf';
+  } else {
+    return 'other';
+  }
+};
+
+// 处理质量证明书点击事件
+const handleCertificateClick = (file) => {
+  const fileType = getFileType(file.url, file.name);
+  
+  if (fileType === 'image' || fileType === 'pdf') {
+    // 可预览的文件类型，打开预览弹窗
+    previewCertificate(file.url, file.name, fileType);
+  } else {
+    // 不可预览的文件类型，直接下载
+    downloadFile(file.url, file.name);
+  }
+};
+
+// 预览文件
+const previewCertificate = (url, fileName = '', fileType = '') => {
+  const fullUrl = url.startsWith('http') ? url : BASE_FILE_URL + url;
+  certificatePreviewUrl.value = fullUrl;
+  previewFileName.value = fileName;
+  previewFileType.value = fileType || getFileType(fullUrl, fileName);
+  certificatePreviewVisible.value = true;
+};
+
+// 下载文件
+const downloadFile = (url, fileName = '') => {
+  try {
+    const fullUrl = url.startsWith('http') ? url : BASE_FILE_URL + url;
+    
+    // 创建一个临时的 a 标签进行下载
+    const link = document.createElement('a');
+    link.href = fullUrl;
+    link.download = fileName || '质量证明书';
+    link.target = '_blank';
+    
+    // 触发下载
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    ElMessage.success('文件下载已开始');
+  } catch (error) {
+    console.error('下载文件失败:', error);
+    ElMessage.error('文件下载失败，请稍后重试');
+    
+    // 如果下载失败，尝试在新窗口打开
+    window.open(url.startsWith('http') ? url : BASE_FILE_URL + url, '_blank');
+  }
+};
+
+// 处理预览关闭
+const handlePreviewClose = () => {
+  certificatePreviewVisible.value = false;
+  certificatePreviewUrl.value = '';
+  previewFileName.value = '';
+  previewFileType.value = '';
+};
+
+// 处理图片加载错误
+const handleImageError = () => {
+  ElMessage.error('图片加载失败');
+  // 可以选择显示默认错误图片或其他处理
+};
+
+// 处理PDF加载错误
+const handlePdfError = () => {
+  ElMessage.error('PDF预览失败，请尝试下载文件');
 };
 
 // 处理文件上传
@@ -411,23 +563,6 @@ const deleteCertificateFile = (index) => {
   certificateFileList.value.splice(index, 1); // 同步删除
 };
 
-// 预览文件 - 修复 JPG 显示问题
-const previewCertificate = (url) => {
-  const fullUrl = url.startsWith('http') ? url : BASE_FILE_URL + url; // 确保预览 URL 完整
-  certificatePreviewUrl.value = fullUrl;
-  isPreviewImage.value = isImage(fullUrl); // 设置是否为图片
-  certificatePreviewVisible.value = true;
-};
-
-// 判断是否为图片
-function isImage(url) {
-  return /\.(png|jpe?g|gif)$/i.test(url);
-}
-// 判断是否为 PDF
-function isPdf(url) {
-  return /\.pdf$/i.test(url);
-}
-
 function createEmptyForm() {
   return {
     id: undefined,
@@ -452,7 +587,7 @@ function createEmptyForm() {
     contractNo: '',
     woNo: '',
     ipoNo: '',
-    writer: '',
+    writer: userInfo.value.username, // 重置时设置为当前用户
     writeTime: '',
     flag: '',
     status: '',
@@ -460,6 +595,7 @@ function createEmptyForm() {
     type: ''
   };
 }
+
 const rules = {
   mafactory: [{ required: true, message: '请选择原材料制造商', trigger: 'change' }],
   matMaterial: [{ required: true, message: '请填写牌号', trigger: 'blur' }],
@@ -485,6 +621,7 @@ const rules = {
 };
 
 const handleQueryChange = () => {
+  // 小优化，当输入框内容清空时也触发列表更新
   if (!queryParams.matRecheckNo && !queryParams.matMaterial && !queryParams.orderno) {
     getList();
   }
@@ -502,34 +639,37 @@ const getList = async () => {
     loading.value = false;
   }
 };
+
 const resetQuery = () => {
   queryParams.matRecheckNo = '';
   queryParams.mafactory = '';
-  queryParams.matMaterial = '';
-  queryParams.orderno = '';
   queryParams.woNo = '';
   queryParams.pageNumber = 1;
   getList();
 };
+
 const handleSizeChange = (size) => {
   queryParams.pageSize = size;
   getList();
 };
+
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page;
   getList();
 };
+
 const handleAdd = () => {
   dialogTitle.value = '新增并沟线夹设备线夹铝材';
   dialogType.value = 'add';
   form.value = createEmptyForm();
-  form.value.writer = userInfo.value.RealName;
+  form.value.writer = userInfo.value.username;
   form.value.writeTime = formatDateTime(new Date());
   // 重置文件列表
   certificateFileList.value = [];
   form.value.certificate = '[]';
   dialogVisible.value = true;
 };
+
 const handleEdit = async (row) => {
   dialogTitle.value = '编辑并沟线夹设备线夹铝材';
   dialogType.value = 'edit';
@@ -540,7 +680,6 @@ const handleEdit = async (row) => {
         ...createEmptyForm(),
         ...res.data.clBgxjsbxjLc
       };
-      // Format number fields on edit load to ensure consistency
       Object.keys(form.value).forEach(key => {
         if (key.startsWith('chem') && form.value[key] !== '') {
           form.value[key] = Number(form.value[key]).toFixed(3);
@@ -557,6 +696,7 @@ const handleEdit = async (row) => {
     console.error('获取详情失败', e);
   }
 }
+
 const handleDelete = (row) => {
   ElMessageBox.confirm(`确认删除该条铝材数据吗？`, '提示', {
     confirmButtonText: '确定',
@@ -572,28 +712,34 @@ const handleDelete = (row) => {
 const openWoSelector = () => {
   woSelectorVisible.value = true;
 };
+
 // 搜索栏
 const handleSearchSupplierSelect = (descr) => {
   queryParams.mafactory = descr;
   searchSupplierDialogVisible.value = false;
 };
+
 const handleSearchWoSelect = (row) => {
   queryParams.woNo = row.woNo;
   searchWoDialogVisible.value = false;
 };
+
 const clearSearchSupplier = () => {
   queryParams.mafactory = '';
   getList(); // Clear and refresh list
 };
+
 const clearSearchWoNo = () => {
   queryParams.woNo = '';
   getList(); // Clear and refresh list
 };
+
 // 表单弹窗
 const handleSupplierSelect = (descr) => {
   form.value.mafactory = descr;
   showSupplierDialog.value = false;
 };
+
 const handleWoSelect = async (row) => {
   form.value.woNo = row.woNo;
   // 工单号自动填充合同编号和订单号，失败时给提示
@@ -612,6 +758,7 @@ const handleWoSelect = async (row) => {
   }
   woSelectorVisible.value = false;
 };
+
 const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (!valid) return;
@@ -639,29 +786,33 @@ const handleSubmit = () => {
     }
   });
 };
+
 function formatDateTime(date) {
   if (!date) return '';
   const d = new Date(date);
   const pad = (n) => n.toString().padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
+
 // 重置表单
 const resetForm = () => {
   form.value = createEmptyForm();
   certificateFileList.value = [];
   // 重置预览相关状态
-  certificatePreviewUrl.value = '';
-  isPreviewImage.value = false;
+  handlePreviewClose();
   if (formRef.value) {
     formRef.value.resetFields(); // 重置表单验证状态
   }
 };
+
 onMounted(getList);
 </script>
+
 <style scoped>
 .clbgxjsbxjlc-management {
   padding: 20px;
 }
+
 .action-bar {
   display: flex;
   justify-content: flex-start;
@@ -669,16 +820,20 @@ onMounted(getList);
   margin-bottom: 20px;
   gap: 10px;
 }
+
 .pagination-container {
   margin-top: 20px;
   text-align: right;
 }
+
 .certificate-uploader {
   width: 100%;
 }
+
 .uploaded-files {
   margin-top: 10px;
 }
+
 .uploaded-file {
   display: flex;
   align-items: center;
@@ -688,24 +843,57 @@ onMounted(getList);
   background-color: #f5f7fa;
   border-radius: 4px;
 }
+
 .file-link {
   color: #409eff;
   cursor: pointer;
   text-decoration: none;
+  transition: color 0.3s;
 }
+
 .file-link:hover {
+  color: #66b1ff;
   text-decoration: underline;
 }
+
+.preview-container {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .el-form-item__tip {
   font-size: 12px;
   color: #909399;
   line-height: 1.5;
   margin-top: 4px;
 }
+
 .el-form-item__error {
   color: #f56c6c;
   font-size: 12px;
   line-height: 1;
   padding-top: 4px;
+}
+
+/* 预览弹窗样式调整 */
+.el-dialog__body {
+  padding: 10px 20px;
+}
+
+@media (max-width: 768px) {
+  .el-dialog {
+    width: 95% !important;
+    margin: 0 auto;
+  }
+  
+  .preview-container img {
+    max-height: 50vh !important;
+  }
+  
+  .preview-container iframe {
+    height: 400px !important;
+  }
 }
 </style>
