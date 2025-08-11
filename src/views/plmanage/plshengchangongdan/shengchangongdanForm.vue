@@ -352,7 +352,7 @@ import {
 import DingdanbianhaoSelector from './components/DingdanbianhaoSelector.vue'
 import WorkOrderMaterialSelector from './components/DingdanItemSelector.vue'
 import { useUserStore } from '@/store/user'
-
+import { getNewNoNyName } from '@/api/system/basno'
 const userStore = useUserStore()
 
 // 获取登录用户名称
@@ -437,17 +437,33 @@ const orderSaving = ref(false)
 const materialList = ref([])
 
 // 生成工单编码
-const generateWoNo = () => {
-  const now = new Date()
-  const timestamp = now.getFullYear() + 
-    String(now.getMonth() + 1).padStart(2, '0') + 
-    String(now.getDate()).padStart(2, '0') + 
-    String(now.getHours()).padStart(2, '0') + 
-    String(now.getMinutes()).padStart(2, '0') + 
-    String(now.getSeconds()).padStart(2, '0')
-  
-  return `SCGD${timestamp}`
-}
+// 生成生产订单号
+const generateWoNo = async () => {
+  try {
+    const res = await getNewNoNyName('scgd');
+    
+    if (res?.code === 200) {
+      console.log("获取编码成功", res.data.fullNoNyName);
+      return res.data.fullNoNyName;
+    }
+    
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+    
+  } catch (error) {
+    console.error('生成生产工单编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+
+// 监听对话框打开
+watch(dialogVisible, async (visible) => {
+  if (visible && props.type === 'add') {
+    form.woNo = await generateWoNo();
+  }
+})
 
 // 表单数据
 const form = reactive({
@@ -457,7 +473,7 @@ const form = reactive({
   supplierCode: '',
   supplierName: '',
   contractNo: '',
-  woNo: generateWoNo(),
+  woNo: '',
   categoryCode: '',
   subclassCode: '',
   materialsCode: '',
@@ -563,7 +579,7 @@ const resetForm = () => {
     supplierCode: '',
     supplierName: '',
     contractNo: '',
-    woNo: generateWoNo(),
+    woNo: '',
     categoryCode: '',
     subclassCode: '',
     materialsCode: '',

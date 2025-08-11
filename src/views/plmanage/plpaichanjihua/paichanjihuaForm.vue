@@ -307,7 +307,7 @@ import { createPlpaichanjihua, updatePlpaichanjihua } from '@/api/plmanage/plpai
 import { useUserStore } from '@/store/user'
 import  gongdanSelector  from './components/gongdanSelector.vue'
 import  gongdanItemSelector  from './components/gongdanItemSelector.vue'
-
+import { getNewNoNyName } from '@/api/system/basno'
 
 const userStore = useUserStore()
 
@@ -392,18 +392,35 @@ const getWorkshopName = (codes) => {
   return names.join(',')
 }
 
+
+
 // 生成排产计划编码
-const generateScheduleCode = () => {
-  const now = new Date()
-  const timestamp = now.getFullYear() + 
-    String(now.getMonth() + 1).padStart(2, '0') + 
-    String(now.getDate()).padStart(2, '0') + 
-    String(now.getHours()).padStart(2, '0') + 
-    String(now.getMinutes()).padStart(2, '0') + 
-    String(now.getSeconds()).padStart(2, '0')
-  
-  return `PCJH${timestamp}`
-}
+const generateScheduleCode = async () => {
+  try {
+    const res = await getNewNoNyName('pcjh');
+    
+    if (res?.code === 200) {
+      console.log("获取编码成功", res.data.fullNoNyName);
+      return res.data.fullNoNyName;
+    }
+    
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+    
+  } catch (error) {
+    console.error('生成排产计划编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+
+// 监听对话框打开
+watch(dialogVisible, async (visible) => {
+  if (visible && props.type === 'add') {
+    form.scheduleCode = await generateScheduleCode();
+  }
+})
 
 // 表单数据
 const form = reactive({
@@ -412,7 +429,7 @@ const form = reactive({
   supplierCode: '1000014491',
   supplierName: '中国电建集团四平线路器材有限公司',
   poItemId: undefined, //采购行订单ID
-  scheduleCode: generateScheduleCode(),
+  scheduleCode: '',
   gdItemId: undefined,
   woNo: '',
   provCoCode: '',
@@ -585,7 +602,7 @@ const resetForm = () => {
     supplierCode: '1000014491',
     supplierName: '中国电建集团四平线路器材有限公司',
     poItemId: undefined,
-    scheduleCode: generateScheduleCode(),
+    scheduleCode: '',
     gdItemId: undefined,
     woNo: '',
     provCoCode: '',

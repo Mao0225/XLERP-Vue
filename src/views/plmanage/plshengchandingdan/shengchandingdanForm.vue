@@ -224,6 +224,7 @@ import {
 import ContractSelector from './components/ContractSelector.vue'
 import MaterialSelector from './components/ContracItemSelect.vue'
 import { useUserStore } from '@/store/user'
+import { getNewNoNyName } from '@/api/system/basno'
 
 const userStore = useUserStore()
 
@@ -316,17 +317,33 @@ const orderSaving = ref(false)
 // 物料列表
 const materialList = ref([])
 // 生成生产订单号
-const generateIpoNo = () => {
-  const now = new Date()
-  const timestamp = now.getFullYear() + 
-    String(now.getMonth() + 1).padStart(2, '0') + 
-    String(now.getDate()).padStart(2, '0') + 
-    String(now.getHours()).padStart(2, '0') + 
-    String(now.getMinutes()).padStart(2, '0') + 
-    String(now.getSeconds()).padStart(2, '0')
-  
-  return `SCDD${timestamp}`
-}
+const generateIpoNo = async () => {
+  try {
+    const res = await getNewNoNyName('scdd');
+    
+    if (res?.code === 200) {
+      console.log("获取编码成功", res.data.fullNoNyName);
+      return res.data.fullNoNyName;
+    }
+    
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+    
+  } catch (error) {
+    console.error('生成生产订单编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+
+// 监听对话框打开
+watch(dialogVisible, async (visible) => {
+  if (visible && props.type === 'add') {
+    form.ipoNo = await generateIpoNo();
+  }
+})
+
 // 表单数据
 const form = reactive({
   id: undefined,
@@ -334,7 +351,7 @@ const form = reactive({
   ipoType: 2, // 默认生产订单
   supplierCode: '1000014491', // 默认供应商编码
   supplierName: '中国电建集团四平线路器材有限公司', // 默认供应商名称
-   ipoNo: generateIpoNo(), 
+  ipoNo: '', 
   categoryCode: '60', // 默认品类编码
   subclassCode: '60004',
   scheduleCode: '',
@@ -438,7 +455,7 @@ const resetForm = () => {
     ipoType: 2,
     supplierCode: '1000014491',
     supplierName: '中国电建集团四平线路器材有限公司',
-     ipoNo: generateIpoNo(), 
+     ipoNo: '', 
     categoryCode: '60',
     subclassCode: '60004',
     scheduleCode: '',
