@@ -38,13 +38,13 @@
             type="success" 
             size="small" 
             @click="handleApproveNotice(row)"
-            :disabled="row.noticestatus !== '30'"
+            :disabled="row.noticestatus !== 30"
           >审核通知</el-button>
           <el-button 
             type="danger" 
             size="small" 
             @click="handleUnapproveNotice(row)"
-            :disabled="row.noticestatus !== '40'"
+            :disabled="row.noticestatus !== 40"
           >反审核通知</el-button>
           <el-button type="primary" size="small" @click="handleViewNotice(row)">查看通知</el-button>
           <el-button 
@@ -244,7 +244,7 @@ const handleApproveNotice = async (row) => {
   }
 
   // 检查状态是否为30（通过校验）
-  if (row.noticestatus !== '30') {
+  if (row.noticestatus !== 30) {
     ElMessage.warning('只有状态为"通过校验"的通知才能进行审核操作');
     return;
   }
@@ -303,7 +303,7 @@ const handleUnapproveNotice = async (row) => {
   }
 
   // 检查状态是否为40（通过审核）
-  if (row.noticestatus !== '40') {
+  if (row.noticestatus !== 40) {
     ElMessage.warning('只有状态为"通过审核"的通知才能进行反审核操作');
     return;
   }
@@ -342,7 +342,7 @@ const handleUnapproveNotice = async (row) => {
 // 查看备料计划
 const handleViewBeiliaoPlan = (row) => {
   // 检查状态是否为30（通过校验）或40（通过审核）
-  //if (row.noticestatus !== '30' && row.noticestatus !== '40') {
+  //if (row.noticestatus !== 30 && row.noticestatus !== 40) {
   //  ElMessage.warning('只有状态为"通过校验"或"通过审核"的通知才能查看备料计划');
   //  return;
   //}
