@@ -62,3 +62,13 @@ export function batchDeletechuchangchoujian(ids) {
   const idsString = ids.join(',')
   return del(`/plchuchangchoujian/batchdelete?ids=${encodeURIComponent(idsString)}`)
 }
+ 
+// 新增接口：获取合同行项目
+export function getcontractitems(contractno) {
+  if (!contractno) {
+    console.warn('getcontractitems 缺少必要参数 contractno')
+    // 可返回空 Promise 或抛出错误，根据业务需求处理
+    return Promise.resolve({ data: [] })
+  }
+  return get('/plchuchangchoujian/getcontractitems', { contractno });
+}
