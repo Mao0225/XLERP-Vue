@@ -1,20 +1,22 @@
 <template>
-  <div class="clbgxjsbxjlc-management">
+  <div class="clfzcfc-management">
+    <!-- 操作栏 -->
     <div class="action-bar">
-      <el-input
-        v-model="queryParams.matRecheckNo"
-        placeholder="来料检验批次号"
-        style="width: 180px; margin-right: 10px;"
+      <el-select
+        v-model="queryParams.maQuality"
+        placeholder="辅材类型"
+        style="width: 140px; margin-right: 10px;"
         clearable
-        @clear="getList"
-        @input="handleQueryChange"
-      />
+        @change="getList"
+      >
+        <el-option v-for="item in qualityOptions" :key="item" :label="item" :value="item" />
+      </el-select>
       <el-input
         v-model="queryParams.mafactory"
         placeholder="原材料制造商"
         readonly
         style="width: 200px; margin-right: 10px; cursor: pointer;"
-        @click.stop="searchSupplierDialogVisible= true"
+        @click.stop="searchSupplierDialogVisible = true"
         :suffix-icon="'el-icon-search'"
         clearable
         @clear="clearSearchSupplier"
@@ -23,12 +25,13 @@
           <el-button @click="searchSupplierDialogVisible = true" size="small">选择</el-button>
         </template>
       </el-input>
+      <!-- 生产工单号搜索框 -->
       <el-input
         v-model="queryParams.woNo"
         placeholder="生产工单号"
         readonly
         style="width: 200px; margin-right: 10px; cursor: pointer;"
-        @click.stop="searchWoDialogVisible= true"
+        @click.stop="searchWoDialogVisible = true"
         :suffix-icon="'el-icon-search'"
         clearable
         @clear="clearSearchWoNo"
@@ -39,61 +42,21 @@
       </el-input>
       <el-button type="primary" @click="getList">搜索</el-button>
       <el-button type="warning" @click="resetQuery" style="margin-left: 10px;">重置</el-button>
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增铝材</el-button>
+      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增防振锤辅材</el-button>
     </div>
+    <!-- 表格展示 -->
     <el-table :data="list" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="70" />
+      <el-table-column prop="maQuality" label="辅材类型" />
       <el-table-column prop="matRecheckNo" label="来料检验批次号" />
       <el-table-column prop="orderno" label="入库单号" />
       <el-table-column prop="mafactory" label="原材料制造商" />
-      <el-table-column prop="matMaterial" label="牌号" />
-      <el-table-column prop="chemAl" label="化学成分-Al(%)" >
-         <template #default="{ row }">
-          {{ formatChemicalValue(row.chemAl) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemSi" label="化学成分-Si(%)" >
+      <el-table-column prop="sampleNumber" label="样品编号" />
+      <el-table-column prop="testResult" label="检测结果">
         <template #default="{ row }">
-          {{ formatChemicalValue(row.chemSi) }}
+          <span>{{ formatTestResultWithUnit(row.testResult, row.maQuality) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="chemFe" label="化学成分-Fe(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemFe) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemCu" label="化学成分-Cu(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemCu) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemMg" label="化学成分-Mg(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemMg) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemMn" label="化学成分-Mn(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemMn) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemZn" label="化学成分-Zn(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemZn) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemTi" label="化学成分-Ti(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemTi) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="chemCr" label="化学成分-Cr(%)" >
-        <template #default="{ row }">
-          {{ formatChemicalValue(row.chemCr) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="tensileStrength" label="拉伸强度(MPa)" />
-      <el-table-column prop="elongation" label="延伸率(%)" />
       <el-table-column prop="leavefactoryDate" label="原材料出厂检测日期" width="130" />
       <el-table-column prop="detectionTime" label="原材料入厂检测日期" width="130" />
       <el-table-column label="质量证明书">
@@ -115,6 +78,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 -->
     <div class="pagination-container">
       <el-pagination
         v-model:current-page="queryParams.pageNumber"
@@ -126,145 +90,80 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="900px" @closed="resetForm">
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="150px">
-            <el-form-item label="生产工单号" prop="woNo">
-              <el-input
-                v-model="form.woNo"
-                placeholder="请选择生产工单号"
-                readonly
-                @click="openWoSelector"
-              >
-                <template #append>
-                  <el-button @click="openWoSelector" size="small">选择</el-button>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="合同编号" prop="contractNo">
-              <el-input v-model="form.contractNo" disabled />
-            </el-form-item>
-<el-form-item label="生产订单号" prop="ipoNo">
-              <el-input v-model="form.ipoNo" disabled />
-            </el-form-item>
-            <el-form-item label="来料检验批次号" prop="matRecheckNo">
-              <el-input v-model="form.matRecheckNo" maxlength="48" />
-            </el-form-item>
-         <el-form-item label="入库单号" prop="orderno">
-              <el-input v-model="form.orderno" maxlength="48" />
-            </el-form-item>
-         <el-form-item label="原材料制造商" prop="mafactory">
-              <el-input
-                v-model="form.mafactory"
-                placeholder="请选择原材料制造商"
-                readonly
-                style="cursor: pointer;"
-                @click="showSupplierDialog = true;"
-              >
-                <template #append>
-                  <el-button @click="showSupplierDialog = true" size="small">选择</el-button>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="牌号" prop="matMaterial">
-              <el-input v-model="form.matMaterial" maxlength="48" />
-            </el-form-item>
-        <el-divider>化学成分分析</el-divider>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item label="Al(%)" prop="chemAl">
-              <el-input v-model="form.chemAl" maxlength="20" @blur="handleNumberInputBlur('chemAl', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Si(%)" prop="chemSi">
-              <el-input v-model="form.chemSi" maxlength="20" @blur="handleNumberInputBlur('chemSi', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Fe(%)" prop="chemFe">
-              <el-input v-model="form.chemFe" maxlength="20" @blur="handleNumberInputBlur('chemFe', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item label="Cu(%)" prop="chemCu">
-              <el-input v-model="form.chemCu" maxlength="20" @blur="handleNumberInputBlur('chemCu', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Mg(%)" prop="chemMg">
-              <el-input v-model="form.chemMg" maxlength="20" @blur="handleNumberInputBlur('chemMg', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Mn(%)" prop="chemMn">
-              <el-input v-model="form.chemMn" maxlength="20" @blur="handleNumberInputBlur('chemMn', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item label="Zn(%)" prop="chemZn">
-              <el-input v-model="form.chemZn" maxlength="20" @blur="handleNumberInputBlur('chemZn', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Ti(%)" prop="chemTi">
-              <el-input v-model="form.chemTi" maxlength="20" @blur="handleNumberInputBlur('chemTi', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="Cr(%)" prop="chemCr">
-              <el-input v-model="form.chemCr" maxlength="20" @blur="handleNumberInputBlur('chemCr', 3)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留3位</div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-            <el-form-item label="拉伸强度(MPa)" prop="tensileStrength">
-              <el-input v-model="form.tensileStrength" maxlength="20" @blur="handleNumberInputBlur('tensileStrength', 1)">
-                <template #append>MPa</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留1位</div>
-            </el-form-item>
-         <el-form-item label="延伸率(%)" prop="elongation">
-              <el-input v-model="form.elongation" maxlength="20" @blur="handleNumberInputBlur('elongation', 0)">
-                <template #append>%</template>
-              </el-input>
-              <div class="el-form-item__tip">小数保留0位</div>
-            </el-form-item><el-form-item label="原材料出厂检测日期" prop="leavefactoryDate">
-              <el-date-picker v-model="form.leavefactoryDate" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%;" />
-            </el-form-item>
-          <el-form-item label="原材料入厂检测日期" prop="detectionTime">
-              <el-date-picker v-model="form.detectionTime" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%;" />
-            </el-form-item>
-         <el-form-item label="质量证明书" prop="certificate">
+    <!-- 表单弹窗 -->
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" @closed="resetForm">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+        <!-- 新顺序：工单号(选择)、合同号(自动)、订单号(自动) -->
+        <el-form-item label="生产工单号" prop="woNo">
+          <el-input
+            v-model="form.woNo"
+            placeholder="请选择生产工单号"
+            readonly
+            style="width: calc(100% - 80px);"
+            @click="openWoSelector"
+          >
+            <template #append>
+              <el-button @click="openWoSelector" size="small">选择</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="合同编号" prop="contractNo">
+          <el-input v-model="form.contractNo" disabled />
+        </el-form-item>
+        <el-form-item label="生产订单号" prop="ipoNo">
+          <el-input v-model="form.ipoNo" disabled />
+        </el-form-item>
+        <!-- 其他必填字段 -->
+        <el-form-item label="辅材类型" prop="maQuality">
+          <el-select v-model="form.maQuality" placeholder="请选择辅材类型" style="width:100%" @change="handleQualityChange">
+            <el-option label="钢绞线" value="钢绞线" />
+            <el-option label="紧固件" value="紧固件" />
+            <el-option label="预绞丝" value="预绞丝" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="来料检验批次号" prop="matRecheckNo">
+          <el-input v-model="form.matRecheckNo" maxlength="48" />
+        </el-form-item>
+        <el-form-item label="入库单号" prop="orderno">
+          <el-input v-model="form.orderno" maxlength="48" />
+        </el-form-item>
+        <el-form-item label="原材料制造商" prop="mafactory">
+          <el-input
+            v-model="form.mafactory"
+            placeholder="请选择原材料制造商"
+            readonly
+            style="cursor: pointer;"
+            @click="showSupplierDialog"
+          >
+            <template #append>
+              <el-button @click="showSupplierDialog = true" size="small">选择</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="样品编号" prop="sampleNumber">
+          <el-input v-model="form.sampleNumber" maxlength="48" />
+        </el-form-item>
+        <el-form-item label="检测结果" prop="testResult">
+          <template #default>
+            <el-input
+              v-model="form.testResult"
+              maxlength="100"
+              type="textarea"
+              :rows="2"
+              :placeholder="getTestResultPlaceholder(form.maQuality)"
+              @blur="handleTestResultBlur"
+            />
+            <div class="el-form-item__tip">{{ getTestResultTip(form.maQuality) }}</div>
+            <div v-if="decimalWarning" class="el-form-item__error">检测结果中的数值应保留0位小数，已自动四舍五入</div>
+          </template>
+        </el-form-item>
+        <el-form-item label="原材料出厂检测日期" prop="leavefactoryDate">
+          <el-date-picker v-model="form.leavefactoryDate" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%;" />
+        </el-form-item>
+        <el-form-item label="原材料入厂检测日期" prop="detectionTime">
+          <el-date-picker v-model="form.detectionTime" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%;" />
+        </el-form-item>
+        <el-form-item label="质量证明书" prop="certificate">
           <el-upload
             ref="certificateUpload"
             :auto-upload="false"
@@ -275,8 +174,11 @@
             :show-file-list="false"
           >
             <el-button type="primary">上传质量证明书</el-button>
-            <div class="el-upload__tip">支持 pdf、doc、docx、xls、xlsx、jpg、jpeg、png 等格式，最多3个质量证明书</div>
+            
+              <div class="el-upload__tip">支持 pdf、doc、docx、xls、xlsx、jpg、jpeg、png 等格式，最多3个质量证明书</div>
+           
           </el-upload>
+          <!-- 表单内显示已上传文件列表 -->
           <div class="uploaded-files" v-if="form.certificate">
             <div v-for="(file, index) in JSON.parse(form.certificate)" :key="index" class="uploaded-file">
               {{ file.name }}
@@ -284,18 +186,12 @@
             </div>
           </div>
         </el-form-item>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="录入人" prop="writer">
-              <el-input v-model="form.writer" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="录入时间" prop="writeTime">
-              <el-input v-model="form.writeTime" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <el-form-item label="录入人" prop="writer">
+          <el-input v-model="form.writer" disabled />
+        </el-form-item>
+        <el-form-item label="录入时间" prop="writeTime">
+          <el-input v-model="form.writeTime" disabled />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -352,7 +248,9 @@
         </el-button>
       </template>
     </el-dialog>
+    <!-- 搜索栏的工单选择弹窗 -->
     <WoSelectorDialog v-model="searchWoDialogVisible" @select="handleSearchWoSelect" />
+    <!-- 搜索栏的供应商选择弹窗 -->
     <SupplierDialog v-model="searchSupplierDialogVisible" @select="handleSearchSupplierSelect" />
   </div>
 </template>
@@ -360,13 +258,14 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Document } from '@element-plus/icons-vue'
-import { getClbgxjsbxjlcList, getClbgxjsbxjlcById, createClbgxjsbxjlc, updateClbgxjsbxjlc, deleteClbgxjsbxjlc, getGongdanByWoNo } from '@/api/clmanage/clbgxjsbxjlc'
+import { getClfzcfcList, getClfzcfcById, createClfzcfc, updateClfzcfc, deleteClfzcfc, getGongdanByWoNo } from '@/api/clmanage/clfzcfc'
 import { uploadFile } from '@/api/file/file'
-import WoSelectorDialog from '@/views/clmanage/components/WoSelectorDialog.vue'
-import SupplierDialog from '@/views/clmanage/components/SupplierDialog.vue'
+import WoSelectorDialog from '@/views/clmanage/ljq/components/WoSelectorDialog.vue'
+import SupplierDialog from '@/views/clmanage/ljq/components/SupplierDialog.vue'
 import { useUserStore } from '@/store/user'
 
 const userStore = useUserStore()
+
 // 用户信息
 const userInfo = computed(() => ({
   username: userStore.realName || '未登录'
@@ -374,28 +273,37 @@ const userInfo = computed(() => ({
 
 const BASE_FILE_URL = 'http://127.0.0.1:8099'
 
+const qualityOptions = ['钢绞线', '紧固件', '预绞丝']
+const defaultResultMap = {
+  '紧固件': '锌层厚度（紧固件适用）：μm',
+  '钢绞线': '抗拉强度（钢绞线、预绞丝适用）：MPa',
+  '预绞丝': '抗拉强度（钢绞线、预绞丝适用）：MPa'
+}
+
 const form = ref(createEmptyForm())
 const queryParams = reactive({
-  matRecheckNo: '', // 来料检验批次号
-  mafactory: '',      // 原材料制造商名称
-  matMaterial: '',    // 牌号
-  orderno: '',        // 入库单号
-  woNo: '',           // 生产工单号
+  maQuality: '',
+  mafactory: '', // 原材料制造商名称
+  woNo: '',      // 生产工单号
   pageNumber: 1,
   pageSize: 10
 })
+
 const list = ref([])
 const total = ref(0)
 const loading = ref(false)
 const dialogVisible = ref(false)
-const dialogTitle = ref('新增并沟线夹设备线夹铝材')
+const dialogTitle = ref('新增防振锤辅材')
 const dialogType = ref('add')
 const formRef = ref(null)
 const saving = ref(false)
+const decimalWarning = ref(false) // 小数位警告
+
 const searchSupplierDialogVisible = ref(false)
 const woSelectorVisible = ref(false)             // 表单弹窗的工单选择
 const showSupplierDialog = ref(false)            // 表单弹窗的供应商选择
 const searchWoDialogVisible = ref(false)         // 搜索栏的工单选择
+
 const certificateUpload = ref(null)              // 质量证明书上传组件引用
 
 // 质量证明书文件上传
@@ -424,27 +332,6 @@ function parseCertificateForDisplay(certStr) {
     return [];
   }
 }
-
-// 格式化化学值显示
-function formatChemicalValue(val) {
-  if (val === null || val === undefined || val === '') return '-'
-  const num = Number(val)
-  return isNaN(num) ? val : num.toFixed(3) + '%'
-}
-
-// 通用数字输入框失焦处理
-const handleNumberInputBlur = (field, decimals) => {
-  const value = form.value[field];
-  if (value !== undefined && value !== null && value !== '') {
-    const numValue = Number(value);
-    if (!isNaN(numValue)) {
-      form.value[field] = numValue.toFixed(decimals);
-    } else {
-      form.value[field] = ''; // Clear if not a valid number
-      ElMessage.warning('请输入有效的数字');
-    }
-  }
-};
 
 // 获取文件类型
 const getFileType = (url, fileName = '') => {
@@ -525,6 +412,85 @@ const handlePdfError = () => {
   ElMessage.error('PDF预览失败，请尝试下载文件');
 };
 
+// 检测结果格式化 - 表格显示时带单位
+function formatTestResultWithUnit(val, maQuality) {
+  if (!val || !maQuality) return val || '';
+  
+  // 提取数值部分并四舍五入为整数
+  const match = val.match(/(-?\d+(\.\d+)?)/);
+  if (match) {
+    const intVal = Math.round(Number(match[1]));
+    let unit = '';
+    
+    if (maQuality === '紧固件') {
+      unit = 'μm';
+    } else if (maQuality === '钢绞线' || maQuality === '预绞丝') {
+      unit = 'MPa';
+    }
+    
+    // 如果值中已经包含单位描述，直接返回
+    if (val.includes('μm') || val.includes('MPa') || val.includes('：')) {
+      return val.replace(/(-?\d+(\.\d+)?)/, intVal);
+    }
+    
+    // 否则添加单位
+    return `${intVal}${unit}`;
+  }
+  return val;
+}
+
+// 检测结果格式化 - 编辑时去除单位只保留数值
+function formatFcResult(val) {
+  if (!val) return '';
+  // 提取数值部分并四舍五入为整数
+  const match = val.match(/(-?\d+(\.\d+)?)/);
+  if (match) {
+    const intVal = Math.round(Number(match[1]));
+    // 替换原有数值为整数
+    return val.replace(/(-?\d+(\.\d+)?)/, intVal);
+  }
+  return val;
+}
+
+// 获取检测结果输入提示
+function getTestResultPlaceholder(maQuality) {
+  if (maQuality === '紧固件') {
+    return '请输入锌层厚度数值';
+  } else if (maQuality === '钢绞线' || maQuality === '预绞丝') {
+    return '请输入抗拉强度数值';
+  }
+  return '请输入检测结果';
+}
+
+// 获取检测结果提示信息
+function getTestResultTip(maQuality) {
+  if (maQuality === '紧固件') {
+    return '提示：请输入锌层厚度数值，单位μm，数值将自动四舍五入为整数';
+  } else if (maQuality === '钢绞线' || maQuality === '预绞丝') {
+    return '提示：请输入抗拉强度数值，单位MPa，数值将自动四舍五入为整数';
+  }
+  return '提示：数值部分将自动四舍五入为整数';
+}
+
+// 检测结果失焦处理 - 格式化结果
+const handleTestResultBlur = () => {
+  if (form.value.testResult) {
+    const originalValue = form.value.testResult;
+    const formattedValue = formatFcResult(originalValue);
+    // 检查是否有小数位被四舍五入
+    const originalMatch = originalValue.match(/(-?\d+(\.\d+)?)/);
+    const formattedMatch = formattedValue.match(/(-?\d+)/);
+    if (originalMatch && formattedMatch &&
+        originalMatch[0] !== formattedMatch[0] &&
+        originalMatch[2]) {
+      decimalWarning.value = true;
+    } else {
+      decimalWarning.value = false;
+    }
+    form.value.testResult = formattedValue;
+  }
+};
+
 // 处理文件上传
 const handleCertificateChange = async (file) => {
   if (certificateFileList.value.length >= 3) {
@@ -566,28 +532,19 @@ const deleteCertificateFile = (index) => {
 function createEmptyForm() {
   return {
     id: undefined,
-    mafactory: '',
-    matMaterial: '',
-    orderno: '',
+    maQuality: '',
     matRecheckNo: '',
-    chemAl: '',
-    chemSi: '',
-    chemFe: '',
-    chemCu: '',
-    chemMg: '',
-    chemMn: '',
-    chemZn: '',
-    chemTi: '',
-    chemCr: '',
-    tensileStrength: '',
-    elongation: '',
+    orderno: '',
+    mafactory: '',
+    sampleNumber: '',
+    testResult: '',
     leavefactoryDate: '',
     detectionTime: '',
     certificate: '[]', // 默认空数组
     contractNo: '',
     woNo: '',
     ipoNo: '',
-    writer: userInfo.value.username, // 重置时设置为当前用户
+    writer: '',
     writeTime: '',
     flag: '',
     status: '',
@@ -597,40 +554,25 @@ function createEmptyForm() {
 }
 
 const rules = {
-  mafactory: [{ required: true, message: '请选择原材料制造商', trigger: 'change' }],
-  matMaterial: [{ required: true, message: '请填写牌号', trigger: 'blur' }],
-  orderno: [{ required: true, message: '请填写入库单号', trigger: 'blur' }],
+  maQuality: [{ required: true, message: '请选择辅材类型', trigger: 'change' }],
   matRecheckNo: [{ required: true, message: '请填写来料检验批次号', trigger: 'blur' }],
-  chemAl: [{ required: true, message: '请填写Al含量', trigger: 'blur' }],
-  chemSi: [{ required: true, message: '请填写Si含量', trigger: 'blur' }],
-  chemFe: [{ required: true, message: '请填写Fe含量', trigger: 'blur' }],
-  chemCu: [{ required: true, message: '请填写Cu含量', trigger: 'blur' }],
-  chemMg: [{ required: true, message: '请填写Mg含量', trigger: 'blur' }],
-  chemMn: [{ required: true, message: '请填写Mn含量', trigger: 'blur' }],
-  chemZn: [{ required: true, message: '请填写Zn含量', trigger: 'blur' }],
-  chemTi: [{ required: true, message: '请填写Ti含量', trigger: 'blur' }],
-  tensileStrength: [{ required: true, message: '请填写拉伸强度', trigger: 'blur' }],
-  elongation: [{ required: true, message: '请填写延伸率', trigger: 'blur' }],
+  orderno: [{ required: true, message: '请填写入库单号', trigger: 'blur' }],
+  mafactory: [{ required: true, message: '请选择原材料制造商', trigger: 'change' }],
+  sampleNumber: [{ required: true, message: '请填写样品编号', trigger: 'blur' }],
+  testResult: [{ required: true, message: '请填写检测结果', trigger: 'blur' }],
   leavefactoryDate: [{ required: true, message: '请选择原材料出厂检测日期', trigger: 'change' }],
   detectionTime: [{ required: true, message: '请选择原材料入厂检测日期', trigger: 'change' }],
-  certificate: [{ required: true, message: '请上传质量证明书', trigger: 'change' }],
+  certificate: [{ required: true, message: '请上传质量证明书', trigger: 'change' }], // 触发条件可能需要调整
   woNo: [{ required: true, message: '请选择生产工单号', trigger: 'change' }],
   contractNo: [{ required: true, message: '合同编号不能为空', trigger: 'change' }],
   ipoNo: [{ required: true, message: '生产订单号不能为空', trigger: 'change' }],
   writer: [{ required: true, message: '录入人不能为空', trigger: 'blur' }]
 };
 
-const handleQueryChange = () => {
-  // 小优化，当输入框内容清空时也触发列表更新
-  if (!queryParams.matRecheckNo && !queryParams.matMaterial && !queryParams.orderno) {
-    getList();
-  }
-};
-
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await getClbgxjsbxjlcList(queryParams);
+    const res = await getClfzcfcList(queryParams);
     list.value = res.data.page.list;
     total.value = res.data.page.totalRow;
   } catch (e) {
@@ -641,7 +583,7 @@ const getList = async () => {
 };
 
 const resetQuery = () => {
-  queryParams.matRecheckNo = '';
+  queryParams.maQuality = '';
   queryParams.mafactory = '';
   queryParams.woNo = '';
   queryParams.pageNumber = 1;
@@ -659,7 +601,7 @@ const handleCurrentChange = (page) => {
 };
 
 const handleAdd = () => {
-  dialogTitle.value = '新增并沟线夹设备线夹铝材';
+  dialogTitle.value = '新增防振锤辅材';
   dialogType.value = 'add';
   form.value = createEmptyForm();
   form.value.writer = userInfo.value.username;
@@ -671,24 +613,15 @@ const handleAdd = () => {
 };
 
 const handleEdit = async (row) => {
-  dialogTitle.value = '编辑并沟线夹设备线夹铝材';
+  dialogTitle.value = '编辑防振锤辅材';
   dialogType.value = 'edit';
   try {
-    const res = await getClbgxjsbxjlcById({ id: row.id });
-    if (res && res.code === 200 && res.data && res.data.clBgxjsbxjLc) {
+    const res = await getClfzcfcById({ id: row.id });
+    if (res && res.code === 200 && res.data && res.data.clFzcFc) {
       form.value = {
         ...createEmptyForm(),
-        ...res.data.clBgxjsbxjLc
+        ...res.data.clFzcFc
       };
-      Object.keys(form.value).forEach(key => {
-        if (key.startsWith('chem') && form.value[key] !== '') {
-          form.value[key] = Number(form.value[key]).toFixed(3);
-        } else if (key === 'tensileStrength' && form.value[key] !== '') {
-          form.value[key] = Number(form.value[key]).toFixed(1);
-        } else if (key === 'elongation' && form.value[key] !== '') {
-          form.value[key] = Number(form.value[key]).toFixed(0);
-        }
-      });
     }
     certificateFileList.value = parseCertificateForDisplay(form.value.certificate)
     dialogVisible.value = true;
@@ -698,15 +631,24 @@ const handleEdit = async (row) => {
 }
 
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`确认删除该条铝材数据吗？`, '提示', {
+  ElMessageBox.confirm(`确认删除该条防振锤辅材数据吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    await deleteClbgxjsbxjlc({ id: row.id });
+    await deleteClfzcfc({ id: row.id });
     ElMessage.success('删除成功');
     resetQuery();
   }).catch(() => {});
+};
+
+const handleQualityChange = (val) => {
+  // 在新增和编辑状态下都自动填充检测结果
+  if (dialogType.value === 'add' || dialogType.value === 'edit') {
+    form.value.testResult = defaultResultMap[val] || '';
+  }
+  // 重置小数位警告
+  decimalWarning.value = false;
 };
 
 const openWoSelector = () => {
@@ -726,12 +668,10 @@ const handleSearchWoSelect = (row) => {
 
 const clearSearchSupplier = () => {
   queryParams.mafactory = '';
-  getList(); // Clear and refresh list
 };
 
 const clearSearchWoNo = () => {
   queryParams.woNo = '';
-  getList(); // Clear and refresh list
 };
 
 // 表单弹窗
@@ -757,8 +697,7 @@ const handleWoSelect = async (row) => {
     ElMessage.error('获取工单详情失败，请联系管理员或检查接口');
   }
   woSelectorVisible.value = false;
-};
-
+}
 const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (!valid) return;
@@ -769,11 +708,11 @@ const handleSubmit = () => {
       if (dialogType.value === 'add') {
         form.value.writer = userInfo.value.username;
         form.value.writeTime = formatDateTime(new Date());
-        await createClbgxjsbxjlc(form.value);
+        await createClfzcfc(form.value);
         ElMessage.success('新增成功');
         resetQuery();
       } else {
-        await updateClbgxjsbxjlc(form.value);
+        await updateClfzcfc(form.value);
         ElMessage.success('修改成功');
         resetQuery();
       }
@@ -809,7 +748,7 @@ onMounted(getList);
 </script>
 
 <style scoped>
-.clbgxjsbxjlc-management {
+.clnzxjlbgx-management {
   padding: 20px;
 }
 
@@ -848,19 +787,10 @@ onMounted(getList);
   color: #409eff;
   cursor: pointer;
   text-decoration: none;
-  transition: color 0.3s;
 }
 
 .file-link:hover {
-  color: #66b1ff;
   text-decoration: underline;
-}
-
-.preview-container {
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .el-form-item__tip {
@@ -875,25 +805,5 @@ onMounted(getList);
   font-size: 12px;
   line-height: 1;
   padding-top: 4px;
-}
-
-/* 预览弹窗样式调整 */
-.el-dialog__body {
-  padding: 10px 20px;
-}
-
-@media (max-width: 768px) {
-  .el-dialog {
-    width: 95% !important;
-    margin: 0 auto;
-  }
-  
-  .preview-container img {
-    max-height: 50vh !important;
-  }
-  
-  .preview-container iframe {
-    height: 400px !important;
-  }
 }
 </style>

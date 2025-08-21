@@ -24,7 +24,9 @@
         <el-table-column prop="title" label="菜单名称" min-width="120" />
         <el-table-column prop="path" label="路径" min-width="150" />
         <el-table-column prop="component" label="组件路径" min-width="150" />
+        <el-table-column prop="writer" label="创建人" width="100" align="center"/>
         <el-table-column prop="layout" label="布局" width="100" align="center">
+
           <template #default="{ row }">
             <el-tag v-if="row.layout">{{ row.layout }}</el-tag>
             <span v-else>-</span>

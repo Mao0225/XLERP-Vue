@@ -1,18 +1,18 @@
 <template>
-  <div class="xcxjLc-management">
+  <div class="nzxjFc-management">
         <div class="action-bar">
       <el-input v-model="queryParams.mafactory" placeholder="请输入原材料制造商查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getXcxjLcList" @keyup.enter="getXcxjLcList" />
-      <el-input v-model="queryParams.matMaterial" placeholder="请输入牌号查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getXcxjLcList" @keyup.enter="getXcxjLcList" />
+        clearable @clear="getNzxjFcList" @keyup.enter="getNzxjFcList" />
+      <el-input v-model="queryParams.maQuality" placeholder="请输入辅材类型" style="width: 200px; margin-right: 10px;"
+        clearable @clear="getNzxjFcList" @keyup.enter="getNzxjFcList" />
         <el-input v-model="queryParams.orderno" placeholder="请输入入库单号查询" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getXcxjLcList" @keyup.enter="getXcxjLcList" />
+        clearable @clear="getNzxjFcList" @keyup.enter="getNzxjFcList" />
     <el-input v-model="queryParams.matRecheckNo" placeholder="请输入来料检验批次号" style="width: 200px; margin-right: 10px;"
-        clearable @clear="getXcxjLcList" @keyup.enter="getXcxjLcList" />
+        clearable @clear="getNzxjFcList" @keyup.enter="getNzxjFcList" />
        
 
 
-      <el-button type="primary" @click="getXcxjLcList">搜索</el-button>
+      <el-button type="primary" @click="getNzxjFcList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
         <el-icon>
           <Refresh />
@@ -22,7 +22,7 @@
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增</el-button>
     </div>
     
-    <el-table :data="xcxjLcList" border v-loading="loading" style="width: 100%">
+    <el-table :data="nzxjFcList" border v-loading="loading" style="width: 100%">
       <!-- 序号 -->
        <el-table-column type="index" label="序号" width="80" />
        <!-- <el-table-column prop="id" label="ID" width="80" /> -->
@@ -33,26 +33,23 @@
 <el-table-column prop="writeTime" label="录入时间" />
 
       <el-table-column prop="mafactory" label="原材料制造商" />
-            <el-table-column prop="matMaterial" label="牌号" />
-            <el-table-column prop="orderno" label="入库单号" />
+      <el-table-column prop="maQuality" label="辅材类型" />
+      <el-table-column prop="orderno" label="入库单号" />
       <el-table-column prop="matRecheckNo" label="来料检验批次号" />
-      <el-table-column prop="chemAl" label="化学成分分析-Al" />
-      <el-table-column prop="chemSi" label="化学成分分析-Si" />
-      <el-table-column prop="chemFe" label="化学成分分析-Fe" />
-      <el-table-column prop="chemCu" label="化学成分分析-Cu" />
-      <el-table-column prop="chemMn" label="化学成分分析-Mn" />
-      <el-table-column prop="chemMg" label="化学成分分析-Mg" />
-      <el-table-column prop="chemZn" label="化学成分分析-Zn" />
-      <el-table-column prop="chemNi" label="化学成分分析-Ni" />
-      <el-table-column prop="chemTi" label="化学成分分析-Ti" />
-      <el-table-column prop="chemCr" label="化学成分分析-Cr" />
+      <el-table-column prop="sampleNumber" label="样品编号" />
+      <el-table-column prop="testResult" label="检测结果" />
      
       <el-table-column prop="leavefactoryDate" label="原材料出厂检测日期" width="120" />
       <el-table-column prop="detectionTime" label="原材料入厂检测日期" width="120"/>
       <el-table-column prop="certificate" label="质量证明书">
         <template #default="{ row }">
           <div v-for="(file, index) in JSON.parse(row.certificate || '[]')" :key="index">
-            <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
+            <!-- 新增el-tooltip显示原文件名，文本固定为"打开文件" -->
+      <el-tooltip :content="file.name" placement="top">
+        <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">
+          打开文件
+        </span>
+      </el-tooltip>
           </div>
         </template>
       </el-table-column>
@@ -116,39 +113,41 @@
             <el-form-item label="原材料制造商" prop="mafactory">
               <el-input v-model="form.mafactory" placeholder="请输入原材料制造商" />
             </el-form-item>
-            <el-form-item label="牌号" prop="matMaterial">
-              <el-input v-model="form.matMaterial" placeholder="牌号" />
+            <el-form-item label="辅材类型" prop="maQuality">
+              <el-input v-model="form.maQuality" placeholder="请输入辅材类型" />
             </el-form-item>
             <el-form-item label="入库单号" prop="orderno">
-              <el-input v-model="form.orderno" placeholder="入库单号" />
+              <el-input v-model="form.orderno" placeholder="请输入入库单号" />
             </el-form-item>
             <el-form-item label="来料检验批次号" prop="matRecheckNo">
               <el-input v-model="form.matRecheckNo" placeholder="请输入来料检验批次号" />
             </el-form-item>
+            <el-form-item label="样品编号" prop="sampleNumber">
+              <el-input v-model="form.sampleNumber" placeholder="请输入样品编号" />
+            </el-form-item>
+            <el-form-item label="检测结果" prop="testResult">
+              <el-input v-model="form.testResult" placeholder="请输入检测结果" />
+            </el-form-item>
             
-            <el-form-item label="原材料出厂检测日期" prop="leavefactoryDate">
-              
+            <el-form-item label="原材料出厂检测日期" prop="leavefactoryDate">             
               <el-date-picker
                 v-model="form.leavefactoryDate"
                 type="date"
                 placeholder="请选择原材料出厂检测日期"
                 value-format="YYYY-MM-DD"
               style="width: 100%" />  
-
             </el-form-item>
-            <el-form-item label="原材料入厂检测日期" prop="detectionTime">
-              
+            <el-form-item label="原材料入厂检测日期" prop="detectionTime">             
               <el-date-picker
                 v-model="form.detectionTime"
                 type="date"
                 placeholder="请选择原材料入厂检测日期"
                 value-format="YYYY-MM-DD"
               style="width: 100%"/>
-
             </el-form-item>
 
             <el-form-item label="质量证明书" prop="certificate">
-              <el-upload
+                <el-upload
             ref="certificateUpload"
             :auto-upload="false"
             :on-change="handleCertificateChange"
@@ -161,47 +160,20 @@
           </el-upload>
           <div class="uploaded-files" v-if="form.certificate">
             <div v-for="(file, index) in JSON.parse(form.certificate)" :key="index" class="uploaded-file">
-              {{ file.name }}
+              
+              <!-- 新增el-tooltip显示原文件名，文本固定为"打开文件" -->
+    <el-tooltip :content="file.name" placement="top">
+      <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">
+        {{ file.name }}
+      </span>
+    </el-tooltip>
               <el-button type="danger" size="mini" @click="deleteCertificateFile(index)">删除</el-button>
             </div>
           </div>
             </el-form-item>
 
-
-
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="化学成分分析-Al" prop="chemAl">
-              <el-input v-model.number="form.chemAl" placeholder="请输入化学成分分析-Al" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Si" prop="chemSi">
-              <el-input v-model.number="form.chemSi" placeholder="请输入化学成分分析-Si" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Fe" prop="chemFe">
-              <el-input v-model.number="form.chemFe" placeholder="请输入化学成分分析-Fe" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Cu" prop="chemCu">
-              <el-input v-model.number="form.chemCu" placeholder="请输入化学成分分析-Cu"  type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Mg" prop="chemMg">
-              <el-input v-model.number="form.chemMg" placeholder="请输入化学成分分析-Mg" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Zn" prop="chemZn">
-              <el-input v-model.number="form.chemZn" placeholder="请输入化学成分分析-Zn" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Mn" prop="chemMn">
-              <el-input v-model.number="form.chemMn" placeholder="请输入化学成分分析-Mn" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Ni" prop="chemNi">
-              <el-input v-model.number="form.chemNi" placeholder="请输入化学成分分析-Ni" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Ti" prop="chemTi">
-              <el-input v-model.number="form.chemTi" placeholder="请输入化学成分分析-Ti" type="number" />
-            </el-form-item>
-            <el-form-item label="化学成分分析-Cr" prop="chemCr">
-              <el-input v-model.number="form.chemCr" placeholder="请输入化学成分分析-Cr"  type="number" />
-            </el-form-item>
-          </el-col>
+          
         </el-row>
       </el-form>
       <template #footer>
@@ -230,13 +202,14 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { getXcxjLc, getXcxjLcById, createXcxjLc, updateXcxjLc, deleteXcxjLc , getWoNoList} from '@/api/clmanage/xcxjlc'
+import { ElMessage, ElMessageBox,ElTooltip } from 'element-plus'
+import { getNzxjFc, getNzxjFcById, createNzxjFc, updateNzxjFc, deleteNzxjFc , getWoNoList} from '@/api/clmanage/nzxjfc'
 import { useUserStore } from '@/store/user'
 import { Refresh } from '@element-plus/icons-vue'
 import { uploadFile } from '@/api/file/file'
 
-import WoNoSelector from '@/views/clmanage/WoNoSelector.vue'
+
+import WoNoSelector from '@/views/clmanage/tqy/WoNoSelector.vue'
 
 const baseUrl = 'http://127.0.0.1:8099'
 
@@ -247,11 +220,10 @@ const getWriterName = () =>{
   return userStore.descr
 }
 
-
 // 查询参数
 const queryParams = reactive({
   mafactory: '',
-  matMaterial: '',
+  maQuality: '',
   orderno: '',
   matRecheckNo: '',
   pageNumber: 1,
@@ -259,10 +231,9 @@ const queryParams = reactive({
 })
 
 // 数据列表数据
-const xcxjLcList = ref([])
+const nzxjFcList = ref([])
 const total = ref(0)
 const loading = ref(false)
-
 
 // 生产工单号选择弹窗显示状态
 const woNoSelectorVisible = ref(false)
@@ -286,19 +257,11 @@ const form = reactive({
   woNo: '',
   ipoNo: '',
   mafactory: '',
-  matMaterial: '',
+  maQuality: '',
   orderno: '',
   matRecheckNo: '',
-  chemAl: 0.00,
-  chemSi: 0.00,
-  chemFe: 0.00,
-  chemCu: 0.00,
-  chemMn: 0.00,
-  chemMg: 0.00,
-  chemZn: 0.00,
-  chemNi: 0.00,
-  chemTi: 0.00,
-  chemCr: 0.00,
+  sampleNumber: '',
+  testResult: '',
   leavefactoryDate: '',
   detectionTime: '',
   certificate: '[]',
@@ -314,8 +277,8 @@ const rules = {
     { required: true, message: '请输入原材料制造商', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  matMaterial: [
-    { required: true, message: '请输入牌号', trigger: 'blur' },
+  maQuality: [
+    { required: true, message: '请输入辅材类型', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   orderno: [
@@ -326,60 +289,30 @@ const rules = {
     { required: true, message: '请输入来料检测批测号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  chemAl: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
+  sampleNumber: [
+    { required: true, message: '请输入样品编号', trigger: 'blur' }
   ],
-  chemSi: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemFe: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
- chemCu: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemMn: [
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemMg: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemZn: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemNi: [
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemTi: [
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
-  ],
-  chemCr: [
-    { type: 'number', message: '请输入有效的数字', trigger: ['blur', 'change']}
+  testResult: [
+    { required: true, message: '请输入检测结果', trigger: 'blur' }
   ],
   leavefactoryDate: [
     { required: true, message: '请输入出厂日期', trigger: 'change' }
-    /* { max: 50, message: '长度不能超过50个字符', trigger: 'blur' } */
   ],
   detectionTime: [
     { required: true, message: '请输入入厂日期', trigger: 'change' }
-    /* { max: 50, message: '长度不能超过50个字符', trigger: 'blur' } */
   ],
   
   contractNo: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+    { required: true, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   woNo: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ]
+    { required: true, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  ipoNo: [
+    { required: true, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+
 }
-
-
 
 
 // 选择生产工单号
@@ -416,7 +349,6 @@ const handleWoNoSelectorSelect = (woNoInfo) => {
   }
 };
 
-
 // 获取生产工单号列表
 const searchWoNo = async (woNo = '') => {
   loadingWoNo.value = true
@@ -436,14 +368,12 @@ const searchWoNo = async (woNo = '') => {
   }
 }
 
-
-
 // 获取数据列表
-const getXcxjLcList = async () => {
+const getNzxjFcList = async () => {
   loading.value = true
   try {
-    const res = await getXcxjLc(queryParams)
-    xcxjLcList.value = res.data.page.list
+    const res = await getNzxjFc(queryParams)
+    nzxjFcList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
     console.error('获取数据列表失败', error)
@@ -453,17 +383,16 @@ const getXcxjLcList = async () => {
   }
 }
 
-
 // 处理分页大小变化
 const handleSizeChange = (size) => {
   queryParams.pageSize = size
-  getXcxjLcList()
+  getNzxjFcList()
 }
 
 // 处理当前页变化
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page
-  getXcxjLcList()
+  getNzxjFcList()
 }
 
 // 重置表单
@@ -481,19 +410,11 @@ const resetForm = () => {
     woNo: '',
    ipoNo: '',
   mafactory: '',
-  matMaterial: '',
+  maQuality: '',
   orderno: '',
   matRecheckNo: '',
-  chemAl: 0.00,
-  chemSi: 0.00,
-  chemFe: 0.00,
-  chemCu: 0.00,
-  chemMn: 0.00,
-  chemMg: 0.00,
-  chemZn: 0.00,
-  chemNi: 0.00,
-  chemTi: 0.00,
-  chemCr: 0.00,
+  sampleNumber: '',
+  testResult: '',
   leavefactoryDate: '',
   detectionTime: '',
   certificate: '[]',
@@ -510,14 +431,12 @@ const handleRefresh = () => {
   queryParams.woNo = ''
   queryParams.ipoNo = ''
   queryParams.mafactory = ''
-  queryParams.matMaterial = ''
+  queryParams.maQuality = ''
   queryParams.orderno = ''
   queryParams.matRecheckNo = ''
   queryParams.pageNumber = 1
-  getXcxjLcList()
+  getNzxjFcList()
 }
-
-
 
 // 新增数据
 const handleAdd = () => {
@@ -533,8 +452,8 @@ const handleAdd = () => {
 // 编辑数据
 const handleEdit = async (row) => {
   dialogType.value = 'edit'
-  const res = await getXcxjLcById({ id: row.id })
-  Object.assign(form, res.data.xcxjLc)
+  const res = await getNzxjFcById({ id: row.id })
+  Object.assign(form, res.data.nzxjFc)
    if (!form.writer) {
     form.writer = userStore.descr || '未知用户'
   }
@@ -554,15 +473,15 @@ const handleEdit = async (row) => {
 
 // 删除数据
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`确认删除数据"${row.id}"吗？`, '提示', {
+  ElMessageBox.confirm(`确认删除数据"${row.no}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
     try {
-      await deleteXcxjLc({ id: row.id })
+      await deleteNzxjFc({ id: row.id })
       ElMessage.success('删除成功')
-      getXcxjLcList()
+      getNzxjFcList()
     } catch (error) {
       console.error('删除数据失败', error)
       ElMessage.error('删除数据失败')
@@ -587,19 +506,15 @@ const submitForm = () => {
         const seconds = String(now.getSeconds()).padStart(2, '0');
         form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-        
- 
-         if (dialogType.value === 'add') {
-          await createXcxjLc(form);
-          // 新增数据成功后，将新数据添加到列表中
-          await getXcxjLcList(); 
+        if (dialogType.value === 'add') {
+          await createNzxjFc(form);
           ElMessage.success('新增成功');
         } else {
-          await updateXcxjLc(form);
+          await updateNzxjFc(form);
           ElMessage.success('修改成功');
         }
         dialogVisible.value = false;
-        getXcxjLcList();
+        getNzxjFcList();
       } catch (error) {
         console.error('保存数据失败', error);
         ElMessage.error('保存数据失败');
@@ -607,8 +522,6 @@ const submitForm = () => {
     }
   })
 }
-
-
 
 // 处理质量证明书上传
 const handleCertificateChange = async (file) => {
@@ -648,15 +561,14 @@ const openFileInNewWindow = (url) => {
   window.open(url, '_blank');
 }
 
-
 // 页面初始化
 onMounted(() => {
-  getXcxjLcList()
+  getNzxjFcList()
 })
 </script>
 
 <style scoped>
-.xcxjLc-management {
+.nzxjFc-management {
   padding: 20px;
 }
 .action-bar {

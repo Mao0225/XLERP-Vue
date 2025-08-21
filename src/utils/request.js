@@ -3,9 +3,13 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useUserStore } from '@/store/user'
 
+// 定义并导出 baseURL
+export const baseURL = 'http://localhost:8099'
+
+
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: 'http://localhost:8099', // API 基础 URL
+  baseURL, // API 基础 URL
   timeout: 15000 // 请求超时时间
 })
 

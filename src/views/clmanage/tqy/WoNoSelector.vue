@@ -14,6 +14,22 @@
             @keyup.enter="handleSearch"
           />
         </el-col>
+
+        <el-col :span="8">
+          <el-input
+            v-model="searchForm.ipoNo"
+            placeholder="请输入生产订单号"
+            @keyup.enter="handleSearch"
+          />
+        </el-col>
+        <el-col :span="8">
+          <el-input
+            v-model="searchForm.purchaserHqCode"
+            placeholder="请输入采购方总部编码"
+            @keyup.enter="handleSearch"
+          />
+        </el-col>
+
         <el-col :span="8">
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="resetSearch">重置</el-button>
@@ -29,6 +45,14 @@
       @row-click="handleRowClick"
     >
       <el-table-column prop="woNo" label="生产工单号" width="120" />
+
+      <el-table-column prop="purchaserHqCode" label="采购方总部编码" width="150" />
+      <el-table-column prop="ipoNo" label="生产订单号" width="150" />
+      <el-table-column prop="woStatus" label="工单状态" width="120">
+        <template #default="{ row }">
+          {{ getStatusLabel(row.woStatus) }}
+        </template>
+      </el-table-column>
 
 
 <el-table-column label="操作" width="100">
@@ -60,6 +84,22 @@ import { ref, reactive, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { getPlshengchangongdanList } from '@/api/plmanage/plshengchangongdan';
 
+
+// 工单状态选项
+const statusOptions = [
+  { id: 1, value: '待处理' },
+  { id: 2, value: '处理中' },
+  { id: 3, value: '已完成' },
+  { id: 4, value: '已取消' },
+  { id: 5, value: '已过期' }
+];
+
+// 获取状态标签
+const getStatusLabel = (status) => {
+  const item = statusOptions.find(option => option.id === status);
+  return item ? item.value : '未知状态';
+};
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -77,6 +117,8 @@ watch(() => props.modelValue, (val) => {
 // 搜索表单数据，包含合同号
 const searchForm = reactive({
   woNo: '',
+   ipoNo: '',
+  purchaserHqCode: ''
   
 
 });
@@ -85,7 +127,9 @@ const searchForm = reactive({
 const queryParams = reactive({
   pageNumber: 1,
   pageSize: 10,
-  woNo: ''
+  woNo: '',
+   ipoNo: '',
+  purchaserHqCode: ''
 });
 
 // 合同号列表数据（响应式），用于表格显示
@@ -103,6 +147,10 @@ const getWoNoList = async () => {
   try {
     // 同步搜索表单的 Plshengchangongdan 到查询参数
     queryParams.woNo = searchForm.woNo;
+
+     queryParams.ipoNo = searchForm.ipoNo;
+    queryParams.purchaserHqCode = searchForm.purchaserHqCode;
+    
     // 调用后端 API 获取分页数据
     const res = await getPlshengchangongdanList(queryParams);
     if (res.data && res.data.page && res.data.page.list) {
@@ -131,7 +179,8 @@ const handleSearch = () => {
 // 重置搜索条件
 const resetSearch = () => {
   searchForm.woNo = ''; // 清空合同号搜索条件
-  searchForm.woNo = '';
+  searchForm.ipoNo = '';
+  searchForm.purchaserHqCode = '';
   queryParams.pageNumber = 1; // 重置到第一页
   WoNoList(); // 触发数据获取
 };
@@ -165,6 +214,8 @@ const selectWoNo = (woNo) => {
 // 处理弹窗关闭事件
 const handleClose = () => {
   searchForm.woNo = ''; // 清空合同号搜索条件
+   searchForm.ipoNo = '';
+  searchForm.purchaserHqCode = '';
   queryParams.pageNumber = 1; // 重置到第一页
   emit('update:modelValue', false);
 };

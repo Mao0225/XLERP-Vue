@@ -224,6 +224,7 @@
             <div class="summary-info">
               <span class="card-title">产品信息</span>
             <el-button type="warning" size="small" @click="importProduct" :disabled="isConfirmed">导入产品</el-button>
+            <el-button type="primary" size="small" @click="downloadExsl">下载模板</el-button>
             </div>
             
             <div class="summary-info">
@@ -397,6 +398,9 @@ import ProductSelector from './components/ProductSelector.vue';
 import SalesmanSelector from './components/SalesmanSelector.vue';
 import CustomerSelector from './components/CustomerSelector.vue';
 import ImportResultDialog from './components/ImportResultDialog.vue';
+import { baseURL } from '@/utils/request';
+
+
 // 获取当前的期数term
 import { useTermStore } from '@/store/term.js';
 const termStore = useTermStore();
@@ -647,8 +651,20 @@ const handleImportResultConfirm = () => {
 
 
 
-
-
+//下载模板。模板地址/xlsxTemplate/物料导入示例模板.xlsx
+const downloadExsl = () => {
+  try {
+    const url = `${baseURL}/xlsxTemplates/物料导入示例模板.xlsx`;
+    window.open(url, '_blank');
+  } catch (error) {
+    console.error('下载模板失败:', error);
+    ElMessage({
+      message: '下载模板失败，请检查网络或联系管理员',
+      type: 'error',
+      duration: 5 * 1000
+    });
+  }
+};
 
 
 

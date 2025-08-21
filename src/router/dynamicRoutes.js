@@ -65,12 +65,56 @@ const viewComponents = {
    'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
     //原材料入库
     'kucun/plinoutstore': () => import('@/views/kucun/plinoutstore/plinoutstore.vue'),
-   //悬垂线夹铝材--tqy
-   'clmanage/xcxjlc': () => import('@/views/clmanage/xcxjlc/xcxjlc.vue'),
-    //并沟线夹设备线夹铝材--ljq
-    'clmanage/clbgxjsbxjlc': () => import('@/views/clmanage/clbgxjsbxjlc.vue'),
+
     // 材料数据检验--学妹 芯
     'clmanage/clproductiondata' : () => import('@/views/clmanage/clproductiondata/clproductiondata.vue'),
+
+// 倪佳琦
+    //悬垂线夹辅材
+    'clmanage/clxcxjfc': () => import('@/views/clmanage/ljq/clxcxjfc.vue'),
+   //耐张线夹钢材
+    'clmanage/clnzxjgc': () => import('@/views/clmanage/ljq/clnzxjgc.vue'),
+    //耐张线夹铝包钢线
+    'clmanage/clnzxjlbgx': () => import('@/views/clmanage/ljq/clnzxjlbgx.vue'),
+    //防振锤辅材
+    'clmanage/clfzcfc': () => import('@/views/clmanage/ljq/clfzcfc.vue'),
+    //间隔棒辅材
+    'clmanage/cljgbfc': () => import('@/views/clmanage/ljq/cljgbfc.vue'),
+    //均压环屏蔽环辅材
+    'clmanage/cljyhfc': () => import('@/views/clmanage/ljq/cljyhfc.vue'),
+    //连接金具辅材
+    'clmanage/clljjjfc': () => import('@/views/clmanage/ljq/clljjjfc.vue'),
+    //接续金具钢材
+    'clmanage/cljxjjgc': () => import('@/views/clmanage/ljq/cljxjjgc.vue'),
+    //并沟线夹设备线夹铝材
+    'clmanage/clbgxjsbxjlc': () => import('@/views/clmanage/ljq/clbgxjsbxjlc.vue'),
+//倪佳琦
+
+
+// 谭请赢
+// 并沟线夹设备线夹辅材（根据类名 BgxjsbxjFcController 推测组件）
+'clmanage/clbgxjsbxjfc': () => import('@/views/clmanage/tqy/bgxjsbxjfc.vue'), 
+// 防震锤铝材（根据类名 FzcLcController 推测组件）
+'clmanage/clfzclc': () => import('@/views/clmanage/tqy/fzclc.vue'), 
+// 间隔棒铝材（根据类名 JgbLcController 推测组件）
+'clmanage/cljgbclc': () => import('@/views/clmanage/tqy/jgblc.vue'), 
+// 接续金具铝包钢线（根据类名 JxjjLbgxController 推测组件）
+'clmanage/cljxjjlbgx': () => import('@/views/clmanage/tqy/jxjjlbgx.vue'), 
+// 接续金具铝材（根据类名 JxjjLcController 推测组件）
+'clmanage/cljxjjlc': () => import('@/views/clmanage/tqy/jxjjlc.vue'), 
+// 均压环铝材（根据类名 JyhlcController 推测组件）
+'clmanage/cljyhlc': () => import('@/views/clmanage/tqy/jyhlc.vue'), 
+// 连接金具钢材（根据类名 LjjjGcController 推测组件）
+'clmanage/clljjjgc': () => import('@/views/clmanage/tqy/ljjjgc.vue'), 
+// 耐张线夹辅材（根据类名 NzxjFcController 推测组件）
+'clmanage/clnzxjfc': () => import('@/views/clmanage/tqy/nzxjfc.vue'), 
+// 耐张线夹铝材（根据类名 NzxjLcController 推测组件）
+'clmanage/clnzxjlc': () => import('@/views/clmanage/tqy/nzxjlc.vue'), 
+// 悬垂线夹铝材（根据类名 XcxjLcController 推测组件）
+'clmanage/clxcxjlc': () => import('@/views/clmanage/tqy/xcxjlc.vue'), 
+
+
+
 }
 
   // 可以根据需要添加更多组件映射 tongzhitiliaodan
