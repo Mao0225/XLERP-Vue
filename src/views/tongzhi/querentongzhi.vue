@@ -39,20 +39,20 @@
             type="success" 
             size="small" 
             @click="handleConfirmNotice(row)"
-            :disabled="row.noticestatus !== '10'"
+            :disabled="row.noticestatus !== 10"
           >确认通知</el-button>
           <el-button 
             type="danger" 
             size="small" 
             @click="handleUnconfirmNotice(row)"
-            :disabled="row.noticestatus !== '20'"
+            :disabled="row.noticestatus !== 20"
           >反确认通知</el-button>
           <el-button type="primary" size="small" @click="handleViewNotice(row)">查看通知</el-button>
           <el-button 
             type="info" 
             size="small" 
             @click="handleViewBeiliaoPlan(row)"
-            :disabled="row.noticestatus === '10'"
+            :disabled="row.noticestatus === 10"
           >查看备料计划</el-button>
         </template>
       </el-table-column>
@@ -257,7 +257,7 @@ const handleConfirmNotice = async (row) => {
   }
 
 
-  if (row.noticestatus !== '10') {
+  if (row.noticestatus !== 10) {
     ElMessage.warning('只有状态为"录入"的通知才能进行确认操作');
     return;
   }
@@ -313,7 +313,7 @@ const handleUnconfirmNotice = async (row) => {
   }
 
 
-  if (row.noticestatus !== '20') {
+  if (row.noticestatus !== 20) {
     ElMessage.warning('只有状态为"确认"的通知才能进行反确认操作');
     return;
   }

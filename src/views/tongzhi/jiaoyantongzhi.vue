@@ -38,13 +38,13 @@
             type="success" 
             size="small" 
             @click="handleVerifyNotice(row)"
-            :disabled="row.noticestatus !== '20'"
+            :disabled="row.noticestatus !== 20"
           >校验通知</el-button>
           <el-button 
             type="danger" 
             size="small" 
             @click="handleUnverifyNotice(row)"
-            :disabled="row.noticestatus !== '30'"
+            :disabled="row.noticestatus !== 30"
           >反校验通知</el-button>
           <el-button type="primary" size="small" @click="handleViewNotice(row)">查看通知</el-button>
           <el-button 
@@ -242,7 +242,7 @@ const handleVerifyNotice = async (row) => {
   }
 
   // 检查状态是否为20（确认）
-  if (row.noticestatus !== '20') {
+  if (row.noticestatus !== 20) {
     ElMessage.warning('只有状态为"确认"的通知才能进行校验操作');
     return;
   }
@@ -301,7 +301,7 @@ const handleUnverifyNotice = async (row) => {
   }
 
   // 检查状态是否为30（通过校验）
-  if (row.noticestatus !== '30') {
+  if (row.noticestatus !== 30) {
     ElMessage.warning('只有状态为"通过校验"的通知才能进行反校验操作');
     return;
   }
@@ -340,7 +340,7 @@ const handleUnverifyNotice = async (row) => {
 // 查看备料计划
 const handleViewBeiliaoPlan = (row) => {
   // 检查状态是否为30（通过校验）
-  //if (row.noticestatus !== '30') {
+  //if (row.noticestatus !== 30) {
   //  ElMessage.warning('只有状态为"通过校验"的通知才能查看备料计划');
   //  return;
   //}

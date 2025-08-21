@@ -48,7 +48,7 @@
       <el-table-column prop="bianzhiren" label="编制人" />
       <el-table-column prop="jiaoyanren" label="校验人" />
       <el-table-column prop="shenheren" label="审核人" />
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="100" fixed="right">
         <template #default="scope">
           <el-button size="small" type="primary" @click="openEditDialog(scope.row)">编辑</el-button>
         </template>
