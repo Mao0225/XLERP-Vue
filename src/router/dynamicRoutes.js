@@ -113,7 +113,8 @@ const viewComponents = {
 // 悬垂线夹铝材（根据类名 XcxjLcController 推测组件）
 'clmanage/clxcxjlc': () => import('@/views/clmanage/tqy/xcxjlc.vue'), 
 
-
+//刘国奇，出厂抽检检验
+'plchuchangchoujian/chuchangchoujian' : () => import('@/views/plchuchangchoujian/chuchanchoujian.vue'),
 
 }
 
