@@ -4,7 +4,7 @@ import { post, get, put, del } from '@/utils/request'
  * 获取分页铝材（本体铝材）数据列表
  */
 export function getXcxjLc(params) {
-  return get('/xcxjLc/getpage', params)
+  return get('/clxcxjLc/getpage', params)
 }
 
 /**
@@ -14,15 +14,15 @@ export function getXcxjLc(params) {
  * @returns {Promise} - 返回物料信息Promise
  */
 export function getXcxjLcById(params) {
-  return get('/xcxjLc/get', params)
+  return get('/clxcxjLc/get', params)
 }
 
 export function createXcxjLc(data) {
-  return post('/xcxjLc/save', data)
+  return post('/clxcxjLc/save', data)
 }
 
 export function updateXcxjLc(data) {
-  return put('/xcxjLc/update', data)
+  return put('/clxcxjLc/update', data)
 }
 
 /**
@@ -32,7 +32,7 @@ export function updateXcxjLc(data) {
  * @returns {Promise} - 返回删除结果Promise
  */
 export function deleteXcxjLc(params) {
-  return del('/xcxjLc/delete', params)
+  return del('/clxcxjLc/delete', params)
 }
 
 
@@ -48,6 +48,6 @@ export function deleteXcxjLc(params) {
  * @returns {Promise} - 返回生产工单号号列表Promise
  */
 export function getWoNoList(params) {
-  return get('/xcxjLc/getWoNoList', params);
+  return get('/clxcxjLc/getWoNoList', params);
 }
 

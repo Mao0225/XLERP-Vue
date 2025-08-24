@@ -13,7 +13,7 @@ export function getFzcLc(params) {
  * @param {number} params.id - 铝材（本体铝锭）ID
  * @returns {Promise} - 返回物料信息Promise
  */
-export function getclfzcLcById(params) {
+export function getFzcLcById(params) {
   return get('/clfzcLc/get', params)
 }
 
