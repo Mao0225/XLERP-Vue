@@ -15,6 +15,19 @@ export function getPlshengchangongdanList(params) {
 }
 
 /**
+ * 获取分页生产订单列表----根据登录人员的部门
+ * @param {Object} params - 查询参数
+ * @param {number} [params.pageNumber=1] - 页码
+ * @param {number} [params.pageSize=10] - 每页大小
+ * @param {string} params.woNo - 生产工单号
+ * @param {string} [params.depNo] - 部门编号
+ * @returns {Promise} - 返回分页数据 Promise
+ */
+export function getPlshengchangongdanListByDepNo(params) {
+  return get('/plshengchangongdan/getpageByDepNo', params)
+}
+
+/**
  * 根据 ID 获取生产工单
  * @param {Object} params - 查询参数
  * @param {number} params.id - 生产工单 ID
@@ -72,6 +85,17 @@ export function batchDeletePlshengchangongdan(ids) {
  */
 export function getGongdanItemList(params) {
   return get('/plshengchangongdan/item/getList', params)
+}
+
+/**
+ * 获取生产订单关联的产品列表--根据登录人员部门
+ * @param {Object} params - 查询参数
+ * @param {string} params.ipoNo - 生产订单号
+ * @param {string} params.depNo - 部门编号
+ * @returns {Promise} - 返回产品列表 Promise
+ */
+export function getGongdanItemListByDepNo(params) {
+  return get('/plshengchangongdan/item/getListByDepNo', params)
 }
 
 /**

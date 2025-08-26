@@ -30,8 +30,8 @@
           <div class="card-header">
             <span class="card-title">物料信息</span>
             <div class="action-buttons">
-              <el-button type="primary" @click="batchAdd" :disabled="!hasSelection">
-                批量添加选中物料
+              <el-button type="primary" @click="batchAdd" :disabled="!hasValidMaterials">
+                批量添加物料
               </el-button>
             </div>
           </div>
@@ -42,9 +42,7 @@
           border 
           size="small" 
           style="width: 100%"
-          @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="55" />
           <el-table-column prop="itemname" label="物料名称" min-width="120" />
           <el-table-column prop="productModel" label="规格型号" min-width="100" />
           <el-table-column prop="unit" label="单位" width="80" />
@@ -85,7 +83,7 @@
           
           <el-table-column prop="originalMemo" label="原始备注" min-width="100" />
           
-          <el-table-column label="操作" width="100">
+          <!-- <el-table-column label="操作" width="100">
             <template #default="{ row }">
               <el-button 
                 type="primary" 
@@ -96,7 +94,7 @@
                 添加
               </el-button>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
         
         <div v-if="materialList.length === 0" class="empty-material">
@@ -146,13 +144,10 @@ const orderInfo = ref({
 // 物料列表
 const materialList = ref([])
 
-// 选中的物料
-const selectedMaterials = ref([])
-
-// 是否有选中的物料
-const hasSelection = computed(() => selectedMaterials.value.length > 0)
-
-
+// 是否有有效的物料（类似合同物料选择的逻辑）
+const hasValidMaterials = computed(() => {
+  return materialList.value.some(row => canAddMaterial(row))
+})
 
 //生产车间列表对应编号
 const workshopOptions = ref([
@@ -230,22 +225,18 @@ const canAddMaterial = (row) => {
   return row.productionAmount > 0
 }
 
-// 处理选择变化
-const handleSelectionChange = (selection) => {
-  selectedMaterials.value = selection
+// 重置物料输入字段
+const resetMaterialInputs = (row) => {
+  row.productionAmount = 0
+  row.memo = ''
 }
 
-// 批量添加物料
+// 批量添加物料（类似合同物料选择的逻辑）
 const batchAdd = async () => {
-  if (!hasSelection.value) {
-    ElMessage.warning('请选择要添加的物料')
-    return
-  }
-  
-  const validMaterials = selectedMaterials.value.filter(item => canAddMaterial(item))
+  const validMaterials = materialList.value.filter(item => canAddMaterial(item))
   
   if (validMaterials.length === 0) {
-    ElMessage.warning('请为选中的物料设置生产数量')
+    ElMessage.warning('请为物料设置有效的生产数量')
     return
   }
   
@@ -258,7 +249,6 @@ const batchAdd = async () => {
       amount: item.productionAmount.toString(),
       unit: item.unit,
       memo: item.memo,
-      workshopName: item.workshopName
     }))
     
     // 批量保存物料
@@ -267,6 +257,11 @@ const batchAdd = async () => {
     }
     
     ElMessage.success(`成功添加${validMaterials.length}个物料`)
+    
+    // 清空输入
+    materialList.value.forEach(resetMaterialInputs)
+    
+    // 通知父组件
     props.onSelect(validMaterials)
     handleClose()
   } catch (error) {
@@ -296,8 +291,11 @@ const addSingleMaterial = async (row) => {
     
     await saveGongdanItem(materialData)
     ElMessage.success('物料添加成功')
+    
+    // 清空该行输入
+    resetMaterialInputs(row)
+    
     props.onSelect([row])
-    handleClose()
   } catch (error) {
     console.error('添加物料失败:', error)
     ElMessage.error('添加物料失败')

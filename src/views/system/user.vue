@@ -85,9 +85,9 @@
           <el-select v-model="form.departmentid" placeholder="请选择部门">
             <el-option
               v-for="item in departmentOptions"
-              :key="item.id"
+              :key="item.code"
               :label="item.name"
-              :value="item.id"
+              :value="item.code"
             />
           </el-select>
         </el-form-item>
@@ -280,8 +280,7 @@ const getUserList = async () => {
       // 查找匹配的部门
       const matchedDepartment = departmentOptions.value.find(d => {
         // 打印每次比较的 id 和 departmentid
-        // console.log(`比较: d.id = ${d.id} (类型: ${typeof d.id}), user.departmentid = ${user.departmentid} (类型: ${typeof user.departmentid})`);
-        return d.id == user.departmentid;
+        return d.code == user.departmentid;
       });
 
       // 打印查找结果

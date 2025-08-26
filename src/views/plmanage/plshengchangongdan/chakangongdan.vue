@@ -23,9 +23,7 @@
         <el-icon><Refresh /></el-icon> 刷新
       </el-button>
 
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">
-        <el-icon><Plus /></el-icon> 新增工单
-      </el-button>
+
     </div>
     
     <!-- 表格展示 -->
@@ -66,18 +64,12 @@
       
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" size="small" @click="handleWatch(row)">查看生产工单详情</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <!-- 批量操作 -->
-    <div class="batch-actions" v-if="selectedRows.length > 0">
-      <el-button type="danger" @click="handleBatchDelete">
-        批量删除 ({{ selectedRows.length }})
-      </el-button>
-    </div>
+
 
     <!-- 分页 -->
     <div class="pagination-container">
@@ -97,6 +89,7 @@
       v-model:visible="dialogVisible"
       :type="dialogType"
       :form-data="formData"
+      :dep-no="userStore.depNo"
       @cancel="handleDialogClose"
     />
   </div>
@@ -107,13 +100,13 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
 import { 
-  getPlshengchangongdanList, 
-  getPlshengchangongdanById, 
-  deletePlshengchangongdan,
-  batchDeletePlshengchangongdan
+  getPlshengchangongdanById,
+  getPlshengchangongdanListByDepNo, 
 } from '@/api/plmanage/plshengchangongdan'
-import WorkorderForm from './shengchangongdanForm.vue'
+import WorkorderForm from './chakangongdanForm.vue'
+import { useUserStore } from '@/store/user'
 
+const userStore = useUserStore()
 // 工单状态配置
 const STATUS_CONFIG = {
   1: { label: '待处理', type: 'info' },
@@ -128,10 +121,7 @@ const getStatusLabel = (status) => {
   return STATUS_CONFIG[status]?.label || '未知状态'
 }
 
-// 获取状态类型
-const getStatusType = (status) => {
-  return STATUS_CONFIG[status]?.type || 'info'
-}
+
 
 // 格式化日期
 const formatDate = (date) => {
@@ -154,14 +144,15 @@ const queryParams = reactive({
   ipoNo: '',
   woNo: '',
   pageNumber: 1,
-  pageSize: 10
+  pageSize: 10,
+  depNo: userStore.depNo
 })
 
 // 获取工单列表
 const getWorkorderList = async () => {
   loading.value = true
   try {
-    const res = await getPlshengchangongdanList(queryParams)
+    const res = await getPlshengchangongdanListByDepNo(queryParams)
     workorderList.value = res.data.page.list || []
     total.value = res.data.page.totalRow || 0
   } catch (error) {
@@ -203,17 +194,10 @@ const handleSelectionChange = (selection) => {
   selectedRows.value = selection
 }
 
-// 新增工单
-const handleAdd = () => {
-  dialogType.value = 'add'
-  formData.value = {}
-  dialogVisible.value = true
-}
 
 // 编辑工单
-const handleEdit = async (row) => {
+const handleWatch = async (row) => {
   try {
-    dialogType.value = 'edit'
     const res = await getPlshengchangongdanById({ id: row.id })
     formData.value = res.data.plshengchangongdan || {}
     dialogVisible.value = true
@@ -223,73 +207,6 @@ const handleEdit = async (row) => {
   }
 }
 
-// 删除工单
-const handleDelete = async (row) => {
-  try {
-    await ElMessageBox.confirm(
-      `确认删除生产工单"${row.woNo}"吗？`, 
-      '删除确认', 
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    await deletePlshengchangongdan({ id: row.id })
-    ElMessage.success('删除成功')
-    
-    // 如果当前页没有数据了，回到上一页
-    if (workorderList.value.length === 1 && queryParams.pageNumber > 1) {
-      queryParams.pageNumber -= 1
-    }
-    
-    getWorkorderList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除工单失败:', error)
-      ElMessage.error('删除工单失败')
-    }
-  }
-}
-
-// 批量删除
-const handleBatchDelete = async () => {
-  if (selectedRows.value.length === 0) {
-    ElMessage.warning('请选择要删除的工单')
-    return
-  }
-  
-  try {
-    await ElMessageBox.confirm(
-      `确认删除选中的 ${selectedRows.value.length} 条生产工单吗？`, 
-      '批量删除确认', 
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const ids = selectedRows.value.map(item => item.id)
-    await batchDeletePlshengchangongdan(ids)
-    
-    ElMessage.success('批量删除成功')
-    selectedRows.value = []
-    
-    // 如果当前页没有数据了，回到上一页
-    if (workorderList.value.length === selectedRows.value.length && queryParams.pageNumber > 1) {
-      queryParams.pageNumber -= 1
-    }
-    
-    getWorkorderList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量删除失败:', error)
-      ElMessage.error('批量删除失败')
-    }
-  }
-}
 
 // 弹窗关闭处理
 const handleDialogClose = () => {
@@ -317,7 +234,6 @@ onUnmounted(() => {
 
 .action-bar {
   display: flex;
-  justify-content: space-between;
   margin-bottom: 20px;
 }
 

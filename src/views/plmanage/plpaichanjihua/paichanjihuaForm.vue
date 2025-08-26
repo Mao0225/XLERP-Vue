@@ -40,31 +40,33 @@
               </el-form-item>
             </el-col> -->
             <el-col :span="8">
+              <el-form-item label="生产工单号" prop="woNo">
+                  <el-input 
+                    v-model="form.woNo" 
+                    placeholder="选择生产工单号" 
+                    readonly 
+                    @click.stop="openGongdanSelector"
+                  >
+                    <template #append>
+                      <el-button @click="openGongdanSelector" size="small">选择</el-button>
+                    </template>
+                  </el-input>
+                </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-form-item label="厂内合同号" prop="contractNo">
-                <el-input v-model.number="form.contractNo" placeholder="请输入厂内合同号" />
+                <el-input v-model.number="form.contractNo" placeholder="选择工单号后自动填充"  disabled/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="生产订单号" prop="ipoNo">
-                <el-input v-model.number="form.ipoNo" placeholder="选择工单号后自动填充" />
+                <el-input v-model.number="form.ipoNo" placeholder="选择工单号后自动填充" disabled />
               </el-form-item>
             </el-col>
 
-            <el-form-item label="生产工单号" prop="woNo">
-                <el-input 
-                  v-model="form.woNo" 
-                  placeholder="选择生产工单号" 
-                  readonly 
-                  @click.stop="openGongdanSelector"
-                >
-                  <template #append>
-                    <el-button @click="openGongdanSelector" size="small">选择</el-button>
-                  </template>
-                </el-input>
-              </el-form-item>
 
                           <el-col :span="8">
-              <el-form-item label="工单物料ID" prop="gdItemId">
+              <!-- <el-form-item label="工单物料ID" prop="gdItemId">
                 <el-input 
                   v-model="form.gdItemId" 
                   placeholder="选择工单物料ID" 
@@ -75,7 +77,7 @@
                     <el-button @click="openGongdanItemSelector" size="small">选择</el-button>
                   </template>
                 </el-input>
-              </el-form-item>
+              </el-form-item> -->
             </el-col>
           </el-row>
         </div>
@@ -85,27 +87,35 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <el-form-item label="物料名称"  prop="itemname">
-                <el-input v-model="form.itemname" disabled placeholder="请输入物料名称" />
-              </el-form-item>
+                <el-input 
+                  v-model="form.itemname" 
+                  placeholder="选择工单物料" 
+                  readonly 
+                  @click.stop="openGongdanItemSelector"
+                >
+                  <template #append>
+                    <el-button @click="openGongdanItemSelector" size="small">选择</el-button>
+                  </template>
+                </el-input>              </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="规格型号" prop="productModel">
-                <el-input v-model="form.productModel" disabled placeholder="请输入规格型号" />
+                <el-input v-model="form.productModel" disabled placeholder="选择物料后自动填充" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="数量" prop="amount">
-                <el-input v-model="form.amount" disabled placeholder="请输入数量" />
+                <el-input v-model="form.amount" disabled placeholder="选择物料后自动填充" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="单位" prop="unit">
-                <el-input v-model="form.unit" disabled placeholder="请输入单位" />
+                <el-input v-model="form.unit" disabled placeholder="选择物料后自动填充" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="生产车间" prop="unit">
-                <el-input v-model="form.workshopName" disabled placeholder="请输入车间" />
+                <el-input v-model="form.workshopName" disabled placeholder="选择物料后自动填充" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -308,6 +318,7 @@ import { useUserStore } from '@/store/user'
 import  gongdanSelector  from './components/gongdanSelector.vue'
 import  gongdanItemSelector  from './components/gongdanItemSelector.vue'
 import { getNewNoNyName } from '@/api/system/basno'
+import { getBasDepartmentOptions } from '@/api/system/department'
 
 const userStore = useUserStore()
 
@@ -367,22 +378,29 @@ const formRef = ref(null)
 // 计划保存状态
 const planSaving = ref(false)
 
-// 车间选项
-const workshopOptions = ref([
-  { code: 'fc009', name: '外购' },
-  { code: 'fc008', name: '外协单位' },
-  { code: 'fc007', name: '铁塔分厂' },
-  { code: 'fc006', name: '机加分厂' },
-  { code: 'fc005', name: '铆焊分厂' },
-  { code: 'fc004', name: '锻造分厂' },
-  { code: 'fc003', name: '铝管分厂' },
-  { code: 'fc002', name: '铸铝分厂' },
-  { code: 'fc001', name: '铸造分厂' },
-  { code: 'scylb', name: '市场营销部' }
-])
+
+
+//车间选项
+const workshopOptions = ref([])
+
+
+const loadWorkshopData = async () => {
+  // 模拟从服务器获取数据
+  //方法为getBasDepartmentOptions
+
+  const res = await getBasDepartmentOptions();
+  if (!res.success) {
+    ElMessage.error(res.msg)
+    return
+  }
+  
+  workshopOptions.value = res.data.options;
+}
 
 // 获取车间名称
 const getWorkshopName = (codes) => {
+  console.log("获取车间名称", codes);
+  loadWorkshopData();
   if (!codes) return ''
   const codeArray = codes.split(',')
   const names = codeArray.map(code => {
@@ -470,10 +488,23 @@ const rules = {
     { required: true, message: '请输入供应商名称', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  poItemId: [
-    { required: true, message: '请输入采购订单行ID', trigger: 'blur' },
-    { type: 'number', message: '请输入有效的数字', trigger: 'blur' }
+  woNo:[
+    { required: true, message: '请选择工单编号', trigger: 'blur' },
   ],
+  ipoNo:[
+    { required: true, message: '请选择工单编号', trigger: 'blur' },
+  ],
+  contractNo:[
+    { required: true, message: '请选择工单编号', trigger: 'blur' },
+  ],
+  itemname:[
+    { required: true, message: '请选择工单物料', trigger: 'blur' },
+  ],
+
+  // poItemId: [
+  //   { required: true, message: '请输入采购订单行ID', trigger: 'blur' },
+  //   { type: 'number', message: '请输入有效的数字', trigger: 'blur' }
+  // ],
   scheduleCode: [
     { required: true, message: '请输入排产计划编码', trigger: 'blur' },
     { max: 48, message: '长度不能超过48个字符', trigger: 'blur' }

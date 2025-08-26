@@ -11,6 +11,7 @@ export const useUserStore = defineStore('user', () => {
   const username = ref(localStorage.getItem('username') || '')
   const realName = ref(localStorage.getItem('descr') || '') 
   const avatar = ref(localStorage.getItem('avatar') || '')
+  const depNo = ref(localStorage.getItem('depNo') || '')
   const roles = ref([])
   const permissions = ref([])
   const menuTree = ref([])
@@ -28,7 +29,7 @@ export const useUserStore = defineStore('user', () => {
       if (response.success) {
         const userData = response.data.user
         const authToken = response.data.token
-        console.log('登录返回信息', response)
+        // console.log('登录返回信息', response)
         
         // Update state
         token.value = authToken
@@ -37,6 +38,7 @@ export const useUserStore = defineStore('user', () => {
         avatar.value = userData.avatar
         realName.value = userData.descr // 修正为 realName
         descr.value = userData.descr || '' // 保存 desc 字段
+        depNo.value = userData.departmentid
         // 保存token和用户信息到localStorage
         localStorage.setItem('token', authToken)
         localStorage.setItem('userId', userData.id.toString())
@@ -44,14 +46,14 @@ export const useUserStore = defineStore('user', () => {
         localStorage.setItem('avatar', userData.avatar)
         localStorage.setItem('realName', userData.descr)
         localStorage.setItem('descr', descr.value) // 保存 desc 到 localStorage
+        localStorage.setItem('depNo', userData.departmentid)
         
-        // Fetch menu tree data after successful login
         await fetchMenuTree(userId.value)
-        console.log('获取菜单树完成')
+        // console.log('获取菜单树完成')
         
         // 初始化动态路由
         await initializeRoutes()
-        console.log('动态路由初始化完成')
+        // console.log('动态路由初始化完成')
         
         return userData
       } else {
@@ -76,22 +78,26 @@ export const useUserStore = defineStore('user', () => {
       realName.value = userInfo.descr
       localStorage.setItem('realName', userInfo.descr)
     }
+    if (userInfo.depNo) {
+      depNo.value = userInfo.depNo
+      localStorage.setItem('depNo', userInfo.depNo)
+    }
    
   }
   const fetchMenuTree = async (userIdParam) => {
     try {
       const id = userIdParam || userId.value
       if (!id) {
-        console.warn('获取菜单数据失败: 没有用户ID')
+        // console.warn('获取菜单数据失败: 没有用户ID')
         return null
       }
       
       const { data } = await getUserMenus(id)
-      console.log('获取到最新菜单数据:', data)
+      // console.log('获取到最新菜单数据:', data)
       menuTree.value = data.menuTree || []
       return data
     } catch (error) {
-      console.error('获取菜单失败:', error)
+      // console.error('获取菜单失败:', error)
       menuTree.value = []
       throw error
     }
@@ -102,7 +108,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       // 确保菜单数据存在
       if (!menuTree.value || menuTree.value.length === 0) {
-        console.warn('初始化路由失败: 菜单数据为空')
+        // console.warn('初始化路由失败: 菜单数据为空')
         return false
       }
       
@@ -111,10 +117,10 @@ export const useUserStore = defineStore('user', () => {
       
       // 使用菜单树初始化路由
       await initDynamicRoutes(menuTree.value)
-      console.log('动态路由已添加到路由表')
+      // console.log('动态路由已添加到路由表')
       return true
     } catch (error) {
-      console.error('初始化动态路由失败:', error)
+      // console.error('初始化动态路由失败:', error)
       throw error
     }
   }
@@ -151,6 +157,7 @@ export const useUserStore = defineStore('user', () => {
     const storageUsername = localStorage.getItem('username')
     const storageAvatar = localStorage.getItem('avatar')
     const storageDescr = localStorage.getItem('descr') // 获取 desc 从 localStorage
+    const storageDepNo = localStorage.getItem('depNo')
     
     if (storageToken && storageUserId) {
       // 恢复用户状态
@@ -159,26 +166,28 @@ export const useUserStore = defineStore('user', () => {
       username.value = storageUsername
       avatar.value = storageAvatar
       descr.value = storageDescr // 恢复 desc 状态
+      depNo.value = storageDepNo
       
       // 从服务器重新获取最新的菜单数据
-      console.log('重新从服务器获取菜单数据...')
+      // console.log('重新从服务器获取菜单数据...')
       await fetchMenuTree(userId.value)
       
       // 重新初始化路由
       await initializeRoutes()
-      console.log('用户状态已恢复，已加载最新的动态路由')
+      // console.log('用户状态已恢复，已加载最新的动态路由')
       return true
     }
     return false
   }
   
-  // Fetch user info from the server
+  //获取用户信息
   const getUserInfo = async () => {
     return {
       userId: userId.value,
       username: username.value,
       realName: realName.value,
       avatar: avatar.value,
+      depNo: depNo.value,
       permissions: permissions.value,
       menuTree: menuTree.value,
       descr: descr.value // 返回 desc 字段
@@ -203,7 +212,7 @@ export const useUserStore = defineStore('user', () => {
     permissions,
     menuTree,
     descr, // 导出 desc 状态
-    
+    depNo,
     // Computed properties
     isLoggedIn,
     

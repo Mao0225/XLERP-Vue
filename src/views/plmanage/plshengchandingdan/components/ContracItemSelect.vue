@@ -30,8 +30,8 @@
           <div class="card-header">
             <span class="card-title">物料信息</span>
             <div class="action-buttons">
-              <el-button type="primary" @click="batchAdd" :disabled="!hasSelection">
-                批量添加选中物料
+              <el-button type="primary" @click="batchAdd" :disabled="!hasValidMaterials">
+                批量添加物料
               </el-button>
             </div>
           </div>
@@ -42,9 +42,7 @@
           border 
           size="small" 
           style="width: 100%"
-          @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="55" />
           <el-table-column prop="itemName" label="物料名称" min-width="120" />
           <el-table-column prop="itemSpec" label="规格型号" min-width="100" />
           <el-table-column prop="itemunit" label="单位" width="80" />
@@ -58,11 +56,10 @@
               <el-input 
                 v-model.number="row.productionAmount" 
                 type="number" 
+                :min="0"
+                :max="row.itemnum - row.allocatedOrderAmount"
                 placeholder="生产数量"
                 size="small"
-                :min="0"
-                :max="row.itemnum"
-                @change="validateProductionAmount(row)"
               />
             </template>
           </el-table-column>
@@ -76,7 +73,6 @@
                 placeholder="选择生产车间"
                 size="small"
                 style="width: 100%"
-
               >
                 <el-option 
                   v-for="workshop in workshopOptions" 
@@ -101,16 +97,8 @@
           
           <el-table-column prop="itemmemo" label="合同备注" min-width="100" />
           
-          <el-table-column label="操作" width="200">
+          <el-table-column label="操作" width="100">
             <template #default="{ row }">
-              <el-button 
-                type="primary" 
-                size="small" 
-                @click="addSingleMaterial(row)"
-                :disabled="!canAddMaterial(row)"
-              >
-                添加
-              </el-button>
               <el-button 
                 type="primary" 
                 size="small" 
@@ -144,6 +132,7 @@ import { ElMessage } from 'element-plus'
 import { getContractInfoByNo } from '@/api/contract/bascontract.js'
 import { saveDingdanItem } from '@/api/plmanage/plshengchandingdan'
 import ConItemCountDetail from './ConItemCountDetail.vue'
+import { getBasDepartmentOptions } from '@/api/system/department'
 
 const props = defineProps({
   contractNo: {
@@ -164,7 +153,6 @@ const props = defineProps({
   }
 })
 
-
 const showTreeDialog = ref(false)
 const selectedConItemId = ref('') // 从其他地方获取的conItemId
 
@@ -184,25 +172,24 @@ const contractInfo = ref({
 // 物料列表
 const materialList = ref([])
 
-// 选中的物料
-const selectedMaterials = ref([])
+// 车间数据
+const workshopOptions = ref([])
 
-// 模拟车间数据
-const workshopOptions = ref([
- { code: 'fc009', name: '外购' },
- { code: 'fc008', name: '外协单位' },
- { code: 'fc007', name: '铁塔分厂' },
- { code: 'fc006', name: '机加分厂' },
- { code: 'fc005', name: '铆焊分厂' },
- { code: 'fc004', name: '锻造分厂' },
- { code: 'fc003', name: '铝管分厂' },
- { code: 'fc002', name: '铸铝分厂' },
- { code: 'fc001', name: '铸造分厂' },
- { code: 'scylb', name: '市场营销部' }
-])
+// 获取车间数据
+const loadWorkshopData = async () => {
+  const res = await getBasDepartmentOptions()
+  if (!res.success) {
+    ElMessage.error(res.msg)
+    return
+  }
+  
+  workshopOptions.value = res.data.options
+}
 
-// 是否有选中的物料
-const hasSelection = computed(() => selectedMaterials.value.length > 0)
+// 是否有有效的物料
+const hasValidMaterials = computed(() => {
+  return materialList.value.some(row => canAddMaterial(row))
+})
 
 // 加载合同物料数据
 const loadContractData = async () => {
@@ -224,7 +211,7 @@ const loadContractData = async () => {
       id: item.id,
       conitemId: item.id, // 合同物料ID
       itemName: item.itemName || '',
-      allocatedOrderAmount:item.allocatedOrderAmount || 0,
+      allocatedOrderAmount: item.allocatedOrderAmount || 0,
       itemSpec: item.itemSpec || '',
       itemnum: item.itemnum || 0,
       itemunit: item.itemunit || '',
@@ -241,44 +228,31 @@ const loadContractData = async () => {
   }
 }
 
-// 验证生产数量
-const validateProductionAmount = (row) => {
-  if (row.productionAmount > row.itemnum) {
-    ElMessage.warning('生产数量不能超过合同数量')
-    row.productionAmount = row.itemnum
-  }
-  if (row.productionAmount < 0) {
-    row.productionAmount = 0
-  }
-}
-
 // 检查是否可以添加物料
 const canAddMaterial = (row) => {
-  return row.productionAmount > 0 && row.selectedWorkshops.length > 0
+  return row.productionAmount > 0 && 
+         row.selectedWorkshops.length > 0
 }
 
-// 处理选择变化
-const handleSelectionChange = (selection) => {
-  selectedMaterials.value = selection
+// 重置物料输入字段
+const resetMaterialInputs = (row) => {
+  row.productionAmount = 0
+  row.selectedWorkshops = []
+  row.memo = ''
 }
 
 // 批量添加物料
 const batchAdd = async () => {
-  if (!hasSelection.value) {
-    ElMessage.warning('请选择要添加的物料')
-    return
-  }
-  
-  const validMaterials = selectedMaterials.value.filter(item => canAddMaterial(item))
+  const validMaterials = materialList.value.filter(item => canAddMaterial(item))
   
   if (validMaterials.length === 0) {
-    ElMessage.warning('请为选中的物料设置生产数量和生产车间')
+    ElMessage.warning('请为物料设置有效的生产数量和生产车间')
     return
   }
   
   try {
     const materialData = validMaterials.map(item => ({
-      ipoNo: props.ipoNo,
+      ipoNo : props.ipoNo,
       conitemId: item.conitemId,
       itemname: item.itemName,
       allocatedOrderAmount: item.allocatedOrderAmount,
@@ -295,41 +269,18 @@ const batchAdd = async () => {
     }
     
     ElMessage.success(`成功添加${validMaterials.length}个物料`)
+    
+    // 刷新列表以更新已分配数量
+    await loadContractData()
+    
+    // 清空输入
+    materialList.value.forEach(resetMaterialInputs)
+    
+    // 通知父组件
     props.onSelect(validMaterials)
-    handleClose()
   } catch (error) {
     console.error('批量添加物料失败:', error)
     ElMessage.error('批量添加物料失败')
-  }
-}
-
-// 添加单个物料
-const addSingleMaterial = async (row) => {
-  if (!canAddMaterial(row)) {
-    ElMessage.warning('请设置生产数量和生产车间')
-    return
-  }
-  
-  try {
-    const materialData = {
-      ipoNo: props.ipoNo,
-      conitemId: row.conitemId,
-      itemname: row.itemName,
-      allocatedOrderAmount: row.allocatedOrderAmount,
-      productModel: row.itemSpec,
-      amount: row.productionAmount.toString(),
-      unit: row.itemunit,
-      memo: row.memo,
-      workshopName: row.selectedWorkshops.join(',') // 车间编号用逗号分隔
-    }
-    
-    await saveDingdanItem(materialData)
-    ElMessage.success('物料添加成功')
-    props.onSelect([row])
-    handleClose()
-  } catch (error) {
-    console.error('添加物料失败:', error)
-    ElMessage.error('添加物料失败')
   }
 }
 
@@ -344,6 +295,7 @@ watch(
   ([newVisible, newContractNo]) => {
     if (newVisible && newContractNo) {
       loadContractData()
+      loadWorkshopData()
     }
   },
   { immediate: true }

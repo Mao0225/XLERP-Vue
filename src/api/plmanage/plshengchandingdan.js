@@ -12,6 +12,21 @@ export function getPlshengchandingdanList(params) {
   return get('/plshengchandingdan/getpage', params)
 }
 
+
+
+/**
+ * 获取分页生产订单列表----根据登录人员的部门
+ * @param {Object} params - 查询参数
+ * @param {number} [params.pageNumber=1] - 页码
+ * @param {number} [params.pageSize=10] - 每页大小
+ * @param {string} [params.ipoNo] - 生产订单号
+ * @param {string} [params.depNo] - 部门ID
+ * @returns {Promise} - 返回分页数据 Promise
+ */
+export function getPlshengchandingdanListByDepNo(params) {
+  return get('/plshengchandingdan/getpageByDepNo', params)
+}
+
 /**
  * 根据 ID 获取生产订单
  * @param {Object} params - 查询参数
@@ -70,6 +85,18 @@ export function getDingdanItemList(params) {
   return get('/plshengchandingdan/item/getList', params)
 }
 
+
+/**
+ * 获取生产订单关联的产品列表--根据登录人员部门
+ * @param {Object} params - 查询参数
+ * @param {string} params.ipoNo - 生产订单号
+ * @param {string} params.depNo - 部门编号
+ * @returns {Promise} - 返回产品列表 Promise
+ */
+export function getDingdanItemListByDepNo(params) {
+  return get('/plshengchandingdan/item/getListByDepNo', params)
+}
+
 /**
  * 保存生产订单关联的产品
  * @param {Object} data - 产品数据
@@ -108,3 +135,5 @@ export function deleteDingdanItem(params) {
 export function getItemCountDetail(params) {
   return get('/plshengchandingdan/getItemCount', params)
 }
+
+

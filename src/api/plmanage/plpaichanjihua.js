@@ -10,6 +10,14 @@ return get ('/plpaichanjihua/getpage', params)
 
 /**
 
+获取分页排产计划列表--根据登录用户部门编号
+*/
+export function getPlpaichanjihuaListByDepNo (params) {
+return get ('/plpaichanjihua/getpageByDepNo', params)
+}
+
+/**
+
 根据 ID 获取排产计划
 @param {Object} params - 查询参数
 @param {number} params.id - 排产计划 ID

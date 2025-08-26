@@ -160,11 +160,18 @@
       <div class="section-header">
         <h3>物料信息</h3>
         <!-- 提示要先保存才能添加物料 -->
-         <el-tooltip content="请先保存" placement="top"></el-tooltip>
+        <el-tooltip v-if="!isOrderSaved" content="请先保存订单信息" placement="top">
+          <el-button 
+            type="success" 
+            :disabled="true"
+          >
+            添加物料
+          </el-button>
+        </el-tooltip>
         <el-button 
+          v-else
           type="success" 
           @click="openMaterialSelector" 
-          :disabled="!form.contractNo || !form.ipoNo"
         >
           添加物料
         </el-button>
@@ -225,7 +232,7 @@ import ContractSelector from './components/ContractSelector.vue'
 import MaterialSelector from './components/ContracItemSelect.vue'
 import { useUserStore } from '@/store/user'
 import { getNewNoNyName } from '@/api/system/basno'
-
+import { getBasDepartmentOptions } from '@/api/system/department'
 const userStore = useUserStore()
 
 const getWriterName = () =>{
@@ -251,32 +258,51 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['update:visible', 'submit', 'cancel'])
 
+// 生产车间列表对应编号
+const workshopOptions = ref([])
 
-
-//生产车间列表对应编号
-const workshopOptions = ref([
-  { code: 'fc009', name: '外购' },
-  { code: 'fc008', name: '外协单位' },
-  { code: 'fc007', name: '铁塔分厂' },
-  { code: 'fc006', name: '机加分厂' },
-  { code: 'fc005', name: '铆焊分厂' },
-  { code: 'fc004', name: '锻造分厂' },
-  { code: 'fc003', name: '铝管分厂' },
-  { code: 'fc002', name: '铸铝分厂' },
-  { code: 'fc001', name: '铸造分厂' },
-  { code: 'scylb', name: '市场营销部' }
-])
-
-//处理编号对应的名称显示
-const getWorkshopName = (codes) => {
-  if (!codes) return ''
-  const codeArray = codes.split(',')
-  const names = codeArray.map(code => {
-    const workshop = workshopOptions.value.find(option => option.code === code.trim())
-    return workshop ? workshop.name : code
-  })
-  return names.join(',')
+// 获取车间数据
+const loadWorkshopData = async () => {
+  try {
+    const res = await getBasDepartmentOptions();
+    if (!res.success) {
+      ElMessage.error(res.msg);
+      return;
+    }
+    workshopOptions.value = res.data.options || [];
+  } catch (error) {
+    ElMessage.error('加载车间数据失败');
+  }
 }
+
+// 处理编号对应的名称显示
+const getWorkshopName = (codes) => {
+  if (!codes) {
+    return '';
+  }
+  
+  if (workshopOptions.value.length === 0) {
+    return codes; // Fallback to return codes as-is if data isn't loaded
+  }
+  
+  const codeArray = codes.split(',');
+  
+  const names = codeArray.map(code => {
+    const trimmedCode = code.trim();
+    
+    const workshop = workshopOptions.value.find(option => option.code === trimmedCode);
+    
+    return workshop ? workshop.name : code;
+  });
+  
+  const result = names.join(',');
+  
+  return result;
+}
+
+
+
+
 // 订单类型选项
 const typeOptions = [
   { id: 1, value: '采购订单' },
@@ -313,6 +339,8 @@ const materialSelectorVisible = ref(false)
 
 // 订单保存状态
 const orderSaving = ref(false)
+// 订单是否已保存（用于控制首次保存）
+const isOrderSaved = ref(false)
 
 // 物料列表
 const materialList = ref([])
@@ -336,11 +364,15 @@ const generateIpoNo = async () => {
   }
 };
 
-
 // 监听对话框打开
 watch(dialogVisible, async (visible) => {
-  if (visible && props.type === 'add') {
-    form.ipoNo = await generateIpoNo();
+  if (visible) {
+    if (props.type === 'add') {
+      form.ipoNo = await generateIpoNo();
+      isOrderSaved.value = false;
+    } else {
+      isOrderSaved.value = true;
+    }
   }
 })
 
@@ -415,34 +447,7 @@ const rules = {
   ]
 }
 
-// 监听表单数据变化
-watch(() => props.formData, (newData) => {
-  if (newData && Object.keys(newData).length > 0) {
-    // 处理日期格式
-    const processedData = { ...newData }
-    if (processedData.planStartDate) {
-      processedData.planStartDate = new Date(processedData.planStartDate)
-    }
-    if (processedData.planFinishDate) {
-      processedData.planFinishDate = new Date(processedData.planFinishDate)
-    }
-    if (processedData.actualStartDate) {
-      processedData.actualStartDate = new Date(processedData.actualStartDate)
-    }
-    if (processedData.actualFinishDate) {
-      processedData.actualFinishDate = new Date(processedData.actualFinishDate)
-    }
-    if (processedData.dataSourceCreateTime) {
-      processedData.dataSourceCreateTime = new Date(processedData.dataSourceCreateTime)
-    }
-    Object.assign(form, processedData)
-    
-    // 如果是编辑模式且有订单号，加载物料列表
-    if (props.type === 'edit' && form.ipoNo) {
-      loadMaterialList()
-    }
-  }
-}, { immediate: true, deep: true })
+
 
 // 重置表单
 const resetForm = () => {
@@ -489,6 +494,7 @@ const resetForm = () => {
 
   })
   materialList.value = []
+  isOrderSaved.value = false
 }
 
 // 打开合同选择器
@@ -498,16 +504,27 @@ const openContractSelector = (e) => {
 }
 
 // 打开物料选择器
-const openMaterialSelector = (e) => {
-  e.stopPropagation()
-  if (!form.contractNo) {
-    ElMessage.error('请先选择合同！')
-    return
+const openMaterialSelector = async (e) => {
+  e?.stopPropagation()
+  if (!isOrderSaved.value) {
+    // 如果尚未保存，先验证并保存
+    if (!formRef.value) return
+    let valid = false
+    try {
+      await formRef.value.validate((isValid) => {
+        valid = isValid
+      })
+    } catch (error) {
+      valid = false
+    }
+    if (valid) {
+      await saveOrderInfo()
+    } else {
+      ElMessage.warning('请先完善订单信息并保存')
+      return
+    }
   }
-  if (!form.ipoNo) {
-    ElMessage.error('请先保存订单信息！')
-    return
-  }
+  // 已保存或编辑模式，直接打开
   materialSelectorVisible.value = true
 }
 
@@ -522,7 +539,7 @@ const handleContractSelect = (contract) => {
 
 // 处理物料选择
 const handleMaterialSelect = (materials) => {
-  materialSelectorVisible.value = false
+  // materialSelectorVisible.value = false
   // 刷新物料列表
   loadMaterialList()
 }
@@ -534,17 +551,30 @@ const saveOrderInfo = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        orderSaving.value = true
         // 移除合同名称字段（根据需求，合同名称不存储）
         const formData = { ...form }
         delete formData.contractName
         
-        if (props.type === 'add') {
-          await createPlshengchandingdan(formData)
-          ElMessage.success('订单信息保存成功')
-        } else {
-          await updatePlshengchandingdan(formData)
+        let res
+        if (form.id) {
+          // 已存在ID，使用更新
+          res = await updatePlshengchandingdan(formData)
           ElMessage.success('订单信息更新成功')
+        } else {
+          // 无ID，使用创建
+          res = await createPlshengchandingdan(formData)
+          // 假设创建接口返回了完整的订单数据，包括ID
+          // 这里需要根据实际API响应调整
+          if (res?.data?.id) {
+            form.id = res.data.id
+          }
+          ElMessage.success('订单信息保存成功')
+        }
+        // 保存成功后设置标志
+        isOrderSaved.value = true
+        // 如果是新增模式，保存后加载物料列表（如果需要）
+        if (props.type === 'add' && form.ipoNo) {
+          loadMaterialList()
         }
       } catch (error) {
         console.error('保存生产订单失败', error)
@@ -562,13 +592,11 @@ const loadMaterialList = async () => {
   
   try {
     const res = await getDingdanItemList({ ipoNo: form.ipoNo })
-    // Map workshop codes to names for each material
     materialList.value = (res.data.itemList || []).map(item => ({
       ...item,
       workshopName: getWorkshopName(item.workshopName || item.workshopCode || '')
     }))
   } catch (error) {
-    console.error('加载物料列表失败', error)
     ElMessage.error('加载物料列表失败')
   }
 }
@@ -598,6 +626,37 @@ const deleteMaterial = async (material) => {
     }
   }
 }
+
+// 监听表单数据变化
+watch(() => props.formData, (newData) => {
+  loadWorkshopData();
+
+  if (newData && Object.keys(newData).length > 0) {
+    // 处理日期格式
+    const processedData = { ...newData }
+    if (processedData.planStartDate) {
+      processedData.planStartDate = new Date(processedData.planStartDate)
+    }
+    if (processedData.planFinishDate) {
+      processedData.planFinishDate = new Date(processedData.planFinishDate)
+    }
+    if (processedData.actualStartDate) {
+      processedData.actualStartDate = new Date(processedData.actualStartDate)
+    }
+    if (processedData.actualFinishDate) {
+      processedData.actualFinishDate = new Date(processedData.actualFinishDate)
+    }
+    if (processedData.dataSourceCreateTime) {
+      processedData.dataSourceCreateTime = new Date(processedData.dataSourceCreateTime)
+    }
+    Object.assign(form, processedData)
+    
+    // 如果是编辑模式且有订单号，加载物料列表
+    if (props.type === 'edit' && form.ipoNo) {
+      loadMaterialList()
+    }
+  }
+}, { immediate: true, deep: true })
 
 // 取消按钮处理
 const handleCancel = () => {

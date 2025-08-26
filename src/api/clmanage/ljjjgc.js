@@ -4,7 +4,7 @@ import { post, get, put, del } from '@/utils/request'
  * 获取分页钢材（钢板、圆钢）数据列表
  */
 export function getLjjjGc(params) {
-  return get('/cljjjGc/getpage', params)
+  return get('/clljjjGc/getpage', params)
 }
 
 /**
@@ -14,15 +14,15 @@ export function getLjjjGc(params) {
  * @returns {Promise} - 返回物料信息Promise
  */
 export function getLjjjGcById(params) {
-  return get('/cljjjGc/get', params)
+  return get('/clljjjGc/get', params)
 }
 
 export function createLjjjGc(data) {
-  return post('/cljjjGc/save', data)
+  return post('/clljjjGc/save', data)
 }
 
 export function updateLjjjGc(data) {
-  return put('/cljjjGc/update', data)
+  return put('/clljjjGc/update', data)
 }
 
 /**
@@ -32,7 +32,7 @@ export function updateLjjjGc(data) {
  * @returns {Promise} - 返回删除结果Promise
  */
 export function deleteLjjjGc(params) {
-  return del('/cljjjGc/delete', params)
+  return del('/clljjjGc/delete', params)
 }
 
 

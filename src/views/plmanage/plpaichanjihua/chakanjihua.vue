@@ -16,7 +16,6 @@
         <el-icon><Refresh /></el-icon> 刷新
       </el-button>
 
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增排产计划</el-button>
     </div>
     
     <!-- 表格展示 -->
@@ -51,8 +50,7 @@
   <el-table-column prop="writetime" label="录入时间" min-width="120" />
   <el-table-column label="操作" min-width="300" fixed="right">
     <template #default="{ row }">
-      <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-      <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+      <el-button type="primary" size="small" @click="handleWatch(row)">查看排产计划详情</el-button>
       <el-button 
         type="info" 
         size="small" 
@@ -80,6 +78,7 @@
       v-model:visible="dialogVisible"
       :type="dialogType"
       :form-data="formData"
+      :dep-no="userStore.depNo"
       @cancel="handleFormCancel"
     />
 
@@ -97,10 +96,14 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getPlpaichanjihuaList, getPlpaichanjihuaById, deletePlpaichanjihua } from '@/api/plmanage/plpaichanjihua';
-import ProductionPlanForm from './paichanjihuaForm.vue';
+import { getPlpaichanjihuaListByDepNo, getPlpaichanjihuaById } from '@/api/plmanage/plpaichanjihua';
+import ProductionPlanForm from './chakanjihuaForm.vue';
 import chakanbeiliaodan from './components/chakanbeiliaodan.vue';
 import { getBasDepartmentOptions } from '@/api/system/department';
+import { useUserStore } from '@/store/user'
+const userStore = useUserStore()
+
+
 // 计划状态选项
 const statusOptions = [
   { id: 1, value: '待处理' },
@@ -130,7 +133,8 @@ const queryParams = reactive({
   ipoNo: '',
   scheduleCode: '',
   pageNumber: 1,
-  pageSize: 10
+  pageSize: 10,
+  depNo: userStore.depNo
 });
 
 // 排产计划列表数据
@@ -208,7 +212,7 @@ const getWorkshopName = (codes) => {
 const getPlpaichanjihuaPage = async () => {
   loading.value = true;
   try {
-    const res = await getPlpaichanjihuaList(queryParams);
+    const res = await getPlpaichanjihuaListByDepNo(queryParams);
     console.log('获取排产计划列表响应:', res);
     
     // 处理每条记录的workshopName字段
@@ -256,30 +260,13 @@ const handleAdd = () => {
 };
 
 // 编辑排产计划
-const handleEdit = async (row) => {
-  dialogType.value = 'edit';
+const handleWatch = async (row) => {
   const res = await getPlpaichanjihuaById({ id: row.id });
   formData.value = res.data.plpaichanjihua;
   dialogVisible.value = true;
 };
 
-// 删除排产计划
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`确认删除排产计划"${row.planNo}"吗？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    try {
-      await deletePlpaichanjihua({ id: row.id });
-      ElMessage.success('删除成功');
-      getPlpaichanjihuaPage();
-    } catch (error) {
-      console.error('删除排产计划失败:', error);
-      ElMessage.error('删除排产计划失败');
-    }
-  }).catch(() => {});
-};
+
 
 // 处理表单取消
 const handleFormCancel = () => {
@@ -308,7 +295,6 @@ onMounted(() => {
 }
 .action-bar {
   display: flex;
-  justify-content: space-between;
   margin-bottom: 20px;
 }
 .pagination-container {
