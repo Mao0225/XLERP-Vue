@@ -73,7 +73,7 @@
                 <el-form-item label="供应商名称" prop="descr">
                   <el-input v-model="form.descr" placeholder="请输入供应商名称" />
                 </el-form-item>
-                <el-form-item label="客户类型" prop="type" >
+                <el-form-item label="类型" prop="type" >
                   <el-select v-model="form.type" placeholder="请选择供应商类型" :disabled="true">
                     <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
                   </el-select>

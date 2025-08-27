@@ -97,6 +97,9 @@
         <el-form-item label="菜单图标" prop="icon">
           <IconSelect v-model="form.icon" />
         </el-form-item>
+        <el-form-item label="创建人" prop="writer">
+          <el-input v-model="form.writer" placeholder="请输入菜单创建人" /> 
+        </el-form-item>
         <!-- <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" controls-position="right" style="width: 100%" />
         </el-form-item> -->
@@ -149,6 +152,7 @@ const form = reactive({
   component: '',  // 添加组件路径字段
   layout: 'default', // 添加布局类型字段，默认为default
   icon: '',
+  writer: '',
   parentid: undefined, // 不选择时为undefined，提交时会处理为0
 //   sort: 0 // 新增排序字段
 })
@@ -219,6 +223,7 @@ const resetForm = () => {
   form.layout = 'default'
   form.icon = ''
   form.parentid = undefined
+  form.writer = ''
 //   form.sort = 0
 }
 

@@ -237,10 +237,11 @@ import { getFzcLc, getFzcLcById, createFzcLc, updateFzcLc, deleteFzcLc , getWoNo
 import { useUserStore } from '@/store/user'
 import { Refresh } from '@element-plus/icons-vue'
 import { uploadFile } from '@/api/file/file'
+import { baseURL } from '@/utils/request'
 
 import WoNoSelector from '@/views/clmanage/tqy/WoNoSelector.vue'
 
-const baseUrl = 'http://127.0.0.1:8099'
+const baseUrl = baseURL
 
 const userStore = useUserStore()
 

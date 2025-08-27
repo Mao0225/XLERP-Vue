@@ -365,6 +365,7 @@ import { uploadFile } from '@/api/file/file'
 import WoSelectorDialog from '@/views/clmanage/ljq/components/WoSelectorDialog.vue'
 import SupplierDialog from '@/views/clmanage/ljq/components/SupplierDialog.vue'
 import { useUserStore } from '@/store/user'
+import { baseURL } from '@/utils/request'
 
 const userStore = useUserStore()
 // 用户信息
@@ -372,7 +373,7 @@ const userInfo = computed(() => ({
   username: userStore.realName || '未登录'
 }))
 
-const BASE_FILE_URL = 'http://127.0.0.1:8099'
+const BASE_FILE_URL = baseURL
 
 const form = ref(createEmptyForm())
 const queryParams = reactive({
