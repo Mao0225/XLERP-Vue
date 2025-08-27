@@ -1,4 +1,3 @@
-<!-- AppTabs.vue -->
 <template>
   <div class="app-tabs">
     <el-tabs
@@ -14,7 +13,7 @@
         :key="item.path"
         :label="item.title"
         :name="item.path"
-        :closable="item.path !== '/dashboard'"
+        :closable="item.path !== '/dashboard' && item.title !== '首页'"
       ></el-tab-pane>
     </el-tabs>
   </div>
@@ -59,11 +58,13 @@ const addTab = (route) => {
       title: route.meta.title,
       path: route.path
     })
+    store.refreshKeys[route.path] = Date.now() // 更新刷新key
   }
 }
 
 const handleTabClick = (tab) => {
   router.push(tab.props.name)
+  store.refreshKeys[tab.props.name] = Date.now() // 切换时更新刷新key
 }
 
 const removeTab = (targetPath) => {
@@ -161,7 +162,7 @@ const removeTab = (targetPath) => {
             }
           }
 
-          .el-tabs__item__close {
+          .el-icon.is-icon-close {
             color: inherit;
             opacity: 0.6;
             transition: all 0.3s ease;
@@ -173,7 +174,7 @@ const removeTab = (targetPath) => {
             }
           }
 
-          &.is-active .el-tabs__item__close {
+          &.is-active .el-icon.is-icon-close {
             color: #ffffff;
 
             &:hover {
@@ -183,8 +184,8 @@ const removeTab = (targetPath) => {
 
           // 首页标签特殊样式
           &[aria-controls*="dashboard"] {
-            .el-tabs__item__close {
-              display: none; // 隐藏首页的关闭按钮
+            .el-icon.is-icon-close {
+              display: none !important;
             }
             
             // 首页标签添加特殊标识

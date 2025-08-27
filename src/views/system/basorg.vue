@@ -5,8 +5,8 @@
         clearable @clear="getBasOrgList" @keyup.enter="getBasOrgList" />
       <el-input v-model="queryParams.descr" placeholder="请输入客户名称查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasOrgList" @keyup.enter="getBasOrgList" />
-      <el-select v-model="queryParams.type" placeholder="选择客户类型" style="width: 200px; margin-right: 10px;">
-        <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
+      <el-select v-model="queryParams.type" placeholder="选择客户类型"  style="width: 200px; margin-right: 10px;" >
+        <el-option v-for="item in typeLabelOptions" :key="item.id"  :label="item.value" :value="item.id" />
       </el-select>
       <el-select v-model="queryParams.area" placeholder="选择所属区域" style="width: 200px; margin-right: 10px;">
         <el-option v-for="item in areaOptions" :key="item" :label="item" :value="item" />
@@ -79,7 +79,7 @@
                   <el-input v-model="form.descr" placeholder="请输入客户名称" />
                 </el-form-item>
                 <el-form-item label="客户类型" prop="type">
-                  <el-select v-model="form.type" placeholder="请选择客户类型">
+                  <el-select v-model="form.type" placeholder="请选择客户类型" :disabled="true">
                     <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
                   </el-select>
                 </el-form-item>
@@ -174,11 +174,6 @@ const typeLabelOptions = [
   { id: 1, value: '供应商' },
   { id: 2, value: '运输商' },
   { id: 3, value: '客户' },
-  { id: 4, value: '仓库' },
-  { id: 10, value: '分厂' },
-  { id: 11, value: '分厂中外加工' },
-  { id: 12, value: '外协部' },
-  { id: 20, value: '部门' },
   { id: 99, value: '其他' }
 ]
 
@@ -235,7 +230,7 @@ const form = reactive({
   isdelete: 0,
   memo: '',
   status: 0,
-  type: 1,
+  type: 3,
   contactheadship: '',
   flag: null,
   area: ''
@@ -354,7 +349,7 @@ const resetForm = () => {
     isdelete: 0,
     memo: '',
     status: 0,
-    type: 0,
+    type: 3,
     contactheadship: '',
     flag: null,
     area: ''
