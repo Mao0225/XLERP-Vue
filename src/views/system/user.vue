@@ -31,7 +31,7 @@
         <template #default="{ row }">
           <el-image
             v-if="row.avatar"
-            :src="baseUrl + row.avatar"
+            :src="baseURL + row.avatar"
             style="width: 40px; height: 40px; border-radius: 50%;"
             fit="cover"
           />
@@ -178,8 +178,8 @@ import {
 } from '@/api/system/menu'
 import { getBasDepartmentOptions } from '@/api/system/department'
 import { uploadAvatar} from '@/api/file/file'
+import { baseURL } from '@/utils/request';
 
-const baseUrl = 'http://127.0.0.1:8099'
 
 // 查询参数
 const queryParams = reactive({
@@ -567,8 +567,8 @@ const handleAvatarChange = async (file) => {
   try {
     const res = await uploadAvatar(formData)
     if (res.success && res.data && res.data.url) {
-      avatarFileList.value = [{ name: file.name, url: baseUrl + res.data.url }]
-      avatarPreview.value = baseUrl + res.data.url
+      avatarFileList.value = [{ name: file.name, url: baseURL + res.data.url }]
+      avatarPreview.value = baseURL + res.data.url
       form.avatar = res.data.url // Store the server-returned URL
       ElMessage.success('头像上传成功')
     } else {
@@ -578,7 +578,7 @@ const handleAvatarChange = async (file) => {
     console.error('头像上传失败', error)
     ElMessage.error('头像上传失败')
     avatarFileList.value = []
-    avatarPreview.value = dialogType.value === 'edit' ? (originalAvatar.value ? baseUrl + originalAvatar.value : '') : ''
+    avatarPreview.value = dialogType.value === 'edit' ? (originalAvatar.value ? baseURL + originalAvatar.value : '') : ''
     form.avatar = dialogType.value === 'edit' ? originalAvatar.value : ''
     avatarUpload.value.clearFiles()
   }
@@ -606,8 +606,8 @@ const handleEdit = async (row) => {
     Object.assign(form, res.data.user)
     originalAvatar.value = form.avatar || '' // Save original avatar
     if (form.avatar) {
-      avatarPreview.value = baseUrl + form.avatar
-      avatarFileList.value = [{ name: 'avatar', url: baseUrl + form.avatar }]
+      avatarPreview.value = baseURL + form.avatar
+      avatarFileList.value = [{ name: 'avatar', url: baseURL + form.avatar }]
     } else {
       avatarPreview.value = ''
       avatarFileList.value = []
@@ -625,9 +625,9 @@ const cancelForm = () => {
   if (dialogType.value === 'edit') {
     // Restore original avatar on cancel
     form.avatar = originalAvatar.value
-    avatarPreview.value = originalAvatar.value ? baseUrl + originalAvatar.value : ''
+    avatarPreview.value = originalAvatar.value ? baseURL + originalAvatar.value : ''
     avatarFileList.value = originalAvatar.value 
-      ? [{ name: 'avatar', url: baseUrl + originalAvatar.value }]
+      ? [{ name: 'avatar', url: baseURL + originalAvatar.value }]
       : []
   }
   resetForm()

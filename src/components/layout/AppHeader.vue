@@ -34,7 +34,7 @@
       <el-dropdown trigger="click">
         <div class="user-info">
           <span class="username">{{ userInfo.username || '未登录' }}</span>
-          <el-avatar :size="32" :src="'http://127.0.0.1:8099'+userInfo.avatar"></el-avatar>
+          <el-avatar :size="32" :src="userInfo.avatar"></el-avatar>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -56,6 +56,7 @@ import { useTermStore } from '@/store/term'
 import { Expand, Fold, Warning } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import UserProfileDialog from '../common/UserProfileDialog.vue'
+import { baseURL } from '@/utils/request';
 
 const userProfileDialog = ref(null)
 
@@ -66,7 +67,7 @@ const termStore = useTermStore()
 const isCollapse = computed(() => appStore.isCollapse)
 const userInfo = computed(() => ({
   username: userStore.username || '未登录',
-  avatar: userStore.avatar || ''
+  avatar: baseURL+userStore.avatar || ''
 }))
 
 const currentTerm = computed({
