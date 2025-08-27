@@ -83,18 +83,7 @@
           
           <el-table-column prop="originalMemo" label="原始备注" min-width="100" />
           
-          <!-- <el-table-column label="操作" width="100">
-            <template #default="{ row }">
-              <el-button 
-                type="primary" 
-                size="small" 
-                @click="addSingleMaterial(row)"
-                :disabled="!canAddMaterial(row)"
-              >
-                添加
-              </el-button>
-            </template>
-          </el-table-column> -->
+
         </el-table>
         
         <div v-if="materialList.length === 0" class="empty-material">
@@ -114,6 +103,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getDingdanItemList } from '@/api/plmanage/plshengchandingdan'
 import { saveGongdanItem } from '@/api/plmanage/plshengchangongdan'
+import { getBasDepartmentOptions } from '@/api/system/department'
 
 const props = defineProps({
   ipoNo: {
@@ -149,19 +139,22 @@ const hasValidMaterials = computed(() => {
   return materialList.value.some(row => canAddMaterial(row))
 })
 
-//生产车间列表对应编号
-const workshopOptions = ref([
-  { code: 'fc009', name: '外购' },
-  { code: 'fc008', name: '外协单位' },
-  { code: 'fc007', name: '铁塔分厂' },
-  { code: 'fc006', name: '机加分厂' },
-  { code: 'fc005', name: '铆焊分厂' },
-  { code: 'fc004', name: '锻造分厂' },
-  { code: 'fc003', name: '铝管分厂' },
-  { code: 'fc002', name: '铸铝分厂' },
-  { code: 'fc001', name: '铸造分厂' },
-  { code: 'scylb', name: '市场营销部' }
-])
+// 生产车间列表对应编号
+const workshopOptions = ref([])
+
+// 获取车间数据
+const loadWorkshopData = async () => {
+  try {
+    const res = await getBasDepartmentOptions();
+    if (!res.success) {
+      console.error(res.msg);
+      return;
+    }
+    workshopOptions.value = res.data.options || [];
+  } catch (error) {
+    console.error('加载车间数据失败');
+  }
+}
 
 //处理编号对应的名称显示
 const getWorkshopName = (codes) => {
@@ -270,37 +263,7 @@ const batchAdd = async () => {
   }
 }
 
-// 添加单个物料
-const addSingleMaterial = async (row) => {
-  if (!canAddMaterial(row)) {
-    ElMessage.warning('请设置生产数量')
-    return
-  }
-  
-  try {
-    const materialData = {
-      woNo: props.woNo,
-      dingdanitemId: row.dingdanitemId,
-      itemname: row.itemname,
-      productModel: row.productModel,
-      amount: row.productionAmount.toString(),
-      unit: row.unit,
-      memo: row.memo,
-      workshopName: row.workshopName
-    }
-    
-    await saveGongdanItem(materialData)
-    ElMessage.success('物料添加成功')
-    
-    // 清空该行输入
-    resetMaterialInputs(row)
-    
-    props.onSelect([row])
-  } catch (error) {
-    console.error('添加物料失败:', error)
-    ElMessage.error('添加物料失败')
-  }
-}
+
 
 // 关闭弹窗
 const handleClose = () => {
@@ -312,6 +275,7 @@ watch(
   () => [props.modelValue, props.ipoNo],
   ([newVisible, newIpoNo]) => {
     if (newVisible && newIpoNo) {
+      loadWorkshopData()
       loadOrderMaterialData()
     }
   },

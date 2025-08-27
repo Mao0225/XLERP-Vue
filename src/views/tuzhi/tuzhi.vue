@@ -1,3 +1,4 @@
+
 <template>
   <div class="tuzhi-management">
     <div class="action-bar">
@@ -31,7 +32,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="memo" label="备注" />
-      <el-table-column prop="writer" label="录入者" /> <!-- 新增显示录入者列 -->
+      <el-table-column prop="writer" label="录入者" />
       <el-table-column label="操作" width="300">
         <template #default="{ row }">
           <el-button type="success" size="small" @click="handleCailiao(row)">材料管理</el-button>
@@ -89,21 +90,17 @@
             ref="tuzhiUpload"
             :auto-upload="false"
             :on-change="handleTuzhiChange"
+            :on-remove="handleTuzhiRemove"
             :limit="10"
             accept=".pdf,.jpg,.jpeg,.png"
             :file-list="tuzhiFileList"
+            list-type="text"
           >
             <el-button type="primary">上传图纸</el-button>
           </el-upload>
-          <div class="uploaded-files" v-if="form.tuzhiurl">
-            <div v-for="(file, index) in JSON.parse(form.tuzhiurl)" :key="index" class="uploaded-file">
-              {{ file.name }}
-              <el-button type="danger" size="mini" @click="deleteFile(index)">删除</el-button>
-            </div>
-          </div>
         </el-form-item>
         <el-form-item label="录入者" prop="writer">
-          <el-input v-model="form.writer" placeholder="自动填充" disabled /> <!-- 显示但不可编辑 -->
+          <el-input v-model="form.writer" placeholder="自动填充" disabled />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -135,11 +132,10 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getTuzhis, getTuzhiById, createTuzhi, updateTuzhi, deleteTuzhi } from '@/api/tuzhi/tuzhi'
 import { uploadFile } from '@/api/file/file'
+import { baseURL } from '@/utils/request'
 import Tuzhicailiao from './tuzhicailiao.vue'
 import { Refresh } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
-
-const baseUrl = 'http://127.0.0.1:8099'
 
 // 引入用户store
 const userStore = useUserStore()
@@ -178,7 +174,7 @@ const form = reactive({
   memo: '',
   flag: 0,
   type: 0,
-  writer: '', // 新增字段
+  writer: '',
   tuzhiurl: '[]'
 })
 
@@ -259,24 +255,25 @@ const resetForm = () => {
     memo: '',
     flag: 0,
     type: 0,
-    writer: userInfo.value.username, // 重置时设置为当前用户
+    writer: userInfo.value.username,
     tuzhiurl: '[]'
   })
 }
 
 // 处理图纸上传
-const handleTuzhiChange = async (file) => {
+const handleTuzhiChange = async (file, fileList) => {
   const formData = new FormData()
   formData.append('file', file.raw)
+  formData.append('folder', 'tuzhi')
 
   try {
     const res = await uploadFile(formData)
     if (res.success && res.data && res.data.url) {
-      const newUrl = baseUrl + res.data.url
-      const fileList = JSON.parse(form.tuzhiurl)
-      fileList.push({ name: file.name, url: newUrl })
-      form.tuzhiurl = JSON.stringify(fileList)
-      tuzhiFileList.value.push({ name: file.name, url: newUrl })
+      tuzhiFileList.value = fileList.map(item => ({
+        name: item.name,
+        url: item.url || (item.raw && res.data.url)
+      }))
+      form.tuzhiurl = JSON.stringify(tuzhiFileList.value)
       ElMessage.success(`${file.name} 上传成功`)
     } else {
       throw new Error(res.msg || '图纸上传失败')
@@ -284,8 +281,18 @@ const handleTuzhiChange = async (file) => {
   } catch (error) {
     console.error('图纸上传失败', error)
     ElMessage.error(`${file.name} 上传失败`)
-    tuzhiUpload.value.clearFiles()
+    tuzhiFileList.value = tuzhiFileList.value.filter(item => item.name !== file.name)
   }
+}
+
+// 处理文件移除
+const handleTuzhiRemove = (file, fileList) => {
+  tuzhiFileList.value = fileList.map(item => ({
+    name: item.name,
+    url: item.url
+  }))
+  form.tuzhiurl = JSON.stringify(tuzhiFileList.value)
+  ElMessage.success(`${file.name} 已移除`)
 }
 
 // 新增图纸
@@ -293,10 +300,7 @@ const handleAdd = () => {
   dialogType.value = 'add'
   dialogVisible.value = true
   tuzhiFileList.value = []
-  
-  // 自动填充当前用户
   form.writer = userInfo.value.username
-  // 自动填充当前日期
   form.chuangzuoriqi = new Date().toISOString().split('T')[0]
 }
 
@@ -313,13 +317,16 @@ const handleEdit = async (row) => {
     } catch (e) {
       if (form.tuzhiurl) {
         const urls = form.tuzhiurl.split('-')
-        form.tuzhiurl = JSON.stringify(urls.map(url => ({ name: url.split('/').pop(), url: baseUrl + url })))
+        form.tuzhiurl = JSON.stringify(urls.map(url => ({ name: url.split('/').pop(), url: baseURL + url })))
       } else {
         form.tuzhiurl = '[]'
       }
     }
     
-    tuzhiFileList.value = JSON.parse(form.tuzhiurl)
+    tuzhiFileList.value = JSON.parse(form.tuzhiurl).map(file => ({
+      name: file.name,
+      url: file.url
+    }))
     dialogVisible.value = true
   } catch (error) {
     console.error('获取图纸信息失败', error)
@@ -351,36 +358,25 @@ const handleDelete = (row) => {
   }).catch(() => {})
 }
 
-// 删除文件
-const deleteFile = (index) => {
-  const fileList = JSON.parse(form.tuzhiurl)
-  fileList.splice(index, 1)
-  form.tuzhiurl = JSON.stringify(fileList)
-  tuzhiFileList.value.splice(index, 1)
-}
- 
 // 下载文件
 const downloadFile = (url, filename) => {
-  // 检查文件类型
-  const fileExtension = filename.split('.').pop().toLowerCase();
-  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf'];
+  // 拼接 baseURL，确保 URL 是完整的
+  const fullUrl = url.startsWith('http') ? url : baseURL + url
+  const fileExtension = filename.split('.').pop().toLowerCase()
+  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf']
   
   if (viewableTypes.includes(fileExtension)) {
-    // 可查看的文件类型在新窗口打开
-    window.open(url, '_blank');
+    window.open(fullUrl, '_blank')
   } else {
-    // 其他文件类型强制下载
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click();
-
+    const link = document.createElement('a')
+    link.href = fullUrl
+    link.download = filename
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
     setTimeout(() => {
-      document.body.removeChild(link);
-    }, 100);
+      document.body.removeChild(link)
+    }, 100)
   }
 }
 
@@ -397,12 +393,8 @@ const submitForm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        // 1. 提取表单数据
         const submitForm = { ...form }
-
-        // 2. 提交数据
         if (dialogType.value === 'add') {
-          // 确保添加时writer字段有值
           if (!submitForm.writer) {
             submitForm.writer = userInfo.value.username
           }
@@ -412,7 +404,6 @@ const submitForm = () => {
           await updateTuzhi(submitForm)
           ElMessage.success('修改成功')
         }
-
         dialogVisible.value = false
         resetForm()
         getTuzhiList()
@@ -462,17 +453,6 @@ onMounted(() => {
   margin-top: 20px;
   text-align: right;
 }
-.uploaded-files {
-  margin-top: 10px;
-}
-.uploaded-file {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-.uploaded-file el-button {
-  margin-left: 10px;
-}
 .file-link {
   color: #409eff;
   cursor: pointer;
@@ -481,4 +461,4 @@ onMounted(() => {
 .file-link:hover {
   text-decoration: underline;
 }
-</style>    
+</style>

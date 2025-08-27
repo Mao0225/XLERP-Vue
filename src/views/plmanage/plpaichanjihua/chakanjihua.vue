@@ -48,9 +48,10 @@
   </el-table-column>
   <el-table-column prop="writer" label="录入人" min-width="100" />
   <el-table-column prop="writetime" label="录入时间" min-width="120" />
-  <el-table-column label="操作" min-width="300" fixed="right">
+  <el-table-column label="操作" min-width="350" fixed="right">
     <template #default="{ row }">
       <el-button type="primary" size="small" @click="handleWatch(row)">查看排产计划详情</el-button>
+      <el-button type="warning" size="small" @click="getTuzhi(row.noticetuzhiid)">查看图纸</el-button>
       <el-button 
         type="info" 
         size="small" 
@@ -73,7 +74,14 @@
       />
     </div>
 
-    <!-- 表单弹窗 -->
+
+        <TuzhiInfoDialog
+      v-model:visible="tuzhiDialogVisible"
+      :tuzhi-info="currentTuzhiInfo"
+      @update:visible="tuzhiDialogVisible = $event"
+    />
+
+      <!-- 表单弹窗 -->
     <ProductionPlanForm
       v-model:visible="dialogVisible"
       :type="dialogType"
@@ -96,11 +104,14 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getPlpaichanjihuaListByDepNo, getPlpaichanjihuaById } from '@/api/plmanage/plpaichanjihua';
+import { getPlpaichanjihuaListByDepNo, getPlpaichanjihuaById,getTuzhiInfo } from '@/api/plmanage/plpaichanjihua';
 import ProductionPlanForm from './chakanjihuaForm.vue';
 import chakanbeiliaodan from './components/chakanbeiliaodan.vue';
 import { getBasDepartmentOptions } from '@/api/system/department';
 import { useUserStore } from '@/store/user'
+import TuzhiInfoDialog from './components/TuzhiInfoDialog.vue';
+
+
 const userStore = useUserStore()
 
 
@@ -124,6 +135,31 @@ const formatDate = (date) => {
   if (!date) return '';
   const d = new Date(date);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+};
+
+
+
+const tuzhiDialogVisible = ref(false);
+const currentTuzhiInfo = ref({});
+//获取图纸信息
+const getTuzhi = async (tuzhiId) => {
+  if (!tuzhiId) {
+    ElMessage.error('暂未选择图纸');
+    return;
+  }
+  try {
+    const res = await getTuzhiInfo({ tuzhiId: tuzhiId });
+    console.log('获取图纸信息响应:', res);
+    if (res.success) {
+      currentTuzhiInfo.value = res.data.tuzhiInfo;
+      tuzhiDialogVisible.value = true; // Open the dialog
+    } else {
+      ElMessage.error('获取图纸信息失败: ' + res.msg);
+    }
+  } catch (error) {
+    console.error('获取图纸信息失败:', error);
+    ElMessage.error('获取图纸信息失败');
+  }
 };
 
 // 查询参数

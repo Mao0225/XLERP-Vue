@@ -1,3 +1,4 @@
+<!-- 选择图纸对话框 -->
 <template>
   <div class="tuzhi-management">
     <div class="action-bar">
@@ -58,10 +59,10 @@ import { ElMessage } from 'element-plus'
 import { getTuzhis } from '@/api/tuzhi/tuzhi'
 import { Refresh } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
+import { baseURL } from '@/utils/request'
 
 const emits = defineEmits(['selectTuzhi']);
 
-const baseUrl = 'http://127.0.0.1:8099'
 
 // 引入用户store
 const userStore = useUserStore()
@@ -122,19 +123,25 @@ const handleSelect = (row) => {
 
 // 下载文件
 const downloadFile = (url, filename) => {
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  link.style.display = 'none'
-
-  document.body.appendChild(link)
-  link.click()
-
-  setTimeout(() => {
-    document.body.removeChild(link)
-  }, 100)
+  // 拼接 baseURL，确保 URL 是完整的
+  const fullUrl = url.startsWith('http') ? url : baseURL + url
+  const fileExtension = filename.split('.').pop().toLowerCase()
+  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf']
+  
+  if (viewableTypes.includes(fileExtension)) {
+    window.open(fullUrl, '_blank')
+  } else {
+    const link = document.createElement('a')
+    link.href = fullUrl
+    link.download = filename
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+      document.body.removeChild(link)
+    }, 100)
+  }
 }
-
 const handleRefresh = () => {
   queryParams.tuzhimingcheng = ''
   queryParams.pageNumber = 1

@@ -28,7 +28,16 @@ return get ('/plpaichanjihua/get', params)
 }
 
 /**
+获取图纸信息根据图纸ID
+@param {Object} params - 查询参数
+@param {number} params.tuzhiId - 图纸ID
+*/
+export function getTuzhiInfo (params) {
+return get ('/plpaichanjihua/getTuzhiInfo', params)
+}
 
+
+/**
 创建排产计划
 @param {Object} data - 排产计划数据
 @returns {Promise} - 返回创建结果 Promise

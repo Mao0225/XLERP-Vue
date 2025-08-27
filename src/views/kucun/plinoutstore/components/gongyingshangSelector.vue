@@ -84,7 +84,7 @@
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getBasOrgs } from '@/api/system/basorg'
-
+import { getBasDepartmentOptions } from '@/api/system/department'
 // Supplier type options
 const typeLabelOptions = [
   { id: 1, value: '供应商' },
@@ -99,30 +99,7 @@ const getTypeLabel = (type) => {
   return item ? item.value : '未知'
 }
 
-// Workshop options (retained for potential use)
-const workshopOptions = ref([
-  { code: 'fc009', name: '外购' },
-  { code: 'fc008', name: '外协单位' },
-  { code: 'fc007', name: '铁塔分厂' },
-  { code: 'fc006', name: '机加分厂' },
-  { code: 'fc005', name: '铆焊分厂' },
-  { code: 'fc004', name: '锻造分厂' },
-  { code: 'fc003', name: '铝管分厂' },
-  { code: 'fc002', name: '铸铝分厂' },
-  { code: 'fc001', name: '铸造分厂' },
-  { code: 'scylb', name: '市场营销部' }
-])
 
-// Map workshop codes to names (retained for potential use)
-const getWorkshopName = (codes) => {
-  if (!codes) return ''
-  const codeArray = codes.split(',')
-  const names = codeArray.map(code => {
-    const workshop = workshopOptions.value.find(option => option.code === code.trim())
-    return workshop ? workshop.name : code
-  })
-  return names.join(',')
-}
 
 // Props for dialog visibility and selection callback
 const props = defineProps({

@@ -49,10 +49,11 @@
   </el-table-column>
   <el-table-column prop="writer" label="录入人" min-width="100" />
   <el-table-column prop="writetime" label="录入时间" min-width="120" />
-  <el-table-column label="操作" min-width="300" fixed="right">
+  <el-table-column label="操作" min-width="400" fixed="right">
     <template #default="{ row }">
       <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
       <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+      <el-button type="warning" size="small" @click="getTuzhi(row.noticetuzhiid)">查看图纸</el-button>
       <el-button 
         type="info" 
         size="small" 
@@ -91,15 +92,22 @@
       @update:visible="viewBeiliaoVisible = $event"
       @cancel="handleViewBeiliaoClose"
     />
+
+    <TuzhiInfoDialog
+      v-model:visible="tuzhiDialogVisible"
+      :tuzhi-info="currentTuzhiInfo"
+      @update:visible="tuzhiDialogVisible = $event"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getPlpaichanjihuaList, getPlpaichanjihuaById, deletePlpaichanjihua } from '@/api/plmanage/plpaichanjihua';
+import { getPlpaichanjihuaList, getPlpaichanjihuaById, deletePlpaichanjihua ,getTuzhiInfo} from '@/api/plmanage/plpaichanjihua';
 import ProductionPlanForm from './paichanjihuaForm.vue';
 import chakanbeiliaodan from './components/chakanbeiliaodan.vue';
+import TuzhiInfoDialog from './components/TuzhiInfoDialog.vue';
 import { getBasDepartmentOptions } from '@/api/system/department';
 // 计划状态选项
 const statusOptions = [
@@ -109,6 +117,10 @@ const statusOptions = [
   { id: 4, value: '已取消' },
   { id: 5, value: '已过期' }
 ];
+
+
+const tuzhiDialogVisible = ref(false);
+const currentTuzhiInfo = ref({});
 
 // 获取状态标签
 const getStatusLabel = (status) => {
@@ -223,6 +235,29 @@ const getPlpaichanjihuaPage = async () => {
     ElMessage.error('获取排产计划列表失败');
   } finally {
     loading.value = false;
+  }
+};
+
+
+
+//获取图纸信息
+const getTuzhi = async (tuzhiId) => {
+  if (!tuzhiId) {
+    ElMessage.error('暂未选择图纸');
+    return;
+  }
+  try {
+    const res = await getTuzhiInfo({ tuzhiId: tuzhiId });
+    console.log('获取图纸信息响应:', res);
+    if (res.success) {
+      currentTuzhiInfo.value = res.data.tuzhiInfo;
+      tuzhiDialogVisible.value = true; // Open the dialog
+    } else {
+      ElMessage.error('获取图纸信息失败: ' + res.msg);
+    }
+  } catch (error) {
+    console.error('获取图纸信息失败:', error);
+    ElMessage.error('获取图纸信息失败');
   }
 };
 

@@ -51,6 +51,7 @@
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getGongdanItemList } from '@/api/plmanage/plshengchangongdan'
+import { getBasDepartmentOptions } from '@/api/system/department'
 
 // 定义组件的 props
 const props = defineProps({
@@ -78,6 +79,7 @@ const visible = ref(false)
 watch(() => props.modelValue, (val) => {
   visible.value = val
   if (val && props.woNo) {
+    loadWorkshopData()
     loadMaterialList()
   }
 })
@@ -101,19 +103,23 @@ const total = ref(0)
 // 加载状态
 const loading = ref(false)
 
-// 车间选项
-const workshopOptions = ref([
-  { code: 'fc009', name: '外购' },
-  { code: 'fc008', name: '外协单位' },
-  { code: 'fc007', name: '铁塔分厂' },
-  { code: 'fc006', name: '机加分厂' },
-  { code: 'fc005', name: '铆焊分厂' },
-  { code: 'fc004', name: '锻造分厂' },
-  { code: 'fc003', name: '铝管分厂' },
-  { code: 'fc002', name: '铸铝分厂' },
-  { code: 'fc001', name: '铸造分厂' },
-  { code: 'scylb', name: '市场营销部' }
-])
+
+// 生产车间列表对应编号
+const workshopOptions = ref([])
+
+// 获取车间数据
+const loadWorkshopData = async () => {
+  try {
+    const res = await getBasDepartmentOptions();
+    if (!res.success) {
+      console.error(res.msg);
+      return;
+    }
+    workshopOptions.value = res.data.options || [];
+  } catch (error) {
+    console.error('加载车间数据失败');
+  }
+}
 
 // 获取车间名称
 const getWorkshopName = (codes) => {
