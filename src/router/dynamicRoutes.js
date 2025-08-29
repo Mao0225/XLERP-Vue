@@ -18,6 +18,8 @@ const viewComponents = {
   'system/menu': () => import('@/views/system/menu.vue'),
   'system/department': () => import('@/views/system/department.vue'),
   'system/basorg': () => import('@/views/system/basorg.vue'),//组织管理
+  'system/basno': () => import('@/views/system/basno.vue'),//编号管理
+
   'system/basorgType1': () => import('@/views/system/basorgType1.vue'),//type=1表示供应商管理
 
 
