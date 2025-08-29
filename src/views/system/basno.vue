@@ -15,7 +15,10 @@
     </div>
     
     <el-table :data="basNoList" border v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID" />
+      <el-table-column type="index" label="序号" width="80" />
+      <!-- 序号 -->
+
+       
       <el-table-column prop="basname" label="编号简称" />
       <el-table-column prop="currentterm" label="当前期次" />
       <el-table-column prop="basnum" label="当前序号" />

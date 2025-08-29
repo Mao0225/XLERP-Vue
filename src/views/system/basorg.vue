@@ -23,7 +23,7 @@
     </div>
     
     <el-table :data="basOrgList" border v-loading="loading" style="width: 100%">
-      <el-table-column prop="id" label="ID"  />
+      <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="no" label="客户编号" />
       <el-table-column prop="descr" label="客户名称" />
       <el-table-column prop="contactname" label="联系人" />
