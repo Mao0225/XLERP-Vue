@@ -50,3 +50,9 @@ export function deleteJxjjLc(params) {
 export function getWoNoList(params) {
   return get('/cljxjjLc/getWoNoList', params);
 }
+
+
+// 新增：获取单据号
+export function getBasNo(basname) {
+  return get('/Basno/getNewNoNyName', { basname })
+}

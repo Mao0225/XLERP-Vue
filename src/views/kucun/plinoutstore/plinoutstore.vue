@@ -120,8 +120,6 @@ import InStoreForm from './components/InStoreForm.vue';
 import { 
   getPlinoutstoreList, 
   getPlinoutstoreByOrderno, 
-  createPlinoutstore, 
-  updatePlinoutstore, 
   deletePlinoutstore,
   batchDeletePlinoutstore
 } from '@/api/plmanage/plinoutstore';

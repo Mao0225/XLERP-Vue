@@ -43,6 +43,8 @@
     </div>
     <el-table :data="list" border v-loading="loading" style="width: 100%" height="calc(100vh - 250px)">
       <el-table-column type="index" label="序号" width="70" />
+      <!-- 新增单据号列 -->
+      <el-table-column prop="basno" label="单据号" />
       <el-table-column prop="mafactory" label="原材料制造商" width="150" />
       <el-table-column prop="batch" label="炉批号" width="120" />
       <el-table-column prop="orderno" label="入库单号" width="150" />
@@ -139,11 +141,37 @@
           </el-input>
         </el-form-item>
         <el-form-item label="合同编号" prop="contractNo">
-          <el-input v-model="form.contractNo" disabled />
-        </el-form-item>
-        <el-form-item label="生产订单号" prop="ipoNo">
-          <el-input v-model="form.ipoNo" disabled />
-        </el-form-item>
+  <el-input
+    v-model="form.contractNo"
+    placeholder="请选择合同编号"
+    readonly
+    @click="openContractSelector"
+  >
+    <template #append>
+      <el-button @click="openContractSelector" size="small">选择</el-button>
+    </template>
+  </el-input>
+</el-form-item>
+<el-form-item label="生产订单号" prop="ipoNo">
+  <el-input
+    v-model="form.ipoNo"
+    placeholder="请选择生产订单号"
+    readonly
+    @click="openIpoSelector"
+  >
+    <template #append>
+      <el-button @click="openIpoSelector" size="small">选择</el-button>
+    </template>
+  </el-input>
+</el-form-item>
+
+<el-form-item label="单据号" prop="basno">
+  <el-input 
+    v-model="form.basno" 
+    placeholder="自动生成" 
+    readonly  
+  />
+</el-form-item>
 
         <el-form-item label="原材料制造商" prop="mafactory">
           <el-input
@@ -400,6 +428,8 @@
     </el-dialog>
 
     <WoSelectorDialog v-model="searchWoDialogVisible" @select="handleSearchWoSelect" />
+    <ContractSelectorDialog v-model="contractSelectorVisible" @select="handleContractSelect" />
+<IpoSelectorDialog v-model="ipoSelectorVisible" @select="handleIpoSelect" />
 
     <SupplierDialog v-model="searchSupplierDialogVisible" @select="handleSearchSupplierSelect" />
   </div>
@@ -415,10 +445,14 @@ import {
   createClnzxjgc,
   updateClnzxjgc,
   deleteClnzxjgc,
-  getGongdanByWoNo
+  getGongdanByWoNo,
+  getBasNo
 } from '@/api/clmanage/clnzxjgc'
 import { uploadFile } from '@/api/file/file'
 import WoSelectorDialog from '@/views/clmanage/ljq/components/WoSelectorDialog.vue'
+import ContractSelectorDialog from '@/views/clmanage/ljq/components/ContractSelectorDialog.vue'
+import IpoSelectorDialog from '@/views/clmanage/ljq/components/IpoSelectorDialog.vue'
+
 import SupplierDialog from '@/views/clmanage/ljq/components/SupplierDialog.vue'
 import { useUserStore } from '@/store/user'
 import { baseURL } from '@/utils/request'
@@ -453,8 +487,37 @@ const chemicalError = reactive({}) // 化学分析错误信息
 // 弹窗相关
 const searchSupplierDialogVisible = ref(false)
 const woSelectorVisible = ref(false)
+const contractSelectorVisible = ref(false)
+const ipoSelectorVisible = ref(false)
 const showSupplierDialog = ref(false)
 const searchWoDialogVisible = ref(false)
+
+
+
+// 打开合同选择器
+const openContractSelector = () => {
+  contractSelectorVisible.value = true
+}
+
+// 打开生产订单选择器
+const openIpoSelector = () => {
+  ipoSelectorVisible.value = true
+}
+
+// 处理合同选择
+const handleContractSelect = (row) => {
+  form.value.contractNo = row.contractNo
+  contractSelectorVisible.value = false
+}
+
+// 处理生产订单选择
+const handleIpoSelect = (row) => {
+  form.value.ipoNo = row.ipoNo
+  ipoSelectorVisible.value = false
+}
+
+
+
 
 // 质量证明书相关
 const certificateUpload = ref(null)
@@ -541,6 +604,7 @@ function createEmptyForm() {
     ipoNo: '',
     writer: '',
     writeTime: '',
+    basno: '', // 新增单据号字段
     flag: '',
     status: '',
     memo: '',
@@ -624,10 +688,13 @@ const rules = {
   leavefactoryDate: [{ required: true, message: '请选择原材料出厂检测日期', trigger: 'change' }],
   detectionTime: [{ required: true, message: '请选择原材料入厂检测日期', trigger: 'change' }],
   certificate: [{ required: true, message: '请上传质量证明书', trigger: 'change' }],
-  woNo: [{ required: true, message: '请选择生产工单号', trigger: 'change' }],
+  woNo: [{ max: 50, message: '请选择生产工单号', trigger: 'change' }],
   contractNo: [{ required: true, message: '合同编号不能为空', trigger: 'change' }],
-  ipoNo: [{ required: true, message: '生产订单号不能为空', trigger: 'change' }],
-  writer: [{ required: true, message: '录入人不能为空', trigger: 'blur' }]
+  ipoNo: [{ max: 50, message: '生产订单号不能为空', trigger: 'change' }],
+  writer: [{ required: true, message: '录入人不能为空', trigger: 'blur' }],
+  basno: [
+    { max: 50, message: '请获取单据号', trigger: 'blur' }
+  ]
 }
 const handleQueryChange = () => {
   if (!queryParams.matRecheckNo && !queryParams.matMaterial && !queryParams.orderno) {
@@ -641,6 +708,13 @@ const getList = async () => {
     const res = await getClnzxjgcList(queryParams);
     list.value = res.data.page.list;
     total.value = res.data.page.totalRow;
+
+    // 检查列表中是否有basno字段
+   if (list.value.length > 0) {
+     console.log('第一条数据的单据号:', list.value[0].basno);
+   } else {
+     console.log('列表为空');
+   }
   } catch (e) {
     ElMessage.error('获取数据失败');
   } finally {
@@ -669,14 +743,34 @@ const handleCurrentChange = (page) => {
 };
 
 // 新增操作
-const handleAdd = () => {
+const handleAdd = async() => {
   dialogTitle.value = '新增耐张线夹钢材';
   dialogType.value = 'add';
   form.value = createEmptyForm();
   form.value.writer = userInfo.value.username;
   form.value.writeTime = formatDateTime(new Date());
+
+// 新增：优先使用已预存的单据号，没有则获取
+  if (nextBasNo.value) {
+    form.value.basno = nextBasNo.value;
+    nextBasNo.value = ''; // 清空，等待下次保存成功后更新
+  } else {
+    try {
+      const res = await getBasNo('cljxjjgc');
+      if (res.code === 200) {
+        form.value.basno = res.data.fullNoNyName;
+      } else {
+        ElMessage.warning('获取单据号失败，可手动填写');
+      }
+    } catch (e) {
+      console.error('获取单据号异常', e);
+      ElMessage.error('获取单据号失败');
+    }
+  }
+
   certificateFileList.value = [];
   form.value.certificate = '[]';
+  
 
   // 重置化学错误
   Object.keys(chemicalError).forEach(key => {
@@ -755,19 +849,7 @@ const handleSupplierSelect = (descr) => {
 // 表单工单选择
 const handleWoSelect = async (row) => {
   form.value.woNo = row.woNo;
-  try {
-    const { data } = await getGongdanByWoNo({ woNo: row.woNo });
-    form.value.contractNo = data?.contractNo || '';
-    form.value.ipoNo = data?.ipoNo || '';
-
-    if (!form.value.contractNo || !form.value.ipoNo) {
-      ElMessage.warning('未能从工单获取合同编号或订单号');
-    }
-  } catch (e) {
-    form.value.contractNo = '';
-    form.value.ipoNo = '';
-    ElMessage.error('获取工单详情失败');
-  }
+  
   woSelectorVisible.value = false;
 };
 
@@ -930,11 +1012,28 @@ const handleSubmit = () => {
       // 确保证书文件列表是最新的
       form.value.certificate = JSON.stringify(certificateFileList.value);
 
+      // 提交前检查basno是否存在
+      if (!form.value.basno) {
+        ElMessage.error('单据号未生成，请刷新重试');
+        return;
+      }
+
       if (dialogType.value === 'add') {
         form.value.writer = userInfo.value.username;
         form.value.writeTime = formatDateTime(new Date());
         await createClnzxjgc(form.value);
         ElMessage.success('新增成功');
+
+        // 保存成功后才获取新的单据号（用于下次新增）
+        try {
+          const res = await getBasNo('cljxjgc');
+          if (res.code === 200) {
+            // 存储新单据号，供下次新增使用
+            nextBasNo.value = res.data.fullNoNyName;
+          }
+        } catch (e) {
+          console.error('获取新单据号异常', e);
+        }
         resetQuery();
       } else {
         await updateClnzxjgc(form.value);
@@ -953,6 +1052,8 @@ const handleSubmit = () => {
   });
 };
 
+// 添加一个ref存储下次要用的单据号
+const nextBasNo = ref('');
 // 重置表单
 const resetForm = () => {
   form.value = createEmptyForm();

@@ -65,3 +65,5 @@ export function updateClProductionData(data) {
 export function deleteClProductionData(params) {
   return del('/clproductiondata/delete', params)
 }
+
+

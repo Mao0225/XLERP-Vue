@@ -4,7 +4,7 @@ import router from '@/router'
 import { useUserStore } from '@/store/user'
 
 // 定义并导出 baseURL
-export const baseURL = 'http://localhost:8099'
+export const baseURL = 'http://127.0.0.1:8099'
 
 
 // 创建 axios 实例

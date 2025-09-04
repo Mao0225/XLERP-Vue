@@ -1,12 +1,21 @@
 <template>
   <el-dialog
-    title="选择生产工单号"
+    :title="dialogTitle" 
     v-model="visible"
     width="60%"
     @closed="handleClose"
   >
     <div class="search-bar">
       <el-row :gutter="20">
+
+         <el-col :span="8">
+          <el-input
+            v-model="searchForm.contractNo"
+            placeholder="请输入合同编号"
+            @keyup.enter="handleSearch"
+          />
+        </el-col>
+
         <el-col :span="8">
           <el-input
             v-model="searchForm.woNo"
@@ -44,7 +53,9 @@
       style="width: 100%; margin-top: 20px;"
       @row-click="handleRowClick"
     >
-      <el-table-column prop="woNo" label="生产工单号" width="120" />
+      
+    <el-table-column prop="contractNo" label="合同编号" width="150" />
+    <el-table-column prop="woNo" label="生产工单号" width="120" />
 
       <el-table-column prop="purchaserHqCode" label="采购方总部编码" width="150" />
       <el-table-column prop="ipoNo" label="生产订单号" width="150" />
@@ -104,6 +115,10 @@ const props = defineProps({
   modelValue: {
     type: Boolean,
     default: false
+  },
+  dialogTitle: {  // 新增标题属性
+    type: String,
+    default: "选择生产工单号"  // 默认值保持不变
   }
 });
 
@@ -116,6 +131,7 @@ watch(() => props.modelValue, (val) => {
 
 // 搜索表单数据，包含合同号
 const searchForm = reactive({
+  contractNo: '',
   woNo: '',
    ipoNo: '',
   purchaserHqCode: ''
@@ -127,6 +143,7 @@ const searchForm = reactive({
 const queryParams = reactive({
   pageNumber: 1,
   pageSize: 10,
+  contractNo: '',
   woNo: '',
    ipoNo: '',
   purchaserHqCode: ''
@@ -146,6 +163,7 @@ const getWoNoList = async () => {
   loading.value = true; // 开始加载，显示加载动画
   try {
     // 同步搜索表单的 Plshengchangongdan 到查询参数
+    queryParams.contractNo = searchForm.contractNo;  
     queryParams.woNo = searchForm.woNo;
 
      queryParams.ipoNo = searchForm.ipoNo;
@@ -178,6 +196,7 @@ const handleSearch = () => {
 
 // 重置搜索条件
 const resetSearch = () => {
+  searchForm.contractNo = ''; 
   searchForm.woNo = ''; // 清空合同号搜索条件
   searchForm.ipoNo = '';
   searchForm.purchaserHqCode = '';
@@ -213,6 +232,7 @@ const selectWoNo = (woNo) => {
 
 // 处理弹窗关闭事件
 const handleClose = () => {
+   searchForm.contractNo = '';
   searchForm.woNo = ''; // 清空合同号搜索条件
    searchForm.ipoNo = '';
   searchForm.purchaserHqCode = '';

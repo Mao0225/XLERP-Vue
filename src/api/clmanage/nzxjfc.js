@@ -50,3 +50,9 @@ export function deleteNzxjFc(params) {
 export function getWoNoList(params) {
   return get('/clnzxjFc/getWoNoList', params);
 }
+
+
+// 新增：获取单据号
+export function getBasNo(basname) {
+  return get('/Basno/getNewNoNyName', { basname })
+}

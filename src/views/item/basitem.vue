@@ -1,16 +1,16 @@
 <template>
   <div class="basitem-management">
-        <div class="action-bar">
+    <div class="action-bar">
       <el-input v-model="queryParams.itemNo" placeholder="请输入物料编号查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
       <el-input v-model="queryParams.itemName" placeholder="请输入物料名称查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
-      <el-select v-model="queryParams.inclass"  placeholder="选择物料所属分类" style="width: 200px; margin-right: 10px;" >
-          <el-option  v-for="item in inclassOptions" :key="item" :label="item" :value="item" />
+      <el-select v-model="queryParams.inclass" placeholder="选择物料所属分类" style="width: 200px; margin-right: 10px;">
+        <el-option v-for="item in filteredInclassOptions" :key="item" :label="item" :value="item" />
       </el-select>
-      <el-select v-model="queryParams.type" placeholder="选择物料类型" style="width: 200px; margin-right: 10px;">
-      <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
-    </el-select>
+      <el-select v-model="queryParams.type" placeholder="选择物料类型" style="width: 200px; margin-right: 10px;" @change="handleTypeChange">
+        <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
+      </el-select>
 
       <el-button type="primary" @click="getBasItemList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
@@ -20,14 +20,14 @@
       </el-button>
 
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增物料</el-button>
+      <el-button type="primary" @click="importItem" >导入物料</el-button>
+      <el-button type="info" @click="downloadExsl">下载模板</el-button>
     </div>
-    
+
     <el-table :data="basItemList" border v-loading="loading" style="width: 100%">
-      <!-- 序号 -->
-       <el-table-column type="index" label="序号" width="80" />
-      <!-- <el-table-column prop="id" label="ID" width="80" /> -->
+      <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="no" label="物料编号" />
-            <el-table-column prop="spec" label="规格型号" />
+      <el-table-column prop="spec" label="规格型号" />
       <el-table-column prop="name" label="物料名称" />
       <el-table-column prop="unit" label="计量单位" />
       <el-table-column prop="planned_price" label="计划价格" />
@@ -83,13 +83,13 @@
               </el-select>
             </el-form-item>
             <el-form-item label="物料类型" prop="type">
-              <el-select v-model="form.type" placeholder="请选择物料类型">
-                   <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
+              <el-select v-model="form.type" placeholder="请选择物料类型" @change="handleFormTypeChange">
+                <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
               </el-select>
             </el-form-item>
             <el-form-item label="所属分类" prop="inclass">
-              <el-select v-model="form.inclass" placeholder="请选择或输入分类" allow-create filterable>
-                <el-option v-for="item in inclassOptions" :key="item" :label="item" :value="item" />
+              <el-select v-model="form.inclass" placeholder="请选择或输入分类" allow-create filterable :disabled="isInclassDisabled">
+                <el-option v-for="item in filteredInclassOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="规格型号" prop="spec">
@@ -129,39 +129,57 @@
         <el-button type="primary" @click="submitForm">确定</el-button>
       </template>
     </el-dialog>
+
+
+    <ImportResultDialog 
+      v-model="importResultVisible" 
+      :import-data="importResultData"
+      @confirm="handleImportResultConfirm"
+    />
+
   </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getBasItems, getBasItemById, createBasItem, updateBasItem, deleteBasItem } from '@/api/item/basitem'
+import { getBasItems, getBasItemById, createBasItem, updateBasItem, deleteBasItem,importItemList } from '@/api/item/basitem'
+import ImportResultDialog from './components/ImportResultDialog.vue';
+import { baseURL } from '@/utils/request';
+
 
 // 单位选项
 const unitOptions = [
   '件', '套', '个', '块', '根', '袋', '箱', '捆', '托', '纸箱'
 ]
 
-// 分类选项
-const inclassOptions = [
-  '标件', '标准件', '锻件', '铝件', '玛铁件', '耐火', '燃料', 
-  '铜铝件', '油二', '油一', '铸件'
-]
-
 // 物料类型映射
 const typeLabelOptions = [
-  { id: 10, value: '原料' },
-  { id: 20, value: '成品' },
-  { id: 30, value: '半成品' },
-  { id: 40, value: '废料' },
-  { id: 100, value: '其它' }
+  { id: 10, value: '原材料' },
+  { id: 20, value: '标准件' },
+  { id: 30, value:'铝锭'},
+  { id: 40, value: '铝型材' },
+  { id: 50, value: '其它有色金属' },
+  { id: 60, value: '导线' }
 ]
 
-// 获取物料类型标签
-const getFlagLabel = (type) => {
-  const item = typeLabelOptions.find(option => option.id === type)
-  return item ? item.value : '未知'
-}
+// 原材料的分类选项
+const rawMaterialInclassOptions = [
+  '钢材', '铝锭', '铝型材', '其它有色金属', '导线'
+]
+
+// 动态计算 inclass 选项
+const filteredInclassOptions = computed(() => {
+  const selectedType = typeLabelOptions.find(option => option.id === (dialogVisible.value ? form.type : queryParams.type))
+  if (selectedType && selectedType.id === 10) { // 原材料
+    return rawMaterialInclassOptions
+  }
+  return selectedType ? [selectedType.value] : []
+})
+
+// inclass 是否禁用
+const isInclassDisabled = computed(() => {
+  return form.type !== 10 // 非原材料时禁用 inclass
+})
 
 // 查询参数
 const queryParams = reactive({
@@ -249,8 +267,15 @@ const rules = {
     { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
   ],
   inclass: [
+    { required: true, message: '请选择或输入分类', trigger: 'change' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ]
+}
+
+// 获取物料类型标签
+const getFlagLabel = (type) => {
+  const item = typeLabelOptions.find(option => option.id === type)
+  return item ? item.value : '未知'
 }
 
 // 获取物料列表
@@ -280,6 +305,26 @@ const handleCurrentChange = (page) => {
   getBasItemList()
 }
 
+// 处理查询表单的物料类型变化
+const handleTypeChange = () => {
+  const selectedType = typeLabelOptions.find(option => option.id === queryParams.type)
+  if (selectedType && selectedType.id !== 10) {
+    queryParams.inclass = selectedType.value
+  } else {
+    queryParams.inclass = ''
+  }
+}
+
+// 处理弹窗表单的物料类型变化
+const handleFormTypeChange = () => {
+  const selectedType = typeLabelOptions.find(option => option.id === form.type)
+  if (selectedType && selectedType.id !== 10) {
+    form.inclass = selectedType.value
+  } else {
+    form.inclass = ''
+  }
+}
+
 // 重置表单
 const resetForm = () => {
   if (formRef.value) {
@@ -307,7 +352,7 @@ const resetForm = () => {
   })
 }
 
-//刷新
+// 刷新
 const handleRefresh = () => {
   queryParams.itemNo = ''
   queryParams.itemName = ''
@@ -316,8 +361,6 @@ const handleRefresh = () => {
   queryParams.pageNumber = 1
   getBasItemList()
 }
-
-
 
 // 新增物料
 const handleAdd = () => {
@@ -354,7 +397,7 @@ const handleDelete = (row) => {
 // 提交表单
 const submitForm = () => {
   if (!formRef.value) return
-  
+
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
@@ -374,6 +417,107 @@ const submitForm = () => {
     }
   })
 }
+
+
+
+const importResultVisible = ref(false);
+const importResultData = ref({});
+
+
+/**
+ * 导入物料数据
+ */
+const importItem = () => {
+  // 创建隐藏的文件输入元素
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xls,.xlsx';
+  input.style.display = 'none';
+
+  // 添加 change 事件监听
+  input.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      ElMessage.error('未选择文件');
+      return;
+    }
+
+    // 验证文件类型
+    const validTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+      ElMessage.error('请选择 Excel 文件 (.xls 或 .xlsx)');
+      return;
+    }
+
+    // 准备 FormData
+    const formData = new FormData();
+    formData.append('itemListFile', file);
+
+    try {
+      // 调用导入接口
+      const res = await importItemList(formData);
+
+      // 检查响应是否成功
+      if (res.code === 200 && res.data) {
+        // 显示导入结果弹窗
+        showImportResultDialog(res.data);
+        
+        // 显示简要成功消息
+        ElMessage.success(`文件导入完成，总计 ${res.data.totalRows} 条，成功 ${res.data.successCount} 条`);
+      } else {
+        ElMessage.error('导入失败：' + (res.msg || '未知错误'));
+      }
+    } catch (error) {
+      console.error('导入错误', error);
+      ElMessage.error('导入物料失败');
+    } finally {
+      // 移除临时输入元素
+      document.body.removeChild(input);
+    }
+  });
+
+  // 触发文件选择对话框
+  document.body.appendChild(input);
+  input.click();
+};
+
+
+/**
+ * 显示导入结果弹窗
+ * @param {Object} data - 导入结果数据
+ */
+const showImportResultDialog = (data) => {
+  importResultData.value = data;
+  importResultVisible.value = true;
+};
+
+/**
+ * 导入结果确认回调
+ */
+const handleImportResultConfirm = () => {
+  // 刷新合同信息
+  getBasItemList();
+};
+
+
+//下载模板。模板地址/xlsxTemplate/基础物料信息导入示例.xlsx
+const downloadExsl = () => {
+  try {
+    const url = `${baseURL}/xlsxTemplates/基础物料信息导入示例.xlsx`;
+    window.open(url, '_blank');
+  } catch (error) {
+    console.error('下载模板失败:', error);
+    ElMessage({
+      message: '下载模板失败，请检查网络或联系管理员',
+      type: 'error',
+      duration: 5 * 1000
+    });
+  }
+};
+
 
 // 页面初始化
 onMounted(() => {

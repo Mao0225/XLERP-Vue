@@ -26,6 +26,7 @@
       <!-- 序号 -->
        <el-table-column type="index" label="序号" width="80" />
        <!-- <el-table-column prop="id" label="ID" width="80" /> -->
+        <el-table-column prop="basno" label="单据号" />
 <el-table-column prop="contractNo" label="合同编号" />
 <el-table-column prop="woNo" label="生产工单号" />
 <el-table-column prop="ipoNo" label="生产订单号" />
@@ -94,7 +95,11 @@
 
         
             <el-form-item label="合同编号" prop="contractNo">
-            <el-input v-model="form.contractNo" placeholder="合同编号" readonly />
+          <el-input v-model="form.contractNo" placeholder="选择合同编号" readonly @click="selectContractNo">
+            <template #append>
+              <el-button @click="selectContractNo" size="small">选择</el-button>
+            </template>
+          </el-input>
         </el-form-item>
 
             <el-form-item label="生产工单号" prop="woNo">
@@ -106,17 +111,31 @@
             </el-form-item>
 
              <el-form-item label="生产订单号" prop="ipoNo">
-            <el-input v-model="form.ipoNo" placeholder="生产订单号" readonly />
+          <el-input v-model="form.ipoNo" placeholder="选择生产订单号" readonly @click="selectIpoNo">
+            <template #append>
+              <el-button @click="selectIpoNo" size="small">选择</el-button>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item label="录入人" prop="writer">
             <el-input v-model="form.writer" placeholder="录入人" readonly />
         </el-form-item>
 
-           
+           <el-form-item label="单据号" prop="basno">
+  <el-input 
+    v-model="form.basno" 
+    placeholder="自动生成" 
+    readonly  
+  />
+</el-form-item>
 
-            <el-form-item label="原材料制造商" prop="mafactory">
-              <el-input v-model="form.mafactory" placeholder="请输入原材料制造商" />
+           <el-form-item label="原材料制造商" prop="mafactory">
+              <el-input v-model="form.mafactory" placeholder="选择原材料制造商" readonly @click="selectManufacturer">
+                <template #append>
+                  <el-button @click="selectManufacturer" size="small">选择</el-button>
+                </template>
+              </el-input>
             </el-form-item>
             <el-form-item label="牌号" prop="matMaterial">
               <el-input v-model="form.matMaterial" placeholder="请输入牌号" />
@@ -221,6 +240,47 @@
       @search="searchWoNo" 
       />
 
+      <!-- 新增：原材料制造商选择弹窗 -->
+    <el-dialog
+      title="选择原材料制造商"
+      v-model="manufacturerVisible"
+      width="600px"
+    >
+      <el-input 
+        v-model="manufacturerQuery.descr" 
+        placeholder="请输入供应商名称查询" 
+        style="margin-bottom: 10px;"
+        clearable @clear="getManufacturerList" @keyup.enter="getManufacturerList" 
+      />
+      <el-table 
+        :data="manufacturerList" 
+        border 
+        v-loading="loadingManufacturer" 
+        style="width: 100%"
+        @row-click="handleManufacturerRowClick"
+      >
+        <el-table-column prop="no" label="供应商编号" />
+        <el-table-column prop="descr" label="供应商名称" />
+        <el-table-column prop="contactname" label="联系人" />
+        <el-table-column prop="phone" label="联系电话" />
+        <el-table-column label="操作">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" @click="handleSelectManufacturer(row)">选择</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="manufacturerQuery.pageNumber"
+          v-model:page-size="manufacturerQuery.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalManufacturer"
+          @size-change="handleManufacturerSizeChange"
+          @current-change="handleManufacturerCurrentChange"
+        />
+      </div>
+    </el-dialog>
     
  </div> 
 </template> 
@@ -233,18 +293,32 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox,ElTooltip } from 'element-plus'
-import { getFzcLc, getFzcLcById, createFzcLc, updateFzcLc, deleteFzcLc , getWoNoList} from '@/api/clmanage/fzclc'
+import { getFzcLc, getFzcLcById, createFzcLc, updateFzcLc, deleteFzcLc , getWoNoList , getBasNo } from '@/api/clmanage/fzclc'
 import { useUserStore } from '@/store/user'
 import { Refresh } from '@element-plus/icons-vue'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 
 import WoNoSelector from '@/views/clmanage/tqy/WoNoSelector.vue'
+import { getBasOrgs } from '@/api/system/basorg'
 
 const baseUrl = baseURL
 
 const userStore = useUserStore()
 
+// 新增标题计算方法
+const getDialogTitle = () => {
+  switch(selectType.value) {
+    case 'contractNo':
+      return '选择合同编号'
+    case 'woNo':
+      return '选择生产工单号'
+    case 'ipoNo':
+      return '选择生产订单号'
+    default:
+      return '选择生产工单号'
+  }
+}
 const getWriterName = () =>{
   console.log("获取登录用户名称",userStore.descr)
   return userStore.descr
@@ -273,6 +347,18 @@ const woNoList = ref([])
 const totalWoNo = ref(0)
 // 生产工单号列表加载状态
 const loadingWoNo = ref(false)
+
+// 新增：原材料制造商选择相关数据
+const manufacturerVisible = ref(false)
+const manufacturerList = ref([])
+const totalManufacturer = ref(0)
+const loadingManufacturer = ref(false)
+const manufacturerQuery = reactive({
+  descr: '',
+  type: 1,  // 只查询供应商类型
+  pageNumber: 1,
+  pageSize: 10
+})
 
 // 弹窗表单相关
 const dialogVisible = ref(false)
@@ -305,13 +391,14 @@ const form = reactive({
   writeTime: '',
   writer: getWriterName(),
   status: 0,
-  isdelete: 0
+  isdelete: 0,
+  basno: ''  // 新增单据号字段
 })
 
 // 表单验证规则
 const rules = {
   mafactory: [
-    { required: true, message: '请输入原材料制造商', trigger: 'blur' },
+    { required: true, message: '请选择原材料制造商', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   matMaterial: [
@@ -372,47 +459,123 @@ const rules = {
     { required: true, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   woNo: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' }
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   ipoNo: [
-    { required: true, message: '长度不能超过50个字符', trigger: 'blur' }
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
+  basno: [
+    { max: 50, message: '请获取单据号', trigger: 'blur' }
+  ]
 
 }
 
 
-// 选择生产工单号
+// 新增：打开制造商选择弹窗
+const selectManufacturer = () => {
+  manufacturerVisible.value = true
+  getManufacturerList()
+}
+
+// 新增：获取制造商列表（供应商）
+const getManufacturerList = async () => {
+  loadingManufacturer.value = true
+  try {
+    const res = await getBasOrgs(manufacturerQuery)
+    manufacturerList.value = res.data.page.list
+    totalManufacturer.value = res.data.page.totalRow
+  } catch (error) {
+    console.error('获取供应商列表失败', error)
+    ElMessage.error('获取供应商列表失败')
+  } finally {
+    loadingManufacturer.value = false
+  }
+}
+
+// 新增：处理制造商分页大小变化
+const handleManufacturerSizeChange = (size) => {
+  manufacturerQuery.pageSize = size
+  getManufacturerList()
+}
+
+// 新增：处理制造商当前页变化
+const handleManufacturerCurrentChange = (page) => {
+  manufacturerQuery.pageNumber = page
+  getManufacturerList()
+}
+
+// 新增：选择制造商
+const handleSelectManufacturer = (row) => {
+  form.mafactory = row.descr  // 将供应商名称赋值给制造商字段
+  form.mafactoryId = row.id   // 可选：保存供应商ID用于后续处理
+  manufacturerVisible.value = false
+}
+
+// 新增：点击行选择制造商
+const handleManufacturerRowClick = (row) => {
+  handleSelectManufacturer(row)
+}
+
+
+
+
+
+// 新增选择类型变量，用于区分当前选择的是哪个字段
+const selectType = ref('')
+// 生产工单号选择方法
 const selectWoNo = () => {
+  selectType.value = 'woNo'
   woNoSelectorVisible.value = true
-  searchWoNo() // 确保函数被调用
-};
+  searchWoNo()
+}
+
+// 合同编号选择方法
+const selectContractNo = () => {
+  selectType.value = 'contractNo'
+  woNoSelectorVisible.value = true
+  searchWoNo()
+}
+
+// 生产订单号选择方法
+const selectIpoNo = () => {
+  selectType.value = 'ipoNo'
+  woNoSelectorVisible.value = true
+  searchWoNo()
+}
 
 
-// 处理生产工单号选择事件
+// 修改选择处理逻辑，根据选择类型赋值
 const handleWoNoSelectorSelect = (woNoInfo) => {
-  queryParams.woNo = woNoInfo.woNo;
-  form.woNo = woNoInfo.woNo;
-  woNoSelectorVisible.value = false;
-
-  // 直接从选择的工单信息中获取ipoNo和contractNo
-  if (woNoInfo.ipoNo) {
-    form.ipoNo = woNoInfo.ipoNo;
-    console.log('设置生产订单号:', form.ipoNo); // 打印设置的生产订单号
-  } else {
-    ElMessage.warning('未找到对应的生产订单号');
+  // 根据当前选择类型进行赋值
+  switch(selectType.value) {
+    case 'contractNo':
+      form.contractNo = woNoInfo.contractNo || ''
+      break
+    case 'woNo':
+      form.woNo = woNoInfo.woNo || ''
+      break
+    case 'ipoNo':
+      form.ipoNo = woNoInfo.ipoNo || ''
+      break
   }
+  
+  // 关闭选择器
+  woNoSelectorVisible.value = false
+}
 
-  if (woNoInfo.contractNo) {
-    form.contractNo = woNoInfo.contractNo;
-    console.log('设置合同号:', form.contractNo); // 打印设置的合同号
 
-    // 检查ipoNo和contractNo是否相同
-    if (form.ipoNo && form.ipoNo === form.contractNo) {
-      ElMessage.info('生产订单号与合同号相同');
-    }
-  } else {
-    ElMessage.warning('未找到对应的合同号');
-  }
+// 添加工单状态转换函数
+const statusOptions = [
+  { id: 1, value: '待处理' },
+  { id: 2, value: '处理中' },
+  { id: 3, value: '已完成' },
+  { id: 4, value: '已取消' },
+  { id: 5, value: '已过期' }
+];
+
+const getStatusLabel = (status) => {
+  const item = statusOptions.find(option => option.id === status);
+  return item ? item.value : '未知状态';
 };
 
 // 获取生产工单号列表
@@ -476,6 +639,7 @@ const resetForm = () => {
     woNo: '',
    ipoNo: '',
   mafactory: '',
+  mafactoryId: '',  // 可选
   matMaterial: '',
   orderno: '',
   matRecheckNo: '',
@@ -494,7 +658,8 @@ const resetForm = () => {
   writeTime: '',
   writer:getWriterName(),
   status: 0,
-  isdelete: 0
+  isdelete: 0,
+  basno: ''  // 新增单据号字段
   })
 }
 
@@ -512,12 +677,31 @@ const handleRefresh = () => {
 }
 
 // 新增数据
-const handleAdd = () => {
+const handleAdd = async() => {
   dialogType.value = 'add'
   
   resetForm()
   // 确保新增时使用当前用户信息
   form.writer = userStore.descr || '未知用户'
+
+  // 获取单据号
+  try {
+    // 优先使用已预存的单据号，没有则获取
+    if (nextBasNo.value) {
+      form.basno = nextBasNo.value
+      nextBasNo.value = ''
+    } else {
+      const res = await getBasNo('fzclc') // 注意：这里的参数可能需要根据实际业务调整
+      if (res.code === 200) {
+        form.basno = res.data.fullNoNyName
+      } else {
+        ElMessage.warning('获取单据号失败，可手动填写')
+      }
+    }
+  } catch (e) {
+    console.error('获取单据号异常', e)
+    ElMessage.error('获取单据号失败')
+  }
 
   dialogVisible.value = true
 }
@@ -570,6 +754,13 @@ const submitForm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
+
+// 提交前检查basno是否存在
+        if (!form.basno) {
+          ElMessage.error('单据号未生成，请刷新重试')
+          return
+        }
+
         // 自动生成当前时间
         const now = new Date();
         const year = now.getFullYear();
@@ -583,6 +774,17 @@ const submitForm = () => {
         if (dialogType.value === 'add') {
           await createFzcLc(form);
           ElMessage.success('新增成功');
+
+// 保存成功后获取新的单据号（用于下次新增）
+          try {
+            const res = await getBasNo('fzclc') // 注意：这里的参数可能需要根据实际业务调整
+            if (res.code === 200) {
+              nextBasNo.value = res.data.fullNoNyName
+            }
+          } catch (e) {
+            console.error('获取新单据号异常', e)
+          }
+
         } else {
           await updateFzcLc(form);
           ElMessage.success('修改成功');
@@ -596,6 +798,9 @@ const submitForm = () => {
     }
   })
 }
+
+// 添加存储下次要用的单据号的ref
+const nextBasNo = ref('')
 
 // 处理质量证明书上传
 const handleCertificateChange = async (file) => {

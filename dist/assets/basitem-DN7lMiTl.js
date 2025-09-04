@@ -1,0 +1,1 @@
+import{O as t,P as a,Q as s,R as n}from"./index-DvIhe9Wx.js";function u(e){return t("/basitem/getpage",e)}function m(e){return t("/basitem/get",e)}function i(e){return a("/basitem/save",e)}function o(e){return s("/basitem/update",e)}function c(e){return n("/basitem/delete",e)}export{m as a,i as c,c as d,u as g,o as u};

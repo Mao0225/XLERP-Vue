@@ -2,7 +2,7 @@
   <el-dialog
     title="选择工单物料"
     v-model="visible"
-    width="80%"
+    width="60%"
     @closed="handleClose"
   >
     <el-table

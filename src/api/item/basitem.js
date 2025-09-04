@@ -36,3 +36,14 @@ export function updateBasItem(data) {
 export function deleteBasItem(params) {
   return del('/basitem/delete', params)
 }
+
+
+
+/**
+ * 根据Xls和xlsx文件导入基础物料列表
+ * @param {File} itemListFile 文件
+ * @return {itemList} 物料列表
+ */
+export function importItemList(data) {
+  return post('/basitem/importItem', data)
+}

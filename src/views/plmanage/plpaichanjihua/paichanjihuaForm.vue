@@ -19,7 +19,7 @@
           <el-row :gutter="10">
             <el-col :span="8">
               <el-form-item label="采购方总部编码" prop="purchaserHqCode">
-                <el-input v-model="form.purchaserHqCode" placeholder="请输入采购方总部编码" />
+                <el-input v-model="form.purchaserHqCode" placeholder="选择工单号后自动填充"  disabled/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
