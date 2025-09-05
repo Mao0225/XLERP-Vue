@@ -155,11 +155,10 @@ const unitOptions = [
 // 物料类型映射
 const typeLabelOptions = [
   { id: 10, value: '原材料' },
-  { id: 20, value: '标准件' },
-  { id: 30, value:'铝锭'},
-  { id: 40, value: '铝型材' },
-  { id: 50, value: '其它有色金属' },
-  { id: 60, value: '导线' }
+  { id: 20, value: '成品' },
+  { id: 30, value:'半成品'},
+  { id: 40, value: '低值易耗品' },
+  { id: 50, value: '其他' },
 ]
 
 // 原材料的分类选项
