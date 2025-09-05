@@ -1,18 +1,13 @@
 <template>
   <div class="plinoutstore-management">
+    <!-- 操作栏 -->
     <div class="action-bar">
-      <el-input v-model="queryParams.materialno" placeholder="物料编号" style="width: 180px; margin-right: 10px;" 
-               clearable @clear="getPlinoutstoreList" @keyup.enter="getPlinoutstoreList" />
-      <el-input v-model="queryParams.materialname" placeholder="物料名称" style="width: 180px; margin-right: 10px;"
-               clearable @clear="getPlinoutstoreList" @keyup.enter="getPlinoutstoreList" />
-      <el-input v-model="queryParams.orderno" placeholder="单据号" style="width: 180px; margin-right: 10px;"
-               clearable @clear="getPlinoutstoreList" @keyup.enter="getPlinoutstoreList" />
-      
-      <el-select v-model="queryParams.isin" placeholder="出入库类型" style="width: 150px; margin-right: 10px;">
-        <el-option label="全部" value="" />
-        <el-option label="入库" :value="1" />
-        <el-option label="出库" :value="2" />
-      </el-select>
+      <el-input v-model="queryParams.storeNo" placeholder="仓库编号" style="width: 180px; margin-right: 10px;" 
+                clearable @clear="getPlinoutstorePage" @keyup.enter="getPlinoutstorePage" />
+      <el-input v-model="queryParams.storeName" placeholder="仓库名称" style="width: 180px; margin-right: 10px;"
+                clearable @clear="getPlinoutstorePage" @keyup.enter="getPlinoutstorePage" />
+      <el-input v-model="queryParams.type" placeholder="类型" style="width: 180px; margin-right: 10px;"
+                clearable @clear="getPlinoutstorePage" @keyup.enter="getPlinoutstorePage" />
       
       <el-date-picker
         v-model="dateRange"
@@ -24,7 +19,7 @@
         style="flex: 0 0 250px;margin-right: 10px;"
       />
       
-      <el-button type="primary" @click="getPlinoutstoreListpage">搜索</el-button>
+      <el-button type="primary" @click="getPlinoutstorePage">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
         <el-icon><Refresh /></el-icon> 刷新
       </el-button>
@@ -42,6 +37,7 @@
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增记录</el-button>
     </div>
     
+    <!-- 数据表格 -->
     <el-table 
       :data="plinoutstoreList" 
       border 
@@ -54,33 +50,23 @@
       <el-table-column prop="orderno" label="收发单号" width="150" />
       <el-table-column prop="contractNo" label="合同号" width="150" />
       <el-table-column prop="contractName" label="工程名称" width="180" show-overflow-tooltip />
-      <el-table-column prop="materialno" label="物料编号" width="120" />
-      <el-table-column prop="materialname" label="物料名称" width="150" />
-      <el-table-column prop="spec" label="规格型号" width="120" />
-      <el-table-column prop="unit" label="单位" width="80" />
-      <el-table-column prop="quantity" label="数量" width="100" align="right">
-        <template #default="{row}">{{ row.quantity.toFixed(2) }}</template>
-      </el-table-column>
-      <el-table-column prop="price" label="单价" width="100" align="right">
-        <template #default="{row}">{{ row.price.toFixed(2) }}</template>
-      </el-table-column>
-      <el-table-column prop="totalmoney" label="金额" width="120" align="right">
-        <template #default="{row}">{{ row.totalmoney.toFixed(2) }}</template>
-      </el-table-column>
+      <el-table-column prop="deliverunit" label="交付单位" width="150" />
       <el-table-column prop="store" label="仓库" width="120" />
-      <el-table-column prop="isin" label="类型" width="80">
-        <template #default="{row}">{{ row.isin === 1 ? '出库' : '入库' }}</template>
-      </el-table-column>
+      <el-table-column prop="handleperson" label="经办人" width="120" />
       <el-table-column prop="receivedate" label="收发日期" width="120" />
-
-      <el-table-column label="操作" width="140" fixed="right">
+      <el-table-column prop="term" label="期限" width="100" />
+      
+      <el-table-column label="操作" width="250" fixed="right">
         <template #default="{row}">
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button type="info" size="small" @click="handleCheck(row)">查看详细</el-button>
+
         </template>
       </el-table-column>
     </el-table>
     
+    <!-- 分页组件 -->
     <div class="pagination-container">
       <el-pagination
         v-model:current-page="queryParams.pageNumber"
@@ -93,7 +79,7 @@
       />
     </div>
     
-    <!-- 编辑对话框 -->
+    <!-- 编辑/新增对话框 -->
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
@@ -109,27 +95,44 @@
         @cancel="dialogVisible = false"
         @save-draft="saveDraft"
       />
+
+    </el-dialog>
+
+
+    <el-dialog
+      :title="dialogTitle"
+      v-model="checkFormVisible"
+      width="1000px"
+      @closed="resetForm"
+    >
+      <chakanForm
+        ref="formRef"
+        :form-data="form"
+        @cancel="checkFormVisible = false"
+      />
+
+
     </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { checkTagEmits, ElMessage, ElMessageBox } from 'element-plus';
 import InStoreForm from './components/InStoreForm.vue';
+import chakanForm from './components/chakanForm.vue';
 import { 
   getPlinoutstoreList, 
   getPlinoutstoreByOrderno, 
-  deletePlinoutstore,
+  deletePlinoutstoreByOrderNo,
   batchDeletePlinoutstore
 } from '@/api/plmanage/plinoutstore';
 
-// 查询参数
+// 查询参数，匹配后端字段
 const queryParams = reactive({
-  materialno: '',
-  materialname: '',
-  orderno: '',
-  isin: '',
+  storeNo: '',
+  storeName: '',
+  type: '',
   pageNumber: 1,
   pageSize: 10
 });
@@ -149,17 +152,14 @@ const form = reactive({
   receivedate: '',
   deliverunit: '',
   store: '',
-  flag: '',
   handleperson: '',
   contractNo: '',
-  scheduleCode: '',
-  woNo: '',
-  materials: []
+  term: ''
 });
 
 // 处理表格多选
 const handleSelectionChange = (selection) => {
-  selectedIds.value = selection.map(item => item.id);
+  selectedIds.value = selection.map(item => item.orderno); // 使用orderno作为唯一标识
 };
 
 // 批量删除
@@ -178,7 +178,7 @@ const handleBatchDelete = () => {
       await batchDeletePlinoutstore(selectedIds.value);
       ElMessage.success('批量删除成功');
       selectedIds.value = [];
-      getPlinoutstoreListpage();
+      getPlinoutstorePage();
     } catch (error) {
       console.error('批量删除失败', error);
       const errorMsg = error.response?.data?.message || '批量删除失败';
@@ -188,7 +188,7 @@ const handleBatchDelete = () => {
 };
 
 // 获取出入库记录列表
-const getPlinoutstoreListpage = async () => {
+const getPlinoutstorePage = async () => {
   loading.value = true;
   try {
     const params = {
@@ -211,25 +211,24 @@ const getPlinoutstoreListpage = async () => {
 // 处理分页大小变化
 const handleSizeChange = (size) => {
   queryParams.pageSize = size;
-  getPlinoutstoreListpage();
+  getPlinoutstorePage();
 };
 
 // 处理当前页变化
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page;
-  getPlinoutstoreListpage();
+  getPlinoutstorePage();
 };
 
 // 刷新
 const handleRefresh = () => {
-  queryParams.materialno = '';
-  queryParams.materialname = '';
-  queryParams.orderno = '';
-  queryParams.isin = '';
+  queryParams.storeNo = '';
+  queryParams.storeName = '';
+  queryParams.type = '';
   dateRange.value = [];
   queryParams.pageNumber = 1;
   selectedIds.value = [];
-  getPlinoutstoreListpage();
+  getPlinoutstorePage();
 };
 
 // 重置表单
@@ -239,12 +238,9 @@ const resetForm = () => {
     receivedate: '',
     deliverunit: '',
     store: '',
-    flag: '',
     handleperson: '',
     contractNo: '',
-    scheduleCode: '',
-    woNo: '',
-    materials: []
+    term: ''
   });
 };
 
@@ -258,35 +254,65 @@ const handleAdd = () => {
 };
 
 // 编辑记录
+/**
+ * 处理编辑操作，根据orderno获取记录详情并填充表单
+ * @param {Object} row 表格行数据，包含orderno
+ */
 const handleEdit = async (row) => {
-  dialogType.value = 'edit';
-  isEdit.value = true;
+  dialogType.value = 'edit'; // 设置对话框为编辑模式
+  isEdit.value = true; // 标记为编辑状态
   try {
+    // 调用API获取记录详情
     const res = await getPlinoutstoreByOrderno({ orderNo: row.orderno });
-    const { storeInfo, plinoutstore } = res.data;
-    Object.assign(form, {
-      ...storeInfo,
-      orderno: row.orderno,
-      contractNo: storeInfo.contractNo || '',
+    const { storeInfo, itemList } = res.data; // 解构出storeInfo和itemList
+    console.log('获取的信息', res); // 调试：打印返回数据
 
-      materials: plinoutstore.map(item => ({
-        id: item.id,
-        scheduleCode: item.scheduleCode || '',
-        woNo: item.woNo || '',
-        ipoNo:item.ipoNo,
-        materialno: item.materialno,
-        materialname: item.materialname,
-        spec: item.spec || '',
-        unit: item.unit || '',
-        quantity: item.quantity || 0,
-        price: item.price || 0,
-        totalmoney: item.totalmoney || 0
-      }))
+    // 将API返回的数据填充到表单，添加materials字段
+    Object.assign(form, {
+      flag:storeInfo.flag,
+      orderno: storeInfo.orderno,
+      receivedate: storeInfo.receivedate || '',
+      deliverunit: storeInfo.deliverunit || '',
+      store: storeInfo.store || '',
+      handleperson: storeInfo.handleperson || '',
+      contractNo: storeInfo.contractNo || '',
+      term: storeInfo.term || '',
+      materials: itemList || [] // 将itemList赋值给materials，默认为空数组
     });
-    dialogVisible.value = true;
+    
+    dialogVisible.value = true; // 显示编辑对话框
   } catch (error) {
-    console.error('获取记录详情失败', error);
-    ElMessage.error('获取记录详情失败');
+    console.error('获取记录详情失败', error); // 打印错误日志
+    ElMessage.error('获取记录详情失败'); // 显示错误提示
+  }
+};
+
+const checkFormVisible = ref(false);
+
+const handleCheck  = async (row) => {
+  try {
+    // 调用API获取记录详情
+    const res = await getPlinoutstoreByOrderno({ orderNo: row.orderno });
+    const { storeInfo, itemList } = res.data; // 解构出storeInfo和itemList
+    console.log('获取的信息', res); // 调试：打印返回数据
+
+    // 将API返回的数据填充到表单，添加materials字段
+    Object.assign(form, {
+      flag:storeInfo.flag,
+      orderno: storeInfo.orderno,
+      receivedate: storeInfo.receivedate || '',
+      deliverunit: storeInfo.deliverunit || '',
+      store: storeInfo.store || '',
+      handleperson: storeInfo.handleperson || '',
+      contractNo: storeInfo.contractNo || '',
+      term: storeInfo.term || '',
+      materials: itemList || [] // 将itemList赋值给materials，默认为空数组
+    });
+    
+    checkFormVisible.value = true; // 显示查看详细弹窗
+  } catch (error) {
+    console.error('获取记录详情失败', error); // 打印错误日志
+    ElMessage.error('获取记录详情失败'); // 显示错误提示
   }
 };
 
@@ -298,9 +324,9 @@ const handleDelete = (row) => {
     type: 'warning'
   }).then(async () => {
     try {
-      await deletePlinoutstore({ id: row.id });
+      await deletePlinoutstoreByOrderNo({ orderNo: row.orderno });
       ElMessage.success('删除成功');
-      getPlinoutstoreListpage();
+      getPlinoutstorePage();
     } catch (error) {
       console.error('删除记录失败', error);
       ElMessage.error('删除记录失败');
@@ -311,28 +337,15 @@ const handleDelete = (row) => {
 // 提交表单
 const submitForm = async (formData) => {
   try {
-    // for (const material of formData.materials) {
-    //   const saveData = {
-    //     ...formData,
-    //     id: material.id,
-    //     materialno: material.materialno,
-    //     materialname: material.materialname,
-    //     spec: material.spec,
-    //     unit: material.unit,
-    //     quantity: material.quantity,
-    //     price: material.price,
-    //     totalmoney: material.totalmoney
-    //   };
-    //   delete saveData.materials;
-    //   if (dialogType.value === 'edit' && material.id) {
-    //     await updatePlinoutstore(saveData);
-    //   } else {
-    //     await createPlinoutstore(saveData);
-    //   }
+    // 假设存在保存API，需要根据实际后端接口调整
+    // if (dialogType.value === 'edit') {
+    //   await updatePlinoutstore(formData);
+    // } else {
+    //   await createPlinoutstore(formData);
     // }
     ElMessage.success(dialogType.value === 'add' ? '新增成功' : '修改成功');
     dialogVisible.value = false;
-    getPlinoutstoreListpage();
+    getPlinoutstorePage();
   } catch (error) {
     console.error('保存记录失败', error);
     ElMessage.error('保存记录失败');
@@ -341,7 +354,6 @@ const submitForm = async (formData) => {
 
 // 保存草稿
 const saveDraft = (formData) => {
-  // 这里可以实现保存草稿的逻辑，例如调用 API 或存储到本地
   console.log('保存草稿:', formData);
   ElMessage.success('草稿已保存');
   dialogVisible.value = false;
@@ -349,7 +361,7 @@ const saveDraft = (formData) => {
 
 // 页面初始化
 onMounted(() => {
-  getPlinoutstoreListpage();
+  getPlinoutstorePage();
 });
 </script>
 

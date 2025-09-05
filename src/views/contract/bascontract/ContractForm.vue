@@ -207,7 +207,11 @@
             <el-form-item label="其他条款">
               <el-input type="textarea" :rows="7" v-model="form.other" placeholder="其他条款" />
             </el-form-item>
-
+          </el-col>
+          <el-col :span="10" style="text-align: center;"> 
+                        <el-form-item label="备注">
+              <el-input type="textarea" :rows="7" v-model="form.memo" placeholder="备注" />
+            </el-form-item>
           </el-col>
 
         </el-row>
@@ -475,6 +479,7 @@ const form = reactive({
   taxnum: '',
   signdate: '',
   status: 10,
+  memo: '',
 });
 // form.term = currentTerm.value
 console.log('表格区间', form.term);

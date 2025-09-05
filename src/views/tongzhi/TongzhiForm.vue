@@ -147,6 +147,11 @@
               <el-input type="textarea" :rows="7" v-model="form.other" placeholder="其他条款" readonly />
             </el-form-item>
           </el-col>
+          <el-col :span="10" style="text-align: center;">
+            <el-form-item label="备注">
+              <el-input type="textarea" :rows="7" v-model="form.memo" placeholder="备注" readonly />
+            </el-form-item>
+          </el-col>
         </el-row>
         
         <div style="display: flex; justify-content: center;">

@@ -179,7 +179,7 @@ tt          <el-table-column prop="quantity" label="数量" width="100" />
           <el-table-column prop="price" label="计划单价" width="100" />
           <el-table-column prop="totalmoney" label="计划总金额" width="100" />
           <el-table-column prop="realprice" label="销售单价" width="100" />
-          <el-table-column prop="totalmoney" label="销售总金额" width="100" />
+          <el-table-column prop="realTotalMoney" label="销售总金额" width="100" />
           <el-table-column label="操作" width="100" fixed="right">
             <template #default="{ $index, row }">
               <el-button type="danger" size="small" @click="removeMaterial($index, row)">删除</el-button>
@@ -193,7 +193,6 @@ tt          <el-table-column prop="quantity" label="数量" width="100" />
         <el-button @click="handleCancel">取消</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
 
-        <!-- <el-button v-if="showSaveAsDraft" type="info" @click="handleSaveDraft">保存草稿</el-button> -->
       </div>
     </el-form>
 
@@ -475,6 +474,8 @@ const addMaterial = async () => {
 
     if (mainFormValid && materialFormValid) {
       currentMaterial.totalmoney = parseFloat((currentMaterial.quantity * currentMaterial.price).toFixed(2)) || 0;
+      currentMaterial.realTotalMoney = parseFloat((currentMaterial.quantity * currentMaterial.realprice).toFixed(2)) || 0;
+
       const saveData = {
         ...cloneDeep(form),
         ...cloneDeep(currentMaterial)
@@ -578,10 +579,6 @@ const handleCancel = () => {
   emit('cancel');
 };
 
-// 保存草稿
-const handleSaveDraft = () => {
-  emit('save-draft', cloneDeep(form));
-};
 
 // 计算计划总金额
 const totalMoney = computed(() => {

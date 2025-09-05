@@ -45,13 +45,24 @@ export function updatePlinoutstore(data) {
 }
 
 /**
- * 删除出入库记录
+ * 删除出入库记录物料
  * @param {Object} params - 删除参数
  * @param {number} params.id - 出入库记录 ID
  * @returns {Promise} - 返回删除结果 Promise
  */
 export function deletePlinoutstore(params) {
   return del('/plinoutstore/delete', params)
+}
+
+
+/**
+ * 删除出入库记录信息
+ * @param {Object} params - 删除参数
+ * @param {number} params.OrderNo - 单据号
+ * @returns {Promise} - 返回删除结果 Promise
+ */
+export function deletePlinoutstoreByOrderNo(params) {
+  return del('/plinoutstore/deleteByOrderNo', params)
 }
 
 /**
