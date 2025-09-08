@@ -1,4 +1,3 @@
-// ImportResultDialog.vue - 导入结果弹窗组件
 <template>
   <el-dialog
     v-model="visible"
@@ -53,14 +52,6 @@
             </div>
           </el-scrollbar>
         </div>
-        
-        <!-- 导出失败数据按钮 -->
-        <div class="export-actions">
-          <el-button size="small" @click="exportFailedData">
-            <el-icon><Download /></el-icon>
-            导出失败数据
-          </el-button>
-        </div>
       </div>
 
       <!-- 无失败情况 -->
@@ -72,7 +63,21 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="handleConfirm">确定</el-button>
+        <el-button
+          v-if="importData.failedRows && importData.failedRows.length > 0"
+          type="primary"
+          @click="exportFailedData"
+        >
+          <el-icon><Download /></el-icon>
+          导出失败数据
+        </el-button>
+        <el-button
+          v-else
+          type="primary"
+          @click="handleConfirm"
+        >
+          确定
+        </el-button>
       </span>
     </template>
   </el-dialog>
@@ -81,6 +86,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Download } from '@element-plus/icons-vue'
+import * as XLSX from 'xlsx'
 
 const props = defineProps({
   modelValue: {
@@ -93,7 +99,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'confirm'])
+const emit = defineEmits(['update:modelValue'])
 
 const visible = computed({
   get: () => props.modelValue,
@@ -107,27 +113,69 @@ const successRate = computed(() => {
   return total > 0 ? Math.round((success / total) * 100) : 0
 })
 
+// 跟踪是否已导出
+const hasExported = ref(false)
+
 // 导出失败数据
 const exportFailedData = () => {
+  if (hasExported.value) return // 防止重复导出
   const failedData = props.importData.failedRows || []
-  const csvContent = [
-    '行号,错误信息',
-    ...failedData.map(row => `${row.rowNumber},"${row.error}"`)
-  ].join('\n')
   
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `导入失败数据_${new Date().toISOString().slice(0, 10)}.csv`
-  link.click()
+  // 定义表头
+  const headers = [
+    '序号',
+    '产品名称',
+    '订货型号',
+    '数量',
+    '单价',
+    '单位',
+    '总价',
+    '单重',
+    '总重',
+    '备注',
+    '行订单号',
+    '行订单ID',
+    '国网物料编码',
+    '错误原因'
+  ]
+
+  // 转换数据格式
+  const data = failedData.map(row => ({
+    '序号': row.rowData.index,
+    '产品名称': row.rowData.itemName,
+    '订货型号': row.rowData.itemNo,
+    '数量': row.rowData.itemNum,
+    '单价': row.rowData.itemRealPrice,
+    '单位': row.rowData.itemUnit,
+    '总价': row.rowData.itemRealSum,
+    '单重': row.rowData.itemWeight,
+    '总重': row.rowData.itemGrossWeight,
+    '备注': row.rowData.itemMemo,
+    '行订单号': row.rowData.poItemNo,
+    '行订单ID': row.rowData.poItemId,
+    '国网物料编码': row.rowData.poItemCode,
+    '错误原因': row.error
+  }))
+
+  // 创建工作表
+  const worksheet = XLSX.utils.json_to_sheet(data, { header: headers })
+  
+  // 创建工作簿
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, '失败数据')
+  
+  // 导出文件
+  XLSX.writeFile(workbook, `导入失败数据_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  hasExported.value = true
+  visible.value = false
 }
 
 const handleClose = () => {
   visible.value = false
+  hasExported.value = false // 重置导出状态
 }
 
 const handleConfirm = () => {
-  emit('confirm')
   visible.value = false
 }
 </script>
@@ -199,10 +247,6 @@ const handleConfirm = () => {
   margin-left: 10px;
   flex: 1;
   color: #606266;
-}
-
-.export-actions {
-  text-align: right;
 }
 
 .no-failed {

@@ -1,4 +1,3 @@
-// ImportResultDialog.vue - 导入结果弹窗组件
 <template>
   <el-dialog
     v-model="visible"
@@ -53,14 +52,6 @@
             </div>
           </el-scrollbar>
         </div>
-        
-        <!-- 导出失败数据按钮 -->
-        <div class="export-actions">
-          <el-button size="small" @click="exportFailedData">
-            <el-icon><Download /></el-icon>
-            导出失败数据
-          </el-button>
-        </div>
       </div>
 
       <!-- 无失败情况 -->
@@ -72,7 +63,21 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="handleConfirm">确定</el-button>
+        <el-button
+          v-if="importData.failedRows && importData.failedRows.length > 0"
+          type="primary"
+          @click="exportFailedData"
+        >
+          <el-icon><Download /></el-icon>
+          导出失败数据
+        </el-button>
+        <el-button
+          v-else
+          type="primary"
+          @click="handleConfirm"
+        >
+          确定
+        </el-button>
       </span>
     </template>
   </el-dialog>
@@ -107,23 +112,80 @@ const successRate = computed(() => {
   return total > 0 ? Math.round((success / total) * 100) : 0
 })
 
+// 跟踪是否已导出
+const hasExported = ref(false)
+
 // 导出失败数据
 const exportFailedData = () => {
+  if (hasExported.value) return // 防止重复导出
   const failedData = props.importData.failedRows || []
+
+  // 定义表头
+  const headers = [
+    '序号',
+    '物料编号',
+    '物料名称',
+    '计量单位',
+    '物料类型',
+    '所属分类',
+    '规格型号',
+    '物料描述',
+    '颜色',
+    '存放位置',
+    '技术参数',
+    '备注信息',
+    '重量',
+    '计划价格',
+    '平均价格',
+    '错误信息'
+  ]
+
+  // 转换数据格式并处理特殊字符
+  const escapeCsvField = (value) => {
+    if (value == null) return ''
+    const str = String(value)
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`
+    }
+    return str
+  }
+
+  // 构建 CSV 内容
   const csvContent = [
-    '行号,错误信息',
-    ...failedData.map(row => `${row.rowNumber},"${row.error}"`)
+    headers.join(','),
+    ...failedData.map(row => [
+      row.rowData.index,
+      escapeCsvField(row.rowData.itemNo),
+      escapeCsvField(row.rowData.itemName),
+      escapeCsvField(row.rowData.itemUnit),
+      escapeCsvField(row.rowData.itemType),
+      escapeCsvField(row.rowData.inclass),
+      escapeCsvField(row.rowData.spec),
+      escapeCsvField(row.rowData.description),
+      escapeCsvField(row.rowData.color),
+      escapeCsvField(row.rowData.location),
+      escapeCsvField(row.rowData.techMemo),
+      escapeCsvField(row.rowData.memo),
+      escapeCsvField(row.rowData.weight),
+      escapeCsvField(row.rowData.plannedPrice),
+      escapeCsvField(row.rowData.avgPrice),
+      escapeCsvField(row.error)
+    ].join(','))
   ].join('\n')
-  
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+
+  // 创建并下载 CSV 文件
+  const blob = new Blob([`\ufeff${csvContent}`], { type: 'text/csv;charset=utf-8;' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = `导入失败数据_${new Date().toISOString().slice(0, 10)}.csv`
   link.click()
+  hasExported.value = true
+  visible.value = false
 }
 
 const handleClose = () => {
   visible.value = false
+  hasExported.value = false // 重置导出状态
 }
 
 const handleConfirm = () => {
@@ -199,10 +261,6 @@ const handleConfirm = () => {
   margin-left: 10px;
   flex: 1;
   color: #606266;
-}
-
-.export-actions {
-  text-align: right;
 }
 
 .no-failed {

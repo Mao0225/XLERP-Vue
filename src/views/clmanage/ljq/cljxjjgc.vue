@@ -39,7 +39,7 @@
       </el-input>
       <el-button type="primary" @click="getList">搜索</el-button>
       <el-button type="warning" @click="resetQuery" style="margin-left: 10px;">重置</el-button>
-      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增耐张线夹钢材</el-button>
+      <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增接续金具钢材</el-button>
     </div>
     <el-table :data="list" border v-loading="loading" style="width: 100%" height="calc(100vh - 250px)">
       <el-table-column type="index" label="序号" width="70" />
@@ -478,7 +478,7 @@ const list = ref([])
 const total = ref(0)
 const loading = ref(false)
 const dialogVisible = ref(false)
-const dialogTitle = ref('新增耐张线夹钢材')
+const dialogTitle = ref('新增接续金具钢材')
 const dialogType = ref('add')
 const formRef = ref(null)
 const saving = ref(false)
@@ -744,7 +744,7 @@ const handleCurrentChange = (page) => {
 
 // 新增操作
 const handleAdd = async() => {
-  dialogTitle.value = '新增耐张线夹钢材';
+  dialogTitle.value = '新增接续金具钢材';
   dialogType.value = 'add';
   form.value = createEmptyForm();
   form.value.writer = userInfo.value.username;
@@ -782,7 +782,7 @@ const handleAdd = async() => {
 
 // 编辑操作
 const handleEdit = async (row) => {
-  dialogTitle.value = '编辑耐张线夹钢材';
+  dialogTitle.value = '编辑接续金具钢材';
   dialogType.value = 'edit';
   try {
     const res = await getClnzxjgcById({ id: row.id });

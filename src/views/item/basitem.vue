@@ -37,11 +37,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="inclass" label="所属分类" />
-      <el-table-column prop="status" label="状态" width="100">
+      <!-- <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
           {{ row.status === 0 ? '正常' : '停用' }}
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
