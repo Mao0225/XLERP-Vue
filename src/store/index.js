@@ -47,6 +47,12 @@ export const useAppStore = defineStore('app', {
       delete this.refreshKeys[tabPath]
     },
 
+    // 重置所有标签页和刷新键
+    resetTabs() {
+      this.tabsList = []
+      this.refreshKeys = {}
+    },
+
     // 切换菜单折叠状态
     toggleCollapse() {
       this.isCollapse = !this.isCollapse

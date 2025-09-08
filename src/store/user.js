@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { login as loginApi } from '@/api/system/login'
 import { getUserMenus } from '@/api/system/menu'
 import router from '@/router' // 导入路由实例
+import { useAppStore } from './index.js' // 导入 useAppStore
+import { resetDynamicRoutesState } from '@/router' // 导入 resetDynamicRoutesState
 
 export const useUserStore = defineStore('user', () => {
   // State
@@ -48,6 +50,14 @@ export const useUserStore = defineStore('user', () => {
         localStorage.setItem('descr', descr.value) // 保存 desc 到 localStorage
         localStorage.setItem('depNo', userData.departmentid)
         
+        // 重置标签页
+        const appStore = useAppStore()
+        appStore.resetTabs()
+        
+        // 重置动态路由状态
+        resetDynamicRoutesState()
+        
+        // 获取菜单树
         await fetchMenuTree(userId.value)
         // console.log('获取菜单树完成')
         
@@ -82,8 +92,8 @@ export const useUserStore = defineStore('user', () => {
       depNo.value = userInfo.depNo
       localStorage.setItem('depNo', userInfo.depNo)
     }
-   
   }
+  
   const fetchMenuTree = async (userIdParam) => {
     try {
       const id = userIdParam || userId.value
@@ -145,6 +155,14 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('avatar')
     localStorage.removeItem('realName')
     localStorage.removeItem('descr') // 移除 desc 从 localStorage
+    localStorage.removeItem('depNo')
+    
+    // 重置标签页
+    const appStore = useAppStore()
+    appStore.resetTabs()
+    
+    // 重置动态路由状态
+    resetDynamicRoutesState()
     
     // 跳转到登录页
     router.push('/login')
@@ -180,7 +198,7 @@ export const useUserStore = defineStore('user', () => {
     return false
   }
   
-  //获取用户信息
+  // 获取用户信息
   const getUserInfo = async () => {
     return {
       userId: userId.value,
