@@ -10,7 +10,7 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-  // base: '/erp/',//路由前缀--部署服务器加上
+  base: '/erp/',//路由前缀--部署服务器加上
   build: {
     target: ['es2022', 'edge89', 'firefox90', 'chrome90', 'safari15']
   },

@@ -75,9 +75,22 @@ export function getUserMenu(params) {
   return get('/usermenu/getpage', params)
 }
 
-
+/**
+ * 根据登录用户ID获取菜单树
+ * @param {userId} params 
+ * @returns 
+ */
 export function getMenuTree(params) {
   return get('/menu/getMenuTree', params)
+}
+
+/**
+ * 获取所有菜单树
+ * @param {Object} params - 分页参数
+ * @returns {Promise} - 菜单树Promise
+ */
+export function getAllMenuTree(params) {
+  return get('/menu/getAllMenuTree', params)
 }
 
 

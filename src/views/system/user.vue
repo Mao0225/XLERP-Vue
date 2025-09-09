@@ -174,7 +174,7 @@ import {
   addMenuToUser, 
   removeMenuFromUser, 
   getUserMenu, 
-  getMenuTree
+  getAllMenuTree,
 } from '@/api/system/menu'
 import { getBasDepartmentOptions } from '@/api/system/department'
 import { uploadAvatar} from '@/api/file/file'
@@ -319,7 +319,7 @@ const fetchDepartmentOptions = async () => {
 const fetchMenuTree = async () => {
   menuTreeLoading.value = true
   try {
-    const res = await getMenuTree()
+    const res = await getAllMenuTree()
     if (res.success && res.data.menuTree) {
       menuTreeData.value = res.data.menuTree
     } else {
