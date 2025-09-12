@@ -37,14 +37,20 @@ const viewComponents = {
 
   //生产订单
   'plmanage/plshengchandingdan': () => import('@/views/plmanage/plshengchandingdan/shengchandingdan.vue'),
+    //生产订单--新
+  'plmanage/plproductionorder': () => import('@/views/plmanage/plproductionorder/orderList.vue'),
     //查看生产订单
   'plmanage/chakandingdan': () => import('@/views/plmanage/plshengchandingdan/chakandingdan.vue'),
   //生产工单
   'plmanage/plshengchangongdan': () => import('@/views/plmanage/plshengchangongdan/shengchangongdan.vue'),
+  //生产工单---新
+  'plmanage/plworkorder': () => import('@/views/plmanage/plworkorder/orderList.vue'),
   //查看生产工单
   'plmanage/chakangongdan': () => import('@/views/plmanage/plshengchangongdan/chakangongdan.vue'),
   //排产计划
   'plmanage/plpaichanjihua': () => import('@/views/plmanage/plpaichanjihua/paichanjihua.vue'),
+    //排产计划--新
+  'plmanage/plscheduleplan': () => import('@/views/plmanage/plscheduleplan/planList.vue'),
   //查看排产计划
   'plmanage/chakanjihua': () => import('@/views/plmanage/plpaichanjihua/chakanjihua.vue'),
   //报工单
