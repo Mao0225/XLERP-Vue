@@ -58,6 +58,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
+      <el-table-column prop="batchNo" label="炉批号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.batchNo" placement="top">
+            <span class="truncate">{{ row.batchNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="mafactory" label="制造商" width="160">
         <template #default="{ row }">
           <el-tooltip :content="row.mafactory" placement="top">
@@ -72,10 +79,66 @@
           </el-tooltip>
         </template>
       </el-table-column>
+      <el-table-column prop="material" label="材料" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.material" placement="top">
+            <span class="truncate">{{ row.material }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="standard" label="检验标准" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.standard" placement="top">
+            <span class="truncate">{{ row.standard }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="type" label="型号" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.type" placement="top">
+            <span class="truncate">{{ row.type }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="appearanceSize" label="外观尺寸" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.appearanceSize" placement="top">
+            <span class="truncate">{{ row.appearanceSize }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="quantity" label="数量" width="90">
+        <template #default="{ row }">
+          <el-tooltip :content="row.quantity" placement="top">
+            <span class="truncate">{{ row.quantity }} t</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="sampleQuantity" label="样品数量" width="90">
+        <template #default="{ row }">
+          <el-tooltip :content="row.sampleQuantity" placement="top">
+            <span class="truncate">{{ row.sampleQuantity }} t</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="inNo" label="入库单号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.inNo" placement="top">
             <span class="truncate">{{ row.inNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="checker" label="检验人" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.checker" placement="top">
+            <span class="truncate">{{ row.checker }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="auditor" label="审核人" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.auditor" placement="top">
+            <span class="truncate">{{ row.auditor }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -123,6 +186,11 @@
           </el-tooltip>
         </template>
       </el-table-column>
+      <!-- <el-table-column prop="status" label="状态" width="90">
+        <template #default="{ row }">
+          {{ row.status === '1' ? '已审核' : '未审核' }}
+        </template>
+      </el-table-column> -->
       <el-table-column prop="certificate" label="质量证明" width="100">
         <template #default="{ row }">
           <div v-for="(file, index) in JSON.parse(row.certificate || '[]')" :key="index">
