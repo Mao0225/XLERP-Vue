@@ -89,3 +89,10 @@ export function updateBasContractStatus(data) {
 export function importContractItem(data) {
   return post('/bascontract/importContractItem', data)
 }
+
+/**
+ * 获取确认状态的合同
+ */
+export function getConfirmContract() {
+  return get('/bascontract/getConfirmContract')
+}
