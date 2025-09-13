@@ -55,6 +55,8 @@ const viewComponents = {
   'plmanage/chakanjihua': () => import('@/views/plmanage/plpaichanjihua/chakanjihua.vue'),
   //报工单
   'plmanage/plbaogongdan': () => import('@/views/plmanage/plbaogongdan/baogongdan.vue'),
+    //报工单
+  'plmanage/plreportworkorder': () => import('@/views/plmanage/plreportworkorder/orderList.vue'),
   //供货单
   'plmanage/plgonghuodan': () => import('@/views/plmanage/plgonghuodan/gonghuodan.vue'),
 

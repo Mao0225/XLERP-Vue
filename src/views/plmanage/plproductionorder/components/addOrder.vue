@@ -44,7 +44,7 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="生产订单号" prop="ipoNo">
-            <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" />
+            <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -297,12 +297,20 @@ const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  newCode:{
+    type: String,
+    default: ''
   }
+
 });
 
 const dialogVisible = ref(props.visible);
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
+  if (newVal) {
+    form.ipoNo = props.newCode
+  }
 });
 
 const formRef = ref(null);

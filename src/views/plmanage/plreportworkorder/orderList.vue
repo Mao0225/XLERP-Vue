@@ -1,5 +1,5 @@
 <template>
-  <div class="production-orders">
+  <div class="work-orders">
     <!-- Filter Section -->
     <el-card class="filter-card" shadow="never">
       <div class="filter-row">
@@ -21,17 +21,16 @@
           />
         </el-select>
 
-        <el-cascader
-          v-model="filters.category"
-          :options="categoryOptions"
-          placeholder="产品品类"
+        <el-input
+          v-model="filters.productionOrderNo"
+          placeholder="生产订单号"
           clearable
           style="width: 200px;"
         />
 
         <el-input
-          v-model="filters.ipoNo"
-          placeholder="生产订单号"
+          v-model="filters.workOrderNo"
+          placeholder="生产工单号"
           clearable
           style="width: 200px;"
         />
@@ -68,13 +67,13 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <!-- Left: Production Orders List -->
+      <!-- Left: Work Orders List -->
       <div class="order-list">
         <el-card shadow="never">
           <template #header>
             <div class="card-header">
-              <span>生产订单列表</span>
-              <el-button type="primary" @click="openAddDialog">创建订单</el-button>
+              <span>报工单列表</span>
+              <el-button type="primary" @click="openAddDialog">创建报工单</el-button>
             </div>
           </template>
 
@@ -94,27 +93,21 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="ipoNo" label="生产订单号" width="180" show-overflow-tooltip>
+            <el-table-column prop="workOrderNo" label="生产工单号" width="180" show-overflow-tooltip>
               <template #default="{ row }">
-                <el-link type="primary" @click="selectOrder(row)">{{ row.ipoNo }}</el-link>
+                <el-link type="primary" @click="selectOrder(row)">{{ row.workOrderNo }}</el-link>
               </template>
             </el-table-column>
 
-            <el-table-column prop="poItemId" label="采购订单行项目ID" width="150" show-overflow-tooltip />
-            <el-table-column prop="supplierName" label="供应商" width="150" show-overflow-tooltip />
-            <el-table-column prop="materialsName" label="物料名称" width="150" show-overflow-tooltip />
+            <el-table-column prop="productionOrderNo" label="生产订单号" width="180" show-overflow-tooltip />
+            <el-table-column prop="supplierCode" label="供应商编码" width="150" show-overflow-tooltip />
+            <el-table-column prop="processName" label="工序名称" width="150" show-overflow-tooltip />
 
-            <el-table-column label="生产数量" width="120">
-              <template #default="{ row }">
-                {{ row.amount }} {{ row.unit }}
-              </template>
-            </el-table-column>
-
-            <el-table-column label="计划日期" width="200">
+            <el-table-column label="计划时间" width="200">
               <template #default="{ row }">
                 <div class="date-range">
-                  <div>{{ row.planStartDate }}</div>
-                  <div class="date-end">~ {{ row.planFinishDate }}</div>
+                  <div>{{ row.planStartTime }}</div>
+                  <div class="date-end">~ {{ row.planEndTime }}</div>
                 </div>
               </template>
             </el-table-column>
@@ -148,12 +141,12 @@
         </el-card>
       </div>
 
-      <!-- Right: Order Details Panel -->
+      <!-- Right: Work Order Details Panel -->
       <div class="order-detail">
         <el-card shadow="never" class="detail-card">
           <template #header>
             <div class="card-header">
-              <span>订单详情</span>
+              <span>报工单详情</span>
               <el-button v-if="selectedOrder" size="small" @click="selectedOrder = null">
                 <el-icon><Close /></el-icon>
               </el-button>
@@ -166,47 +159,51 @@
               <h4>基础信息</h4>
               <div class="info-grid">
                 <div class="info-item">
+                  <span class="label">生产工单号:</span>
+                  <span class="value">{{ selectedOrder.workOrderNo }}</span>
+                </div>
+                <div class="info-item">
                   <span class="label">生产订单号:</span>
-                  <span class="value">{{ selectedOrder.ipoNo }}</span>
+                  <span class="value">{{ selectedOrder.productionOrderNo }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">采购订单行项目ID:</span>
-                  <span class="value">{{ selectedOrder.poItemId }}</span>
+                  <span class="label">供应商编码:</span>
+                  <span class="value">{{ selectedOrder.supplierCode }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">供应商:</span>
-                  <span class="value">{{ selectedOrder.supplierName }}</span>
+                  <span class="label">工序名称:</span>
+                  <span class="value">{{ selectedOrder.processName }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">物料名称:</span>
-                  <span class="value">{{ selectedOrder.materialsName }}</span>
+                  <span class="label">生产批次号:</span>
+                  <span class="value">{{ selectedOrder.productionBatchNo }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">生产数量:</span>
-                  <span class="value">{{ selectedOrder.amount }} {{ selectedOrder.unit }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">订单类型:</span>
-                  <span class="value">{{ selectedOrder.ipoType }}</span>
+                  <span class="label">客户省份:</span>
+                  <span class="value">{{ selectedOrder.customerProvince }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Material Information -->
+            <!-- Process Information -->
             <div class="detail-section">
-              <h4>物料信息</h4>
+              <h4>工序信息</h4>
               <div class="info-grid">
                 <div class="info-item">
-                  <span class="label">厂家物料编码:</span>
-                  <span class="value">{{ selectedOrder.materialsCode }}</span>
+                  <span class="label">品类编码:</span>
+                  <span class="value">{{ selectedOrder.categoryCode }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">物料描述:</span>
-                  <span class="value">{{ selectedOrder.materialsDesc }}</span>
+                  <span class="label">种类编码:</span>
+                  <span class="value">{{ selectedOrder.subclassCode }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">产品型号:</span>
-                  <span class="value">{{ selectedOrder.productModel || '无' }}</span>
+                  <span class="label">工序编码:</span>
+                  <span class="value">{{ selectedOrder.processCode }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">生产工艺路线:</span>
+                  <span class="value">{{ selectedOrder.productionRouteCode || '无' }}</span>
                 </div>
               </div>
             </div>
@@ -217,15 +214,15 @@
               <div class="info-grid">
                 <div class="info-item">
                   <span class="label">计划时间:</span>
-                  <span class="value">{{ selectedOrder.planStartDate }} ~ {{ selectedOrder.planFinishDate }}</span>
+                  <span class="value">{{ selectedOrder.planStartTime || '未设定' }} ~ {{ selectedOrder.planEndTime || '未设定' }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">实际时间:</span>
-                  <span class="value">{{ selectedOrder.actualStartDate || '未开始' }} ~ {{ selectedOrder.actualFinishDate || '未完成' }}</span>
+                  <span class="value">{{ selectedOrder.actualStartTime || '未开始' }} ~ {{ selectedOrder.actualEndTime || '未完成' }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">数据来源创建时间:</span>
-                  <span class="value">{{ selectedOrder.dataSourceCreateTime }}</span>
+                  <span class="value">{{ selectedOrder.sourceCreateTime }}</span>
                 </div>
               </div>
             </div>
@@ -235,16 +232,20 @@
               <h4>生产信息</h4>
               <div class="info-grid">
                 <div class="info-item">
-                  <span class="label">生产工厂:</span>
-                  <span class="value">{{ selectedOrder.plantName || '无' }}</span>
-                </div>
-                <div class="info-item">
                   <span class="label">生产车间:</span>
                   <span class="value">{{ selectedOrder.workshopName || '无' }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">生产中心:</span>
-                  <span class="value">{{ selectedOrder.center || '无' }}</span>
+                  <span class="label">设备编号:</span>
+                  <span class="value">{{ selectedOrder.equipmentNo || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">产品内部ID:</span>
+                  <span class="value">{{ selectedOrder.productInternalId || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">实物ID:</span>
+                  <span class="value">{{ selectedOrder.entityId || '无' }}</span>
                 </div>
               </div>
             </div>
@@ -258,13 +259,13 @@
                     <el-icon><component :is="getStatusIcon(selectedOrder.status)" /></el-icon>
                     {{ selectedOrder.status === '10' ? '录入' : '确认' }}
                   </el-tag>
-                  <span class="schedule-text">{{ selectedOrder.ipoStatus || '无' }}</span>
+                  <span class="schedule-text">{{ selectedOrder.orderStatus || '无' }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <el-empty v-else description="请选择一个生产订单查看详情" />
+          <el-empty v-else description="请选择一个报工单查看详情" />
         </el-card>
       </div>
     </div>
@@ -272,7 +273,7 @@
     <!-- Dialog Components -->
     <addOrder
       :visible="addDialogVisible"
-      :newCode="newCode"
+      :new-code="newCode"
       @update:visible="addDialogVisible = $event"
       @success="handleSuccessAdd"
     />
@@ -293,21 +294,22 @@ import {
   Search, Refresh, Calendar, VideoPlay, CircleCheck,
   Plus, Edit, Delete, Close
 } from '@element-plus/icons-vue';
-import { getPlProductionOrderList, deletePlProductionOrder, getPlProductionOrderById } from '@/api/plmanage/plproductionorder';
+import {
+  getPlReportWorkOrderList,
+  getPlReportWorkOrderById,
+  deletePlReportWorkOrder
+} from '@/api/plmanage/plreportworkorder';
 import addOrder from './components/addOrder.vue';
 import editOrder from './components/editOrder.vue';
-
-const tableData = ref([]);
-const formData = ref({});
 
 
 import { getNewNoNyName } from '@/api/system/basno'
 
 const newCode = ref('');
-// 生成新的排产计划编码
+// 生成新的编码
 const generateNewCode = async () => {
   try {
-    const res = await getNewNoNyName('scdd');
+    const res = await getNewNoNyName('bgd');//报工单
     
     if (res?.code === 200) {
       console.log("获取编码成功", res.data.fullNoNyName);
@@ -325,6 +327,8 @@ const generateNewCode = async () => {
 };
 
 
+const tableData = ref([]);
+const formData = ref({});
 
 // Dialog visibility
 const addDialogVisible = ref(false);
@@ -332,24 +336,24 @@ const editDialogVisible = ref(false);
 
 // Open dialogs
 const openAddDialog = async () => {
-  newCode.value = await generateNewCode();
+    newCode.value = await generateNewCode();
   addDialogVisible.value = true;
 };
 
 const openEditDialog = async (id) => {
-  const res = await getPlProductionOrderById({ id });
+  const res = await getPlReportWorkOrderById({ id });
   formData.value = res.data.order;
   editDialogVisible.value = true;
 };
 
 // Success callbacks
 const handleSuccessAdd = () => {
-  ElMessage.success('生产订单添加成功');
+  ElMessage.success('报工单添加成功');
   loadData();
 };
 
 const handleSuccessEdit = () => {
-  ElMessage.success('生产订单修改成功');
+  ElMessage.success('报工单修改成功');
   loadData();
 };
 
@@ -362,52 +366,44 @@ const fetchData = async (queryParams = {}) => {
       pageSize: pagination.size,
       purchaserHqCode: filters.purchaserHqCode,
       supplierCode: filters.supplierCode,
-      ipoNo: filters.ipoNo,
-      statuses: filters.statuses.join(','),
-      categoryCode: filters.category && filters.category.length > 0 ? filters.category[filters.category.length - 1] : ''
+      productionOrderNo: filters.productionOrderNo,
+      workOrderNo: filters.workOrderNo,
+      statuses: filters.statuses.join(',')
     };
 
-    const res = await getPlProductionOrderList(params);
+    const res = await getPlReportWorkOrderList(params);
 
     if (res.code === 200 && res.success) {
       const data = res.data.page.list.map(item => ({
         id: item.id,
         purchaserHqCode: item.purchaserHqCode,
-        ipoType: item.ipoType || '标准订单',
         supplierCode: item.supplierCode,
-        supplierName: item.supplierName,
-        ipoNo: item.ipoNo,
+        productionOrderNo: item.productionOrderNo,
+        workOrderNo: item.workOrderNo,
+        productionBatchNo: item.productionBatchNo,
+        processName: item.processName,
         categoryCode: item.categoryCode,
         subclassCode: item.subclassCode,
-        scheduleCode: item.scheduleCode || '无',
-        poItemId: item.poItemId,
-        dataType: item.dataType || '无',
-        soItemNo: item.soItemNo || '无',
-        materialsCode: item.materialsCode,
-        materialsName: item.materialsName,
-        materialsUnit: item.materialsUnit,
-        materialsDesc: item.materialsDesc,
-        amount: item.amount,
-        unit: item.unit,
-        productIdGrpNo: item.productIdGrpNo || '无',
-        productIdType: item.productIdType || '无',
-        productModel: item.productModel || '无',
-        planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '',
-        planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '',
-        actualStartDate: item.actualStartDate ? item.actualStartDate.split(' ')[0] : '',
-        actualFinishDate: item.actualFinishDate ? item.actualFinishDate.split(' ')[0] : '',
-        plantName: item.plantName || '无',
-        workshopName: item.workshopName || '无',
-        ipoStatus: item.ipoStatus || '未开始',
-        center: item.center || '无',
+        processCode: item.processCode,
         dataSource: item.dataSource,
-        dataSourceCreateTime: item.dataSourceCreateTime ? item.dataSourceCreateTime.split(' ')[0] : '',
-        ownerId: item.ownerId || '无',
-        openId: item.openId || '无',
-        createdTime: item.createdTime ? item.createdTime.split(' ')[0] : '',
-        updatedTime: item.updatedTime ? item.updatedTime.split(' ')[0] : '',
+        sourceCreateTime: item.sourceCreateTime ? item.sourceCreateTime.split(' ')[0] : '',
+        customerProvince: item.customerProvince,
+        productInternalId: item.productInternalId || '无',
+        equipmentNo: item.equipmentNo || '无',
+        productionRouteCode: item.productionRouteCode || '无',
+        workshopId: item.workshopId || '无',
+        workshopCode: item.workshopCode || '无',
+        workshopName: item.workshopName || '无',
+        entityId: item.entityId || '无',
+        planStartTime: item.planStartTime ? item.planStartTime.split(' ')[0] : '',
+        planEndTime: item.planEndTime ? item.planEndTime.split(' ')[0] : '',
+        actualStartTime: item.actualStartTime ? item.actualStartTime.split(' ')[0] : '',
+        actualEndTime: item.actualEndTime ? item.actualEndTime.split(' ')[0] : '',
+        orderStatus: item.orderStatus || '未开始',
         status: item.status || '10',
-        writer: item.writer || '未知'
+        writer: item.writer || '未知',
+        createdTime: item.createdTime ? item.createdTime.split(' ')[0] : '',
+        updatedTime: item.updatedTime ? item.updatedTime.split(' ')[0] : ''
       }));
 
       return {
@@ -446,8 +442,8 @@ const selectedOrder = ref(null);
 const filters = reactive({
   purchaserHqCode: '',
   supplierCode: '',
-  category: [],
-  ipoNo: '',
+  productionOrderNo: '',
+  workOrderNo: '',
   statuses: []
 });
 
@@ -473,25 +469,6 @@ const supplierOptions = ref([
   { code: 'SUP004', name: '北京自动化设备' }
 ]);
 
-const categoryOptions = ref([
-  {
-    value: 'CAT001',
-    label: '电子元器件',
-    children: [
-      { value: 'SUB001', label: '集成电路' },
-      { value: 'SUB002', label: '电阻电容' }
-    ]
-  },
-  {
-    value: 'CAT002',
-    label: '机械零件',
-    children: [
-      { value: 'SUB003', label: '精密轴承' },
-      { value: 'SUB004', label: '传动部件' }
-    ]
-  }
-]);
-
 const statusOptions = [
   { value: '10', label: '录入' },
   { value: '20', label: '确认' }
@@ -509,9 +486,15 @@ const displayOrders = computed(() => {
     filtered = filtered.filter(item => item.supplierCode === filters.supplierCode);
   }
 
-  if (filters.ipoNo) {
+  if (filters.productionOrderNo) {
     filtered = filtered.filter(item =>
-      item.ipoNo.toLowerCase().includes(filters.ipoNo.toLowerCase())
+      item.productionOrderNo.toLowerCase().includes(filters.productionOrderNo.toLowerCase())
+    );
+  }
+
+  if (filters.workOrderNo) {
+    filtered = filtered.filter(item =>
+      item.workOrderNo.toLowerCase().includes(filters.workOrderNo.toLowerCase())
     );
   }
 
@@ -573,8 +556,8 @@ const handleReset = () => {
   Object.assign(filters, {
     purchaserHqCode: '',
     supplierCode: '',
-    category: [],
-    ipoNo: '',
+    productionOrderNo: '',
+    workOrderNo: '',
     statuses: []
   });
   pagination.current = 1;
@@ -585,13 +568,13 @@ const handleReset = () => {
 
 const deleteOrder = async (order) => {
   try {
-    await ElMessageBox.confirm(`确认删除生产订单 ${order.ipoNo}？`, '提示', {
+    await ElMessageBox.confirm(`确认删除报工单 ${order.workOrderNo}？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     });
 
-    const res = await deletePlProductionOrder({ id: order.id });
+    const res = await deletePlReportWorkOrder({ id: order.id });
     if (res.code === 200 && res.success) {
       ElMessage.success('删除成功');
       await loadData();
@@ -621,7 +604,7 @@ watch(() => [filters, pagination.current, pagination.size], () => {
 </script>
 
 <style scoped>
-.production-orders {
+.work-orders {
   padding: 20px;
   background-color: #f5f5f5;
   min-height: 100vh;
@@ -673,7 +656,6 @@ watch(() => [filters, pagination.current, pagination.size], () => {
 .order-list {
   min-height: 600px;
   max-width: 1200px;
-
 }
 
 .order-detail {
@@ -754,8 +736,8 @@ watch(() => [filters, pagination.current, pagination.size], () => {
   word-break: break-word;
 }
 
-.progress-info > * + * {
-  margin-top: 12px;
+.progress-info {
+  space-y: 12px;
 }
 
 .status-info {
@@ -787,7 +769,7 @@ watch(() => [filters, pagination.current, pagination.size], () => {
 }
 
 @media (max-width: 768px) {
-  .production-orders {
+  .work-orders {
     padding: 12px;
   }
   

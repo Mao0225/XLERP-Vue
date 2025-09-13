@@ -91,8 +91,15 @@ export function importContractItem(data) {
 }
 
 /**
- * 获取确认状态的合同
+ * 获取确认状态的合同列表分页查询
  */
-export function getConfirmContract() {
-  return get('/bascontract/getConfirmContract')
+export function getConfirmContract(params) {
+  return get('/bascontract/getConfirmedList',params)
+}
+
+/**
+ * 获取合同物料列表分页查询根据合同编号，分页查询
+ */
+export function getContractItemPage(params) {
+  return get('/bascontract/getContractItemPage',params)
 }

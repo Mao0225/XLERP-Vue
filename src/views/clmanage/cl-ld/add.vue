@@ -208,10 +208,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted,watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { createLd } from '@/api/clmanage/cl-ld'
-import { getNewNoNyName } from '@/api/system/basno'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
@@ -221,6 +220,10 @@ const props = defineProps({
   visible: {
     type: Boolean,
     required: true
+  },
+  newCode: {
+    type: String,
+    default: ''
   }
 })
 
@@ -486,27 +489,15 @@ const submitForm = async () => {
   }
 }
 
-onMounted(async () => {
-  try {
-    const res = await getNewNoNyName('cl-ld')
-    if (res.code === 200) {
-      form.basno = res.data.fullNoNyName
-    } else {
-      ElMessage.warning('获取单据号失败，可手动填写')
-    }
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
-    const hours = String(now.getHours()).padStart(2, '0')
-    const minutes = String(now.getMinutes()).padStart(2, '0')
-    const seconds = String(now.getSeconds()).padStart(2, '0')
-    form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-  } catch (e) {
-    console.error('获取单据号异常', e)
-    ElMessage.error('获取单据号失败')
+
+const dialogVisible = ref(props.visible);
+watch(() => props.visible, (newVal) => {
+  dialogVisible.value = newVal;
+  if (newVal) {
+    form.basno = props.newCode
   }
-})
+});
+
 </script>
 
 <style scoped>

@@ -272,6 +272,7 @@
     <!-- Dialog Components -->
     <addOrder
       :visible="addDialogVisible"
+      :newCode="newCode"
       @update:visible="addDialogVisible = $event"
       @success="handleSuccessAdd"
     />
@@ -296,6 +297,30 @@ import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById } from '@/api
 import addOrder from './components/addOrder.vue';
 import editOrder from './components/editOrder.vue';
 
+import { getNewNoNyName } from '@/api/system/basno'
+
+const newCode = ref('');
+// 生成新的排产计划编码
+const generateNewCode = async () => {
+  try {
+    const res = await getNewNoNyName('scgd');
+    
+    if (res?.code === 200) {
+      console.log("获取编码成功", res.data.fullNoNyName);
+      return res.data.fullNoNyName;
+    }
+    
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+    
+  } catch (error) {
+    console.error('生成编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+
 const tableData = ref([]);
 const formData = ref({});
 
@@ -304,7 +329,8 @@ const addDialogVisible = ref(false);
 const editDialogVisible = ref(false);
 
 // Open dialogs
-const openAddDialog = () => {
+const openAddDialog = async() => {
+  newCode.value = await generateNewCode();
   addDialogVisible.value = true;
 };
 
@@ -718,8 +744,8 @@ watch(() => [filters, pagination.current, pagination.size], () => {
   word-break: break-word;
 }
 
-.progress-info {
-  space-y: 12px;
+.progress-info > * + * {
+  margin-top: 12px;
 }
 
 .status-info {

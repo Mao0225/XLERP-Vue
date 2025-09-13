@@ -245,6 +245,7 @@
   <!-- 引用弹窗组件 -->
     <addPlan
       :visible="addDialogVisible"
+      :new-code="newCode"
       @update:visible="addDialogVisible = $event"
       @success="handleSuccessAdd"
     />
@@ -270,6 +271,32 @@ import { getPlSchedulePlanList, deletePlSchedulePlan, batchDeletePlSchedulePlan,
 import addPlan from './components/addPlan.vue';
 import editPlan from './components/editPlan.vue';
 
+
+import { getNewNoNyName } from '@/api/system/basno'
+
+const newCode = ref('');
+// 生成新的排产计划编码
+const generateNewCode = async () => {
+  try {
+    const res = await getNewNoNyName('pcjh');
+    
+    if (res?.code === 200) {
+      console.log("获取编码成功", res.data.fullNoNyName);
+      return res.data.fullNoNyName;
+    }
+    
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+    
+  } catch (error) {
+    console.error('生成编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+
+
 const tableData = ref([]);
 const formData = ref({});
 
@@ -280,7 +307,8 @@ const editDialogVisible = ref(false)
 
 
 // 打开弹窗
-const openAddDialog = () => {
+const openAddDialog = async () => {
+  newCode.value = await generateNewCode();
   addDialogVisible.value = true
 }
 const openEditDialog = async (id) => {

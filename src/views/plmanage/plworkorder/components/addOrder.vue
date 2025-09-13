@@ -36,7 +36,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="生产工单号" prop="woNo">
-            <el-input v-model="form.woNo" placeholder="请输入生产工单号" />
+            <el-input v-model="form.woNo" placeholder="请输入生产工单号"  readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -260,12 +260,19 @@ const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  newCode:{
+    type: String,
+    default: ''
   }
 });
 
 const dialogVisible = ref(props.visible);
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
+  if (newVal) {
+    form.woNo = props.newCode
+  }
 });
 
 const formRef = ref(null);
