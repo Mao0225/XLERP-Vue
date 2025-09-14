@@ -61,3 +61,19 @@ export function batchDeletePlSchedulePlan (ids) {
 const idsString = ids.join (',')
 return del (`/pl_schedule_plan/batchdelete?ids=${encodeURIComponent(idsString)}`)
 }
+
+/**
+ * 更新排产计划状态
+ * 
+ */
+export function updatePlanStatus (data) {
+return get('/pl_schedule_plan/updateStatus', data)
+}
+
+
+/**
+ * 获取确认后的排产计划
+ */
+export function getConfirmPlSchedulePlan (params) {
+return get('/pl_schedule_plan/getConfirmedList', params)
+}

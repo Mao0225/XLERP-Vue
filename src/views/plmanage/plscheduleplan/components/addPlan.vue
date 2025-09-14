@@ -22,7 +22,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="供应商编码" prop="supplierCode">
-            <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" />
+            <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -30,7 +30,7 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="供应商名称" prop="supplierName">
-            <el-input v-model="form.supplierName" placeholder="请输入供应商名称" />
+            <el-input v-model="form.supplierName" placeholder="请输入供应商名称" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -44,9 +44,8 @@
                   <template #append>
                     <el-button @click="showSelector = true"size="small">选择</el-button>
                   </template>
-                </el-input>
-            <!-- <el-input v-model="form.poItemId" placeholder="请输入采购订单行项目ID" />
-            <el-button >选择行项目</el-button> -->
+            </el-input>
+
           </el-form-item>
         </el-col>
       </el-row>
@@ -155,12 +154,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="品类编码" prop="categoryCode">
-            <el-input v-model="form.categoryCode" placeholder="请输入品类编码" />
+            <el-input v-model="form.categoryCode" placeholder="请输入品类编码" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="种类编码" prop="subclassCode">
-            <el-input v-model="form.subclassCode" placeholder="请输入种类编码" />
+            <el-input v-model="form.subclassCode" placeholder="请输入种类编码"  readonly/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -269,8 +268,8 @@ watch(() => props.visible, (newVal) => {
 const formRef = ref(null)
 const form = reactive({
   purchaserHqCode: '',
-  supplierCode: '',
-  supplierName: '',
+  supplierCode: '1000014491',
+  supplierName: '中国电建集团四平线路器材有限公司',
   poItemId: '',
   scheduleCode: '',
   provCoCode: '',
@@ -282,8 +281,8 @@ const form = reactive({
   planFinishDate: '',
   actualStartDate: '',
   actualFinishDate: '',
-  categoryCode: '',
-  subclassCode: '',
+  categoryCode: '60', // 默认品类编码
+  subclassCode: '60004',
   remark: '',
   dataSource: '',
   dataSourceCreateTime: '',

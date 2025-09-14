@@ -60,3 +60,19 @@ export function batchDeletePlWorkOrder (ids) {
 const idsString = ids.join (',')
 return del (`/pl_work_order/batchdelete?ids=${encodeURIComponent(idsString)}`)
 }
+
+
+/**
+ * 获取确认后的生产工单列表
+ * @param {Object} params - 查询参数
+ */
+export function getConfirmOrderList (params) {
+return get ('/pl_work_order/getConfirmedList', params)
+}
+/**
+ * 更新状态
+ * @param {Object} data - 更新数据
+ */
+export function updateOrderStatus (data) {
+return get ('/pl_work_order/updateStatus', data)
+}

@@ -2,66 +2,58 @@
   <div class="production-overview">
 
     <!-- 顶部筛选区 -->
+
     <el-card class="filter-card" shadow="never">
       <div class="filter-row">
-        <el-select v-model="filters.purchaserHq" placeholder="采购方总部" clearable style="width: 200px;">
-          <el-option
-            v-for="item in purchaserOptions"
-            :key="item.code"
-            :label="item.name"
-            :value="item.code"
-          />
-        </el-select>
+        <div class="filter-item">
+          <span class="filter-label">合同/项目号：</span>
+          <el-input v-model="filters.contractNo" placeholder="请输入合同/项目号" clearable style="width: 200px;" />
+        </div>
 
-        <el-select v-model="filters.supplier" placeholder="供应商" filterable clearable style="width: 200px;">
-          <el-option
-            v-for="item in supplierOptions"
-            :key="item.code"
-            :label="item.name"
-            :value="item.code"
-          />
-        </el-select>
+        <div class="filter-item">
+          <span class="filter-label">合同/项目名称：</span>
+          <el-input v-model="filters.contractName" placeholder="请输入合同/项目名称" clearable style="width: 200px;" />
+        </div>
 
-        <el-cascader
-          v-model="filters.category"
-          :options="categoryOptions"
-          placeholder="产品品类"
-          clearable
-          style="width: 200px;"
-        />
+        <div class="filter-item">
+          <span class="filter-label">采购方总部：</span>
+          <el-input v-model="filters.purchaserHq" placeholder="请输入采购方总部" clearable style="width: 200px;" />
+        </div>
 
-        <el-input
-          v-model="filters.contractNo"
-          placeholder="合同/项目号"
-          clearable
-          style="width: 200px;"
-        />
+        <div class="filter-item">
+          <span class="filter-label">排产计划编码：</span>
+          <el-input v-model="filters.scheduleCode" placeholder="请输入排产计划编码" clearable style="width: 200px;" />
+        </div>
       </div>
+
+
 
       <div class="filter-row">
         <div class="status-filter">
           <span class="filter-label">计划状态：</span>
-          <el-checkbox-group v-model="filters.statuses">
-            <el-checkbox-button
-              v-for="status in statusOptions"
-              :key="status.value"
-              :label="status.value"
-              :class="getStatusClass(status.value)"
-            >
-              <el-icon><component :is="getStatusIcon(status.value)" /></el-icon>
+          <el-radio-group v-model="filters.status"> <!-- 注意这里v-model绑定改为单个值 -->
+            <el-radio-button v-for="status in statusOptions" :key="status.value" :label="status.value"
+              :class="getStatusClass(status.value)">
+              <el-icon>
+                <component :is="getStatusIcon(status.value)" />
+              </el-icon>
               {{ status.label }}
-            </el-checkbox-button>
-          </el-checkbox-group>
+            </el-radio-button>
+          </el-radio-group>
         </div>
       </div>
 
       <div class="filter-actions">
         <el-button type="primary" @click="handleSearch">
-          <el-icon><Search /></el-icon>
+          <el-icon>
+            <Search />
+          </el-icon>
           查询
         </el-button>
         <el-button @click="handleReset">
-          <el-icon><Refresh /></el-icon>
+          <el-icon>
+            <Refresh />
+          </el-icon>
           重置
         </el-button>
       </div>
@@ -75,22 +67,20 @@
             <div class="card-header">
               <span>排产计划列表</span>
               <!-- <span class="count-badge">共 {{ displayPlans.length }} 条</span> -->
-               <el-button type="primary" @click="openAddDialog">创建计划</el-button>
+              <el-button type="primary" @click="openAddDialog">创建计划</el-button>
             </div>
           </template>
 
-          <el-table
-            :data="displayPlans"
-            :highlight-current-row="true"
-            @current-change="selectPlan"
-            v-loading="loading"
-            height="600"
-          >
+          <el-table :data="displayPlans" :highlight-current-row="true" @current-change="selectPlan" v-loading="loading"
+            height="600">
+            <el-table-column type="index" label="序号" width="80" />
             <el-table-column label="状态" width="120">
               <template #default="{ row }">
                 <el-tag :type="getStatusTagType(row.status)" size="small">
-                  <el-icon><component :is="getStatusIcon(row.status)" /></el-icon>
-                  {{ row.status }}
+                  <el-icon>
+                    <component :is="getStatusIcon(row.status)" />
+                  </el-icon>
+                  {{ row.status == 10 ? '录入' : '确认' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -101,14 +91,17 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="poItemId" label="采购项ID" width="120" />
+            <!-- <el-table-column prop="poItemId" label="采购项ID" width="120" /> -->
+             <el-table-column prop="contractNo" label="合同号" width="100" show-overflow-tooltip />
+             <el-table-column prop="contractName" label="合同名称" width="100" show-overflow-tooltip />
+             <el-table-column prop="itemName" label="物料名称" width="100" show-overflow-tooltip />
             <el-table-column prop="supplierName" label="供应商" width="150" show-overflow-tooltip />
-            
-            <el-table-column label="计划数量" width="120">
+
+            <!-- <el-table-column label="计划数量" width="120">
               <template #default="{ row }">
                 {{ row.amount }} {{ row.unit }}
               </template>
-            </el-table-column>
+            </el-table-column> -->
 
             <el-table-column label="计划日期" width="200">
               <template #default="{ row }">
@@ -121,31 +114,48 @@
 
             <!-- <el-table-column prop="schedule" label="进度" width="120" /> -->
 
-            <el-table-column label="操作" width="200" fixed="right">
+            <el-table-column label="操作" width="300" fixed="right">
               <template #default="{ row }">
-                              <el-button @click="openEditDialog(row.id)">
-                <el-icon><Edit /></el-icon>
-                编辑
-              </el-button>
-              <el-button type="danger" @click="deletePlan(selectedPlan)">
-                <el-icon><Delete /></el-icon>
-                删除
-              </el-button>
+                <!-- 如果状态是20，只显示反确认按钮 -->
+                <template v-if="row.status == 20">
+                  <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 10)">
+                    <el-icon>
+                      <CircleCloseFilled />
+                    </el-icon>
+                    反确认
+                  </el-button>
+                </template>
+
+                <!-- 如果状态是10，显示确认、编辑和删除按钮 -->
+                <template v-if="row.status == 10">
+                  <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, 20)">
+                    <el-icon>
+                      <CircleCheckFilled />
+                    </el-icon>
+                    确认
+                  </el-button>
+                  <el-button size="small" @click="openEditDialog(row.id)">
+                    <el-icon>
+                      <Edit />
+                    </el-icon>
+                    编辑
+                  </el-button>
+                  <el-button type="danger" size="small" @click="deletePlan(row)">
+                    <el-icon>
+                      <Delete />
+                    </el-icon>
+                    删除
+                  </el-button>
+                </template>
               </template>
             </el-table-column>
           </el-table>
 
-        <!-- 分页 -->
+          <!-- 分页 -->
           <div class="pagination-container">
-            <el-pagination
-              v-model:current-page="pagination.current"
-              v-model:page-size="pagination.size"
-              :page-sizes="[10, 20, 50, 100]"
-              layout="total, sizes, prev, pager, next"
-              :total="pagination.total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
+            <el-pagination v-model:current-page="pagination.current" v-model:page-size="pagination.size"
+              :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next" :total="pagination.total"
+              @size-change="handleSizeChange" @current-change="handleCurrentChange" />
           </div>
         </el-card>
       </div>
@@ -157,13 +167,31 @@
             <div class="card-header">
               <span>计划详情</span>
               <el-button v-if="selectedPlan" size="small" @click="selectedPlan = null">
-                <el-icon><Close /></el-icon>
+                <el-icon>
+                  <Close />
+                </el-icon>
               </el-button>
             </div>
           </template>
 
           <div v-if="selectedPlan" class="detail-content">
             <!-- 基础信息 -->
+
+            <div class="detail-section">
+              <h4>合同信息</h4>
+              <div class="info-grid">
+                
+                <div class="info-item">
+                  <span class="label">合同编号:</span>
+                  <span class="value">{{ selectedPlan.contractNo }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">合同名称:</span>
+                  <span class="value">{{ selectedPlan.contractName }}</span>
+                </div>
+              </div>
+            </div>
+
             <div class="detail-section">
               <h4>基础信息</h4>
               <div class="info-grid">
@@ -180,8 +208,12 @@
                   <span class="value">{{ selectedPlan.supplierName }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">产品型号 (物料名称):</span>
-                  <span class="value">{{ selectedPlan.productModel }}</span>
+                  <span class="label">物料名称:</span>
+                  <span class="value">{{ selectedPlan.itemName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">产品型号:</span>
+                  <span class="value">{{ selectedPlan.itemSpec }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">计划数量:</span>
@@ -208,21 +240,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- 进度信息 -->
-            <div class="detail-section">
-              <h4>进度信息</h4>
-              <div class="progress-info">
-                <div class="status-info">
-                  <el-tag :type="getStatusTagType(selectedPlan.status)">
-                    <el-icon><component :is="getStatusIcon(selectedPlan.status)" /></el-icon>
-                    {{ selectedPlan.status }}
-                  </el-tag>
-                  <span class="schedule-text">{{ selectedPlan.schedule }}</span>
-                </div>
-              </div>
-            </div>
-
             <!-- 关联信息 -->
             <div class="detail-section">
               <h4>关联信息</h4>
@@ -241,21 +258,13 @@
         </el-card>
       </div>
     </div>
-    
-  <!-- 引用弹窗组件 -->
-    <addPlan
-      :visible="addDialogVisible"
-      :new-code="newCode"
-      @update:visible="addDialogVisible = $event"
-      @success="handleSuccessAdd"
-    />
 
-      <editPlan
-      :visible="editDialogVisible"
-      :initial-data="formData"
-      @update:visible="editDialogVisible = $event"
-      @success="handleSuccessEdit"
-    />
+    <!-- 引用弹窗组件 -->
+    <addPlan :visible="addDialogVisible" :new-code="newCode" @update:visible="addDialogVisible = $event"
+      @success="handleSuccessAdd" />
+
+    <editPlan :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
+      @success="handleSuccessEdit" />
   </div>
 
 </template>
@@ -263,11 +272,8 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import {
-  Search, Refresh, Calendar, VideoPlay, CircleCheck,
-  Plus, Edit, Delete, Close
-} from '@element-plus/icons-vue';
-import { getPlSchedulePlanList, deletePlSchedulePlan, batchDeletePlSchedulePlan,getPlSchedulePlanById } from '@/api/plmanage/plscheduleplan';
+import { Search, CircleCheckFilled, CircleCloseFilled, Close, Edit, Delete } from '@element-plus/icons-vue';
+import { getPlSchedulePlanList, deletePlSchedulePlan, getPlSchedulePlanById, updatePlanStatus } from '@/api/plmanage/plscheduleplan';
 import addPlan from './components/addPlan.vue';
 import editPlan from './components/editPlan.vue';
 
@@ -279,23 +285,21 @@ const newCode = ref('');
 const generateNewCode = async () => {
   try {
     const res = await getNewNoNyName('pcjh');
-    
+
     if (res?.code === 200) {
       console.log("获取编码成功", res.data.fullNoNyName);
       return res.data.fullNoNyName;
     }
-    
+
     ElMessage.error(res?.msg || '获取编码失败');
     return '';
-    
+
   } catch (error) {
     console.error('生成编码出错:', error);
     ElMessage.error('请求编码服务时发生错误');
     return '';
   }
 };
-
-
 
 const tableData = ref([]);
 const formData = ref({});
@@ -312,7 +316,7 @@ const openAddDialog = async () => {
   addDialogVisible.value = true
 }
 const openEditDialog = async (id) => {
-  const res = await getPlSchedulePlanById({  id: id  })
+  const res = await getPlSchedulePlanById({ id: id })
   formData.value = res.data.schedulePlan;
   editDialogVisible.value = true
 }
@@ -328,6 +332,52 @@ const handleSuccessEdit = () => {
   ElMessage.success('排产计划修改成功')
   loadData();
 }
+
+
+// 处理弹窗确认逻辑
+const handleStatusUpdate = async (id, newStatus) => {
+  try {
+    // 弹窗确认
+    await ElMessageBox.confirm(
+      `确定要${newStatus === 20 ? '确认' : '反确认'}排产计划吗？`,
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    );
+
+    // 用户确认后发送请求
+    await sendStatusUpdateRequest(id, newStatus);
+  } catch (error) {
+    // 如果用户取消或发生错误，不做处理
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败，请重试');
+    }
+  }
+};
+
+// 发送状态更新请求
+const sendStatusUpdateRequest = async (id, newStatus) => {
+  try {
+    const res = await updatePlanStatus({
+      id: id,
+      status: newStatus
+    });
+
+    if (res.code === 200) {
+      ElMessage.success(`${newStatus === 20 ? '确认' : '反确认'}成功`);
+      loadData(); // 重新加载数据
+    } else {
+      ElMessage.error(res.msg || '修改失败');
+    }
+  } catch (error) {
+    ElMessage.error('网络错误，更新失败');
+    console.error(error);
+  }
+};
+
 // 获取分页数据
 const fetchData = async (queryParams = {}) => {
   try {
@@ -336,39 +386,48 @@ const fetchData = async (queryParams = {}) => {
       pageNumber: pagination.current,
       pageSize: pagination.size,
       purchaserHqCode: filters.purchaserHq,
-      supplierCode: filters.supplier,
       contractNo: filters.contractNo,
-      statuses: filters.statuses.join(','),
-      categoryCode: filters.category && filters.category.length > 0 ? filters.category[filters.category.length - 1] : ''
+      contractName: filters.contractName,
+      scheduleCode: filters.scheduleCode,
+      planStartDate: filters.planStartDate,
+      planFinishDate: filters.planFinishDate,
+      status: filters.status,
     };
 
-    const res = await getPlSchedulePlanList(params);
-    
+    // 过滤空值参数
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== '' && value !== null && value !== undefined)
+    );
+
+    const res = await getPlSchedulePlanList(filteredParams);
+
     if (res.code === 200 && res.success) {
       const data = res.data.page.list.map(item => ({
         id: item.id,
         scheduleCode: item.scheduleCode,
-        poItemId: item.poItemId, // 采购订单行项目ID
-        purchaserHqCode: item.purchaserHqCode, // 采购方总部编码
-        provCoName: item.provCoName || '未知', // 省公司单位名称
-        provCoCode: item.provCoCode || '未知', // 省公司单位编码
-        supplierCode: item.supplierCode, // 供应商编码
-        supplierName: item.supplierName, // 供应商名称
-        categoryCode: item.categoryCode, // 品类编码
-        subclassCode: item.subclassCode, // 种类编码 (物料子类别)
-        productModel: item.subclassCode, // 产品型号 (物料名称)
-        amount: item.amount || Math.floor(Math.random() * 1000) + 100, // 计划数量
-        unit: item.unit || '件', // 单位
-        planPeriod: typeof item.planPeriod === 'string' ? 
-          parseInt(item.planPeriod.replace('天', '')) || 0 : item.planPeriod || 0, // 计划工期
-        planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '', // 计划开始日期
-        planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '', // 计划结束日期
-        dueDate: item.dueDate ? item.dueDate.split(' ')[0] : '', // 交付日期
-        schedule: ['未开始', '进行中', '已完成'].includes(item.schedule) ? item.schedule : '未开始', // 进度状态
-        status: item.status == 10 ? '录入状态' : 
-                item.status == 20 ? '确认状态' : '录入状态', // 计划状态
-        remark: item.remark || '无', // 备注
-        productionOrders: item.productionOrders || Math.floor(Math.random() * 3) + 1 // 生产订单数量
+        poItemId: item.poItemId,
+        contractNo: item.contractNo,
+        contractName: item.contractName,
+        purchaserHqCode: item.purchaserHqCode,
+        provCoName: item.provCoName || '未知',
+        provCoCode: item.provCoCode || '未知',
+        supplierCode: item.supplierCode,
+        supplierName: item.supplierName,
+        categoryCode: item.categoryCode,
+        subclassCode: item.subclassCode,
+        itemName: item.itemName,
+        itemSpec: item.itemSpec,
+        amount: item.amount,
+        unit: item.itemUnit || '件',
+        planPeriod: typeof item.planPeriod === 'string' ?
+          parseInt(item.planPeriod.replace('天', '')) || 0 : item.planPeriod || 0,
+        planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '',
+        planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '',
+        dueDate: item.dueDate ? item.dueDate.split(' ')[0] : '',
+        schedule: ['未开始', '进行中', '已完成'].includes(item.schedule) ? item.schedule : '未开始',
+        status: item.status,
+        remark: item.remark || '无',
+        productionOrders: item.productionOrders || Math.floor(Math.random() * 3) + 1
       }));
 
       return {
@@ -404,13 +463,18 @@ const loading = ref(false);
 const selectedPlan = ref(null);
 
 // 筛选条件
+
+// 筛选条件 - 修改后的版本
 const filters = reactive({
   purchaserHq: '',
-  supplier: '',
-  category: [],
   contractNo: '',
-  statuses: []
+  contractName: '',
+  scheduleCode: '',
+  planStartDate: '',
+  planFinishDate: '',
+  status: ''
 });
+
 
 // 分页
 const pagination = reactive({
@@ -420,73 +484,18 @@ const pagination = reactive({
   totalPages: 0 // Added to track total pages
 });
 
-// 选项数据
-const purchaserOptions = ref([
-  { code: 'HQ001', name: '华东总部' },
-  { code: 'HQ002', name: '华南总部' },
-  { code: 'HQ003', name: '华北总部' }
-]);
-
-const supplierOptions = ref([
-  { code: 'SUP001', name: '深圳制造有限公司' },
-  { code: 'SUP002', name: '上海精密工业' },
-  { code: 'SUP003', name: '广州电子科技' },
-  { code: 'SUP004', name: '北京自动化设备' }
-]);
-
-const categoryOptions = ref([
-  { 
-    value: 'CAT001', 
-    label: '电子元器件',
-    children: [
-      { value: 'SUB001', label: '集成电路' },
-      { value: 'SUB002', label: '电阻电容' }
-    ]
-  },
-  { 
-    value: 'CAT002', 
-    label: '机械零件',
-    children: [
-      { value: 'SUB003', label: '精密轴承' },
-      { value: 'SUB004', label: '传动部件' }
-    ]
-  }
-]);
-
 const statusOptions = [
-  { value: '录入状态', label: '录入状态' },
-  { value: '确认状态', label: '确认状态' }
+  { value: '10', label: '录入' },
+  { value: '20', label: '确认' }
 ];
 
-// 计算属性
+// 移除前端过滤逻辑，直接使用后端数据
 const displayPlans = computed(() => {
-  let filtered = [...tableData.value];
-
-  if (filters.purchaserHq) {
-    filtered = filtered.filter(item => item.purchaserHqCode === filters.purchaserHq);
-  }
-
-  if (filters.supplier) {
-    filtered = filtered.filter(item => item.supplierCode === filters.supplier);
-  }
-
-  if (filters.contractNo) {
-    filtered = filtered.filter(item => 
-      item.poItemId.toLowerCase().includes(filters.contractNo.toLowerCase()) ||
-      item.scheduleCode.toLowerCase().includes(filters.contractNo.toLowerCase())
-    );
-  }
-
-  if (filters.statuses.length > 0) {
-    filtered = filtered.filter(item => filters.statuses.includes(item.status));
-  }
-
-  return filtered;
+  return tableData.value;
 });
 
 
 
-// Pagination event handlers
 const handleSizeChange = (val) => {
   pagination.size = val;
   pagination.current = 1; // Reset to first page when size changes
@@ -501,24 +510,24 @@ const handleCurrentChange = (val) => {
 // 方法
 const getStatusClass = (status) => {
   const classes = {
-    '录入状态': 'status-entered',
-    '确认状态': 'status-confirmed'
+    '10': 'status-entered',
+    '20': 'status-confirmed'
   };
   return classes[status] || '';
 };
 
 const getStatusTagType = (status) => {
   const types = {
-    '录入状态': 'info',
-    '确认状态': 'primary'
+    '10': 'info',
+    '20': 'primary'
   };
   return types[status] || '';
 };
 
 const getStatusIcon = (status) => {
   const icons = {
-    '录入状态': 'Clock',
-    '确认状态': 'CircleCheck'
+    '10': 'Clock',
+    '20': 'CircleCheck'
   };
   return icons[status] || 'Clock';
 };
@@ -533,15 +542,18 @@ const handleSearch = () => {
   ElMessage.success('查询成功');
 };
 
+// 重置方法 - 修改后的版本
 const handleReset = () => {
   Object.assign(filters, {
     purchaserHq: '',
-    supplier: '',
-    category: [],
     contractNo: '',
-    statuses: []
+    contractName: '',
+    scheduleCode: '',
+    planStartDate: '',
+    planFinishDate: '',
+    status: ''
   });
-  pagination.current = 1; // Reset to first page on reset
+  pagination.current = 1;
   selectedPlan.value = null;
   loadData();
   ElMessage.success('筛选条件已重置');
@@ -576,16 +588,10 @@ onMounted(() => {
   loadData();
 });
 
-// 监听筛选条件和分页变化
-watch(() => [filters, pagination.current, pagination.size], () => {
-  loadData();
-  if (selectedPlan.value && !tableData.value.find(item => item.id === selectedPlan.value.id)) {
-    selectedPlan.value = null;
-  }
-}, { deep: true });
 </script>
 
 <style scoped>
+/* 完整的CSS样式 */
 .production-overview {
   padding: 20px;
   background-color: #f5f5f5;
@@ -596,11 +602,28 @@ watch(() => [filters, pagination.current, pagination.size], () => {
   margin-bottom: 20px;
 }
 
-.filter-row {
+/* 筛选区域样式 - 修改后的版本 */
+.filter-item {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #606266;
+  white-space: nowrap;
+  /* min-width: 120px; */
+  text-align: left;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 
 .filter-row:last-child {
@@ -608,16 +631,15 @@ watch(() => [filters, pagination.current, pagination.size], () => {
 }
 
 .status-filter {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.filter-label {
-  font-weight: 500;
-  color: #606266;
-  white-space: nowrap;
+.status-filter .filter-label {
+  min-width: auto;
 }
 
 .filter-actions {
@@ -633,14 +655,17 @@ watch(() => [filters, pagination.current, pagination.size], () => {
   grid-template-columns: 2fr 1fr;
   gap: 20px;
   min-height: 600px;
+  /* max-width: 100%;  */
 }
 
 .plan-list {
   min-height: 600px;
+  overflow: auto; /* 内容溢出时显示滚动条 */
 }
 
 .plan-detail {
   min-height: 600px;
+  overflow: auto; /* 内容溢出时显示滚动条 */
 }
 
 .card-header {
@@ -775,36 +800,46 @@ watch(() => [filters, pagination.current, pagination.size], () => {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .detail-card {
     position: static;
   }
-
 }
 
 @media (max-width: 768px) {
   .production-overview {
     padding: 12px;
   }
-  
+
   .filter-row {
-    flex-direction: column;
-    gap: 12px;
+    grid-template-columns: 1fr;
   }
-  
-  .filter-row > * {
+
+  .filter-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .filter-label {
+    text-align: left;
+    min-width: auto;
+  }
+
+  .filter-item .el-input,
+  .filter-item .el-date-picker {
     width: 100% !important;
   }
-  
+
   .status-filter {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .detail-actions {
     flex-direction: column;
   }
-  
+
   .detail-actions .el-button {
     width: 100%;
   }

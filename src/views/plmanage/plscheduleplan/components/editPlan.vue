@@ -35,7 +35,17 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="采购订单行项目ID" prop="poItemId">
-            <el-input v-model="form.poItemId" placeholder="请输入采购订单行项目ID" />
+            <el-input 
+                  v-model="form.poItemId" 
+                  placeholder="选择合同行项目ID" 
+                  readonly 
+                  @click="showSelector = true"
+                >
+                  <template #append>
+                    <el-button @click="showSelector = true"size="small">选择</el-button>
+                  </template>
+                </el-input>
+
           </el-form-item>
         </el-col>
       </el-row>
@@ -209,6 +219,11 @@
         <el-button type="primary" @click="handleSubmit">保存</el-button>
       </span>
     </template>
+
+     <ContractMaterialSelector
+      v-model:visible="showSelector"
+      @select="handleMaterialSelect"
+    />
   </el-dialog>
 </template>
 
@@ -216,8 +231,17 @@
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { updatePlSchedulePlan } from '@/api/plmanage/plscheduleplan'
+import ContractMaterialSelector from './contractItemSelector.vue'
 
 const emit = defineEmits(['update:visible', 'success'])
+
+
+const showSelector = ref(false)
+const handleMaterialSelect = (data) => {
+  console.log("选择的物料数据")
+  console.log(data)
+  form.poItemId = data.id
+}
 
 const props = defineProps({
   visible: {

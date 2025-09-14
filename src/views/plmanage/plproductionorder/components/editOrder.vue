@@ -18,12 +18,21 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="采购方总部编码" prop="purchaserHqCode">
-            <el-input v-model="form.purchaserHqCode" placeholder="请输入采购方总部编码" />
+            <el-input v-model="form.purchaserHqCode" placeholder="选择排产计划后自动填入" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="订单类型" prop="ipoType">
-            <el-input v-model="form.ipoType" placeholder="请输入订单类型" />
+          <el-form-item label="排产计划编码" prop="scheduleCode">
+            <el-input 
+              v-model="form.scheduleCode" 
+              placeholder="选择排产计划" 
+              readonly 
+              @click="showSelector = true"
+            >
+              <template #append>
+                <el-button @click="showSelector = true" size="small">选择</el-button>
+              </template>
+            </el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -31,12 +40,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="供应商编码" prop="supplierCode">
-            <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" />
+            <el-input v-model="form.supplierCode" placeholder="选择排产计划后自动填入" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="供应商名称" prop="supplierName">
-            <el-input v-model="form.supplierName" placeholder="请输入供应商名称" />
+            <el-input v-model="form.supplierName" placeholder="选择排产计划后自动填入" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -44,12 +53,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="生产订单号" prop="ipoNo">
-            <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" />
+            <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="采购订单行项目ID" prop="poItemId">
-            <el-input v-model="form.poItemId" placeholder="请输入采购订单行项目ID" />
+            <el-input v-model="form.poItemId" placeholder="选择排产计划后自动填入" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -59,12 +68,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="品类编码" prop="categoryCode">
-            <el-input v-model="form.categoryCode" placeholder="请输入品类编码" />
+            <el-input v-model="form.categoryCode" placeholder="选择排产计划后自动填入" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="种类编码" prop="subclassCode">
-            <el-input v-model="form.subclassCode" placeholder="请输入种类编码" />
+            <el-input v-model="form.subclassCode" placeholder="选择排产计划后自动填入" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -227,11 +236,6 @@
             <el-input v-model="form.openId" placeholder="请输入数据可见方" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="排产计划编码" prop="scheduleCode">
-            <el-input v-model="form.scheduleCode" placeholder="请输入排产计划编码" />
-          </el-form-item>
-        </el-col>
       </el-row>
 
       <el-row :gutter="20">
@@ -268,6 +272,11 @@
             <el-input v-model="form.writer" placeholder="请输入记录创建人" readonly />
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="订单类型" prop="ipoType">
+            <el-input v-model="form.ipoType" placeholder="请输入订单类型" />
+          </el-form-item>
+        </el-col>
       </el-row>
       
       <el-form-item label="备注" prop="remark">
@@ -281,6 +290,11 @@
         <el-button type="primary" @click="handleSubmit">保存</el-button>
       </span>
     </template>
+
+    <schedule-selector
+      v-model:visible="showSelector"
+      @select="handleSelect"
+    />
   </el-dialog>
 </template>
 
@@ -288,7 +302,10 @@
 import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { updatePlProductionOrder } from '@/api/plmanage/plproductionorder';
+import scheduleSelector from './scheduleSelector.vue';
+import { useUserStore } from '@/store/user';
 
+const userStore = useUserStore();
 const emit = defineEmits(['update:visible', 'success']);
 
 const props = defineProps({
@@ -303,6 +320,8 @@ const props = defineProps({
 });
 
 const dialogVisible = ref(props.visible);
+const showSelector = ref(false);
+
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
   if (newVal) {
@@ -311,6 +330,18 @@ watch(() => props.visible, (newVal) => {
     Object.assign(form, initialData);
   }
 });
+
+const handleSelect = (data) => {
+  form.scheduleCode = data.scheduleCode;
+  form.purchaserHqCode = data.purchaserHqCode;
+  form.supplierCode = data.supplierCode;
+  form.supplierName = data.supplierName;
+  form.categoryCode = data.categoryCode;
+  form.subclassCode = data.subclassCode;
+  form.poItemId = data.poItemId;
+  form.productModel = data.itemSpec;
+  form.unit = data.itemUnit;
+};
 
 const formRef = ref(null);
 const form = reactive({
@@ -350,7 +381,7 @@ const form = reactive({
   createdTime: '',
   updatedTime: '',
   status: '10',
-  writer: '',
+  writer: userStore.realName,
   remark: ''
 });
 

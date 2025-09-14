@@ -91,6 +91,12 @@ const viewComponents = {
   
   //铝锭检验
   'clmanage/clld': () => import('@/views/clmanage/cl-ld/list.vue'),
+    //圆钢检验
+  'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),
+  //钢板检验
+  'clmanage/clgb': () => import('@/views/clmanage/cl-gb/list.vue'),
+  //无缝刚
+  'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
 
 }
 
