@@ -91,7 +91,7 @@ const viewComponents = {
   
   //铝锭检验
   'clmanage/clld': () => import('@/views/clmanage/cl-ld/list.vue'),
-<<<<<<< Updated upstream
+ 
     //圆钢检验
   'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),
   //钢板检验
@@ -99,8 +99,7 @@ const viewComponents = {
   //无缝刚
   'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
   
-=======
->>>>>>> Stashed changes
+ 
   //橡胶检验--刘国奇
   'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
 
