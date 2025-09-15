@@ -97,6 +97,9 @@ const viewComponents = {
   'clmanage/clgb': () => import('@/views/clmanage/cl-gb/list.vue'),
   //无缝刚
   'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
+  
+  //橡胶检验--刘国奇
+  'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
 
 }
 
