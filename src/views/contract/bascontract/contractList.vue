@@ -76,17 +76,18 @@
                 <el-link type="primary" @click="selectContractRow(row)">{{ row.no }}</el-link>
               </template>
             </el-table-column>
-            <el-table-column prop="gridno" label="电网编号" width="120" show-overflow-tooltip />
-            <el-table-column prop="ecpno" label="国网经法合同号" width="120" show-overflow-tooltip />
-            <el-table-column prop="equipno" label="器材合同号" width="120" show-overflow-tooltip />
-            <el-table-column prop="name" label="工程名称" show-overflow-tooltip />
-            <el-table-column prop="salesmanName" label="销售员" width="100" show-overflow-tooltip />
-            <el-table-column prop="customerName" label="客户名称" show-overflow-tooltip />
+                        <el-table-column prop="name" label="合同名称" width="120" show-overflow-tooltip />
+            <el-table-column prop="customerName" label="客户名称" width="120" show-overflow-tooltip />
             <el-table-column prop="contractSum" label="合同金额" width="120">
               <template #default="{ row }">
                 ¥{{ (row.contractSum?.toFixed(2)) ?? '0.00' }}
               </template>
             </el-table-column>
+            <el-table-column prop="gridno" label="电网编号" width="120" show-overflow-tooltip />
+            <el-table-column prop="ecpno" label="国网经法合同号" width="130" show-overflow-tooltip />
+            <el-table-column prop="equipno" label="器材合同号" width="120" show-overflow-tooltip />
+            <!-- <el-table-column prop="salesmanName" label="销售员" width="100" show-overflow-tooltip /> -->
+
             <el-table-column prop="signDate" label="签订时间" width="120" show-overflow-tooltip />
             <el-table-column prop="term" label="期间" width="120" show-overflow-tooltip />
             <!-- 操作列 -->
