@@ -56,7 +56,7 @@ const viewComponents = {
   //报工单
   'plmanage/plbaogongdan': () => import('@/views/plmanage/plbaogongdan/baogongdan.vue'),
     //报工单新
-  'plmanage/plreportworkorder': () => import('@/views/plmanage/plreportworkorder/reportOrder.vue'),
+  'plmanage/plreportworkorder': () => import('@/views/plmanage/plreportworkorder/orderList.vue'),
   //供货单
   'plmanage/plgonghuodan': () => import('@/views/plmanage/plgonghuodan/gonghuodan.vue'),
 

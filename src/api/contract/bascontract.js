@@ -11,8 +11,17 @@ export function getContractList(params) {
  * 根据合同编号获取合同信息和物料明细
  */
 export function getContractInfoByNo(params) {
+  return get('/bascontract/getContractByNo', params)
+}
+
+/**
+ * 根据合同编号获取单个合同信息
+ */
+export function getContractByNo(params) {
   return get('/bascontract/getContractInfoByNo', params)
 }
+
+
 
 /**
  * 创建合同
@@ -102,4 +111,12 @@ export function getConfirmContract(params) {
  */
 export function getContractItemPage(params) {
   return get('/bascontract/getContractItemPage',params)
+}
+
+
+/**
+ * 获取合同物料总金额和总重
+ */
+export function getContractItemTotal(params) {
+  return get('/bascontract/getContractItemSummary',params)
 }

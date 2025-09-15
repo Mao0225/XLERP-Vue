@@ -82,7 +82,6 @@
     </template>
   </el-dialog>
 </template>
-
 <script setup>
 import { ref, computed } from 'vue'
 import { Download } from '@element-plus/icons-vue'
@@ -99,7 +98,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'confirm'])
 
 const visible = computed({
   get: () => props.modelValue,
@@ -167,15 +166,20 @@ const exportFailedData = () => {
   // 导出文件
   XLSX.writeFile(workbook, `导入失败数据_${new Date().toISOString().slice(0, 10)}.xlsx`)
   hasExported.value = true
+  emit('confirm') // Emit confirm event after exporting
   visible.value = false
 }
 
+// 关闭弹窗时触发
 const handleClose = () => {
+  emit('confirm') // Emit confirm event on dialog close
   visible.value = false
   hasExported.value = false // 重置导出状态
 }
 
+// 点击“确定”按钮时触发
 const handleConfirm = () => {
+  emit('confirm') // Emit confirm event on confirm button click
   visible.value = false
 }
 </script>

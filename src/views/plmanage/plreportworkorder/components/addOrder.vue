@@ -18,12 +18,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="采购方总部编码" prop="purchaserHqCode">
-            <el-input v-model="form.purchaserHqCode" placeholder="请输入采购方总部编码" />
+            <el-input v-model="form.purchaserHqCode" placeholder="选择工单后自动填充"  readonly/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="供应商编码" prop="supplierCode">
-            <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" />
+            <el-input v-model="form.supplierCode" placeholder="选择工单后自动填充" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -31,12 +31,21 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="生产订单编号" prop="ipoNo">
-            <el-input v-model="form.ipoNo" placeholder="请输入生产订单编号" />
+            <el-input v-model="form.ipoNo" placeholder="选择工单后自动填充" readonly />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="生产工单编号" prop="woNo">
-            <el-input v-model="form.woNo" placeholder="请输入生产工单编号" />
+            <el-input 
+                  v-model="form.woNo" 
+                  placeholder="选择生产工单号" 
+                  readonly 
+                  @click="showSelector = true"
+                >
+                  <template #append>
+                    <el-button @click="showSelector = true"size="small">选择</el-button>
+                  </template>
+            </el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -72,12 +81,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="品类编码" prop="categoryCode">
-            <el-input v-model="form.categoryCode" placeholder="请输入品类编码" />
+            <el-input v-model="form.categoryCode" placeholder="选择工单后自动填充"  readonly/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="种类编码" prop="subclassCode">
-            <el-input v-model="form.subclassCode" placeholder="请输入种类编码" />
+            <el-input v-model="form.subclassCode" placeholder="选择工单后自动填充" readonly/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -224,6 +233,9 @@
         <el-button type="primary" @click="handleSubmit">保存</el-button>
       </span>
     </template>
+
+
+    <work-order-selector v-model:visible="showSelector" @select="handleSelect" />
   </el-dialog>
 </template>
 
@@ -232,9 +244,12 @@ import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { createPlReportWorkOrder } from '@/api/plmanage/plreportworkorder';
 import { useUserStore } from '@/store/user';
+import workOrderSelector from './workOrderSelector.vue';
 
 const userStore = useUserStore();
 const emit = defineEmits(['update:visible', 'success']);
+
+const showSelector = ref(false);
 
 const props = defineProps({
   visible: {
@@ -244,10 +259,6 @@ const props = defineProps({
   newCode: {
     type: String,
     default: ''
-  },
-  selectOrder: {
-    type: Object,
-    default: () => ({})
   }
 });
 
@@ -256,22 +267,24 @@ watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
   if (newVal) {
     form.reportNo = props.newCode;
-    if (props.selectOrder) {
-      console.log("selectOrder");
-      console.log(props.selectOrder);
-      form.ipoNo = props.selectOrder.ipoNo;
-      form.woNo = props.selectOrder.woNo;
-      form.categoryCode = props.selectOrder.categoryCode;
-      form.subclassCode = props.selectOrder.subclassCode;
-      form.purchaserHqCode = props.selectOrder.purchaserHqCode;
-      form.supplierCode = props.selectOrder.supplierCode;
-    }
   }
 });
 
+
+const handleSelect = (data) => {
+  console.log("选择的物料数据")
+  console.log(data)
+  form.purchaserHqCode = data.purchaserHqCode
+  form.supplierCode = data.supplierCode
+  form.ipoNo = data.ipoNo
+  form.woNo = data.woNo
+  form.categoryCode = data.categoryCode
+  form.subclassCode = data.subclassCode
+}
+
+
 const formRef = ref(null);
 const form = reactive({
-  id: '',
   purchaserHqCode: '',
   supplierCode: '',
   ipoNo: '',

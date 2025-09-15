@@ -101,9 +101,8 @@
                 <el-link type="primary" @click="selectOrder(row)">{{ row.ipoNo }}</el-link>
               </template>
             </el-table-column>
-            <el-table-column prop="itemName" label="产品名称" width="150" show-overflow-tooltip />
-            <el-table-column prop="itemSpec" label="产品型号" width="150" show-overflow-tooltip />
-            <el-table-column prop="supplierName" label="供应商" width="150" show-overflow-tooltip />
+            <el-table-column prop="itemName" label="合同产品名称" width="150" show-overflow-tooltip />
+            <el-table-column prop="itemSpec" label="合同产品型号" width="150" show-overflow-tooltip />
             <el-table-column label="生产数量" width="120">
               <template #default="{ row }">
                 {{ row.amount }} {{ row.unit }}

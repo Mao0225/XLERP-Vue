@@ -60,3 +60,12 @@ export function batchDeletePlReportWorkOrder (ids) {
 const idsString = ids.join (',')
 return del (`/pl_report_work_order/batchdelete?ids=${encodeURIComponent(idsString)}`)
 }
+
+
+/**
+ * 更新状态
+ * @param {Object} data - 更新数据
+ */
+export function updateStatus (data) {
+return get ('/pl_report_work_order/updateStatus', data)
+}

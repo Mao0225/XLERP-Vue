@@ -94,8 +94,10 @@
             <!-- <el-table-column prop="poItemId" label="采购项ID" width="120" /> -->
              <el-table-column prop="contractNo" label="合同号" width="100" show-overflow-tooltip />
              <el-table-column prop="contractName" label="合同名称" width="100" show-overflow-tooltip />
-             <el-table-column prop="itemName" label="物料名称" width="100" show-overflow-tooltip />
-            <el-table-column prop="supplierName" label="供应商" width="150" show-overflow-tooltip />
+             <el-table-column prop="itemName" label="产品名称" width="100" show-overflow-tooltip />
+             <el-table-column prop="itemSpec" label="产品型号" width="100" show-overflow-tooltip />
+
+
 
             <!-- <el-table-column label="计划数量" width="120">
               <template #default="{ row }">

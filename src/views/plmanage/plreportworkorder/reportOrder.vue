@@ -237,12 +237,12 @@ import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 // 图标按需引入
 import {
-  Search, Refresh, Close, EditPen, CircleCheckFilled, Clock, ArrowDown
+  Search, Refresh, Close, EditPen, CircleCheckFilled, Clock, ArrowDown,CircleCloseFilled
 } from '@element-plus/icons-vue';
 // 接口引用
 import { getConfirmOrderList } from '@/api/plmanage/plworkorder';
 
-import addOrder from './components/addOrder.vue';
+import addOrder from './components/addOrderByWorkList.vue';
 import editOrder from './components/editOrder.vue';
 
 
