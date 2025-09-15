@@ -26,8 +26,14 @@
     </el-form>
 
     <el-table :data="beiliaoList" border size="small" style="width: 100%">
-      <!--el-table-column prop="contractno" label="合同编号" />
-      <el-table-column prop="contractname" label="工程名称" /-->
+      <!-- 连续序号列 - 计算逻辑：(当前页-1)*每页条数 + 行索引 + 1 -->
+      <el-table-column 
+  type="index" 
+  label="序号" 
+  width="80"
+  :index-method="generateContinuousIndex"
+/>
+      
       <el-table-column prop="itemno" label="订货产品编码" />
       <el-table-column prop="spec" label="订货产品型号" />
       <el-table-column prop="name" label="订货产品名称" />
@@ -184,16 +190,6 @@
         </el-row>
 
         <el-row :gutter="12">
-          <!--el-col :span="6">
-            <el-form-item label="校验人" prop="jiaoyanren">
-              <el-input v-model="editForm.jiaoyanren" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="审核人" prop="shenheren">
-              <el-input v-model="editForm.shenheren" />
-            </el-form-item>
-          </el-col-->
           <el-col :span="12">
             <el-form-item label="备注" prop="memo">
               <el-input type="textarea" :rows="3" v-model="editForm.memo" />
@@ -272,6 +268,12 @@ const editRules = {
   shenheren: [{ required: true, message: '请输入审核人', trigger: 'blur' }]
 };
 
+// 生成连续序号的方法
+const generateContinuousIndex = (index) => {
+  // 计算逻辑：(当前页码-1) * 每页条数 + 当前页行索引 + 1
+  return (queryParams.pageNumber - 1) * queryParams.pageSize + index + 1;
+};
+
 // 计算计划提货数量
 const calculatePlanPickup = () => {
   if (editForm.dinghuotaoshu && editForm.sxclshuliang) {
@@ -317,10 +319,8 @@ const handleCurrentChange = (newPage) => {
 
 // 打开编辑对话框
 const openEditDialog = (row) => {
-  // 复制数据到编辑表单
   Object.assign(editForm, row);
   
-  // 设置默认值
   if (!editForm.bianzhiren || editForm.bianzhiren.trim() === '') {
     editForm.bianzhiren = localStorage.getItem('realName');
   }
@@ -329,13 +329,8 @@ const openEditDialog = (row) => {
     editForm.zhidingbumen = '研究所';
   }
   
-  // 计算计划提货数量
   calculatePlanPickup();
-  
-  // 记录当前编辑的行索引
   currentEditIndex.value = beiliaoList.value.findIndex(item => item.id === row.id);
-  
-  // 显示对话框
   editDialogVisible.value = true;
 };
 
@@ -351,7 +346,6 @@ const saveBeiliao = async () => {
           background: 'rgba(0, 0, 0, 0.7)'
         });
 
-        // 准备保存数据
         const saveData = {
           ...editForm,
           noticeid: props.noticeid,
@@ -362,7 +356,7 @@ const saveBeiliao = async () => {
         if (res.success) {
           ElMessage.success('保存成功');
           editDialogVisible.value = false;
-          loadBeiliaoData(); // 刷新数据
+          loadBeiliaoData();
         } else {
           ElMessage.error(res.msg || '保存失败');
         }
