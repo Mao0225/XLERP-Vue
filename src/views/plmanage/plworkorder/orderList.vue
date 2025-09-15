@@ -5,23 +5,13 @@
       <div class="filter-row">
         <!-- 筛选项：统一标签+输入框布局 -->
         <div class="filter-item">
-          <span class="filter-label">采购方总部：</span>
-          <el-select v-model="filters.purchaserHqCode" placeholder="请选择采购方总部" clearable style="width: 200px;">
-            <el-option v-for="item in purchaserOptions" :key="item.code" :label="item.name" :value="item.code" />
-          </el-select>
+          <span class="filter-label">合同号：</span>
+          <el-input v-model="filters.contractNo" placeholder="请输入合同号" clearable style="width: 200px;" />
         </div>
 
         <div class="filter-item">
-          <span class="filter-label">供应商：</span>
-          <el-select v-model="filters.supplierCode" placeholder="请选择供应商" filterable clearable style="width: 200px;">
-            <el-option v-for="item in supplierOptions" :key="item.code" :label="item.name" :value="item.code" />
-          </el-select>
-        </div>
-
-        <div class="filter-item">
-          <span class="filter-label">产品品类：</span>
-          <el-cascader v-model="filters.category" :options="categoryOptions" placeholder="请选择产品品类" clearable
-            style="width: 200px;" />
+          <span class="filter-label">合同名称号：</span>
+          <el-input v-model="filters.contractName" placeholder="请输入合同名称" clearable style="width: 200px;" />
         </div>
 
         <div class="filter-item">
@@ -297,9 +287,8 @@ const formData = ref({}); // 编辑表单数据
 
 // 2. 筛选条件（改为单选状态，移除前端筛选字段）
 const filters = reactive({
-  purchaserHqCode: '',
-  supplierCode: '',
-  category: [],
+  contractNo: '',
+  contractName: '',
   woNo: '',
   status: '' // 改为单选，与模板RadioGroup匹配
 });
@@ -316,37 +305,6 @@ const statusOptions = ref([
   { value: '', label: '全部', icon: 'Refresh' },
   { value: '10', label: '录入', icon: Clock },
   { value: '20', label: '确认', icon: CircleCheck }
-]);
-
-// 5. 下拉选项（保持原数据）
-const purchaserOptions = ref([
-  { code: 'HQ001', name: '华东总部' },
-  { code: 'HQ002', name: '华南总部' },
-  { code: 'HQ003', name: '华北总部' }
-]);
-const supplierOptions = ref([
-  { code: 'SUP001', name: '深圳制造有限公司' },
-  { code: 'SUP002', name: '上海精密工业' },
-  { code: 'SUP003', name: '广州电子科技' },
-  { code: 'SUP004', name: '北京自动化设备' }
-]);
-const categoryOptions = ref([
-  {
-    value: 'CAT001',
-    label: '电子元器件',
-    children: [
-      { value: 'SUB001', label: '集成电路' },
-      { value: 'SUB002', label: '电阻电容' }
-    ]
-  },
-  {
-    value: 'CAT002',
-    label: '机械零件',
-    children: [
-      { value: 'SUB003', label: '精密轴承' },
-      { value: 'SUB004', label: '传动部件' }
-    ]
-  }
 ]);
 
 // 6. 表格数据（纯后端返回，无前端筛选）
@@ -377,13 +335,11 @@ const loadData = async () => {
     const params = {
       pageNumber: pagination.current,
       pageSize: pagination.size,
-      purchaserHqCode: filters.purchaserHqCode || undefined,
-      supplierCode: filters.supplierCode || undefined,
+      contractNo: filters.contractNo || undefined,
+      contractName: filters.contractName || undefined,
       woNo: filters.woNo || undefined,
       // 状态：空表示查全部，否则查指定状态
       status: filters.status || undefined,
-      // 品类：取最后一级编码
-      categoryCode: filters.category?.length ? filters.category[filters.category.length - 1] : undefined
     };
 
     const res = await getPlWorkOrderList(params);
@@ -434,7 +390,7 @@ const handleSearch = () => {
 };
 const handleReset = () => {
   Object.keys(filters).forEach(key => {
-    filters[key] = key === 'category' ? [] : '';
+    filters[key] = '';
   });
   pagination.current = 1;
   selectedOrder.value = null;

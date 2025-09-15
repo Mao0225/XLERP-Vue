@@ -27,24 +27,24 @@
           </el-form-item>
         </el-col>
       </el-row>
-      
+
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="生产订单号" prop="productionOrderNo">
-            <el-input v-model="form.productionOrderNo" placeholder="请输入生产订单号" />
+          <el-form-item label="生产订单编号" prop="ipoNo">
+            <el-input v-model="form.ipoNo" placeholder="请输入生产订单编号" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="生产工单号" prop="workOrderNo">
-            <el-input v-model="form.workOrderNo" placeholder="请输入生产工单号" />
+          <el-form-item label="生产工单编号" prop="woNo">
+            <el-input v-model="form.woNo" placeholder="请输入生产工单编号" />
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="生产批次号" prop="productionBatchNo">
-            <el-input v-model="form.productionBatchNo" placeholder="请输入生产批次号" />
+          <el-form-item label="生产批次号" prop="productBatchNo">
+            <el-input v-model="form.productBatchNo" placeholder="请输入生产批次号" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -56,13 +56,13 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="客户所属省份" prop="customerProvince">
-            <el-input v-model="form.customerProvince" placeholder="请输入客户所属省份" />
+          <el-form-item label="客户所属省份" prop="buyerProvince">
+            <el-input v-model="form.buyerProvince" placeholder="请输入客户所属省份" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="报工单号" prop="reportNo">
-            <el-input v-model="form.reportNo" placeholder="请输入报工单号" readonly />
+          <el-form-item label="报工单编号" prop="reportNo">
+            <el-input v-model="form.reportNo" placeholder="请输入报工单编号" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -89,8 +89,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="生产工艺路线编码" prop="productionRouteCode">
-            <el-input v-model="form.productionRouteCode" placeholder="请输入生产工艺路线编码" />
+          <el-form-item label="生产工艺路线编码" prop="processNo">
+            <el-input v-model="form.processNo" placeholder="请输入生产工艺路线编码" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -124,9 +124,9 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="实际开始时间" prop="actualStartTime">
+          <el-form-item label="实际开始时间" prop="actualStartDate">
             <el-date-picker
-              v-model="form.actualStartTime"
+              v-model="form.actualStartDate"
               type="datetime"
               placeholder="请选择实际开始时间"
               value-format="YYYY-MM-DD HH:mm:ss"
@@ -135,9 +135,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="实际结束时间" prop="actualEndTime">
+          <el-form-item label="实际结束时间" prop="actualFinishDate">
             <el-date-picker
-              v-model="form.actualEndTime"
+              v-model="form.actualFinishDate"
               type="datetime"
               placeholder="请选择实际结束时间"
               value-format="YYYY-MM-DD HH:mm:ss"
@@ -149,9 +149,9 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="来源数据创建时间" prop="sourceCreateTime">
+          <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
             <el-date-picker
-              v-model="form.sourceCreateTime"
+              v-model="form.dataSourceCreateTime"
               type="datetime"
               placeholder="请选择来源数据创建时间"
               value-format="YYYY-MM-DD HH:mm:ss"
@@ -178,13 +178,13 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="设备编号" prop="equipmentNo">
-            <el-input v-model="form.equipmentNo" placeholder="请输入设备编号" />
+          <el-form-item label="设备编号" prop="deviceNo">
+            <el-input v-model="form.deviceNo" placeholder="请输入设备编号" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="产品内部ID" prop="productInternalId">
-            <el-input v-model="form.productInternalId" placeholder="请输入产品内部ID" />
+          <el-form-item label="产品内部ID号" prop="insideNo">
+            <el-input v-model="form.insideNo" placeholder="请输入产品内部ID号" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -207,18 +207,17 @@
         </el-col>
       </el-row>
 
-
       <!-- 其他信息 -->
       <el-divider content-position="left">其他信息</el-divider>
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="记录创建人" prop="writer">
-            <el-input v-model="form.writer" placeholder="请输入记录创建人" readonly />
+          <el-form-item label="录入人" prop="writer">
+            <el-input v-model="form.writer" placeholder="请输入录入人" readonly />
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
-    
+
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleClose">取消</el-button>
@@ -242,9 +241,13 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  newCode:{
+  newCode: {
     type: String,
     default: ''
+  },
+  selectOrder: {
+    type: Object,
+    default: () => ({})
   }
 });
 
@@ -252,57 +255,67 @@ const dialogVisible = ref(props.visible);
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
   if (newVal) {
-    form.reportNo = props.newCode
-    console.log(props.newCode)
+    form.reportNo = props.newCode;
+    if (props.selectOrder) {
+      console.log("selectOrder");
+      console.log(props.selectOrder);
+      form.ipoNo = props.selectOrder.ipoNo;
+      form.woNo = props.selectOrder.woNo;
+      form.categoryCode = props.selectOrder.categoryCode;
+      form.subclassCode = props.selectOrder.subclassCode;
+      form.purchaserHqCode = props.selectOrder.purchaserHqCode;
+      form.supplierCode = props.selectOrder.supplierCode;
+    }
   }
 });
 
 const formRef = ref(null);
 const form = reactive({
-  reportNo:'',//报工单号
+  id: '',
   purchaserHqCode: '',
   supplierCode: '',
-  productionOrderNo: '',
-  workOrderNo: '',
-  productionBatchNo: '',
+  ipoNo: '',
+  woNo: '',
+  productBatchNo: '',
   processName: '',
   categoryCode: '',
   subclassCode: '',
   processCode: '',
   dataSource: '',
-  sourceCreateTime: '',
-  customerProvince: '',
-  productInternalId: '',
-  equipmentNo: '',
-  productionRouteCode: '',
+  dataSourceCreateTime: '',
+  buyerProvince: '',
+  insideNo: '',
+  deviceNo: '',
+  processNo: '',
   workshopId: '',
   workshopCode: '',
   workshopName: '',
   entityId: '',
   planStartTime: '',
   planEndTime: '',
-  actualStartTime: '',
-  actualEndTime: '',
+  actualStartDate: '',
+  actualFinishDate: '',
   orderStatus: '',
   status: '10',
   writer: userStore.realName,
-  createdTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-  updatedTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+  createdTime: '',
+  updatedTime: '',
+  reportNo: ''
 });
 
 const rules = reactive({
   purchaserHqCode: [{ required: true, message: '请输入采购方总部编码', trigger: 'blur' }],
   supplierCode: [{ required: true, message: '请输入供应商编码', trigger: 'blur' }],
-  productionOrderNo: [{ required: true, message: '请输入生产订单号', trigger: 'blur' }],
-  workOrderNo: [{ required: true, message: '请输入生产工单号', trigger: 'blur' }],
-  productionBatchNo: [{ required: true, message: '请输入生产批次号', trigger: 'blur' }],
+  ipoNo: [{ required: true, message: '请输入生产订单编号', trigger: 'blur' }],
+  woNo: [{ required: true, message: '请输入生产工单编号', trigger: 'blur' }],
+  productBatchNo: [{ required: true, message: '请输入生产批次号', trigger: 'blur' }],
   processName: [{ required: true, message: '请输入工序名称', trigger: 'blur' }],
   categoryCode: [{ required: true, message: '请输入品类编码', trigger: 'blur' }],
   subclassCode: [{ required: true, message: '请输入种类编码', trigger: 'blur' }],
   processCode: [{ required: true, message: '请输入工序编码', trigger: 'blur' }],
   dataSource: [{ required: true, message: '请输入数据来源', trigger: 'blur' }],
-  sourceCreateTime: [{ required: true, message: '请选择来源数据创建时间', trigger: 'change' }],
-  customerProvince: [{ required: true, message: '请输入客户所属省份', trigger: 'blur' }],
+  dataSourceCreateTime: [{ required: true, message: '请选择来源数据创建时间', trigger: 'change' }],
+  buyerProvince: [{ required: true, message: '请输入客户所属省份', trigger: 'blur' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }]
 });
 
