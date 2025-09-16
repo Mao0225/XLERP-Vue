@@ -133,22 +133,26 @@
           <el-col :span="24">
             <el-form-item label="长度测量值">
               <el-row :gutter="10">
-                <el-col :span="3"> <!-- 宽度调整为原来的1/3 -->
+                <span style="margin-right: 4px;">标准值：</span>
+              <el-col :span="2"> <!-- 宽度调整为原来的1/3 --> 
+                <el-input v-model.number="form.matlongsizebiaozhun" placeholder="标准值" type="number" clearable size="small" @change="calculateLongAverage" />
+              </el-col>
+                <el-col :span="2"> <!-- 宽度调整为原来的1/3 -->
                   <el-input v-model.number="form.matlongsize1" placeholder="测量值1" type="number" clearable size="small" @change="calculateLongAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlongsize2" placeholder="测量值2" type="number" clearable size="small" @change="calculateLongAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlongsize3" placeholder="测量值3" type="number" clearable size="small" @change="calculateLongAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlongsize4" placeholder="测量值4" type="number" clearable size="small" @change="calculateLongAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlongsize5" placeholder="测量值5" type="number" clearable size="small" @change="calculateLongAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlongAverage" placeholder="平均值" type="number" readonly size="small" />
                 </el-col>
                 <el-col :span="6"> <!-- 增加检测结果宽度 -->
@@ -166,22 +170,26 @@
           <el-col :span="24">
             <el-form-item label="宽度测量值">
               <el-row :gutter="10">
-                <el-col :span="3">
+                <span style="margin-right: 4px;">标准值：</span>
+              <el-col :span="2"> <!-- 宽度调整为原来的1/3 --> 
+                <el-input v-model.number="form.matlenghsizebiaozhun" placeholder="标准值" type="number" clearable size="small" @change="calculateLongAverage" />
+              </el-col>
+                <el-col :span="2">
                   <el-input v-model.number="form.matlenghsize1" placeholder="测量值1" type="number" clearable size="small" @change="calculateLengthAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlenghsize2" placeholder="测量值2" type="number" clearable size="small" @change="calculateLengthAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlenghsize3" placeholder="测量值3" type="number" clearable size="small" @change="calculateLengthAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlenghsize4" placeholder="测量值4" type="number" clearable size="small" @change="calculateLengthAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlenghsize5" placeholder="测量值5" type="number" clearable size="small" @change="calculateLengthAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matlenghAverage" placeholder="平均值" type="number" readonly size="small" />
                 </el-col>
                 <el-col :span="6">
@@ -199,22 +207,26 @@
           <el-col :span="24">
             <el-form-item label="线径测量值">
               <el-row :gutter="10">
-                <el-col :span="3">
+              <span style="margin-right: 4px;">标准值：</span>
+              <el-col :span="2"> <!-- 宽度调整为原来的1/3 --> 
+                <el-input v-model.number="form.matxianjingsizebiaozhun" placeholder="标准值" type="number" clearable size="small" @change="calculateLongAverage" />
+              </el-col>
+                <el-col :span="2">
                   <el-input v-model.number="form.matxianjing1" placeholder="测量值1" type="number" clearable size="small" @change="calculateXianjingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matxianjing2" placeholder="测量值2" type="number" clearable size="small" @change="calculateXianjingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matxianjing3" placeholder="测量值3" type="number" clearable size="small" @change="calculateXianjingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matxianjing4" placeholder="测量值4" type="number" clearable size="small" @change="calculateXianjingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matxianjing5" placeholder="测量值5" type="number" clearable size="small" @change="calculateXianjingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matxianjingAverage" placeholder="平均值" type="number" readonly size="small" />
                 </el-col>
                 <el-col :span="6">
@@ -232,22 +244,26 @@
           <el-col :span="24">
             <el-form-item label="厚度测量值">
               <el-row :gutter="10">
-                <el-col :span="3">
+                <span style="margin-right: 4px;">标准值：</span>
+              <el-col :span="2"> <!-- 宽度调整为原来的1/3 --> 
+                <el-input v-model.number="form.matheightsizebiaozhun" placeholder="标准值" type="number" clearable size="small" @change="calculateLongAverage" />
+              </el-col>
+                <el-col :span="2">
                   <el-input v-model.number="form.matheightsize1" placeholder="测量值1" type="number" clearable size="small" @change="calculateHeightAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matheightsize2" placeholder="测量值2" type="number" clearable size="small" @change="calculateHeightAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matheightsize3" placeholder="测量值3" type="number" clearable size="small" @change="calculateHeightAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matheightsize4" placeholder="测量值4" type="number" clearable size="small" @change="calculateHeightAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matheightsize5" placeholder="测量值5" type="number" clearable size="small" @change="calculateHeightAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matheightAverage" placeholder="平均值" type="number" readonly size="small" />
                 </el-col>
                 <el-col :span="6">
@@ -265,22 +281,26 @@
           <el-col :span="24">
             <el-form-item label="柱径测量值">
               <el-row :gutter="10">
-                <el-col :span="3">
+                <span style="margin-right: 4px;">标准值：</span>
+              <el-col :span="2"> <!-- 宽度调整为原来的1/3 --> 
+                <el-input v-model.number="form.matzhujingsizebiaozhun" placeholder="标准值" type="number" clearable size="small" @change="calculateLongAverage" />
+              </el-col>
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhujingsize1" placeholder="测量值1" type="number" clearable size="small" @change="calculateZhujingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhujingsize2" placeholder="测量值2" type="number" clearable size="small" @change="calculateZhujingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhujingsize3" placeholder="测量值3" type="number" clearable size="small" @change="calculateZhujingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhujingsize4" placeholder="测量值4" type="number" clearable size="small" @change="calculateZhujingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhujingsize5" placeholder="测量值5" type="number" clearable size="small" @change="calculateZhujingAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhujingAverage" placeholder="平均值" type="number" readonly size="small" />
                 </el-col>
                 <el-col :span="6">
@@ -298,22 +318,26 @@
           <el-col :span="24">
             <el-form-item label="柱高测量值">
               <el-row :gutter="10">
-                <el-col :span="3">
+                <span style="margin-right: 4px;">标准值：</span>
+              <el-col :span="2"> <!-- 宽度调整为原来的1/3 --> 
+                <el-input v-model.number="form.matzhugaosizebiaozhun" placeholder="标准值" type="number" clearable size="small" @change="calculateLongAverage" />
+              </el-col>
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhugaosize1" placeholder="测量值1" type="number" clearable size="small" @change="calculateZhugaoAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhugaosize2" placeholder="测量值2" type="number" clearable size="small" @change="calculateZhugaoAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhugaosize3" placeholder="测量值3" type="number" clearable size="small" @change="calculateZhugaoAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhugaosize4" placeholder="测量值4" type="number" clearable size="small" @change="calculateZhugaoAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhugaosize5" placeholder="测量值5" type="number" clearable size="small" @change="calculateZhugaoAverage" />
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="2">
                   <el-input v-model.number="form.matzhugaoAverage" placeholder="平均值" type="number" readonly size="small" />
                 </el-col>
                 <el-col :span="6">
@@ -460,6 +484,12 @@
     matdepartment: '',
     matRecheckNo: '',
     standard: '',
+    matlongsizebiaozhun: null,
+    matlenghsizebiaozhun: null,
+    matxianjingbiaozhun: null,
+    matheightsizebiaozhun: null,
+    matzhujingsizebiaozhun: null,
+    matzhugaosizebiaozhun: null,
     leavefactoryDate: '',
     appearanceSize: '',
     appearanceResult: '',
@@ -718,6 +748,12 @@
       appearanceSize: '',
       appearanceResult: '',
       certificate: '[]',
+      matlongsizebiaozhun: null,
+      matlenghsizebiaozhun: null,
+      matxianjingbiaozhun: null,
+      matheightsizebiaozhun: null,
+      matzhujingsizebiaozhun: null,
+      matzhugaosizebiaozhun: null,
       // 重置所有测量值和平均值
       matlongsize1: null,
       matlongsize2: null,
