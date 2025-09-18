@@ -89,8 +89,14 @@ const viewComponents = {
   'plchuchangchoujian/chuchangchoujian': () => import('@/views/plchuchangchoujian/chuchanchoujian.vue'),
 
   
-  //铝锭检验
-  'clmanage/clld': () => import('@/views/clmanage/cl-ld/list.vue'),
+  //铝锭检验数据录入
+  'clmanage/clld/checkDataEntry': () => import('@/views/clmanage/cl-ld/checkDataEntry.vue'),
+  //铝锭检验数据审核
+  'clmanage/clld/checkDataReview': () => import('@/views/clmanage/cl-ld/checkDataReview.vue'),
+  //铝锭请检单录入
+  'clmanage/clld/checkRequestEntry': () => import('@/views/clmanage/cl-ld/checkRequestEntry.vue'),
+  //铝锭请检单审核
+  'clmanage/clld/checkRequestReview': () => import('@/views/clmanage/cl-ld/checkRequestReview.vue'),
  
     //圆钢检验
   'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),

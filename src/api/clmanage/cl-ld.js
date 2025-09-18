@@ -58,3 +58,10 @@ export function deleteLd(params) {
 export function batchDeleteLd(params) {
   return del('/cl_ld/batchdelete', params)
 }
+
+/**
+ * 7.更新状态
+ */
+export function updateStatus(data) {
+  return get('/cl_ld/updateStatus', data)
+}

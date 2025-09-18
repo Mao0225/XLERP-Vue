@@ -1,71 +1,41 @@
 <template>
   <el-dialog
-    title="编辑铝锭数据"
+    title="录入铝锭检验数据"
     :model-value="visible"
-    width="800px"
+    width="1200px"
     :center="true"
     :close-on-click-modal="false"
     @update:model-value="$emit('update:visible', $event)"
     @closed="resetForm"
   >
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" class="custom-form">
-      <el-row :gutter="20">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="140px" class="custom-form">
+      <el-row :gutter="24">
         <!-- 基础信息 -->
-        <el-col :span="12">
-          <el-form-item label="单据号" prop="basno">
-            <el-input v-model="form.basno" placeholder="单据号" readonly size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="录入人" prop="writer">
-            <el-input v-model="form.writer" placeholder="录入人" readonly size="small" />
-          </el-form-item>
-        </el-col>
-        <!-- <el-col :span="12">
-          <el-form-item label="录入时间" prop="writeTime">
-            <el-input v-model="form.writeTime" placeholder="自动生成" readonly size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="form.status" placeholder="请选择状态" size="small" style="width: 100%">
-              <el-option label="未审核" value="0" />
-              <el-option label="已审核" value="1" />
-            </el-select>
-          </el-form-item>
-        </el-col> -->
-
-        <!-- 制造商信息 -->
         <el-col :span="24">
+          <el-divider content-position="left">基础信息</el-divider>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="单据号" prop="basNo">
+            <el-input v-model="form.basNo" placeholder="单据号" readonly size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="复检单号" prop="matRecheckNo">
+            <el-input v-model="form.matRecheckNo" placeholder="请输入复检单号" clearable size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
           <el-form-item label="原材料制造商" prop="mafactory">
             <el-input
               v-model="form.mafactory"
               placeholder="选择原材料制造商"
               readonly
               clearable
-              @click="selectManufacturer"
-              size="small"
             >
-              <template #append>
-                <el-button @click="selectManufacturer" size="small">选择</el-button>
-              </template>
+
             </el-input>
           </el-form-item>
         </el-col>
-
-        <!-- 批次和单号信息 -->
-        <el-col :span="12">
-          <el-form-item label="检验批次号" prop="matRecheckNo">
-            <el-input v-model="form.matRecheckNo" placeholder="请输入批次号" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="入库单号" prop="inNo">
-            <el-input v-model="form.inNo" placeholder="请输入入库单号" clearable size="small" />
-          </el-form-item>
-        </el-col>
-
-        <!-- 材料和规格信息 -->
         <el-col :span="12">
           <el-form-item label="牌号" prop="matMaterial">
             <el-input v-model="form.matMaterial" placeholder="请输入牌号" clearable size="small" />
@@ -73,7 +43,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="材质" prop="material">
-            <el-input v-model="form.material" placeholder="请输入材质" clearable size="small" />
+            <el-input v-model="form.material" placeholder="请输入材质" readonly clearable size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="型号" prop="type">
+            <el-input v-model="form.type" placeholder="请输入型号" readonly clearable size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -82,13 +57,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="型号" prop="type">
-            <el-input v-model="form.type" placeholder="请输入型号" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-         <el-form-item label="外观尺寸检验" prop="appearanceSize">
-            <el-select v-model="form.appearanceSize" placeholder="请选择检验结果" clearable size="small" :disabled="false">
+          <el-form-item label="外观尺寸" prop="appearanceSize">
+            <el-select v-model="form.appearanceSize" placeholder="请选择检验结果" clearable size="small">
               <el-option label="合格" value="合格"></el-option>
               <el-option label="不合格" value="不合格"></el-option>
             </el-select>
@@ -96,90 +66,53 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="炉批号" prop="batchNo">
-            <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable size="small" />
+            <el-input v-model="form.batchNo" placeholder="请输入炉批号" readonly clearable size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="数量(t)" prop="quantity">
-            <el-input v-model.number="form.quantity" placeholder="请输入数量" type="number" clearable size="small" />
+          <el-form-item label="实际来货数量(件)" prop="quantity">
+            <el-input v-model.number="form.quantity" placeholder="请输入数量" clearable size="small" step="0.01" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="样品数量(t)" prop="sampleQuantity">
-            <el-input v-model.number="form.sampleQuantity" placeholder="请输入样品数量" type="number" clearable size="small" />
+          <el-form-item label="抽检数量(件)" prop="sampleQuantity">
+            <el-input v-model.number="form.sampleQuantity" placeholder="请输入抽检数量" type="number" clearable size="small" step="0.01" />
           </el-form-item>
         </el-col>
 
-        <!-- 人员信息 -->
-        <el-col :span="12">
-          <el-form-item label="检查员" prop="checker">
-            <el-input v-model="form.checker" placeholder="请输入检查员" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="审核人" prop="auditor">
-            <el-input v-model="form.auditor" placeholder="请输入审核人" clearable size="small" />
-          </el-form-item>
-        </el-col>
-
-        <!-- 化学成分含量 -->
+        <!-- 化学成分 -->
         <el-col :span="24">
-          <el-divider content-position="left">化学成分含量 (%)</el-divider>
+          <el-divider content-position="left">化学成分 (%)</el-divider>
         </el-col>
-        
-        <el-col :span="8">
-          <el-form-item label="Al" prop="chemAl">
-            <el-input v-model.number="form.chemAl" placeholder="Al含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="Si" prop="chemSi">
-            <el-input v-model.number="form.chemSi" placeholder="Si含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="Fe" prop="chemFe">
-            <el-input v-model.number="form.chemFe" placeholder="Fe含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="8">
-          <el-form-item label="Cu" prop="chemCu">
-            <el-input v-model.number="form.chemCu" placeholder="Cu含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="Mn" prop="chemMn">
-            <el-input v-model.number="form.chemMn" placeholder="Mn含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="Mg" prop="chemMg">
-            <el-input v-model.number="form.chemMg" placeholder="Mg含量" clearable size="small" />
-          </el-form-item>
+        <el-col :span="24">
+          <el-row :gutter="24">
+            <el-col :span="8" v-for="chem in chemicals" :key="chem.key">
+              <el-form-item :label="chem.label">
+                <el-row :gutter="10">
+                  <el-col :span="12">
+                    <el-form-item :prop="chem.actualProp" :rules="rules[chem.actualProp]">
+                      <el-input v-model.number="form[chem.actualProp]" :placeholder="chem.label + '实测值'" clearable size="small" />
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item :prop="chem.requiredProp" :rules="rules[chem.requiredProp]">
+                      <el-input v-model.number="form[chem.requiredProp]" :placeholder="chem.label + '要求值'" clearable size="small" />
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-col>
 
-        <el-col :span="8">
-          <el-form-item label="Zn" prop="chemZn">
-            <el-input v-model.number="form.chemZn" placeholder="Zn含量" clearable size="small" />
-          </el-form-item>
+        <!-- 过程信息 -->
+        <el-col :span="24">
+          <el-divider content-position="left">过程信息</el-divider>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label="Ni" prop="chemNi">
-            <el-input v-model.number="form.chemNi" placeholder="Ni含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="Ti" prop="chemTi">
-            <el-input v-model.number="form.chemTi" placeholder="Ti含量" clearable size="small" />
-          </el-form-item>
-        </el-col>
-
-        <!-- 检测日期 -->
         <el-col :span="12">
-          <el-form-item label="出厂检测日期" prop="leavefactoryDate">
+          <el-form-item label="出厂检测日期" prop="leaveFactoryDate">
             <el-date-picker
-              v-model="form.leavefactoryDate"
+              v-model="form.leaveFactoryDate"
               type="date"
               placeholder="选择出厂日期"
               value-format="YYYY-MM-DD"
@@ -198,6 +131,20 @@
               size="small"
               style="width: 100%"
             />
+          </el-form-item>
+        </el-col>
+
+        <!-- 总结论 -->
+        <el-col :span="24">
+          <el-divider content-position="left">总结论</el-divider>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="最终检验结论" prop="finalConclusion">
+            <el-select v-model="form.finalConclusion" placeholder="请选择检验结论" clearable size="small">
+              <el-option label="合格" value="合格"></el-option>
+              <el-option label="不合格" value="不合格"></el-option>
+              <el-option label="复检" value="复检"></el-option>
+            </el-select>
           </el-form-item>
         </el-col>
 
@@ -225,23 +172,9 @@
             </div>
           </el-form-item>
         </el-col>
-
-        <el-col :span="24">
-          <el-form-item label="备注" prop="memo">
-            <el-input 
-              v-model="form.memo" 
-              type="textarea" 
-              :rows="3"
-              placeholder="请输入备注信息" 
-              clearable 
-              maxlength="200"
-              show-word-limit
-            />
-          </el-form-item>
-        </el-col>
       </el-row>
     </el-form>
-    
+
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="$emit('update:visible', false)" size="small">取消</el-button>
@@ -277,6 +210,18 @@ const props = defineProps({
   }
 })
 
+const chemicals = [
+  { key: 'Al', label: 'Al', actualProp: 'chemAl', requiredProp: 'chemAlRequired' },
+  { key: 'Si', label: 'Si', actualProp: 'chemSi', requiredProp: 'chemSiRequired' },
+  { key: 'Fe', label: 'Fe', actualProp: 'chemFe', requiredProp: 'chemFeRequired' },
+  { key: 'Cu', label: 'Cu', actualProp: 'chemCu', requiredProp: 'chemCuRequired' },
+  { key: 'Mn', label: 'Mn', actualProp: 'chemMn', requiredProp: 'chemMnRequired' },
+  { key: 'Mg', label: 'Mg', actualProp: 'chemMg', requiredProp: 'chemMgRequired' },
+  { key: 'Zn', label: 'Zn', actualProp: 'chemZn', requiredProp: 'chemZnRequired' },
+  { key: 'Ni', label: 'Ni', actualProp: 'chemNi', requiredProp: 'chemNiRequired' },
+  { key: 'Ti', label: 'Ti', actualProp: 'chemTi', requiredProp: 'chemTiRequired' }
+]
+
 const supplierSelectorVisible = ref(false)
 const emit = defineEmits(['update:visible', 'success'])
 const userStore = useUserStore()
@@ -291,7 +236,6 @@ const form = reactive({
   matRecheckNo: '',
   mafactory: '',
   matMaterial: '',
-  inNo: '',
   chemAl: '',
   chemSi: '',
   chemFe: '',
@@ -301,79 +245,112 @@ const form = reactive({
   chemZn: '',
   chemNi: '',
   chemTi: '',
-  leavefactoryDate: '',
+  chemAlRequired: '',
+  chemSiRequired: '',
+  chemFeRequired: '',
+  chemCuRequired: '',
+  chemMnRequired: '',
+  chemMgRequired: '',
+  chemZnRequired: '',
+  chemNiRequired: '',
+  chemTiRequired: '',
+  leaveFactoryDate: '',
   detectionTime: '',
   certificate: '[]',
-  writeTime: '',
-  writer: userStore.descr || '未知用户',
-  status: '0',
+  status: '40',
   memo: '',
-  basno: '',
-  standard: '',
-  appearanceSize: '',
-  type: '',
+  basNo: '',
   batchNo: '',
   quantity: '',
   sampleQuantity: '',
-  checker: '',
+  material: '',
+  type: '',
+  standard: '',
+  appearanceSize: '',
   auditor: '',
-  material: ''
+  checker: '',
+  checkFinishTime: '',
+  contractNo: '',
+  contractName: '',
+  acceptQuantity: '',
+  finalConclusion: ''
 })
 
 const rules = reactive({
-  mafactory: [
-    { required: true, message: '请选择原材料制造商', trigger: 'blur' },
+  matRecheckNo: [
+    { required: true, message: '请输入复检单号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  matRecheckNo: [
-    { required: true, message: '请输入来料检验批次号', trigger: 'blur' },
+  mafactory: [
+    { required: true, message: '请选择原材料制造商', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   matMaterial: [
     { required: true, message: '请输入牌号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  inNo: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
   chemAl: [
     { required: true, message: '请输入Al含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemSi: [
     { required: true, message: '请输入Si含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemFe: [
     { required: true, message: '请输入Fe含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemCu: [
     { required: true, message: '请输入Cu含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemMn: [
     { required: true, message: '请输入Mn含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemMg: [
     { required: true, message: '请输入Mg含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemZn: [
     { required: true, message: '请输入Zn含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemNi: [
     { required: true, message: '请输入Ni含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemTi: [
     { required: true, message: '请输入Ti含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  leavefactoryDate: [
-    { required: true, message: '请选择出厂检测日期', trigger: 'change' }
+  chemAlRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemSiRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemFeRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemCuRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemMnRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemMgRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemZnRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemNiRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  chemTiRequired: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   detectionTime: [
     { required: true, message: '请选择入厂检测日期', trigger: 'change' }
@@ -381,23 +358,11 @@ const rules = reactive({
   certificate: [
     { required: true, message: '请上传质量证明书', trigger: 'change' }
   ],
-  writer: [
-    { required: true, message: '录入人不能为空', trigger: 'blur' }
-  ],
-  basno: [
+  basNo: [
     { required: true, message: '单据号不能为空', trigger: 'blur' }
   ],
   memo: [
     { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
-  ],
-  standard: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
-  appearanceSize: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
-  type: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   batchNo: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
@@ -408,14 +373,37 @@ const rules = reactive({
   sampleQuantity: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  checker: [
+  material: [
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  type: [
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  standard: [
+    { required: true, message: '请输入检验标准', trigger: 'change' },
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  appearanceSize: [
+    { required: true, message: '请选择外观是否合格', trigger: 'change' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   auditor: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  material: [
+  checker: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  contractNo: [
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  contractName: [
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  acceptQuantity: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  finalConclusion: [
+    { required: true, message: '请选择最终检验结论', trigger: 'change' }
   ]
 })
 
@@ -426,7 +414,6 @@ watch(() => props.initialData, (newData) => {
       matRecheckNo: newData.matRecheckNo || '',
       mafactory: newData.mafactory || '',
       matMaterial: newData.matMaterial || '',
-      inNo: newData.inNo || '',
       chemAl: newData.chemAl || '',
       chemSi: newData.chemSi || '',
       chemFe: newData.chemFe || '',
@@ -436,23 +423,35 @@ watch(() => props.initialData, (newData) => {
       chemZn: newData.chemZn || '',
       chemNi: newData.chemNi || '',
       chemTi: newData.chemTi || '',
-      leavefactoryDate: newData.leavefactoryDate || '',
+      chemAlRequired: newData.chemAlRequired || '',
+      chemSiRequired: newData.chemSiRequired || '',
+      chemFeRequired: newData.chemFeRequired || '',
+      chemCuRequired: newData.chemCuRequired || '',
+      chemMnRequired: newData.chemMnRequired || '',
+      chemMgRequired: newData.chemMgRequired || '',
+      chemZnRequired: newData.chemZnRequired || '',
+      chemNiRequired: newData.chemNiRequired || '',
+      chemTiRequired: newData.chemTiRequired || '',
+      leaveFactoryDate: newData.leaveFactoryDate || '',
       detectionTime: newData.detectionTime || '',
       certificate: newData.certificate || '[]',
-      writeTime: newData.writeTime || '',
-      writer: newData.writer || userStore.descr || '未知用户',
-      status: newData.status || '0',
+      status: newData.status || '40',
       memo: newData.memo || '',
-      basno: newData.basno || '',
-      standard: newData.standard || '',
-      appearanceSize: newData.appearanceSize || '',
-      type: newData.type || '',
+      basNo: newData.basNo || '',
       batchNo: newData.batchNo || '',
       quantity: newData.quantity || '',
       sampleQuantity: newData.sampleQuantity || '',
-      checker: newData.checker || '',
+      material: newData.material || '',
+      type: newData.type || '',
+      standard: newData.standard || '',
+      appearanceSize: newData.appearanceSize || '',
       auditor: newData.auditor || '',
-      material: newData.material || ''
+      checker: newData.checker || '',
+      checkFinishTime: newData.checkFinishTime || '',
+      contractNo: newData.contractNo || '',
+      contractName: newData.contractName || '',
+      acceptQuantity: newData.acceptQuantity || '',
+      finalConclusion: newData.finalConclusion || ''
     })
     certificateFileList.value = JSON.parse(form.certificate)
   }
@@ -479,7 +478,6 @@ const resetForm = () => {
     matRecheckNo: '',
     mafactory: '',
     matMaterial: '',
-    inNo: '',
     chemAl: '',
     chemSi: '',
     chemFe: '',
@@ -489,23 +487,35 @@ const resetForm = () => {
     chemZn: '',
     chemNi: '',
     chemTi: '',
-    leavefactoryDate: '',
+    chemAlRequired: '',
+    chemSiRequired: '',
+    chemFeRequired: '',
+    chemCuRequired: '',
+    chemMnRequired: '',
+    chemMgRequired: '',
+    chemZnRequired: '',
+    chemNiRequired: '',
+    chemTiRequired: '',
+    leaveFactoryDate: '',
     detectionTime: '',
     certificate: '[]',
-    writeTime: '',
-    writer: userStore.descr || '未知用户',
-    status: '0',
+    status: '40',
     memo: '',
-    basno: '',
-    standard: '',
-    appearanceSize: '',
-    type: '',
+    basNo: '',
     batchNo: '',
     quantity: '',
     sampleQuantity: '',
-    checker: '',
+    material: '',
+    type: '',
+    standard: '',
+    appearanceSize: '',
     auditor: '',
-    material: ''
+    checker: '',
+    checkFinishTime: '',
+    contractNo: '',
+    contractName: '',
+    acceptQuantity: '',
+    finalConclusion: ''
   })
 }
 
@@ -547,18 +557,10 @@ const submitForm = async () => {
   submitting.value = true
   try {
     await formRef.value.validate()
-    if (!form.basno) {
+    if (!form.basNo) {
       ElMessage.error('单据号不能为空，请检查')
       return
     }
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
-    const hours = String(now.getHours()).padStart(2, '0')
-    const minutes = String(now.getMinutes()).padStart(2, '0')
-    const seconds = String(now.getSeconds()).padStart(2, '0')
-    form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
     await updateLd(form)
     emit('success')
     emit('update:visible', false)
@@ -574,25 +576,26 @@ const submitForm = async () => {
 
 <style scoped>
 :deep(.el-dialog) {
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
 }
 
 :deep(.el-dialog__header) {
   background: #f5f7fa;
-  padding: 14px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid #e8ecef;
 }
 
 :deep(.el-dialog__title) {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #303133;
 }
 
 :deep(.el-dialog__body) {
-  padding: 16px 20px;
-  max-height: 70vh;
+  padding: 20px 24px;
+  max-height: 75vh;
   overflow-y: auto;
 }
 
@@ -601,29 +604,32 @@ const submitForm = async () => {
 }
 
 :deep(.el-form-item) {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 :deep(.el-form-item__label) {
   color: #606266;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 36px;
 }
 
 :deep(.el-divider--horizontal) {
-  margin: 12px 0;
+  margin: 16px 0;
 }
 
 :deep(.el-divider__text) {
-  font-size: 13px;
+  font-size: 14px;
   color: #409eff;
-  font-weight: 500;
+  font-weight: 600;
+  background: #fff;
+  padding: 0 12px;
 }
 
 :deep(.el-input--small .el-input__inner) {
-  height: 32px;
-  line-height: 32px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 6px;
 }
 
 :deep(.el-date-editor--date) {
@@ -635,8 +641,9 @@ const submitForm = async () => {
 }
 
 :deep(.el-button--small) {
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 6px;
 }
 
 :deep(.el-button--primary) {
@@ -645,20 +652,21 @@ const submitForm = async () => {
 }
 
 .uploaded-files {
-  margin-top: 8px;
-  max-height: 100px;
+  margin-top: 10px;
+  max-height: 120px;
   overflow-y: auto;
   border: 1px solid #e8ecef;
-  border-radius: 4px;
-  padding: 8px;
+  border-radius: 6px;
+  padding: 10px;
+  background: #fafafa;
 }
 
 .uploaded-file {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  padding: 4px 8px;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 6px 10px;
   background: #f5f7fa;
   border-radius: 4px;
 }
@@ -666,7 +674,7 @@ const submitForm = async () => {
 .file-name {
   color: #409eff;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -680,16 +688,17 @@ const submitForm = async () => {
 :deep(.el-button--text) {
   color: #f56c6c;
   padding: 0;
+  font-size: 13px;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
 }
 
 :deep(.el-dialog__footer) {
-  padding: 12px 20px;
+  padding: 14px 24px;
   border-top: 1px solid #e8ecef;
   background: #f5f7fa;
 }
@@ -697,13 +706,14 @@ const submitForm = async () => {
 :deep(.el-textarea__inner) {
   resize: vertical;
   font-size: 13px;
+  border-radius: 6px;
 }
 
 @media (max-width: 768px) {
   :deep(.el-dialog) {
-    width: 95%;
+    width: 90%;
   }
-  
+
   .el-col:nth-child(n) {
     margin-bottom: 0;
   }
