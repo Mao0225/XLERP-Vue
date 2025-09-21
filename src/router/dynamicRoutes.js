@@ -73,6 +73,8 @@ const viewComponents = {
   //按照审核后通知生成提料单
   'tongzhi/tongzhibeiliaodan': () => import('@/views/tongzhi/tongzhibeiliaodan.vue'),
   //  'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
+
+
   //备品备件库存管理
   'kucun/beijian': () => import('@/views/kucun/beijian.vue'),
   //产成品库存管理
@@ -81,6 +83,12 @@ const viewComponents = {
   'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
   //原材料入库
   'kucun/plinoutstore': () => import('@/views/kucun/plinoutstore/plinoutstore.vue'),
+
+    //原材料入库单据列表
+  'kucun/matInList': () => import('@/views/plstoreinout/matinout/matInList.vue'),
+  //原材料入库审核
+  'kucun/matInListReview': () => import('@/views/plstoreinout/matinout/matInListReview.vue'),
+
 
   // 材料数据检验--学妹 芯
   'clmanage/clproductiondata': () => import('@/views/clmanage/clproductiondata/clproductiondata.vue'),
@@ -97,6 +105,7 @@ const viewComponents = {
   'clmanage/clld/checkRequestEntry': () => import('@/views/clmanage/cl-ld/checkRequestEntry.vue'),
   //铝锭请检单审核
   'clmanage/clld/checkRequestReview': () => import('@/views/clmanage/cl-ld/checkRequestReview.vue'),
+
  
     //圆钢检验
   'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),

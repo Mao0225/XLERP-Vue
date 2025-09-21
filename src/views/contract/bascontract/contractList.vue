@@ -346,6 +346,7 @@ import AddForm from './addForm.vue';
 import EditForm from './editForm.vue';
 import itemListForm from './itemListForm.vue';
 import itemListReadonly from './itemListReadonly.vue';
+import { getPlMatInoutList,deletePlMatInout,getPlMatInoutById} from '@/api/plstoreinout/matinout.js';
 
 const termStore = useTermStore();
 const currentTerm = computed(() => termStore.currentTerm);

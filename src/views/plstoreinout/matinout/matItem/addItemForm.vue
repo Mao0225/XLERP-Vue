@@ -1,0 +1,352 @@
+<template>
+  <el-dialog v-model="dialogVisible" title="新增明细" width="800px" :close-on-click-modal="false" @closed="handleClose">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" class="add-form">
+      <!-- 物料信息 -->
+      <div class="form-row">
+        <el-form-item label="物料编号" prop="materialCode">
+          <el-input v-model="form.materialCode" placeholder="请输入物料编号" @click="openDialog" readonly >
+            <template #append>
+              <el-button type="primary" icon="el-icon-search" size="small" @click="openDialog" >选择</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="物料名称" prop="materialName">
+          <el-input v-model="form.materialName" placeholder="请输入物料名称" />
+        </el-form-item>
+      </div>
+      
+      <div class="form-row">
+        <el-form-item label="规格型号" prop="materialSpec">
+          <el-input v-model="form.materialSpec" placeholder="请输入规格型号" />
+        </el-form-item>
+        <el-form-item label="计量单位" prop="materialUnit">
+          <el-input v-model="form.materialUnit" placeholder="请输入计量单位" />
+        </el-form-item>
+      </div>
+
+      <div class="form-row">
+
+        <el-form-item label="操作仓库" prop="warehouse">
+          <el-input v-model="form.warehouse" placeholder="请输入操作仓库" />
+        </el-form-item>
+        <el-form-item label="数量" prop="quantity">
+          <el-input-number 
+            v-model="form.quantity" 
+            placeholder="请输入数量" 
+            style="width: 100%"
+            :precision="2"
+          />
+        </el-form-item>
+      </div>
+
+      <div class="form-row">
+        <el-form-item label="单重" prop="unitWeight">
+          <el-input-number 
+            v-model="form.unitWeight" 
+            placeholder="请输入单重" 
+            style="width: 100%"
+            :precision="3"
+            :min="0"
+          />
+        </el-form-item>
+        <el-form-item label="总重" prop="totalWeight">
+          <el-input-number 
+            v-model="form.totalWeight" 
+            placeholder="请输入总重" 
+            style="width: 100%"
+            :precision="3"
+            :min="0"
+          />
+        </el-form-item>
+      </div>
+
+      <!-- 价格信息 -->
+      <div class="form-row">
+        <el-form-item label="销售单价" prop="salesPrice">
+          <el-input-number 
+            v-model="form.salesPrice" 
+            placeholder="请输入销售单价" 
+            style="width: 100%"
+            :precision="2"
+            :min="0"
+          />
+        </el-form-item>
+        <el-form-item label="销售金额" prop="salesTotalAmount">
+          <el-input-number 
+            v-model="form.salesTotalAmount" 
+            placeholder="请输入销售金额" 
+            style="width: 100%"
+            :precision="2"
+            :min="0"
+          />
+        </el-form-item>
+      </div>
+
+      <!-- 合同信息 -->
+      <div class="form-row">
+        <el-form-item label="关联合同编号" prop="contractNo">
+          <el-input v-model="form.contractNo" placeholder="请输入关联合同编号" >
+            <template #append>
+              <el-button type="primary" icon="el-icon-search" size="small" @click="contractSelectorVisible = true" >选择</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="关联合同名称" prop="contractName">
+          <el-input v-model="form.contractName" placeholder="请输入关联合同名称" />
+        </el-form-item>
+      </div>
+
+      <!-- 出库相关字段（入库时不显示） -->
+      <div class="form-row" v-if="showOutboundFields">
+        <el-form-item label="申请数量" prop="requestQuantity">
+          <el-input-number 
+            v-model="form.requestQuantity" 
+            placeholder="请输入申请数量" 
+            style="width: 100%"
+            :precision="2"
+          />
+        </el-form-item>
+      </div>
+      
+      <el-form-item label="明细备注" prop="memo">
+        <el-input 
+          v-model="form.memo" 
+          type="textarea" 
+          :rows="3"
+          placeholder="请输入明细备注"
+        />
+      </el-form-item>
+    </el-form>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="handleClose">取消</el-button>
+        <el-button type="primary" @click="handleSave" :loading="loading">保存</el-button>
+      </div>
+    </template>
+
+    <itemSelector
+      v-model="itemSelectorVisible"
+      @select="selectItem"
+    />
+     <contractSelector v-model:visible="contractSelectorVisible" @select="selectContract" />
+
+
+  </el-dialog>
+</template>
+
+<script setup>
+import { ref, reactive, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { createPlMatInoutItem } from '@/api/plstoreinout/matinout.js';
+import itemSelector from '../../components/itemSelector.vue';
+import contractSelector from '../../components/contractSelector.vue';
+
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
+  },
+  docNo: {
+    type: String,
+    default: ''
+  },
+  inOutType: {
+    type: Number,
+    default: 1 // 1=入库，2=出库
+  }
+});
+
+const emit = defineEmits(['update:visible', 'success']);
+
+// 计算属性处理弹窗显示状态
+const dialogVisible = computed({
+  get: () => props.visible,
+  set: (value) => emit('update:visible', value)
+});
+
+const itemSelectorVisible = ref(false);
+const contractSelectorVisible = ref(false);
+
+
+const openDialog = () => { 
+  itemSelectorVisible.value = true;
+  console.log('打开物料选择器');
+};
+
+const selectContract = (contract) => { 
+    form.contractNo = contract.no;
+    form.contractName = contract.name;
+    contractSelectorVisible.value = false;
+};
+const selectItem = (item) => {
+    form.materialCode = item.no;
+    form.materialName = item.name;
+    form.materialSpec = item.spec;
+    form.materialUnit = item.unit;
+    form.salesPrice = item.planned_price;
+    form.unitWeight = item.weight;
+    itemSelectorVisible.value = false; 
+};
+
+// 是否显示出库相关字段
+const showOutboundFields = computed(() => props.inOutType === 2);
+
+const formRef = ref();
+const loading = ref(false);
+
+// 表单数据
+const form = reactive({
+  docNo: '',
+  materialCode: '',
+  materialName: '',
+  materialSpec: '',
+  materialUnit: '',
+  quantity: null,
+  unitWeight: null,
+  totalWeight: null,
+  salesPrice: null,
+  salesTotalAmount: null,
+  category: '',
+  contractNo: '',
+  contractName: '',
+  requestQuantity: null,
+  batchNo: '',
+  warehouse: '',
+  memo: '',
+  status: '正常'
+});
+
+// 表单验证规则
+const rules = {
+  materialCode: [
+    { required: true, message: '请输入物料编号', trigger: 'blur' }
+  ],
+  materialName: [
+    { required: true, message: '请输入物料名称', trigger: 'blur' }
+  ],
+  materialSpec: [
+    { required: true, message: '请输入规格型号', trigger: 'blur' }
+  ],
+  materialUnit: [
+    { required: true, message: '请输入计量单位', trigger: 'blur' }
+  ],
+  quantity: [
+    { required: true, message: '请输入数量', trigger: 'blur' },
+    { type: 'number', message: '数量必须为数字', trigger: 'blur' }
+  ],
+  warehouse: [
+    { required: true, message: '请输入操作仓库', trigger: 'blur' }
+  ]
+};
+
+// 监听docNo变化
+watch(() => props.docNo, (newDocNo) => {
+  form.docNo = newDocNo;
+}, { immediate: true });
+
+// 重置表单
+const resetForm = () => {
+  if (formRef.value) {
+    formRef.value.resetFields();
+  }
+  Object.assign(form, {
+    docNo: props.docNo || '',
+    materialCode: '',
+    materialName: '',
+    materialSpec: '',
+    materialUnit: '',
+    quantity: null,
+    unitWeight: null,
+    totalWeight: null,
+    salesPrice: null,
+    salesTotalAmount: null,
+    category: '',
+    contractNo: '',
+    contractName: '',
+    requestQuantity: null,
+    batchNo: '',
+    warehouse: '',
+    memo: '',
+    status: '正常'
+  });
+};
+
+// 保存表单
+const handleSave = async () => {
+  try {
+    await formRef.value.validate();
+    loading.value = true;
+    
+    const submitData = {
+      ...form,
+      operateTime: new Date().toISOString()
+    };
+    
+    await createPlMatInoutItem(submitData);
+    emit('success');
+    ElMessage.success('添加明细成功');
+    handleClose();
+  } catch (error) {
+    console.error('保存失败', error);
+    if (error.message && error.message !== 'Validation failed') {
+      ElMessage.error('保存失败：' + error.message);
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 关闭弹窗
+const handleClose = () => {
+  resetForm();
+  emit('update:visible', false);
+};
+
+// 监听数量和单价变化，自动计算销售金额
+watch([() => form.quantity, () => form.salesPrice], () => {
+  if (form.quantity && form.salesPrice) {
+    form.salesTotalAmount = parseFloat((form.quantity * form.salesPrice).toFixed(2));
+  }
+});
+
+// 监听数量和单重变化，自动计算总重
+watch([() => form.quantity, () => form.unitWeight], () => {
+  if (form.quantity && form.unitWeight) {
+    form.totalWeight = parseFloat((form.quantity * form.unitWeight).toFixed(3));
+  }
+});
+</script>
+
+<style scoped>
+.add-form {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .add-form {
+    max-height: 60vh;
+    padding: 0 10px;
+  }
+}
+</style>
