@@ -88,6 +88,9 @@ const viewComponents = {
   'kucun/matInList': () => import('@/views/plstoreinout/matinout/matInList.vue'),
   //原材料入库审核
   'kucun/matInListReview': () => import('@/views/plstoreinout/matinout/matInListReview.vue'),
+  //原材料出库明细
+  'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItem/matItemInoutPage.vue'),
+
 
 
   // 材料数据检验--学妹 芯

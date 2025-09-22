@@ -141,7 +141,7 @@ const form = reactive({
   handler: userStore.realName || '', // 默认当前用户
   storekeeper: '',
   manager: '', // 保留但不展示
-  status: '10', // 固定为录入状态
+  status: 10, // 固定为录入状态
   requester: '',
   hasInvoice: 0,
   term: currentTerm.value || null,
@@ -212,7 +212,7 @@ const resetForm = () => {
     handler: '',
     storekeeper: '',
     manager: '',
-    status: '录入',
+    status: 10,
     requester: '',
     hasInvoice: 0,
     term: currentTerm.value || null,
