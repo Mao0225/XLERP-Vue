@@ -342,9 +342,6 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 import { getClProductionDataIds, getClProductionDataIdById, createClProductionData, updateClProductionData, deleteClProductionData } from '@/api/clmanage/clproductiondata'
-// 引入生产订单和生产工单相关API
-import { getPlshengchandingdanList } from '@/api/plmanage/plshengchandingdan'
-import { getPlshengchangongdanList } from '@/api/plmanage/plshengchangongdan'
 // 引入合同相关API
 import { getContractList } from '@/api/contract/bascontract.js'
 import { useTermStore } from '@/store/term.js'
@@ -606,7 +603,8 @@ const selectContract = (row) => {
 const getProductionOrderList = async () => {
   productionOrderLoading.value = true
   try {
-    const res = await getPlshengchandingdanList(productionOrderQuery)
+    // const res = await getPlshengchandingdanList(productionOrderQuery)
+    const res = null
     productionOrderList.value = res.data.page.list
     productionOrderTotal.value = res.data.page.totalRow
   } catch (error) {
@@ -652,7 +650,8 @@ const getWorkOrderList = async () => {
   workOrderLoading.value = true
   try {
     // 调用生产工单API获取真实数据
-    const res = await getPlshengchangongdanList(workOrderQuery)
+    // const res = await getPlshengchangongdanList(workOrderQuery)
+    const res = null
     workOrderList.value = res.data.page.list
     workOrderTotal.value = res.data.page.totalRow
   } catch (error) {
