@@ -21,6 +21,7 @@
       <el-table-column prop="unit" label="单位" />
       <el-table-column prop="name" label="名称" />
       <el-table-column prop="inclass" label="类别" />
+      <el-table-column prop="tech_memo" label="技术参数" />
       <el-table-column prop="memo" label="备注" />
       <el-table-column prop="id" label="图纸ID" />
       <el-table-column prop="basitemid" label="物料ID" />
@@ -81,6 +82,9 @@
         <el-form-item label="类别" prop="inclass">
           <el-input v-model="form.inclass" placeholder="请输入类别" />
         </el-form-item>
+        <el-form-item label="技术参数" prop="tech_memo">
+          <el-input v-model="form.tech_memo" placeholder="请输入技术参数" disabled/>
+        </el-form-item>
         <el-form-item label="备注" prop="memo">
           <el-input v-model="form.memo" type="textarea" placeholder="请输入备注" />
         </el-form-item>
@@ -119,6 +123,7 @@
         <el-table-column prop="inclass" label="类别" />
         <el-table-column prop="weight" label="重量" />
         <el-table-column prop="unit" label="单位" />
+        <el-table-column prop="tech_memo" label="技术参数" />
         <el-table-column label="操作" width="100">
           <template #default="{ row }">
             <el-button type="primary" size="small" @click="selectMaterial(row)">选择</el-button>
@@ -192,6 +197,7 @@ const form = reactive({
   unit: '',
   name: '',
   inclass: '',
+  tech_memo: '',
   memo: '',
   basitemid: '',
   writer: '',
@@ -315,6 +321,7 @@ const resetForm = () => {
     unit: '',
     name: '',
     inclass: '',
+    tech_memo: '',
     memo: '',
     basitemid: '',
     writer: '',
@@ -393,6 +400,7 @@ const selectMaterial = (row) => {
   form.spec = row.spec
   form.inclass = row.inclass
   form.weight = row.weight
+  form.tech_memo = row.tech_memo
   form.unit = row.unit
   form.basitemid = row.id
   selectMaterialDialogVisible.value = false
