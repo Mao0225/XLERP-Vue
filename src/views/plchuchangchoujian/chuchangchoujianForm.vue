@@ -824,7 +824,7 @@ import ContractSelector from './components/ContractSelector.vue'
 // 引入获取合同行项目接口
 import { getcontractitems } from '@/api/plchuchangchoujian/plchuchangchoujian'
 // 引入生产工单相关接口
-import { getPlshengchangongdanList } from '@/api/plmanage/plshengchangongdan'
+// import { getPlshengchangongdanList } from '@/api/plmanage/plshengchangongdan'
 
 // 用户信息
 const userStore = useUserStore()
@@ -958,7 +958,8 @@ const openWorkorderSelector = () => {
 const getWorkorderList = async () => {
   workorderLoading.value = true;
   try {
-    const res = await getPlshengchangongdanList(workorderQueryParams);
+    // const res = await getPlshengchangongdanList(workorderQueryParams);
+    const res = null;
     workorderList.value = res.data.page.list || [];
     workorderTotal.value = res.data.page.totalRow || 0;
   } catch (error) {

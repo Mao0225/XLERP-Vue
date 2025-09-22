@@ -19,38 +19,42 @@
     </div>
     
     <el-table :data="userList" border v-loading="loading" style="width: 100%">
-      <el-table-column type="index" label="序号" width="80" />
-      <!-- <el-table-column prop="id" label="ID" width="80" /> -->
-      <el-table-column prop="username" label="用户名" />
-      <el-table-column prop="descr" label="姓名" />
-      <el-table-column prop="departmentName" label="部门" />
-      <el-table-column prop="category" label="岗位" />
-      <el-table-column prop="phone" label="手机号" />
-      <el-table-column prop="memo" label="备注" />
-      <el-table-column label="头像" width="100">
-        <template #default="{ row }">
-          <el-image
-            v-if="row.avatar"
-            :src="baseURL + row.avatar"
-            style="width: 40px; height: 40px; border-radius: 50%;"
-            fit="cover"
-          />
-          <span v-else>无头像</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" width="100">
-        <template #default="{ row }">
-          {{ row.status === 0 ? '正常' : '已删除' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="280">
-        <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="success" size="small" @click="handlePermission(row)">权限设置</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+  <el-table-column type="index" label="序号" width="80" />
+  <el-table-column prop="username" label="用户名" />
+  <el-table-column prop="descr" label="姓名" />
+  <el-table-column prop="departmentName" label="部门" />
+  <el-table-column prop="category" label="岗位" />
+  <el-table-column prop="phone" label="手机号" />
+  <el-table-column prop="memo" label="备注" />
+  <el-table-column label="头像" width="100">
+    <template #default="{ row }">
+      <el-image
+        v-if="row.avatar"
+        :src="baseURL + row.avatar"
+        style="width: 40px; height: 40px; border-radius: 50%;"
+        fit="cover"
+      />
+      <span v-else>无头像</span>
+    </template>
+  </el-table-column>
+  <el-table-column label="状态" width="100">
+    <template #default="{ row }">
+      {{ row.status === 0 ? '正常' : '已删除' }}
+    </template>
+  </el-table-column>
+  <el-table-column label="操作" width="280">
+    <template #default="{ row }">
+      <!-- 仅当用户 id !== 1 时显示操作按钮 -->
+      <template v-if="row.id !== 1">
+        <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+        <el-button type="success" size="small" @click="handlePermission(row)">权限设置</el-button>
+        <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+      </template>
+      <!-- 如果是管理员（id === 1），显示占位文本或空 -->
+      <span v-else>管理员</span>
+    </template>
+  </el-table-column>
+</el-table>
 
     <div class="pagination-container">
       <el-pagination
@@ -179,7 +183,10 @@ import {
 import { getBasDepartmentOptions } from '@/api/system/department'
 import { uploadAvatar} from '@/api/file/file'
 import { baseURL } from '@/utils/request';
+import { useUserStore } from '@/store/user' // 引入用户 store
 
+// 初始化用户 store，获取登录用户 ID
+const userStore = useUserStore()
 
 // 查询参数
 const queryParams = reactive({
@@ -269,28 +276,26 @@ const rules = {
   ]
 }
 
-// 获取用户列表
+// 获取用户列表，过滤管理员用户
 const getUserList = async () => {
   loading.value = true
   try {
     const res = await getUsers(queryParams)
-    userList.value = res.data.page.list.map(user => {
-    
+    let filteredList = res.data.page.list
+    console.log('获取用户列表', userStore.userId)
+    // 如果登录用户不是管理员（id !== 1），过滤掉 id === 1 的用户
+    if (userStore.userId != 1) {
+      filteredList = filteredList.filter(user => user.id !== 1)
+    }
 
+    userList.value = filteredList.map(user => {
       // 查找匹配的部门
-      const matchedDepartment = departmentOptions.value.find(d => {
-        // 打印每次比较的 id 和 departmentid
-        return d.code == user.departmentid;
-      });
-
-      // 打印查找结果
-      // console.log(`匹配结果: ${matchedDepartment ? `找到部门: ${matchedDepartment.name}` : '未找到匹配部门'}`);
-
+      const matchedDepartment = departmentOptions.value.find(d => d.code == user.departmentid)
       return {
         ...user,
         departmentName: matchedDepartment?.name || '未知'
-      };
-    });
+      }
+    })
     total.value = res.data.page.totalRow
   } catch (error) {
     console.error('获取用户列表失败', error)
@@ -299,7 +304,6 @@ const getUserList = async () => {
     loading.value = false
   }
 }
-
 // 获取部门选项
 const fetchDepartmentOptions = async () => {
   try {

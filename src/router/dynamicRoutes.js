@@ -35,26 +35,17 @@ const viewComponents = {
   //实物ID
   'plmanage/plentityid': () => import('@/views/plmanage/plentityid/plentityid.vue'),
 
-  //生产订单
-  'plmanage/plshengchandingdan': () => import('@/views/plmanage/plshengchandingdan/shengchandingdan.vue'),
+
   //生产订单--新
   'plmanage/plproductionorder': () => import('@/views/plmanage/plproductionorder/orderList.vue'),
-  //查看生产订单
-  'plmanage/chakandingdan': () => import('@/views/plmanage/plshengchandingdan/chakandingdan.vue'),
-  //生产工单
-  'plmanage/plshengchangongdan': () => import('@/views/plmanage/plshengchangongdan/shengchangongdan.vue'),
+
   //生产工单---新
   'plmanage/plworkorder': () => import('@/views/plmanage/plworkorder/orderList.vue'),
-  //查看生产工单
-  'plmanage/chakangongdan': () => import('@/views/plmanage/plshengchangongdan/chakangongdan.vue'),
-  //排产计划
-  'plmanage/plpaichanjihua': () => import('@/views/plmanage/plpaichanjihua/paichanjihua.vue'),
+
+
   //排产计划--新
   'plmanage/plscheduleplan': () => import('@/views/plmanage/plscheduleplan/planList.vue'),
-  //查看排产计划
-  'plmanage/chakanjihua': () => import('@/views/plmanage/plpaichanjihua/chakanjihua.vue'),
-  //报工单
-  'plmanage/plbaogongdan': () => import('@/views/plmanage/plbaogongdan/baogongdan.vue'),
+
     //报工单新
   'plmanage/plreportworkorder': () => import('@/views/plmanage/plreportworkorder/orderList.vue'),
   //供货单
@@ -81,8 +72,7 @@ const viewComponents = {
   'kucun/chengpin': () => import('@/views/kucun/chengpin.vue'),
   //重点原材料库存管理
   'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
-  //原材料入库
-  'kucun/plinoutstore': () => import('@/views/kucun/plinoutstore/plinoutstore.vue'),
+
 
     //原材料入库单据列表
   'kucun/matInList': () => import('@/views/plstoreinout/matinout/matInList.vue'),
