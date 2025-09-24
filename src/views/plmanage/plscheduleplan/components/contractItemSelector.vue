@@ -105,7 +105,10 @@
             <el-table-column prop="itemunit" label="单位" width="80" />
             <el-table-column label="操作" width="80" fixed="right">
               <template #default="scope">
-                <el-button type="primary" size="small" @click="selectMaterial(scope.row)">
+                <div v-if="scope.row.scheduleCode">
+                  已制定: {{ scope.row.scheduleCode }}
+                </div>
+                <el-button v-else type="primary" size="small" @click="selectMaterial(scope.row)">
                   选择
                 </el-button>
               </template>
