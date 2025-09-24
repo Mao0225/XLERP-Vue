@@ -328,7 +328,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue';
-import { getContractByNo } from '@/api/contract/bascontract.js';
+import { getContractInfoByNo } from '@/api/contract/bascontract.js';
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import Tongzhituzhi from './tongzhituzhi.vue'; // 引入选择图纸组件
 import Beiliaodan from './beiliaodan.vue'; // 引入备料计划组件
@@ -458,7 +458,7 @@ const loadContractData = async () => {
     return;
   }
   try {
-    const res = await getContractByNo({ contractNo: props.contractNo });
+    const res = await getContractInfoByNo({ contractNo: props.contractNo });
     const { contractInfo, itemList } = res.data;
     Object.assign(form, contractInfo || {});
     productList.value = itemList || [];
