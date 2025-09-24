@@ -15,7 +15,7 @@
     >
       <!-- 基本信息 -->
       <el-divider content-position="left">基本信息</el-divider>
-      <el-row :gutter="20">
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="采购方总部编码" prop="purchaserHqCode">
             <el-input v-model="form.purchaserHqCode" placeholder="选择生产订单后自动填充" readonly />
@@ -26,23 +26,21 @@
             <el-input v-model="form.supplierCode" placeholder="选择生产订单后自动填充" readonly />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
       
       <el-row :gutter="20">
-        <el-col :span="12">
+        <!-- <el-col :span="12">
           <el-form-item label="供应商名称" prop="supplierName">
             <el-input v-model="form.supplierName" placeholder="选择生产订单后自动填充" readonly/>
           </el-form-item>
-        </el-col>
+        </el-col> -->
+
         <el-col :span="12">
           <el-form-item label="生产工单号" prop="woNo">
             <el-input v-model="form.woNo" placeholder="请输入生产工单号"  readonly />
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <el-row :gutter="20">
-        <el-col :span="12">
+                <el-col :span="12">
           <el-form-item label="生产订单号" prop="ipoNo">
             <el-input 
                   v-model="form.ipoNo" 
@@ -59,7 +57,7 @@
       </el-row>
 
       <!-- 物料信息 -->
-      <el-divider content-position="left">物料信息</el-divider>
+      <!-- <el-divider content-position="left">物料信息</el-divider>
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="品类编码" prop="categoryCode">
@@ -71,7 +69,7 @@
             <el-input v-model="form.subclassCode" placeholder="选择生产订单后自动填充" readonly />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <el-row :gutter="20">
         <el-col :span="12">
@@ -196,57 +194,49 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <!-- 生产信息 -->
-      <el-divider content-position="left">生产信息</el-divider>
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="工艺路线编码" prop="processRouteNo">
-            <el-input v-model="form.processRouteNo" placeholder="请输入工艺路线编码" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="电压等级" prop="voltageLevel">
-            <el-input v-model="form.voltageLevel" placeholder="请输入电压等级" />
+                <el-col :span="12">
+          <el-form-item label="数据来源" prop="dataSource">
+            <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
           </el-form-item>
         </el-col>
       </el-row>
 
-      <el-row :gutter="20">
+
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="工单状态" prop="woStatus">
             <el-input v-model="form.woStatus" placeholder="请输入工单状态" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <!-- 数据信息 -->
-      <el-divider content-position="left">数据信息</el-divider>
+      <!-- <el-divider content-position="left">数据信息</el-divider>
       <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="数据来源" prop="dataSource">
-            <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
-          </el-form-item>
-        </el-col>
+
         <el-col :span="12">
           <el-form-item label="数据拥有方" prop="ownerId">
             <el-input v-model="form.ownerId" placeholder="请输入数据拥有方" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
-      <el-row :gutter="20">
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="数据可见方" prop="openId">
             <el-input v-model="form.openId" placeholder="请输入数据可见方" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <!-- 其他信息 -->
       <el-divider content-position="left">其他信息</el-divider>
       <el-row :gutter="20">
+                <el-col :span="12">
+          <el-form-item label="工艺路线编码" prop="processRouteNo">
+            <el-input v-model="form.processRouteNo" placeholder="请输入工艺路线编码" />
+          </el-form-item>
+        </el-col>
         <el-col :span="12">
           <el-form-item label="记录创建人" prop="writer">
             <el-input v-model="form.writer" placeholder="请输入记录创建人" readonly />
@@ -341,12 +331,12 @@ const form = reactive({
   planFinishDate: '',
   actualStartDate: '',
   actualFinishDate: '',
-  woStatus: '暂无',
+  woStatus: '',
   entityCode: '',
   processRouteNo: '',
   voltageLevel: '',
-  dataSource: '',
-  dataSourceCreateTime: '',
+  dataSource: '手工录入',
+  dataSourceCreateTime: new Date().toISOString(),
   ownerId: '',
   openId: '',
   modelSpec: '',
@@ -372,7 +362,7 @@ const rules = reactive({
   unit: [{ required: true, message: '请输入计量单位', trigger: 'blur' }],
   planStartDate: [{ required: true, message: '请选择计划开始日期', trigger: 'change' }],
   planFinishDate: [{ required: true, message: '请选择计划完成日期', trigger: 'change' }],
-  dataSource: [{ required: true, message: '请输入数据来源', trigger: 'blur' }],
+  dataSource: [{ message: '请输入数据来源', trigger: 'blur' }],
   dataSourceCreateTime: [{ required: true, message: '请选择来源数据创建时间', trigger: 'change' }]
 });
 
