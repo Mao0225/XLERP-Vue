@@ -21,7 +21,7 @@
       </div>
 
       <!-- 状态筛选（改为RadioGroup，与模板一致） -->
-      <div class="filter-row">
+      <!-- <div class="filter-row">
         <div class="status-filter">
           <span class="filter-label">工单状态：</span>
           <el-radio-group v-model="filters.status">
@@ -34,7 +34,7 @@
             </el-radio-button>
           </el-radio-group>
         </div>
-      </div>
+      </div> -->
 
       <!-- 筛选操作（保持模板样式） -->
       <div class="filter-actions">
@@ -59,14 +59,14 @@
           <template #header>
             <div class="card-header">
               <span>生产工单列表</span>
-              <el-button type="primary" @click="openAddDialog">创建工单</el-button>
+              <el-button type="primary" @click="showSelector = true">制定生产工单</el-button>
             </div>
           </template>
 
           <!-- 列表表格（增加确认/反确认按钮，移除前端筛选） -->
           <el-table :data="tableData" :highlight-current-row="true" @current-change="selectOrder" v-loading="loading"
             height="600">
-            <el-table-column type="index" label="序号" width="80" />
+            <el-table-column type="index" label="序号" width="60" />
             <!-- 状态列（与模板样式统一） -->
             <el-table-column label="状态" width="120">
               <template #default="{ row }">
@@ -80,19 +80,21 @@
             </el-table-column>
 
             <!-- 核心业务列 -->
-            <el-table-column prop="woNo" label="生产工单号" width="180" show-overflow-tooltip>
+            <el-table-column prop="woNo" label="生产工单号" width="100" show-overflow-tooltip>
               <template #default="{ row }">
                 <el-link type="primary" @click="selectOrder(row)">{{ row.woNo }}</el-link>
               </template>
             </el-table-column>
-            <el-table-column prop="materialsName" label="物料名称" width="150" show-overflow-tooltip />
-            <el-table-column prop="materialsBatch" label="物料批次" width="150" show-overflow-tooltip />
-            <el-table-column label="生产数量" width="120">
+            <el-table-column prop="materialsCode" label="物料编码" width="100" show-overflow-tooltip />
+            <el-table-column prop="materialsName" label="物料名称" width="100" show-overflow-tooltip />
+            <el-table-column prop="modelSpec" label="规格型号" width="100" show-overflow-tooltip />
+
+            <el-table-column label="生产数量" width="100">
               <template #default="{ row }">
                 {{ row.amount }} {{ row.unit }}
               </template>
             </el-table-column>
-            <el-table-column label="计划日期" width="200">
+            <el-table-column label="计划日期" width="100">
               <template #default="{ row }">
                 <div class="date-range">
                   <div>{{ row.planStartDate }}</div>
@@ -112,6 +114,27 @@
                     </el-icon>
                     反确认
                   </el-button>
+                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 30)">
+                    <el-icon>
+                      <Select />
+                    </el-icon>
+                    审核通过
+                  </el-button>
+                </template>
+
+                <template v-if="row.status === '30'">
+                  <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 40)">
+                    <el-icon>
+                      <Select />
+                    </el-icon>
+                    确认工单完成
+                  </el-button>
+                    <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看报工情况
+                  </el-button>
                 </template>
 
                 <!-- 状态=10（录入）：显示确认、编辑按钮 -->
@@ -129,11 +152,11 @@
                     编辑
                   </el-button>
                   <el-button type="danger" size="small" @click="deleteOrder(row)">
-                  <el-icon>
-                    <Delete />
-                  </el-icon>
-                  删除
-                </el-button>
+                    <el-icon>
+                      <Delete />
+                    </el-icon>
+                    删除
+                  </el-button>
                 </template>
 
               </template>
@@ -182,7 +205,7 @@
                 </div>
                 <div class="info-item">
                   <span class="label">生产数量：</span>
-                  <span class="value">{{ selectedOrder.amount }} {{ selectedOrder.unit }}</span>
+                  <span class="value">{{ selectedOrder.amount }} {{ selectedOrder.materialsUnit }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">物料批次：</span>
@@ -191,7 +214,7 @@
               </div>
             </div>
 
-                        <div class="detail-section">
+            <div class="detail-section">
               <h4>物料信息</h4>
               <div class="info-grid">
                 <div class="info-item">
@@ -233,7 +256,7 @@
               </div>
             </div>
 
-            <div class="detail-section">
+            <!-- <div class="detail-section">
               <h4>状态信息</h4>
               <div class="progress-info">
                 <div class="status-info">
@@ -246,7 +269,7 @@
                   <span class="schedule-text">{{ selectedOrder.woStatus || '无' }}</span>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <el-empty v-else description="请选择列表中的生产工单查看详情" />
@@ -254,12 +277,13 @@
       </div>
     </div>
 
-    <!-- 新增/编辑弹窗（保持原引用，优化事件名） -->
-    <addOrder :visible="addDialogVisible" :newCode="newCode" @update:visible="addDialogVisible = $event"
-      @success="handleAddSuccess" />
 
     <editOrder :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
       @success="handleEditSuccess" />
+
+
+    <productionOrderSelector v-model:visible="showSelector" @close="loadData" />
+    <reportOrderList v-model:visible="showReportSelector" :woNo = "selectWoNo" />
   </div>
 </template>
 
@@ -269,21 +293,28 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 // 图标按需引入（补充反确认所需图标）
 import {
   Search, Refresh, Close, Edit, Delete, CircleCheck,
-  CircleCheckFilled, CircleCloseFilled, Clock
+  CircleCheckFilled, CircleCloseFilled, Clock,Select,
+  Document
 } from '@element-plus/icons-vue';
 // 接口与组件引用（保持原逻辑）
 import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById, updateOrderStatus } from '@/api/plmanage/plworkorder';
-import addOrder from './components/addOrder.vue';
 import editOrder from './components/editOrder.vue';
-import { getNewNoNyName } from '@/api/system/basno';
+import productionOrderSelector from './components/productionOrderSelector.vue';
+import reportOrderList from './components/reportOrderList.vue';
 
 // 1. 基础状态（与模板结构对齐）
 const loading = ref(false);
 const selectedOrder = ref(null); // 选中的工单详情
-const addDialogVisible = ref(false); // 新增弹窗显隐
 const editDialogVisible = ref(false); // 编辑弹窗显隐
-const newCode = ref(''); // 新工单编码
 const formData = ref({}); // 编辑表单数据
+const showSelector = ref(false);
+const showReportSelector = ref(false);
+const selectWoNo = ref('');
+
+const openReportOrderList = (woNo) => {
+  selectWoNo.value = woNo;
+  showReportSelector.value = true;
+};
 
 // 2. 筛选条件（改为单选状态，移除前端筛选字段）
 const filters = reactive({
@@ -310,22 +341,6 @@ const statusOptions = ref([
 // 6. 表格数据（纯后端返回，无前端筛选）
 const tableData = ref([]);
 
-// 7. 核心方法（优化为纯后端查询，补充状态更新逻辑）
-// 生成新工单号（保持原逻辑）
-const generateNewCode = async () => {
-  try {
-    const res = await getNewNoNyName('scgd');
-    if (res?.code === 200) {
-      return res.data.fullNoNyName;
-    }
-    ElMessage.error(res?.msg || '获取编码失败');
-    return '';
-  } catch (error) {
-    console.error('生成编码出错:', error);
-    ElMessage.error('请求编码服务时发生错误');
-    return '';
-  }
-};
 
 // 加载列表数据（改为纯后端查询，移除前端筛选）
 const loadData = async () => {
@@ -356,7 +371,7 @@ const loadData = async () => {
         materialsDescription: item.materialsDescription || '无',
         materialsBatch: item.materialsBatch || '无',
         amount: item.amount,
-        unit: item.unit,
+        materialsUnit: item.unit,
         planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '',
         planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '',
         actualStartDate: item.actualStartDate ? item.actualStartDate.split(' ')[0] : '',
@@ -409,21 +424,13 @@ const handleCurrentChange = (page) => {
   loadData();
 };
 
-// 弹窗操作（优化事件名与模板一致）
-const openAddDialog = async () => {
-  newCode.value = await generateNewCode();
-  addDialogVisible.value = true;
-};
+
 const openEditDialog = async (id) => {
   const res = await getPlWorkOrderById({ id });
   formData.value = res.data.order;
   editDialogVisible.value = true;
 };
-const handleAddSuccess = () => {
-  addDialogVisible.value = false;
-  ElMessage.success('新增成功');
-  loadData();
-};
+
 const handleEditSuccess = () => {
   editDialogVisible.value = false;
   ElMessage.success('编辑成功');
@@ -431,29 +438,54 @@ const handleEditSuccess = () => {
 };
 
 // 状态变更（确认/反确认功能）
-const handleStatusUpdate = async (id, status) => {
+const handleStatusUpdate = async (id, newStatus) => {
   try {
-    const actionText = status === '20' ? '确认' : '反确认';
-    await ElMessageBox.confirm(`确定要${actionText}该生产工单吗？`, '提示', {
-      type: 'warning'
-    });
 
-    // 调用状态更新接口
-    const res = await updateOrderStatus({ id, status });
-    if (res.code === 200 && res.success) {
-      ElMessage.success(`${actionText}成功`);
-      loadData();
-      // 如果当前选中项是更新的项，同步更新状态
-      if (selectedOrder.value?.id === id) {
-        selectedOrder.value.status = status;
-      }
-    } else {
-      throw new Error(res.msg || `${actionText}失败`);
+    // 调试：打印 id 和 newStatus
+    console.log('id:', id, 'newStatus:', newStatus);
+
+    // 验证 id 和 newStatus 是否有效
+    if (!id || !newStatus) {
+      ElMessage.error('无效的工单ID或状态');
+      return;
     }
-  } catch (err) {
-    if (err !== 'cancel') ElMessage.error(err.message || '操作失败');
+    const statusText = {
+      10: '反确认',
+      20: '确认', 
+      30: '审核通过',
+      40: '已完成',
+    };
+    
+    // 弹窗确认
+    await ElMessageBox.confirm(
+      `确定${statusText[newStatus] || '修改'}该生产工单吗？`,
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    );
+
+    // 用户确认后发送请求
+   const res = await updateOrderStatus({
+      id: id,
+      status: newStatus
+    });;
+    if (res.code === 200) {
+      ElMessage.success(`状态更新成功`);
+      loadData(); // 重新加载数据
+    } else {
+      ElMessage.error(res.msg || '修改失败');
+    }
+  } catch (error) {
+    // 如果用户取消或发生错误，不做处理
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败，请重试');
+    }
   }
 };
+
 
 // 删除操作（保持原逻辑）
 const deleteOrder = async (row) => {
@@ -479,24 +511,48 @@ const deleteOrder = async (row) => {
   }
 };
 
-// 状态样式映射（与模板一致）
+
+// 方法
 const getStatusClass = (status) => {
-  return status === '10' ? 'status-entered' :
-    status === '20' ? 'status-confirmed' : '';
-};
-const getStatusTagType = (status) => {
-  return status === '10' ? 'info' :
-    status === '20' ? 'primary' : 'info';
-};
-const getStatusIcon = (status) => {
-  return status === '10' ? Clock :
-    status === '20' ? CircleCheck : Clock;
-};
-const getStatusText = (status) => {
-  return status === '10' ? '录入' :
-    status === '20' ? '确认' : '未知';
+  const classes = {
+    '10': 'status-entered',
+    '20': 'status-confirmed',
+    '30': 'status-approved',  // 新增这一行
+    '40': 'status-approved'  // 新增这一行
+  };
+  return classes[status] || '';
 };
 
+const getStatusTagType = (status) => {
+  const types = {
+    '10': 'info',
+    '20': 'primary',
+    '30': 'success',  // 新增这一行
+    '40': 'success',  // 新增这一行
+
+  };
+  return types[status] || '';
+};
+
+const getStatusIcon = (status) => {
+  const icons = {
+    '10': 'Clock',
+    '20': 'CircleCheck',
+    '30': 'Select', // 新增这一行，或者用其他合适的图标
+    '40': 'Select'
+  };
+  return icons[status] || 'Clock';
+};
+
+const getStatusText = (status) => {
+  const texts = {
+    '10': '录入',
+    '20': '确认',
+    '30': '审核通过',  // 新增这一行
+    '40': '已完成'
+  };
+  return texts[status] || '';
+}
 // 选中工单
 const selectOrder = (order) => {
   selectedOrder.value = order;
@@ -666,6 +722,12 @@ onMounted(() => {
 .schedule-text {
   color: #606266;
   font-size: 12px;
+}
+
+/* 审核通过状态样式 */
+.status-approved {
+  background-color: #f0f9ff;
+  color: #067f46;
 }
 
 /* 状态按钮样式（与模板一致） */

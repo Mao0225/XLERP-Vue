@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <div class="filter-row">
+      <!-- <div class="filter-row">
         <div class="status-filter">
           <span class="filter-label">订单状态：</span>
           <el-radio-group v-model="filters.status">
@@ -56,7 +56,7 @@
             </el-radio-button>
           </el-radio-group>
         </div>
-      </div>
+      </div> -->
 
       <div class="filter-actions">
         <el-button type="primary" @click="handleSearch">
@@ -76,7 +76,7 @@
           <template #header>
             <div class="card-header">
               <span>生产订单列表</span>
-              <el-button type="primary" @click="openAddDialog">创建订单</el-button>
+              <el-button type="primary" @click="showSelector = true">创建订单</el-button>
             </div>
           </template>
 
@@ -87,8 +87,8 @@
             v-loading="loading"
             height="600"
           >
-            <el-table-column type="index" label="序号" width="80" />
-            <el-table-column label="状态" width="120">
+            <el-table-column type="index" label="序号" width="60" />
+            <el-table-column label="状态" width="100">
               <template #default="{ row }">
                 <el-tag :type="getStatusTagType(row.status)" size="small">
                   <el-icon><component :is="getStatusIcon(row.status)" /></el-icon>
@@ -96,13 +96,13 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="ipoNo" label="生产订单号" width="180" show-overflow-tooltip>
+            <el-table-column prop="ipoNo" label="生产订单号" width="100" show-overflow-tooltip>
               <template #default="{ row }">
                 <el-link type="primary" @click="selectOrder(row)">{{ row.ipoNo }}</el-link>
               </template>
             </el-table-column>
-            <el-table-column prop="itemName" label="合同产品名称" width="150" show-overflow-tooltip />
-            <el-table-column prop="itemSpec" label="合同产品型号" width="150" show-overflow-tooltip />
+            <el-table-column prop="itemName" label="产品名称" width="100" show-overflow-tooltip />
+            <el-table-column prop="itemSpec" label="产品型号" width="100" show-overflow-tooltip />
             <el-table-column label="生产数量" width="120">
               <template #default="{ row }">
                 {{ row.amount }} {{ row.unit }}
@@ -125,6 +125,12 @@
                       <CircleCloseFilled />
                     </el-icon>
                     反确认
+                  </el-button>
+                   <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 30)">
+                    <el-icon>
+                      <Select />
+                    </el-icon>
+                    审核通过
                   </el-button>
                 </template>
 
@@ -214,7 +220,7 @@
             </div>
 
                         <div class="detail-section">
-              <h4>合同产品信息</h4>
+              <h4>产品信息</h4>
               <div class="info-grid">
                 <div class="info-item">
                   <span class="label">产品名称</span>
@@ -313,39 +319,34 @@
       </div>
     </div>
 
-    <!-- 弹窗组件 -->
-    <addOrder
-      :visible="addDialogVisible"
-      :newCode="newCode"
-      @update:visible="addDialogVisible = $event"
-      @success="handleSuccessAdd"
-    />
     <editOrder
       :visible="editDialogVisible"
       :initial-data="formData"
       @update:visible="editDialogVisible = $event"
       @success="handleSuccessEdit"
     />
+
+    <schedule-selector v-model:visible="showSelector" @closed="loadData" />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, Refresh, Clock, CircleCheck, Edit, Delete, Close,CircleCheckFilled,CircleCloseFilled } from '@element-plus/icons-vue';
+import { Search, Refresh, Clock, CircleCheck, Edit, Delete, Close,CircleCheckFilled,CircleCloseFilled,Select} from '@element-plus/icons-vue';
 import { getPlProductionOrderList, deletePlProductionOrder, getPlProductionOrderById,updateOrderStatus } from '@/api/plmanage/plproductionorder';
-import { getNewNoNyName } from '@/api/system/basno';
-import addOrder from './components/addOrder.vue';
 import editOrder from './components/editOrder.vue';
+import scheduleSelector from './components/scheduleSelector.vue';
+
 
 // 状态管理
 const loading = ref(false); // 表格加载状态
 const selectedOrder = ref(null); // 选中的订单
-const addDialogVisible = ref(false); // 新增弹窗显隐
 const editDialogVisible = ref(false); // 编辑弹窗显隐
 const newCode = ref(''); // 新订单编码
 const formData = ref({}); // 编辑表单数据
 const tableData = ref([]); // 表格数据
+const showSelector = ref(false)
 
 // 筛选条件
 const filters = reactive({
@@ -359,7 +360,8 @@ const filters = reactive({
 // 状态选项
 const statusOptions = ref([
   { value: '10', label: '录入', icon: Clock },
-  { value: '20', label: '确认', icon: CircleCheck }
+  { value: '20', label: '确认', icon: CircleCheck },
+  { value: '30', label: '审核通过', icon: Select },
 ]);
 
 // 分页配置
@@ -452,27 +454,6 @@ const loadData = async () => {
   await fetchData();
 };
 
-// 生成新订单编码
-const generateNewCode = async () => {
-  try {
-    const res = await getNewNoNyName('scdd');
-    if (res?.code === 200) {
-      newCode.value = res.data.fullNoNyName;
-      return res.data.fullNoNyName;
-    }
-    ElMessage.error(res?.msg || '获取编码失败');
-    return '';
-  } catch (error) {
-    ElMessage.error('请求编码服务时发生错误');
-    return '';
-  }
-};
-
-// 打开新增弹窗
-const openAddDialog = async () => {
-  newCode.value = await generateNewCode();
-  addDialogVisible.value = true;
-};
 
 // 打开编辑弹窗
 const openEditDialog = async (id) => {
@@ -481,12 +462,6 @@ const openEditDialog = async (id) => {
   editDialogVisible.value = true;
 };
 
-// 新增成功回调
-const handleSuccessAdd = () => {
-  addDialogVisible.value = false;
-  ElMessage.success('生产订单添加成功');
-  loadData();
-};
 
 // 编辑成功回调
 const handleSuccessEdit = () => {
@@ -518,12 +493,19 @@ const handleReset = () => {
 };
 
 // 状态变更
+
 // 处理弹窗确认逻辑
 const handleStatusUpdate = async (id, newStatus) => {
   try {
+    const statusText = {
+      10: '反确认',
+      20: '确认', 
+      30: '审核通过'
+    };
+    
     // 弹窗确认
     await ElMessageBox.confirm(
-      `确定要${newStatus === 20 ? '确认' : '反确认'}生产订单吗？`,
+      `确定要${statusText[newStatus] || '修改'}生产订单吗？`,
       '提示',
       {
         confirmButtonText: '确定',
@@ -604,10 +586,43 @@ const handleCurrentChange = (page) => {
 };
 
 // 状态样式
-const getStatusClass = (status) => status === '10' ? 'status-entered' : 'status-confirmed';
-const getStatusTagType = (status) => status === '10' ? 'info' : 'primary';
-const getStatusIcon = (status) => status === '10' ? Clock : CircleCheck;
-const getStatusText = (status) => status === '10' ? '录入' : '确认';
+
+// 方法
+const getStatusClass = (status) => {
+  const classes = {
+    '10': 'status-entered',
+    '20': 'status-confirmed',
+    '30': 'status-approved'  // 新增这一行
+  };
+  return classes[status] || '';
+};
+
+const getStatusTagType = (status) => {
+  const types = {
+    '10': 'info',
+    '20': 'primary',
+    '30': 'success'  // 新增这一行
+  };
+  return types[status] || '';
+};
+
+const getStatusIcon = (status) => {
+  const icons = {
+    '10': 'Clock',
+    '20': 'CircleCheck',
+    '30': 'Select'  // 新增这一行，或者用其他合适的图标
+  };
+  return icons[status] || 'Clock';
+};
+
+const getStatusText = (status) =>{
+  const texts = {
+    '10': '录入',
+    '20': '确认',
+    '30': '审核通过'  // 新增这一行
+  };
+  return texts[status] || '';
+}
 
 // 初始化加载
 onMounted(() => {
@@ -774,6 +789,11 @@ onMounted(() => {
   margin-top: 8px;
 }
 
+/* 审核通过状态样式 */
+.status-approved {
+  background-color: #f0f9ff;
+  color: #067f46;
+}
 .schedule-text {
   color: #606266;
   font-size: 12px;

@@ -1,61 +1,42 @@
 <template>
-  <el-dialog
-    title="编辑请检单"
-    :model-value="visible"
-    width="800px"
-    :center="true"
-    :close-on-click-modal="false"
-    @update:model-value="$emit('update:visible', $event)"
-    @closed="resetForm"
-  >
+  <el-dialog title="编辑请检单" :model-value="visible" width="800px" :center="true" :close-on-click-modal="false"
+    @update:model-value="$emit('update:visible', $event)" @closed="resetForm">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" class="custom-form">
       <el-row :gutter="20">
         <!-- 基础信息 -->
         <el-col :span="12">
           <el-form-item label="单据号" prop="basNo">
-            <el-input v-model="form.basNo" placeholder="单据号" readonly size="small" />
+            <el-input v-model="form.basNo" placeholder="自动生成" readonly size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="录入人" prop="writer">
-            <el-input v-model="form.writer" placeholder="录入人" readonly size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="form.status" placeholder="请选择状态" size="small" style="width: 100%">
-              <el-option label="检验单录入" value="10" />
-              <el-option label="检验单确认" value="20" />
-              <el-option label="检验数据录入完成" value="30" />
-              <el-option label="检验数据审核完成" value="40" />
-              <el-option label="已入库" value="50" />
-            </el-select>
+          <el-form-item label="录入人" prop="requestWriter">
+            <el-input v-model="form.requestWriter" placeholder="录入人" readonly size="small" />
           </el-form-item>
         </el-col>
 
         <!-- 合同信息 -->
         <el-col :span="12">
           <el-form-item label="合同编号" prop="contractNo">
-            <el-input v-model="form.contractNo" placeholder="请输入合同编号" clearable size="small" />
+            <el-input v-model="form.contractNo" placeholder="选择合同" readonly clearable @click="selectContract"
+              size="small">
+              <template #append>
+                <el-button @click="selectContract" size="small">选择</el-button>
+              </template>
+            </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="合同名称" prop="contractName">
-            <el-input v-model="form.contractName" placeholder="请输入合同名称" clearable size="small" />
+            <el-input v-model="form.contractName" placeholder="请输入合同名称" readonly clearable size="small" />
           </el-form-item>
         </el-col>
 
         <!-- 制造商信息 -->
         <el-col :span="24">
           <el-form-item label="原材料制造商" prop="mafactory">
-            <el-input
-              v-model="form.mafactory"
-              placeholder="选择原材料制造商"
-              readonly
-              clearable
-              @click="selectManufacturer"
-              size="small"
-            >
+            <el-input v-model="form.mafactory" placeholder="选择原材料制造商" readonly clearable @click="selectManufacturer"
+              size="small">
               <template #append>
                 <el-button @click="selectManufacturer" size="small">选择</el-button>
               </template>
@@ -65,13 +46,18 @@
 
         <!-- 批次和单号信息 -->
         <el-col :span="12">
-          <el-form-item label="复检单号" prop="matRecheckNo">
-            <el-input v-model="form.matRecheckNo" placeholder="请输入复检单号" clearable size="small" />
+          <el-form-item label="炉批号" prop="batchNo">
+            <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="炉批号" prop="batchNo">
-            <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable size="small" />
+          <el-form-item label="批次号" prop="batchNum">
+            <el-input v-model="form.batchNum" placeholder="请输入批次号" clearable size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="材质" prop="material">
+            <el-input v-model="form.material" placeholder="请输入铝锭材质" clearable size="small" />
           </el-form-item>
         </el-col>
 
@@ -87,97 +73,26 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="送货数量(t)" prop="deliveryQuantity">
+          <el-form-item label="送货数量" prop="deliveryQuantity">
             <el-input v-model.number="form.deliveryQuantity" placeholder="请输入送货数量" type="number" clearable size="small" step="0.01" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="验收数量(t)" prop="acceptQuantity">
+          <el-form-item label="验收数量" prop="acceptQuantity">
             <el-input v-model.number="form.acceptQuantity" placeholder="请输入验收数量" type="number" clearable size="small" step="0.01" />
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="单位" prop="unit">
+            <el-input v-model="form.unit" placeholder="请输入单位" clearable size="small" />
+          </el-form-item>
+        </el-col>
 
-        <!-- 文件信息 -->
-        <el-col :span="24">
-          <el-form-item label="材质书" prop="materialDoc">
-            <el-upload
-              ref="materialDocUpload"
-              :auto-upload="false"
-              :on-change="handleMaterialDocChange"
-              :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png"
-              :file-list="materialDocFileList"
-              :show-file-list="false"
-            >
-              <el-button type="primary" size="small">上传材质书</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.materialDoc && JSON.parse(form.materialDoc).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.materialDoc)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteMaterialDocFile(index)">删除</el-button>
-              </div>
-            </div>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="合格证" prop="qualificationCert">
-            <el-upload
-              ref="qualificationCertUpload"
-              :auto-upload="false"
-              :on-change="handleQualificationCertChange"
-              :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png"
-              :file-list="qualificationCertFileList"
-              :show-file-list="false"
-            >
-              <el-button type="primary" size="small">上传合格证</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.qualificationCert && JSON.parse(form.qualificationCert).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.qualificationCert)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteQualificationCertFile(index)">删除</el-button>
-              </div>
-            </div>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="出厂报告" prop="factoryReport">
-            <el-upload
-              ref="factoryReportUpload"
-              :auto-upload="false"
-              :on-change="handleFactoryReportChange"
-              :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png"
-              :file-list="factoryReportFileList"
-              :show-file-list="false"
-            >
-              <el-button type="primary" size="small">上传出厂报告</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.factoryReport && JSON.parse(form.factoryReport).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.factoryReport)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteFactoryReportFile(index)">删除</el-button>
-              </div>
-            </div>
-          </el-form-item>
-        </el-col>
+        <!-- 质量证明书 -->
         <el-col :span="24">
           <el-form-item label="质量证明书" prop="certificate">
-            <el-upload
-              ref="certificateUpload"
-              :auto-upload="false"
-              :on-change="handleCertificateChange"
-              :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png"
-              :file-list="certificateFileList"
-              :show-file-list="false"
-            >
+            <el-upload ref="certificateUpload" :auto-upload="false" :on-change="handleCertificateChange" :limit="10"
+              accept=".pdf,.jpg,.jpeg,.png" :file-list="certificateFileList" :show-file-list="false">
               <el-button type="primary" size="small">上传质量证明书</el-button>
             </el-upload>
             <div class="uploaded-files" v-if="form.certificate && JSON.parse(form.certificate).length > 0">
@@ -194,20 +109,13 @@
         <!-- 备注 -->
         <el-col :span="24">
           <el-form-item label="备注" prop="memo">
-            <el-input 
-              v-model="form.memo" 
-              type="textarea" 
-              :rows="3"
-              placeholder="请输入备注信息" 
-              clearable 
-              maxlength="200"
-              show-word-limit
-            />
+            <el-input v-model="form.memo" type="textarea" :rows="3" placeholder="请输入备注信息" clearable maxlength="200"
+              show-word-limit />
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
-    
+
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="$emit('update:visible', false)" size="small">取消</el-button>
@@ -216,21 +124,20 @@
     </template>
 
     <!-- 供应商选择弹窗 -->
-    <SupplierSelector
-      v-model:visible="supplierSelectorVisible"
-      @select="handleSelect"
-    />
+    <SupplierSelector v-model:visible="supplierSelectorVisible" @select="handleSelect" />
+    <ContractSelector v-model:visible="ContractSelectorVisible" @select="handleContractSelect" />
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { updateLd } from '@/api/clmanage/cl-ld'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
 import SupplierSelector from '../components/SupplierSelector.vue'
+import ContractSelector from '../components/contractSelector.vue'
 
 const props = defineProps({
   visible: {
@@ -249,39 +156,56 @@ const userStore = useUserStore()
 const baseUrl = baseURL
 const formRef = ref(null)
 const certificateUpload = ref(null)
-const materialDocUpload = ref(null)
-const qualificationCertUpload = ref(null)
-const factoryReportUpload = ref(null)
+
 const certificateFileList = ref([])
-const materialDocFileList = ref([])
-const qualificationCertFileList = ref([])
-const factoryReportFileList = ref([])
+
 const submitting = ref(false)
+const ContractSelectorVisible = ref(false)
+
+const selectManufacturer = () => {
+  supplierSelectorVisible.value = true
+}
+
+const selectContract = () => {
+  ContractSelectorVisible.value = true
+}
+
+const handleSelect = (supplier) => {
+  console.log("选中的供应商是:", supplier.descr)
+  form.mafactory = supplier.descr
+}
+
+const handleContractSelect = (contract) => {
+  console.log("选中的合同是:", contract)
+  form.contractNo = contract.no
+  form.contractName = contract.name
+}
 
 const form = reactive({
   id: undefined,
   basNo: '',
   contractNo: '',
   contractName: '',
-  matRecheckNo: '',
+  material: '',
   mafactory: '',
   matMaterial: '',
   batchNo: '',
+  batchNum: '',
   type: '',
   deliveryQuantity: '',
   acceptQuantity: '',
-  materialDoc: '[]',
-  qualificationCert: '[]',
-  factoryReport: '[]',
+  unit: 'kg',
   certificate: '[]',
-  writer: userStore.descr || '未知用户',
+  requestWriter: userStore.descr || '未知用户',
   writeTime: '',
   status: '10',
   memo: ''
 })
 
 const rules = reactive({
-  basNo: [{ required: true, message: '单据号不能为空', trigger: 'blur' }],
+  basNo: [
+    { required: true, message: '请获取单据号', trigger: 'blur' }
+  ],
   contractNo: [
     { required: true, message: '请输入合同编号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
@@ -294,113 +218,74 @@ const rules = reactive({
     { required: true, message: '请选择原材料制造商', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  matRecheckNo: [
-    { required: true, message: '请输入复检单号', trigger: 'blur' },
+  material: [
+    { required: true, message: '请输入材质信息', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   matMaterial: [
     { required: true, message: '请输入牌号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  batchNo: [{ max: 50, message: '长度不能超过50个字符', trigger: 'blur' }],
-  type: [{ max: 50, message: '长度不能超过50个字符', trigger: 'blur' }],
-  deliveryQuantity: [{ type: 'number', message: '必须为数字', trigger: 'blur' }],
-  acceptQuantity: [{ type: 'number', message: '必须为数字', trigger: 'blur' }],
-  materialDoc: [{ required: true, message: '请上传材质书', trigger: 'change' }],
-  qualificationCert: [{ required: true, message: '请上传合格证', trigger: 'change' }],
-  factoryReport: [{ required: true, message: '请上传出厂报告', trigger: 'change' }],
-  certificate: [{ required: true, message: '请上传质量证明书', trigger: 'change' }],
-  writer: [{ required: true, message: '录入人不能为空', trigger: 'blur' }],
-  memo: [{ max: 200, message: '长度不能超过200个字符', trigger: 'blur' }]
+  batchNo: [
+    { required: true, max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  type: [
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  deliveryQuantity: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  acceptQuantity: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  requestWriter: [
+    { required: true, message: '录入人不能为空', trigger: 'blur' }
+  ],
+  memo: [
+    { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
+  ]
 })
-
-watch(() => props.initialData, (newData) => {
-  if (newData && Object.keys(newData).length > 0) {
-    Object.assign(form, {
-      id: newData.id || undefined,
-      basNo: newData.basNo || '',
-      contractNo: newData.contractNo || '',
-      contractName: newData.contractName || '',
-      matRecheckNo: newData.matRecheckNo || '',
-      mafactory: newData.mafactory || '',
-      matMaterial: newData.matMaterial || '',
-      batchNo: newData.batchNo || '',
-      type: newData.type || '',
-      deliveryQuantity: newData.deliveryQuantity || '',
-      acceptQuantity: newData.acceptQuantity || '',
-      materialDoc: newData.materialDoc || '[]',
-      qualificationCert: newData.qualificationCert || '[]',
-      factoryReport: newData.factoryReport || '[]',
-      certificate: newData.certificate || '[]',
-      writer: newData.writer || userStore.descr || '未知用户',
-      writeTime: newData.writeTime || '',
-      status: newData.status || '10',
-      memo: newData.memo || ''
-    })
-
-    // Update file lists
-    certificateFileList.value = form.certificate ? JSON.parse(form.certificate) : []
-    materialDocFileList.value = form.materialDoc ? JSON.parse(form.materialDoc) : []
-    qualificationCertFileList.value = form.qualificationCert ? JSON.parse(form.qualificationCert) : []
-    factoryReportFileList.value = form.factoryReport ? JSON.parse(form.factoryReport) : []
-  }
-}, { deep: true, immediate: true })
-
-const selectManufacturer = () => {
-  supplierSelectorVisible.value = true
-}
-
-const handleSelect = (supplier) => {
-  form.mafactory = supplier.descr
-  supplierSelectorVisible.value = false
-}
 
 const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
   }
-  certificateUpload.value?.clearFiles()
-  materialDocUpload.value?.clearFiles()
-  qualificationCertUpload.value?.clearFiles()
-  factoryReportUpload.value?.clearFiles()
+  if (certificateUpload.value) {
+    certificateUpload.value.clearFiles()
+  }
   certificateFileList.value = []
-  materialDocFileList.value = []
-  qualificationCertFileList.value = []
-  factoryReportFileList.value = []
   Object.assign(form, {
     id: undefined,
     basNo: '',
     contractNo: '',
     contractName: '',
-    matRecheckNo: '',
+    material: '',
     mafactory: '',
     matMaterial: '',
     batchNo: '',
+    batchNum: '',
     type: '',
     deliveryQuantity: '',
     acceptQuantity: '',
-    materialDoc: '[]',
-    qualificationCert: '[]',
-    factoryReport: '[]',
     certificate: '[]',
-    writer: userStore.descr || '未知用户',
+    requestWriter: userStore.descr || '未知用户',
     writeTime: '',
     status: '10',
     memo: ''
   })
 }
 
-const handleFileUpload = async (file, field, fileListRef) => {
+const handleCertificateChange = async (file) => {
   const formData = new FormData()
   formData.append('file', file.raw)
   try {
     const res = await uploadFile(formData)
     if (res.success && res.data && res.data.url) {
       const relativeUrl = res.data.url
-      const fileList = JSON.parse(form[field] || '[]')
+      const fileList = JSON.parse(form.certificate)
       fileList.push({ name: file.name, url: relativeUrl })
-      form[field] = JSON.stringify(fileList)
-      fileListRef.value.push({ name: file.name, url: relativeUrl })
+      form.certificate = JSON.stringify(fileList)
+      certificateFileList.value.push({ name: file.name, url: relativeUrl })
       ElMessage.success(`${file.name} 上传成功`)
     } else {
       throw new Error(res.msg || '文件上传失败')
@@ -408,25 +293,16 @@ const handleFileUpload = async (file, field, fileListRef) => {
   } catch (error) {
     console.error('文件上传失败', error)
     ElMessage.error(`${file.name} 上传失败`)
+    certificateUpload.value.clearFiles()
   }
 }
 
-const handleCertificateChange = (file) => handleFileUpload(file, 'certificate', certificateFileList)
-const handleMaterialDocChange = (file) => handleFileUpload(file, 'materialDoc', materialDocFileList)
-const handleQualificationCertChange = (file) => handleFileUpload(file, 'qualificationCert', qualificationCertFileList)
-const handleFactoryReportChange = (file) => handleFileUpload(file, 'factoryReport', factoryReportFileList)
-
-const deleteFile = (index, field, fileListRef) => {
-  const fileList = JSON.parse(form[field])
+const deleteCertificateFile = (index) => {
+  const fileList = JSON.parse(form.certificate)
   fileList.splice(index, 1)
-  form[field] = JSON.stringify(fileList)
-  fileListRef.value.splice(index, 1)
+  form.certificate = JSON.stringify(fileList)
+  certificateFileList.value.splice(index, 1)
 }
-
-const deleteCertificateFile = (index) => deleteFile(index, 'certificate', certificateFileList)
-const deleteMaterialDocFile = (index) => deleteFile(index, 'materialDoc', materialDocFileList)
-const deleteQualificationCertFile = (index) => deleteFile(index, 'qualificationCert', qualificationCertFileList)
-const deleteFactoryReportFile = (index) => deleteFile(index, 'factoryReport', factoryReportFileList)
 
 const openFileInNewWindow = (url) => {
   window.open(baseUrl + url, '_blank')
@@ -438,7 +314,7 @@ const submitForm = async () => {
   try {
     await formRef.value.validate()
     if (!form.basNo) {
-      ElMessage.error('单据号不能为空，请检查')
+      ElMessage.error('单据号未生成，请刷新重试')
       return
     }
     const now = new Date()
@@ -460,6 +336,34 @@ const submitForm = async () => {
     submitting.value = false
   }
 }
+
+const dialogVisible = ref(props.visible)
+watch(() => props.visible, (newVal) => {
+  dialogVisible.value = newVal
+  if (newVal && props.initialData) {
+    Object.assign(form, {
+      id: props.initialData.id || undefined,
+      basNo: props.initialData.basNo || '',
+      contractNo: props.initialData.contractNo || '',
+      contractName: props.initialData.contractName || '',
+      material: props.initialData.material || '',
+      mafactory: props.initialData.mafactory || '',
+      matMaterial: props.initialData.matMaterial || '',
+      batchNo: props.initialData.batchNo || '',
+      batchNum: props.initialData.batchNum || '',
+      type: props.initialData.type || '',
+      deliveryQuantity: props.initialData.deliveryQuantity || '',
+      acceptQuantity: props.initialData.acceptQuantity || '',
+      unit: props.initialData.unit || 'kg',
+      certificate: props.initialData.certificate || '[]',
+      requestWriter: props.initialData.requestWriter || userStore.descr || '未知用户',
+      writeTime: props.initialData.writeTime || '',
+      status: props.initialData.status || '10',
+      memo: props.initialData.memo || ''
+    })
+    certificateFileList.value = JSON.parse(form.certificate) || []
+  }
+})
 </script>
 
 <style scoped>
@@ -501,9 +405,23 @@ const submitForm = async () => {
   line-height: 32px;
 }
 
+:deep(.el-divider--horizontal) {
+  margin: 12px 0;
+}
+
+:deep(.el-divider__text) {
+  font-size: 13px;
+  color: #409eff;
+  font-weight: 500;
+}
+
 :deep(.el-input--small .el-input__inner) {
   height: 32px;
   line-height: 32px;
+}
+
+:deep(.el-date-editor--date) {
+  width: 100%;
 }
 
 :deep(.el-upload) {
@@ -579,7 +497,7 @@ const submitForm = async () => {
   :deep(.el-dialog) {
     width: 95%;
   }
-  
+
   .el-col:nth-child(n) {
     margin-bottom: 0;
   }

@@ -54,7 +54,6 @@
       v-loading="loading"
       height="400"
       stripe
-      @selection-change="handleSelectionChange"
     >
         <el-table-column type="index" label="序号" width="80" />
       
@@ -67,7 +66,7 @@
     <el-table-column 
         prop="contractNo" 
         label="合同编号" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
@@ -76,27 +75,40 @@
         width="180" 
         show-overflow-tooltip
       />
+
+            <el-table-column 
+        prop="itemCode" 
+        label="物料编码" 
+        width="100" 
+        show-overflow-tooltip
+      />
       <el-table-column 
         prop="itemName" 
         label="物料名称" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
         prop="itemSpec" 
         label="规格型号" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
         prop="amount" 
-        label="数量" 
-        width="80" 
+        label="合同产品数量" 
+        width="120" 
+        align="center"
+      />
+      <el-table-column 
+        prop="allocatedAmount" 
+        label="已分配数量" 
+        width="100" 
         align="center"
       />
       
       
-      <el-table-column 
+      <!-- <el-table-column 
         label="计划开始时间" 
         width="120"
       >
@@ -121,22 +133,22 @@
         <template #default="{ row }">
           {{ row.planPeriod }} 天
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
 
       
       <el-table-column 
         label="操作" 
-        width="100" 
+        width="120" 
         fixed="right"
       >
         <template #default="{ row }">
           <el-button 
             type="primary" 
             size="small" 
-            @click="handleSelect(row)"
+            @click="openAddDialog(row)"
           >
-            选择
+            制定生产订单
           </el-button>
         </template>
       </el-table-column>
@@ -161,6 +173,15 @@
         <el-button @click="handleClose">取消</el-button>
       </span>
     </template>
+
+        <!-- 弹窗组件 -->
+    <addOrder
+      :visible="addDialogVisible"
+      :newCode="newCode"
+      :scheduleData="selectedRows"
+      @update:visible="addDialogVisible = $event"
+      @success="handleSuccessAdd"
+    />
   </el-dialog>
 </template>
 
@@ -169,7 +190,8 @@ import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { getConfirmPlSchedulePlan } from '@/api/plmanage/plscheduleplan'
-
+import { getNewNoNyName } from '@/api/system/basno';
+import addOrder from './addOrder.vue'
 // Props定义
 const props = defineProps({
   visible: {
@@ -179,7 +201,7 @@ const props = defineProps({
 })
 
 // Emits定义
-const emits = defineEmits(['update:visible', 'select'])
+const emits = defineEmits(['update:visible'])
 
 // 响应式数据
 const dialogVisible = computed({
@@ -190,7 +212,39 @@ const dialogVisible = computed({
 const loading = ref(false)
 const tableData = ref([])
 const selectedRows = ref([])
+const addDialogVisible = ref(false); // 新增弹窗显隐
 
+
+const newCode = ref(''); // 新订单编码
+
+// 生成新订单编码
+const generateNewCode = async () => {
+  try {
+    const res = await getNewNoNyName('scdd');
+    if (res?.code === 200) {
+      newCode.value = res.data.fullNoNyName;
+      return res.data.fullNoNyName;
+    }
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+  } catch (error) {
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+// 新增成功回调
+const handleSuccessAdd = () => {
+  addDialogVisible.value = false;
+  ElMessage.success('生产订单添加成功');
+  fetchData();
+};
+// 打开新增弹窗
+const openAddDialog = async (selection) => {
+  newCode.value = await generateNewCode();
+    selectedRows.value = selection
+
+  addDialogVisible.value = true;
+};
 // 搜索条件
 const filters = reactive({
   scheduleCode: '',
@@ -285,18 +339,6 @@ const handleSizeChange = (val) => {
 const handleCurrentChange = (val) => {
   pagination.current = val
   fetchData()
-}
-
-// 处理选择变化
-const handleSelectionChange = (selection) => {
-  selectedRows.value = selection
-}
-
-// 处理单行选择
-const handleSelect = (row) => {
-
-  emits('select', row)
-  handleClose()
 }
 
 

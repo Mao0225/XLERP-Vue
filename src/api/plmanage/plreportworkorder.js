@@ -69,3 +69,12 @@ return del (`/pl_report_work_order/batchdelete?ids=${encodeURIComponent(idsStrin
 export function updateStatus (data) {
 return get ('/pl_report_work_order/updateStatus', data)
 }
+
+/**
+ * 根据工单编号woNO获取报工单列表
+ * @param {Object} params - 查询参数
+ * @param {string} params.woNO - 工单编号
+ */
+export function getPlReportWorkOrderListByWoNo (params) {
+return get ('/pl_report_work_order/getListByWoNo', params)
+}

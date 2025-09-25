@@ -34,7 +34,7 @@
           </el-form-item>
         </el-col> -->
         <el-col :span="12">
-          <el-form-item label="采购订单行项目ID" prop="poItemId">
+          <el-form-item label="订单行项目ID" prop="poItemId">
             <el-input 
                   v-model="form.poItemId" 
                   placeholder="选择合同行项目ID" 
@@ -48,6 +48,11 @@
 
           </el-form-item>
         </el-col>
+         <el-col :span="12">
+          <el-form-item label="产品名称" prop="itemName">
+            <el-input v-model="form.itemName" readonly placeholder="请选择产品" />
+          </el-form-item>
+        </el-col>
       </el-row>
       
       <el-row :gutter="20">
@@ -58,7 +63,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="计划工期(天)" prop="planPeriod">
-            <el-input v-model.number="form.planPeriod" placeholder="请输入计划工期" type="number" />
+            <el-input v-model.number="form.planPeriod" readonly placeholder="自动计算" type="number" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -82,7 +87,7 @@
       <el-divider content-position="left">时间信息</el-divider>
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="交付日期" prop="dueDate">
+          <el-form-item label="最晚交付日期" prop="dueDate">
             <el-date-picker
               v-model="form.dueDate"
               type="date"
@@ -165,7 +170,7 @@
       </el-row> -->
 
       <!-- 数据信息 -->
-      <el-divider content-position="left">数据信息</el-divider>
+      <!-- <el-divider content-position="left">数据信息</el-divider>
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="数据来源" prop="dataSource">
@@ -183,7 +188,7 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
       
       <!-- <el-row :gutter="20">
         <el-col :span="12">
@@ -236,6 +241,8 @@ import { useUserStore } from '@/store/user'
 import ContractMaterialSelector from './contractItemSelector.vue'
 
 
+const itemName = ref('')
+
 const userStore = useUserStore()
 const emit = defineEmits(['update:visible', 'success'])
 
@@ -255,6 +262,7 @@ const handleMaterialSelect = (data) => {
   console.log("选择的物料数据")
   console.log(data)
   form.poItemId = data.id
+  form.itemName = data.itemName
 }
 
 const dialogVisible = ref(props.visible)
@@ -271,6 +279,7 @@ const form = reactive({
   supplierCode: '1000014491',
   supplierName: '中国电建集团四平线路器材有限公司',
   poItemId: '',
+  itemName: '',
   scheduleCode: '',
   provCoCode: '',
   provCoName: '',
@@ -284,7 +293,7 @@ const form = reactive({
   categoryCode: '60', // 默认品类编码
   subclassCode: '60004',
   remark: '',
-  dataSource: '手工录入',
+  dataSource: '供应商侧',
   dataSourceCreateTime: new Date().toISOString(),
   ownerId: '',
   openId: '',
@@ -334,6 +343,34 @@ const handleSubmit = () => {
     }
   })
 }
+
+
+// 计算计划工期的函数
+const calculatePlanPeriod = () => {
+  if (form.planStartDate && form.planFinishDate) {
+    const startDate = new Date(form.planStartDate)
+    const endDate = new Date(form.planFinishDate)
+    
+    // 计算天数差异
+    const timeDiff = endDate.getTime() - startDate.getTime()
+    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1 // +1 包含开始日期
+    
+    // 确保结果为正数
+    form.planPeriod = dayDiff > 0 ? dayDiff : null
+  } else {
+    form.planPeriod = null
+  }
+}
+
+// 监听计划开始日期变化
+watch(() => form.planStartDate, () => {
+  calculatePlanPeriod()
+})
+
+// 监听计划完成日期变化
+watch(() => form.planFinishDate, () => {
+  calculatePlanPeriod()
+})
 
 
 </script>

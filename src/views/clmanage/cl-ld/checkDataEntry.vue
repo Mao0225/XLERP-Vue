@@ -85,14 +85,14 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="matMaterial" label="铝锭牌号" width="120">
+      <el-table-column prop="matMaterial" label="牌号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.matMaterial" placement="top">
             <span class="truncate">{{ row.matMaterial }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="material" label="材料" width="100">
+      <el-table-column prop="material" label="材质" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.material" placement="top">
             <span class="truncate">{{ row.material }}</span>
@@ -117,13 +117,6 @@
         <template #default="{ row }">
           <el-tooltip :content="row.appearanceSize" placement="top">
             <span class="truncate">{{ row.appearanceSize }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="quantity" label="数量" width="90">
-        <template #default="{ row }">
-          <el-tooltip :content="row.quantity" placement="top">
-            <span class="truncate">{{ row.quantity }} t</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -264,7 +257,7 @@ const STATUS_LABEL_MAP = {
   "30": "待录入数据",
   "40": "录入确认，待审核",
   "50": "检验完成", 
-  DEFAULT: "未知"
+  DEFAULT: "检验完成"
 }
 
 // 状态值-图标映射表
@@ -272,15 +265,15 @@ const STATUS_ICON_MAP = {
   "30": "Clock", // 时钟图标
   "40": "Edit", // 编辑图标
   "50": "CircleCheck", // 对勾圆图标
-  DEFAULT: "Clock"
+  DEFAULT: "Check"
 }
 
 // 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
   "30": "info", // 蓝色
   "40": "primary", // 深蓝色
-  "50": "warning", // 橙色
-  DEFAULT: "info"
+  "50": "success", // 橙色
+  DEFAULT: "success"
 }
 
 // 状态值-Radio按钮自定义类映射表
@@ -302,13 +295,8 @@ const STATUS_ACTION_MAP = {
   "40": [ // 检验数据录入状态可执行操作
     { action: "backToPending", text: "撤回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "30" }
   ],
-  "50": [ // 检验数据录入确认状态可执行操作
-    { action: "auditPass", text: "审核通过", icon: "Check", type: "success", targetStatus: "60" },
-    { action: "backToDataEntry", text: "返回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "40" }
-  ],
-  "60": [ // 检验数据审核通过状态可执行操作
-    { action: "completeStorage", text: "完成入库", icon: "Box", type: "primary", targetStatus: "70" }
-  ],
+  "50": [],
+  "60": [],
   "70": [] // 入库完成状态无操作
 }
 

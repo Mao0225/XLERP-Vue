@@ -10,8 +10,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="录入人" prop="writer">
-            <el-input v-model="form.writer" placeholder="录入人" readonly size="small" />
+          <el-form-item label="录入人" prop="requestWriter">
+            <el-input v-model="form.requestWriter" placeholder="录入人" readonly size="small" />
           </el-form-item>
         </el-col>
 
@@ -51,6 +51,11 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
+          <el-form-item label="批次号" prop="batchNum">
+            <el-input v-model="form.batchNum" placeholder="请输入批次号" clearable size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
           <el-form-item label="材质" prop="material">
             <el-input v-model="form.material" placeholder="请输入铝锭材质" clearable size="small" />
           </el-form-item>
@@ -69,65 +74,21 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="送货数量(t)" prop="deliveryQuantity">
+          <el-form-item label="送货数量" prop="deliveryQuantity">
             <el-input v-model.number="form.deliveryQuantity" placeholder="请输入送货数量" type="number" clearable size="small" step="0.01" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="验收数量(t)" prop="acceptQuantity">
+          <el-form-item label="验收数量" prop="acceptQuantity">
             <el-input v-model.number="form.acceptQuantity" placeholder="请输入验收数量" type="number" clearable size="small" step="0.01" />
           </el-form-item>
         </el-col>
-
-        <!-- 文件信息 -->
-        <el-col :span="24">
-          <el-form-item label="材质书" prop="materialDoc">
-            <el-upload ref="materialDocUpload" :auto-upload="false" :on-change="handleMaterialDocChange" :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png" :file-list="materialDocFileList" :show-file-list="false">
-              <el-button type="primary" size="small">上传材质书</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.materialDoc && JSON.parse(form.materialDoc).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.materialDoc)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteMaterialDocFile(index)">删除</el-button>
-              </div>
-            </div>
+        <el-col :span="12">
+          <el-form-item label="单位" prop="unit">
+            <el-input v-model.number="form.unit" placeholder="请输入单位" clearable size="small" />
           </el-form-item>
         </el-col>
-        <el-col :span="24">
-          <el-form-item label="合格证" prop="qualificationCert">
-            <el-upload ref="qualificationCertUpload" :auto-upload="false" :on-change="handleQualificationCertChange" :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png" :file-list="qualificationCertFileList" :show-file-list="false">
-              <el-button type="primary" size="small">上传合格证</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.qualificationCert && JSON.parse(form.qualificationCert).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.qualificationCert)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteQualificationCertFile(index)">删除</el-button>
-              </div>
-            </div>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="出厂报告" prop="factoryReport">
-            <el-upload ref="factoryReportUpload" :auto-upload="false" :on-change="handleFactoryReportChange" :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png" :file-list="factoryReportFileList" :show-file-list="false">
-              <el-button type="primary" size="small">上传出厂报告</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.factoryReport && JSON.parse(form.factoryReport).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.factoryReport)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteFactoryReportFile(index)">删除</el-button>
-              </div>
-            </div>
-          </el-form-item>
-        </el-col>
+       
         <el-col :span="24">
           <el-form-item label="质量证明书" prop="certificate">
             <el-upload ref="certificateUpload" :auto-upload="false" :on-change="handleCertificateChange" :limit="10"
@@ -196,13 +157,9 @@ const userStore = useUserStore()
 const baseUrl = baseURL
 const formRef = ref(null)
 const certificateUpload = ref(null)
-const materialDocUpload = ref(null)
-const qualificationCertUpload = ref(null)
-const factoryReportUpload = ref(null)
+
 const certificateFileList = ref([])
-const materialDocFileList = ref([])
-const qualificationCertFileList = ref([])
-const factoryReportFileList = ref([])
+
 const submitting = ref(false)
 const ContractSelectorVisible = ref(false)
 
@@ -234,14 +191,13 @@ const form = reactive({
   mafactory: '',
   matMaterial: '',
   batchNo: '',
+  batchNum: '',
   type: '',
   deliveryQuantity: '',
   acceptQuantity: '',
-  materialDoc: '[]',
-  qualificationCert: '[]',
-  factoryReport: '[]',
+  unit:'kg',
   certificate: '[]',
-  writer: userStore.descr || '未知用户',
+  requestWriter: userStore.descr || '未知用户',
   writeTime: '',
   status: '10', // 初始状态为检验单录入
   memo: ''
@@ -272,7 +228,7 @@ const rules = reactive({
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   batchNo: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+    { required:true,max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   type: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
@@ -283,19 +239,10 @@ const rules = reactive({
   acceptQuantity: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  // materialDoc: [
-  //   { required: true, message: '请上传材质书', trigger: 'change' }
-  // ],
-  // qualificationCert: [
-  //   { required: true, message: '请上传合格证', trigger: 'change' }
-  // ],
-  // factoryReport: [
-  //   { required: true, message: '请上传出厂报告', trigger: 'change' }
-  // ],
   // certificate: [
   //   { required: true, message: '请上传质量证明书', trigger: 'change' }
   // ],
-  writer: [
+  requestWriter: [
     { required: true, message: '录入人不能为空', trigger: 'blur' }
   ],
   memo: [
@@ -310,19 +257,7 @@ const resetForm = () => {
   if (certificateUpload.value) {
     certificateUpload.value.clearFiles()
   }
-  if (materialDocUpload.value) {
-    materialDocUpload.value.clearFiles()
-  }
-  if (qualificationCertUpload.value) {
-    qualificationCertUpload.value.clearFiles()
-  }
-  if (factoryReportUpload.value) {
-    factoryReportUpload.value.clearFiles()
-  }
   certificateFileList.value = []
-  materialDocFileList.value = []
-  qualificationCertFileList.value = []
-  factoryReportFileList.value = []
   Object.assign(form, {
     id: undefined,
     basNo: '',
@@ -332,14 +267,12 @@ const resetForm = () => {
     mafactory: '',
     matMaterial: '',
     batchNo: '',
+    batchNum:'',
     type: '',
     deliveryQuantity: '',
     acceptQuantity: '',
-    materialDoc: '[]',
-    qualificationCert: '[]',
-    factoryReport: '[]',
     certificate: '[]',
-    writer: userStore.descr || '未知用户',
+    requestWriter: userStore.descr || '未知用户',
     writeTime: '',
     status: '10',
     memo: ''
@@ -368,71 +301,7 @@ const handleCertificateChange = async (file) => {
   }
 }
 
-const handleMaterialDocChange = async (file) => {
-  const formData = new FormData()
-  formData.append('file', file.raw)
-  try {
-    const res = await uploadFile(formData)
-    if (res.success && res.data && res.data.url) {
-      const relativeUrl = res.data.url
-      const fileList = JSON.parse(form.materialDoc)
-      fileList.push({ name: file.name, url: relativeUrl })
-      form.materialDoc = JSON.stringify(fileList)
-      materialDocFileList.value.push({ name: file.name, url: relativeUrl })
-      ElMessage.success(`${file.name} 上传成功`)
-    } else {
-      throw new Error(res.msg || '文件上传失败')
-    }
-  } catch (error) {
-    console.error('文件上传失败', error)
-    ElMessage.error(`${file.name} 上传失败`)
-    materialDocUpload.value.clearFiles()
-  }
-}
 
-const handleQualificationCertChange = async (file) => {
-  const formData = new FormData()
-  formData.append('file', file.raw)
-  try {
-    const res = await uploadFile(formData)
-    if (res.success && res.data && res.data.url) {
-      const relativeUrl = res.data.url
-      const fileList = JSON.parse(form.qualificationCert)
-      fileList.push({ name: file.name, url: relativeUrl })
-      form.qualificationCert = JSON.stringify(fileList)
-      qualificationCertFileList.value.push({ name: file.name, url: relativeUrl })
-      ElMessage.success(`${file.name} 上传成功`)
-    } else {
-      throw new Error(res.msg || '文件上传失败')
-    }
-  } catch (error) {
-    console.error('文件上传失败', error)
-    ElMessage.error(`${file.name} 上传失败`)
-    qualificationCertUpload.value.clearFiles()
-  }
-}
-
-const handleFactoryReportChange = async (file) => {
-  const formData = new FormData()
-  formData.append('file', file.raw)
-  try {
-    const res = await uploadFile(formData)
-    if (res.success && res.data && res.data.url) {
-      const relativeUrl = res.data.url
-      const fileList = JSON.parse(form.factoryReport)
-      fileList.push({ name: file.name, url: relativeUrl })
-      form.factoryReport = JSON.stringify(fileList)
-      factoryReportFileList.value.push({ name: file.name, url: relativeUrl })
-      ElMessage.success(`${file.name} 上传成功`)
-    } else {
-      throw new Error(res.msg || '文件上传失败')
-    }
-  } catch (error) {
-    console.error('文件上传失败', error)
-    ElMessage.error(`${file.name} 上传失败`)
-    factoryReportUpload.value.clearFiles()
-  }
-}
 
 const deleteCertificateFile = (index) => {
   const fileList = JSON.parse(form.certificate)
@@ -441,26 +310,6 @@ const deleteCertificateFile = (index) => {
   certificateFileList.value.splice(index, 1)
 }
 
-const deleteMaterialDocFile = (index) => {
-  const fileList = JSON.parse(form.materialDoc)
-  fileList.splice(index, 1)
-  form.materialDoc = JSON.stringify(fileList)
-  materialDocFileList.value.splice(index, 1)
-}
-
-const deleteQualificationCertFile = (index) => {
-  const fileList = JSON.parse(form.qualificationCert)
-  fileList.splice(index, 1)
-  form.qualificationCert = JSON.stringify(fileList)
-  qualificationCertFileList.value.splice(index, 1)
-}
-
-const deleteFactoryReportFile = (index) => {
-  const fileList = JSON.parse(form.factoryReport)
-  fileList.splice(index, 1)
-  form.factoryReport = JSON.stringify(fileList)
-  factoryReportFileList.value.splice(index, 1)
-}
 
 const openFileInNewWindow = (url) => {
   window.open(baseUrl + url, '_blank')

@@ -42,20 +42,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="matRecheckNo" label="复检单号" width="140">
-        <template #default="{ row }">
-          <el-tooltip :content="row.matRecheckNo" placement="top">
-            <span class="truncate">{{ row.matRecheckNo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="batchNo" label="炉批号" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.batchNo" placement="top">
-            <span class="truncate">{{ row.batchNo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+
       <el-table-column prop="mafactory" label="制造商" width="160">
         <template #default="{ row }">
           <el-tooltip :content="row.mafactory" placement="top">
@@ -84,6 +71,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
+            <el-table-column prop="batchNo" label="炉批号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.batchNo" placement="top">
+            <span class="truncate">{{ row.batchNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
@@ -98,37 +92,18 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="materialDoc" label="材质书" width="120">
+  
+      <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
-          <div v-for="(file, index) in JSON.parse(row.materialDoc || '[]')" :key="index">
-            <el-tooltip :content="file.name" placement="top">
-              <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
-            </el-tooltip>
-          </div>
+          <el-tooltip :content="row.requestWriter" placement="top">
+            <span class="truncate">{{ row.requestWriter }}</span>
+          </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="qualificationCert" label="合格证" width="120">
+      <el-table-column prop="requestAuditor" label="审核人" width="120">
         <template #default="{ row }">
-          <div v-for="(file, index) in JSON.parse(row.qualificationCert || '[]')" :key="index">
-            <el-tooltip :content="file.name" placement="top">
-              <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
-            </el-tooltip>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="factoryReport" label="出厂报告" width="120">
-        <template #default="{ row }">
-          <div v-for="(file, index) in JSON.parse(row.factoryReport || '[]')" :key="index">
-            <el-tooltip :content="file.name" placement="top">
-              <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
-            </el-tooltip>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="writer" label="录入人" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.writer" placement="top">
-            <span class="truncate">{{ row.writer }}</span>
+          <el-tooltip :content="row.requestAuditor" placement="top">
+            <span class="truncate">{{ row.requestAuditor }}</span>
           </el-tooltip>
         </template>
       </el-table-column>

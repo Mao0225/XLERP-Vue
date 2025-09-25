@@ -28,10 +28,10 @@
 
 
 
-      <div class="filter-row">
+      <!-- <div class="filter-row">
         <div class="status-filter">
           <span class="filter-label">计划状态：</span>
-          <el-radio-group v-model="filters.status"> <!-- 注意这里v-model绑定改为单个值 -->
+          <el-radio-group v-model="filters.status">
             <el-radio-button v-for="status in statusOptions" :key="status.value" :label="status.value"
               :class="getStatusClass(status.value)">
               <el-icon>
@@ -41,7 +41,7 @@
             </el-radio-button>
           </el-radio-group>
         </div>
-      </div>
+      </div> -->
 
       <div class="filter-actions">
         <el-button type="primary" @click="handleSearch">
@@ -75,15 +75,15 @@
             height="600">
             <el-table-column type="index" label="序号" width="80" />
             <el-table-column label="状态" width="120">
-              <template #default="{ row }">
-                <el-tag :type="getStatusTagType(row.status)" size="small">
-                  <el-icon>
-                    <component :is="getStatusIcon(row.status)" />
-                  </el-icon>
-                  {{ row.status == 10 ? '录入' : '确认' }}
-                </el-tag>
-              </template>
-            </el-table-column>
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status)" size="small">
+                <el-icon>
+                  <component :is="getStatusIcon(row.status)" />
+                </el-icon>
+                {{ row.status == 10 ? '录入' : row.status == 20 ? '确认' : '审核完成' }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
             <el-table-column prop="scheduleCode" label="排产计划编码" width="180" show-overflow-tooltip>
               <template #default="{ row }">
@@ -125,6 +125,12 @@
                       <CircleCloseFilled />
                     </el-icon>
                     反确认
+                  </el-button>
+                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 30)">
+                    <el-icon>
+                      <Select  />
+                    </el-icon>
+                    审核通过
                   </el-button>
                 </template>
 
@@ -274,7 +280,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, CircleCheckFilled, CircleCloseFilled, Close, Edit, Delete } from '@element-plus/icons-vue';
+import { Search, CircleCheckFilled, CircleCloseFilled, Close, Edit, Delete, Select } from '@element-plus/icons-vue';
 import { getPlSchedulePlanList, deletePlSchedulePlan, getPlSchedulePlanById, updatePlanStatus } from '@/api/plmanage/plscheduleplan';
 import addPlan from './components/addPlan.vue';
 import editPlan from './components/editPlan.vue';
@@ -339,9 +345,15 @@ const handleSuccessEdit = () => {
 // 处理弹窗确认逻辑
 const handleStatusUpdate = async (id, newStatus) => {
   try {
+    const statusText = {
+      10: '反确认',
+      20: '确认', 
+      30: '审核通过'
+    };
+    
     // 弹窗确认
     await ElMessageBox.confirm(
-      `确定要${newStatus === 20 ? '确认' : '反确认'}排产计划吗？`,
+      `确定要${statusText[newStatus] || '修改'}排产计划吗？`,
       '提示',
       {
         confirmButtonText: '确定',
@@ -483,12 +495,13 @@ const pagination = reactive({
   current: 1,
   size: 10,
   total: 0,
-  totalPages: 0 // Added to track total pages
+  totalPages: 0
 });
 
 const statusOptions = [
   { value: '10', label: '录入' },
-  { value: '20', label: '确认' }
+  { value: '20', label: '确认' },
+  { value: '30', label: '审核通过' }  // 新增这一行
 ];
 
 // 移除前端过滤逻辑，直接使用后端数据
@@ -513,7 +526,8 @@ const handleCurrentChange = (val) => {
 const getStatusClass = (status) => {
   const classes = {
     '10': 'status-entered',
-    '20': 'status-confirmed'
+    '20': 'status-confirmed',
+    '30': 'status-approved'  // 新增这一行
   };
   return classes[status] || '';
 };
@@ -521,7 +535,8 @@ const getStatusClass = (status) => {
 const getStatusTagType = (status) => {
   const types = {
     '10': 'info',
-    '20': 'primary'
+    '20': 'primary',
+    '30': 'success'  // 新增这一行
   };
   return types[status] || '';
 };
@@ -529,7 +544,8 @@ const getStatusTagType = (status) => {
 const getStatusIcon = (status) => {
   const icons = {
     '10': 'Clock',
-    '20': 'CircleCheck'
+    '20': 'CircleCheck',
+    '30': 'Select'  // 新增这一行，或者用其他合适的图标
   };
   return icons[status] || 'Clock';
 };
@@ -788,6 +804,12 @@ onMounted(() => {
 .detail-actions .el-button {
   flex: 1;
   min-width: 100px;
+}
+
+/* 审核通过状态样式 */
+.status-approved {
+  background-color: #f0f9ff;
+  color: #067f46;
 }
 
 /* 状态筛选按钮样式 */

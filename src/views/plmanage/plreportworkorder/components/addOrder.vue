@@ -40,12 +40,7 @@
                   v-model="form.woNo" 
                   placeholder="选择生产工单号" 
                   readonly 
-                  @click="showSelector = true"
-                >
-                  <template #append>
-                    <el-button @click="showSelector = true"size="small">选择</el-button>
-                  </template>
-            </el-input>
+                />
           </el-form-item>
         </el-col>
       </el-row>
@@ -148,7 +143,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="20">
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
             <el-date-picker
@@ -165,7 +160,7 @@
             <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <!-- 生产信息 -->
       <el-divider content-position="left">生产信息</el-divider>
@@ -228,7 +223,6 @@
     </template>
 
 
-    <work-order-selector v-model:visible="showSelector" @select="handleSelect" />
   </el-dialog>
 </template>
 
@@ -237,12 +231,10 @@ import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { createPlReportWorkOrder } from '@/api/plmanage/plreportworkorder';
 import { useUserStore } from '@/store/user';
-import workOrderSelector from './workOrderSelector.vue';
 
 const userStore = useUserStore();
 const emit = defineEmits(['update:visible', 'success']);
 
-const showSelector = ref(false);
 
 const props = defineProps({
   visible: {
@@ -252,6 +244,10 @@ const props = defineProps({
   newCode: {
     type: String,
     default: ''
+  },
+  workOrder: {
+    type: Object,
+    default: () => ({})
   }
 });
 
@@ -260,6 +256,12 @@ watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
   if (newVal) {
     form.reportNo = props.newCode;
+      form.purchaserHqCode = props.workOrder.purchaserHqCode
+  form.supplierCode = props.workOrder.supplierCode
+  form.ipoNo = props.workOrder.ipoNo
+  form.woNo = props.workOrder.woNo
+  form.categoryCode = props.workOrder.categoryCode
+  form.subclassCode = props.workOrder.subclassCode
   }
 });
 
@@ -287,7 +289,7 @@ const form = reactive({
   categoryCode: '',
   subclassCode: '',
   processCode: '',
-  dataSource: '手工录入',
+  dataSource: '供应商侧',
   dataSourceCreateTime: new Date().toISOString(),
   buyerProvince: '',
   insideNo: '',

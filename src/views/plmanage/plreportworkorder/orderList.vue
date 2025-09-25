@@ -18,7 +18,7 @@
       </div>
 
       <!-- 状态筛选（改为RadioGroup，参考模板） -->
-      <div class="filter-row">
+      <!-- <div class="filter-row">
         <div class="status-filter">
           <span class="filter-label">订单状态：</span>
           <el-radio-group v-model="filters.status">
@@ -33,7 +33,7 @@
             </el-radio-button>
           </el-radio-group>
         </div>
-      </div>
+      </div> -->
 
       <!-- 筛选操作 -->
       <div class="filter-actions">
@@ -56,7 +56,7 @@
           <template #header>
             <div class="card-header">
               <span>报工单列表</span>
-              <el-button type="primary" @click="openAddDialog">创建报工单</el-button>
+              <el-button type="primary" @click="showSelector = true">创建报工单</el-button>
             </div>
           </template>
 
@@ -67,7 +67,7 @@
             v-loading="loading"
             height="600"
           >
-            <el-table-column type="index" label="序号" width="80" />
+            <el-table-column type="index" label="序号" width="60" />
             <el-table-column label="状态" width="120">
               <template #default="{ row }">
                 <el-tag :type="getStatusTagType(row.status)" size="small">
@@ -76,24 +76,26 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="woNo" label="报工单编号" width="180" show-overflow-tooltip>
+            <el-table-column prop="woNo" label="报工单编号" width="100" show-overflow-tooltip>
               <template #default="{ row }">
                 <el-link type="primary" @click="selectOrder(row)">{{ row.reportNo }}</el-link>
               </template>
             </el-table-column>
             <!-- <el-table-column prop="woNo" label="生产工单号" width="180" show-overflow-tooltip />
             <el-table-column prop="ipoNo" label="生产订单号" width="180" show-overflow-tooltip /> -->
-            <el-table-column prop="processName" label="工序名称" width="150" show-overflow-tooltip />
-            <el-table-column prop="processCode" label="工序编码" width="150" show-overflow-tooltip />
-            <el-table-column label="计划时间" width="200">
+            <el-table-column prop="itemName" label="产品名称" width="100" show-overflow-tooltip />
+            <el-table-column prop="itemSpec" label="规格型号" width="100" show-overflow-tooltip />
+            <el-table-column prop="processName" label="工序名称" width="100" show-overflow-tooltip />
+            <el-table-column prop="processCode" label="工序编码" width="100" show-overflow-tooltip />
+            <!-- <el-table-column label="计划时间" width="200">
               <template #default="{ row }">
                 <div class="date-range">
                   <div>{{ row.planStartTime }}</div>
                   <div class="date-end">~ {{ row.planEndTime }}</div>
                 </div>
               </template>
-            </el-table-column>
-            <el-table-column label="操作" width="300" fixed="right">
+            </el-table-column> -->
+            <el-table-column label="操作" width="auto" fixed="right">
               <template #default="{ row }">
                 <el-button v-if="row.status === '10'" size="small" @click="openEditDialog(row.id)">
                   <el-icon><Edit /></el-icon>
@@ -163,45 +165,68 @@
                   <span class="label">生产订单号：</span>
                   <span class="value">{{ selectedOrder.ipoNo }}</span>
                 </div>
-                <div class="info-item">
+                <!-- <div class="info-item">
                   <span class="label">供应商编码：</span>
                   <span class="value">{{ selectedOrder.supplierCode }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">工序名称：</span>
-                  <span class="value">{{ selectedOrder.processName }}</span>
-                </div>
+                </div> -->
+             
                 <div class="info-item">
                   <span class="label">生产批次号：</span>
                   <span class="value">{{ selectedOrder.productBatchNo }}</span>
                 </div>
-                <div class="info-item">
+                <!-- <div class="info-item">
                   <span class="label">客户省份：</span>
                   <span class="value">{{ selectedOrder.buyerProvince }}</span>
-                </div>
+                </div> -->
                 <div class="info-item">
                   <span class="label">报工单编号：</span>
                   <span class="value">{{ selectedOrder.reportNo }}</span>
                 </div>
               </div>
             </div>
-
+            
+            <div class="detail-section">
+              <h4>产品信息</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">物料编码：</span>
+                  <span class="value">{{ selectedOrder.itemCode }}</span>
+                </div>
+                   <div class="info-item">
+                  <span class="label">物料名称：</span>
+                  <span class="value">{{ selectedOrder.itemName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">规格型号：</span>
+                  <span class="value">{{ selectedOrder.itemSpec || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">关联工单数量：</span>
+                  <span class="value">{{ selectedOrder.amount }}</span>
+                </div>
+              </div>
+            </div>
             <!-- 工序信息 -->
             <div class="detail-section">
               <h4>工序信息</h4>
               <div class="info-grid">
-                <div class="info-item">
+                <!-- <div class="info-item">
                   <span class="label">品类编码：</span>
                   <span class="value">{{ selectedOrder.categoryCode }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">种类编码：</span>
                   <span class="value">{{ selectedOrder.subclassCode }}</span>
-                </div>
+                </div> -->
                 <div class="info-item">
                   <span class="label">工序编码：</span>
                   <span class="value">{{ selectedOrder.processCode }}</span>
                 </div>
+                   <div class="info-item">
+                  <span class="label">工序名称：</span>
+                  <span class="value">{{ selectedOrder.processName }}</span>
+                </div>
+                
                 <div class="info-item">
                   <span class="label">生产工艺路线：</span>
                   <span class="value">{{ selectedOrder.processNo || '无' }}</span>
@@ -221,10 +246,10 @@
                   <span class="label">实际时间：</span>
                   <span class="value">{{ selectedOrder.actualStartDate || '未开始' }} ~ {{ selectedOrder.actualFinishDate || '未完成' }}</span>
                 </div>
-                <div class="info-item">
+                <!-- <div class="info-item">
                   <span class="label">数据来源创建时间：</span>
                   <span class="value">{{ selectedOrder.dataSourceCreateTime }}</span>
-                </div>
+                </div> -->
               </div>
             </div>
 
@@ -257,19 +282,14 @@
       </div>
     </div>
 
-    <!-- 弹窗组件 -->
-    <addOrder
-      :visible="addDialogVisible"
-      :new-code="newCode"
-      @update:visible="addDialogVisible = $event"
-      @success="handleAddSuccess"
-    />
     <editOrder
       :visible="editDialogVisible"
       :initial-data="formData"
       @update:visible="editDialogVisible = $event"
       @success="handleEditSuccess"
     />
+        <work-order-selector v-model:visible="showSelector" @close="loadData" />
+
   </div>
 </template>
 
@@ -287,17 +307,15 @@ import {
 } from '@/api/plmanage/plreportworkorder';
 import addOrder from './components/addOrder.vue';
 import editOrder from './components/editOrder.vue';
-import { getNewNoNyName } from '@/api/system/basno';
+import workOrderSelector from './components/workOrderSelector.vue';
 
 // 状态变量
-const newCode = ref('');
 const tableData = ref([]);
 const formData = ref({});
-const addDialogVisible = ref(false);
 const editDialogVisible = ref(false);
 const loading = ref(false);
 const selectedOrder = ref(null);
-
+const showSelector = ref(false);
 // 筛选条件（改为单选状态）
 const filters = reactive({
   contractNo: '',
@@ -321,22 +339,6 @@ const statusOptions = ref([
   { value: '30', label: '进行中', icon: 'VideoPlay' },
   { value: '40', label: '已完成', icon: 'Check' }
 ]);
-
-// 生成新编码
-const generateNewCode = async () => {
-  try {
-    const res = await getNewNoNyName('bgd');
-    if (res?.code === 200) {
-      return res.data.fullNoNyName;
-    }
-    ElMessage.error(res?.msg || '获取编码失败');
-    return '';
-  } catch (error) {
-    console.error('生成编码出错:', error);
-    ElMessage.error('请求编码服务时发生错误');
-    return '';
-  }
-};
 
 // 加载数据（后端查询）
 const loadData = async () => {
@@ -382,6 +384,10 @@ const loadData = async () => {
         orderStatus: item.orderStatus || '未开始',
         status: item.status || '10',
         writer: item.writer || '未知',
+        itemCode:item.itemCode,
+        itemName:item.itemName,
+        itemSpec:item.itemSpec,
+        amount: item.woAmount,
         createdTime: item.createdTime ? item.createdTime.split(' ')[0] : '',
         updatedTime: item.updatedTime ? item.updatedTime.split(' ')[0] : '',
         reportNo: item.reportNo
@@ -400,22 +406,12 @@ const loadData = async () => {
   }
 };
 
-// 弹窗操作
-const openAddDialog = async () => {
-  newCode.value = await generateNewCode();
-  addDialogVisible.value = true;
-};
+
 
 const openEditDialog = async (id) => {
   const res = await getPlReportWorkOrderById({ id });
   formData.value = res.data.order;
   editDialogVisible.value = true;
-};
-
-const handleAddSuccess = () => {
-  addDialogVisible.value = false;
-  ElMessage.success('报工单添加成功');
-  loadData();
 };
 
 const handleEditSuccess = () => {

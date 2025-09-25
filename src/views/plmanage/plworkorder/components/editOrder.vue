@@ -45,12 +45,7 @@
               v-model="form.ipoNo" 
               placeholder="选择生产订单号" 
               readonly 
-              @click="showSelector = true"
-            >
-              <template #append>
-                <el-button @click="showSelector = true" size="small">选择</el-button>
-              </template>
-            </el-input>
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -90,12 +85,12 @@
       <el-row :gutter="20">
                 <el-col :span="12">
           <el-form-item label="厂家物料单位" prop="materialsUnit">
-            <el-input v-model="form.materialsUnit" placeholder="选择生产订单后自动填充" readonly />
+            <el-input v-model="form.materialsUnit"  placeholder="选择生产订单后自动填充" readonly />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="计量单位" prop="unit">
-            <el-input v-model="form.unit" placeholder="选择生产订单后自动填充" readonly />
+                <el-col :span="12">
+          <el-form-item label="产品型号规格" prop="modelSpec">
+            <el-input v-model="form.modelSpec"  placeholder="请输入产品型号规格" readonly />
           </el-form-item>
         </el-col>
       </el-row>
@@ -116,22 +111,22 @@
       </el-row>
 
       <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="产品型号规格" prop="modelSpec">
-            <el-input v-model="form.modelSpec" placeholder="请输入产品型号规格" />
+
+                <el-col :span="12">
+          <el-form-item label="工艺路线编码" prop="processRouteNo">
+            <el-input v-model="form.processRouteNo" placeholder="请输入工艺路线编码" />
           </el-form-item>
         </el-col>
-
                 <el-col :span="12">
           <el-form-item label="实物ID" prop="entityCode">
             <el-input v-model="form.entityCode" placeholder="请输入实物ID" />
           </el-form-item>
         </el-col>
       </el-row>
-
+<!-- 
       <el-form-item label="厂家物料描述" prop="materialsDescription">
         <el-input v-model="form.materialsDescription" type="textarea" placeholder="选择生产订单后自动填充" :rows="3" readonly />
-      </el-form-item>
+      </el-form-item> -->
 
       <!-- 时间信息 -->
       <el-divider content-position="left">时间信息</el-divider>
@@ -185,7 +180,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="20">
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
             <el-date-picker
@@ -202,16 +197,16 @@
             <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
 
-      <el-row :gutter="20">
-        <!-- <el-col :span="12">
+      <!-- <el-row :gutter="20">
+        <el-col :span="12">
           <el-form-item label="工单状态" prop="woStatus">
             <el-input v-model="form.woStatus" placeholder="请输入工单状态" />
           </el-form-item>
-        </el-col> -->
-      </el-row>
+        </el-col>
+      </el-row> -->
 
       <!-- 数据信息 -->
       <!-- <el-divider content-position="left">数据信息</el-divider>
@@ -235,11 +230,7 @@
       <!-- 其他信息 -->
       <el-divider content-position="left">其他信息</el-divider>
       <el-row :gutter="20">
-                <el-col :span="12">
-          <el-form-item label="工艺路线编码" prop="processRouteNo">
-            <el-input v-model="form.processRouteNo" placeholder="请输入工艺路线编码" />
-          </el-form-item>
-        </el-col>
+
         <el-col :span="12">
           <el-form-item label="记录创建人" prop="writer">
             <el-input v-model="form.writer" placeholder="请输入记录创建人" readonly />
@@ -254,11 +245,6 @@
         <el-button type="primary" @click="handleSubmit">保存</el-button>
       </span>
     </template>
-
-    <productionOrderSelector
-      v-model:visible="showSelector"
-      @select="handleSelect"
-    />
   </el-dialog>
 </template>
 
@@ -266,7 +252,6 @@
 import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { updatePlWorkOrder } from '@/api/plmanage/plworkorder';
-import productionOrderSelector from './productionOrderSelector.vue';
 import { useUserStore } from '@/store/user';
 
 const userStore = useUserStore();
@@ -284,22 +269,6 @@ const props = defineProps({
 });
 
 const dialogVisible = ref(props.visible);
-const showSelector = ref(false);
-
-const handleSelect = (data) => {
-  form.ipoNo = data.ipoNo;
-  form.purchaserHqCode = data.purchaserHqCode;
-  form.supplierCode = data.supplierCode;
-  form.supplierName = data.supplierName;
-  form.categoryCode = data.categoryCode;
-  form.subclassCode = data.subclassCode;
-  form.materialsCode = data.materialsCode;
-  form.materialsName = data.materialsName;
-  form.materialsUnit = data.materialsUnit;
-  form.materialsDescription = data.materialsDesc;
-  form.modelSpec = data.itemSpec;
-  form.unit = data.itemUnit;
-};
 
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
@@ -362,7 +331,6 @@ const rules = reactive({
     { required: true, message: '请输入生产数量', trigger: 'blur' },
     { type: 'number', message: '生产数量必须为数字', trigger: 'blur' }
   ],
-  unit: [{ required: true, message: '请输入计量单位', trigger: 'blur' }],
   planStartDate: [{ required: true, message: '请选择计划开始日期', trigger: 'change' }],
   planFinishDate: [{ required: true, message: '请选择计划完成日期', trigger: 'change' }],
   dataSource: [{ required: true, message: '请输入数据来源', trigger: 'blur' }],

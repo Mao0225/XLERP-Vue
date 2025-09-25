@@ -27,12 +27,7 @@
               v-model="form.scheduleCode" 
               placeholder="选择排产计划" 
               readonly 
-              @click="showSelector = true"
-            >
-              <template #append>
-                <el-button @click="showSelector = true" size="small">选择</el-button>
-              </template>
-            </el-input>
+            />
           </el-form-item>
         </el-col>
                 <el-col :span="12">
@@ -82,12 +77,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="厂家物料编码" prop="materialsCode">
-            <el-input v-model="form.materialsCode" placeholder="请输入厂家物料编码" />
+            <el-input v-model="form.materialsCode" readonly placeholder="请输入厂家物料编码" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="厂家物料名称" prop="materialsName">
-            <el-input v-model="form.materialsName" placeholder="请输入厂家物料名称" />
+            <el-input v-model="form.materialsName" readonly placeholder="请输入厂家物料名称" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -95,27 +90,34 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="厂家物资单位" prop="materialsUnit">
-            <el-input v-model="form.materialsUnit" placeholder="请输入厂家物资单位" />
+            <el-input v-model="form.materialsUnit" readonly placeholder="请输入厂家物资单位" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+                <el-col :span="12">
+          <el-form-item label="产品型号" prop="productModel">
+            <el-input v-model="form.productModel" readonly placeholder="请输入产品型号" />
+          </el-form-item>
+        </el-col>
+       
+      </el-row>
+
+      <el-row :gutter="20">
+        <!-- <el-col :span="12">
+          <el-form-item label="计量单位" prop="unit">
+            <el-input v-model="form.unit" placeholder="请输入计量单位" />
+          </el-form-item>
+        </el-col> -->
+         <el-col :span="12">
           <el-form-item label="生产数量" prop="amount">
             <el-input v-model.number="form.amount" placeholder="请输入生产数量" type="number" />
           </el-form-item>
         </el-col>
-      </el-row>
+                <el-col :span="12">
+          <el-form-item label="生产车间名称" prop="workshopName">
+            <el-input v-model="form.workshopName" placeholder="请输入生产车间名称" />
+          </el-form-item>
+        </el-col>
 
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="计量单位" prop="unit">
-            <el-input v-model="form.unit" placeholder="请输入计量单位" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="产品型号" prop="productModel">
-            <el-input v-model="form.productModel" placeholder="请输入产品型号" />
-          </el-form-item>
-        </el-col>
       </el-row>
 
       <el-form-item label="厂家物料描述" prop="materialsDesc">
@@ -194,19 +196,15 @@
       </el-row>
 
       <!-- 生产信息 -->
-      <el-divider content-position="left">生产信息</el-divider>
+      <!-- <el-divider content-position="left">生产信息</el-divider>
       <el-row :gutter="20">
-        <!-- <el-col :span="12">
+        <el-col :span="12">
           <el-form-item label="生产工厂名称" prop="plantName">
             <el-input v-model="form.plantName" placeholder="请输入生产工厂名称" />
           </el-form-item>
-        </el-col> -->
-        <el-col :span="12">
-          <el-form-item label="生产车间名称" prop="workshopName">
-            <el-input v-model="form.workshopName" placeholder="请输入生产车间名称" />
-          </el-form-item>
         </el-col>
-      </el-row>
+
+      </el-row> -->
 
       <!-- <el-row :gutter="20">
         <el-col :span="12">
@@ -222,15 +220,15 @@
       </el-row> -->
 
       <!-- 数据信息 -->
-      <el-divider content-position="left">数据信息</el-divider>
+      <!-- <el-divider content-position="left">数据信息</el-divider>
       <el-row :gutter="20">
 
-        <!-- <el-col :span="12">
+        <el-col :span="12">
           <el-form-item label="数据拥有方" prop="ownerId">
             <el-input v-model="form.ownerId" placeholder="请输入数据拥有方" />
           </el-form-item>
-        </el-col> -->
-      </el-row>
+        </el-col>
+      </el-row> -->
 
       <!-- <el-row :gutter="20">
         <el-col :span="12">
@@ -293,10 +291,6 @@
       </span>
     </template>
 
-    <schedule-selector
-      v-model:visible="showSelector"
-      @select="handleSelect"
-    />
   </el-dialog>
 </template>
 
@@ -304,7 +298,6 @@
 import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { updatePlProductionOrder } from '@/api/plmanage/plproductionorder';
-import scheduleSelector from './scheduleSelector.vue';
 import { useUserStore } from '@/store/user';
 
 const userStore = useUserStore();
@@ -322,7 +315,6 @@ const props = defineProps({
 });
 
 const dialogVisible = ref(props.visible);
-const showSelector = ref(false);
 
 watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
@@ -343,6 +335,9 @@ const handleSelect = (data) => {
   form.poItemId = data.poItemId;
   form.productModel = data.itemSpec;
   form.unit = data.itemUnit;
+    form.materialsName = data.itemName
+  form.materialsCode = data.itemCode
+  form.materialsUnit = data.itemUnit
 };
 
 const formRef = ref(null);

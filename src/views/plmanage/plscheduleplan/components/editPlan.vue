@@ -48,6 +48,12 @@
 
           </el-form-item>
         </el-col>
+
+         <el-col :span="12">
+          <el-form-item label="产品名称" prop="itemName">
+            <el-input v-model="form.itemName" readonly placeholder="请选择产品" />
+          </el-form-item>
+        </el-col>
       </el-row>
       
       <el-row :gutter="20">
@@ -58,7 +64,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="计划工期(天)" prop="planPeriod">
-            <el-input v-model="form.planPeriod" placeholder="请输入计划工期" type="number" />
+            <el-input v-model="form.planPeriod" readonly placeholder="自动计算" type="number" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -82,7 +88,7 @@
       <el-divider content-position="left">时间信息</el-divider>
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="交付日期" prop="dueDate">
+          <el-form-item label="最晚交付日期" prop="dueDate">
             <el-date-picker
               v-model="form.dueDate"
               type="date"
@@ -165,7 +171,7 @@
       </el-row> -->
 
       <!-- 数据信息 -->
-      <el-divider content-position="left">数据信息</el-divider>
+      <!-- <el-divider content-position="left">数据信息</el-divider>
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="数据来源" prop="dataSource">
@@ -183,7 +189,7 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
       
       <!-- <el-row :gutter="20">
         <el-col :span="12">
@@ -241,6 +247,7 @@ const handleMaterialSelect = (data) => {
   console.log("选择的物料数据")
   console.log(data)
   form.poItemId = data.id
+  form.itemName = data.itemName
 }
 
 const props = defineProps({
@@ -268,10 +275,12 @@ watch(() => props.visible, (newVal) => {
 
 const formRef = ref(null)
 const form = reactive({
+  itemName: '',
   purchaserHqCode: '',
   supplierCode: '',
   supplierName: '',
   poItemId: '',
+  itemName: '',
   scheduleCode: '',
   provCoCode: '',
   provCoName: '',
@@ -351,6 +360,33 @@ const handleSubmit = () => {
     }
   })
 }
+
+// 计算计划工期的函数
+const calculatePlanPeriod = () => {
+  if (form.planStartDate && form.planFinishDate) {
+    const startDate = new Date(form.planStartDate)
+    const endDate = new Date(form.planFinishDate)
+    
+    // 计算天数差异
+    const timeDiff = endDate.getTime() - startDate.getTime()
+    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1 // +1 包含开始日期
+    
+    // 确保结果为正数
+    form.planPeriod = dayDiff > 0 ? dayDiff : null
+  } else {
+    form.planPeriod = null
+  }
+}
+
+// 监听计划开始日期变化
+watch(() => form.planStartDate, () => {
+  calculatePlanPeriod()
+})
+
+// 监听计划完成日期变化
+watch(() => form.planFinishDate, () => {
+  calculatePlanPeriod()
+})
 </script>
 
 <style scoped>

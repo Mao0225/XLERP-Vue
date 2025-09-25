@@ -1,8 +1,8 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    title="选择生产工单"
-    width="1400px"
+    title="选择生产工单进行报工"
+    width="1100px"
     :before-close="handleClose"
     destroy-on-close
   >
@@ -55,31 +55,31 @@
       stripe
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="index" label="序号" width="80" />
+      <el-table-column type="index" label="序号" width="60" />
       
 
       <el-table-column 
         prop="woNo" 
         label="生产工单号" 
-        width="180" 
+        width="150" 
         show-overflow-tooltip
       />
-      <el-table-column 
-        prop="supplierName" 
-        label="供应商" 
+            <el-table-column 
+        prop="materialsCode" 
+        label="物料编码" 
         width="150" 
         show-overflow-tooltip
       />
       <el-table-column 
         prop="materialsName" 
         label="物料名称" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
-        prop="materialsBatch" 
-        label="物料批次" 
-        width="150" 
+        prop="modelSpec" 
+        label="规格型号" 
+        width="130" 
         show-overflow-tooltip
       />
       <el-table-column 
@@ -110,19 +110,6 @@
         </template>
       </el-table-column>
       <el-table-column 
-        prop="materialsCode" 
-        label="厂家物料编码" 
-        width="150" 
-        show-overflow-tooltip
-      />
-      <el-table-column 
-        prop="materialsDescription" 
-        label="厂家物料描述" 
-        width="180" 
-        show-overflow-tooltip
-      />
-
-      <el-table-column 
         label="操作" 
         width="100" 
         fixed="right"
@@ -131,9 +118,9 @@
           <el-button 
             type="primary" 
             size="small" 
-            @click="handleSelect(row)"
+            @click="openAddDialog(row)"
           >
-            选择
+            制定报工单
           </el-button>
         </template>
       </el-table-column>
@@ -158,6 +145,15 @@
         <el-button @click="handleClose">取消</el-button>
       </span>
     </template>
+
+        <!-- 弹窗组件 -->
+    <addOrder
+      :visible="addDialogVisible"
+      :new-code="newCode"
+      :workOrder = selectedRows
+      @update:visible="addDialogVisible = $event"
+      @success="handleAddSuccess"
+    />
   </el-dialog>
 </template>
 
@@ -166,6 +162,8 @@ import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh, CircleCheck, Clock } from '@element-plus/icons-vue'
 import { getConfirmOrderList } from '@/api/plmanage/plworkorder'
+import addOrder from './addOrder.vue'
+import { getNewNoNyName } from '@/api/system/basno';
 
 // Props定义
 const props = defineProps({
@@ -202,6 +200,38 @@ const pagination = reactive({
   size: 10,
   total: 0
 })
+const newCode = ref('');
+
+// 生成新编码
+const generateNewCode = async () => {
+  try {
+    const res = await getNewNoNyName('bgd');
+    if (res?.code === 200) {
+      return res.data.fullNoNyName;
+    }
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+  } catch (error) {
+    console.error('生成编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+
+const addDialogVisible = ref(false);
+
+// 弹窗操作
+const openAddDialog = async (row) => {
+  newCode.value = await generateNewCode();
+  selectedRows.value = row;
+  addDialogVisible.value = true;
+};
+const handleAddSuccess = () => {
+  addDialogVisible.value = false;
+  ElMessage.success('报工单添加成功');
+  fetchData();
+};
 
 
 

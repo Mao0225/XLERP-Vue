@@ -1,18 +1,7 @@
 <template>
-  <el-dialog
-    title="新增生产订单"
-    v-model="dialogVisible"
-    width="900px"
-    :before-close="handleClose"
-    class="production-order-dialog"
-  >
-    <el-form
-      :model="form"
-      :rules="rules"
-      ref="formRef"
-      label-width="140px"
-      class="production-order-form"
-    >
+  <el-dialog title="新增生产订单" v-model="dialogVisible" width="900px" :before-close="handleClose"
+    class="production-order-dialog">
+    <el-form :model="form" :rules="rules" ref="formRef" label-width="140px" class="production-order-form">
       <!-- 基本信息 -->
       <el-divider content-position="left">基本信息</el-divider>
       <el-row :gutter="20">
@@ -24,25 +13,17 @@
 
         <el-col :span="12">
           <el-form-item label="排产计划编码" prop="scheduleCode">
-            <el-input 
-                  v-model="form.scheduleCode" 
-                  placeholder="选择排产计划" 
-                  readonly 
-                  @click="showSelector = true"
-                >
-                  <template #append>
-                    <el-button @click="showSelector = true"size="small">选择</el-button>
-                  </template>
-            </el-input>
+            <el-input v-model="form.scheduleCode" placeholder="选择排产计划" readonly />
+
           </el-form-item>
         </el-col>
-                <el-col :span="12">
+        <el-col :span="12">
           <el-form-item label="生产订单号" prop="ipoNo">
             <el-input v-model="form.ipoNo" placeholder="请输入生产订单号" readonly />
           </el-form-item>
         </el-col>
       </el-row>
-      
+
       <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="供应商编码" prop="supplierCode">
@@ -55,7 +36,7 @@
           </el-form-item>
         </el-col>
       </el-row> -->
-      
+
       <el-row :gutter="20">
 
         <!-- <el-col :span="12">
@@ -83,12 +64,12 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="厂家物料编码" prop="materialsCode">
-            <el-input v-model="form.materialsCode" placeholder="请输入厂家物料编码" />
+            <el-input v-model="form.materialsCode" readonly placeholder="请输入厂家物料编码" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="厂家物料名称" prop="materialsName">
-            <el-input v-model="form.materialsName" placeholder="请输入厂家物料名称" />
+            <el-input v-model="form.materialsName" readonly placeholder="请输入厂家物料名称" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -96,25 +77,31 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="厂家物资单位" prop="materialsUnit">
-            <el-input v-model="form.materialsUnit" placeholder="请输入厂家物资单位" />
+            <el-input v-model="form.materialsUnit" readonly placeholder="请输入厂家物资单位" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="生产数量" prop="amount">
-            <el-input v-model.number="form.amount" placeholder="请输入生产数量" type="number" />
+          <el-form-item label="产品型号" prop="productModel">
+            <el-input v-model="form.productModel" readonly placeholder="请输入产品型号" />
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-row :gutter="20">
-        <el-col :span="12">
+        <!-- <el-col :span="12">
           <el-form-item label="计量单位" prop="unit">
             <el-input v-model="form.unit" placeholder="请输入计量单位" />
           </el-form-item>
+        </el-col> -->
+
+        <el-col :span="12">
+          <el-form-item label="生产数量" prop="amount">
+            <el-input v-model.number="form.amount" placeholder="请输入生产数量" type="number" />
+          </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="产品型号" prop="productModel">
-            <el-input v-model="form.productModel" placeholder="请输入产品型号" />
+          <el-form-item label="生产车间名称" prop="workshopName">
+            <el-input v-model="form.workshopName" placeholder="请输入生产车间名称" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -128,24 +115,14 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="计划开始日期" prop="planStartDate">
-            <el-date-picker
-              v-model="form.planStartDate"
-              type="date"
-              placeholder="请选择计划开始日期"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-            />
+            <el-date-picker v-model="form.planStartDate" type="date" placeholder="请选择计划开始日期" value-format="YYYY-MM-DD"
+              style="width: 100%" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="计划完成日期" prop="planFinishDate">
-            <el-date-picker
-              v-model="form.planFinishDate"
-              type="date"
-              placeholder="请选择计划完成日期"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-            />
+            <el-date-picker v-model="form.planFinishDate" type="date" placeholder="请选择计划完成日期" value-format="YYYY-MM-DD"
+              style="width: 100%" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -153,29 +130,19 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="实际开始日期" prop="actualStartDate">
-            <el-date-picker
-              v-model="form.actualStartDate"
-              type="date"
-              placeholder="请选择实际开始日期"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-            />
+            <el-date-picker v-model="form.actualStartDate" type="date" placeholder="请选择实际开始日期" value-format="YYYY-MM-DD"
+              style="width: 100%" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="实际完成日期" prop="actualFinishDate">
-            <el-date-picker
-              v-model="form.actualFinishDate"
-              type="date"
-              placeholder="请选择实际完成日期"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-            />
+            <el-date-picker v-model="form.actualFinishDate" type="date" placeholder="请选择实际完成日期"
+              value-format="YYYY-MM-DD" style="width: 100%" />
           </el-form-item>
         </el-col>
       </el-row>
 
-      <el-row :gutter="20">
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
             <el-date-picker
@@ -192,27 +159,23 @@
             <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <!-- 生产信息 -->
-      <el-divider content-position="left">生产信息</el-divider>
+      <!-- <el-divider content-position="left">生产信息</el-divider>
       <el-row :gutter="20">
-        <!-- <el-col :span="12">
+        <el-col :span="12">
           <el-form-item label="生产工厂名称" prop="plantName">
             <el-input v-model="form.plantName" placeholder="请输入生产工厂名称" />
           </el-form-item>
         </el-col> -->
-        <!-- <el-col :span="12">
+      <!-- <el-col :span="12">
           <el-form-item label="生产中心" prop="center">
             <el-input v-model="form.center" placeholder="请输入生产中心" />
           </el-form-item>
-        </el-col> -->
-        <el-col :span="12">
-          <el-form-item label="生产车间名称" prop="workshopName">
-            <el-input v-model="form.workshopName" placeholder="请输入生产车间名称" />
-          </el-form-item>
         </el-col>
-      </el-row>
+      
+      </el-row> -->
 
       <el-row :gutter="20">
 
@@ -283,12 +246,12 @@
           </el-form-item>
         </el-col>
       </el-row>
-      
+
       <el-form-item label="备注" prop="remark">
         <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" :rows="3" />
       </el-form-item>
     </el-form>
-    
+
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleClose">取消</el-button>
@@ -296,10 +259,7 @@
       </span>
     </template>
 
-    <schedule-selector
-      v-model:visible="showSelector"
-      @select="handleSelect"
-    />
+    <schedule-selector v-model:visible="showSelector" @select="handleSelect" />
   </el-dialog>
 </template>
 
@@ -318,9 +278,13 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  newCode:{
+  newCode: {
     type: String,
     default: ''
+  },
+  scheduleData: {
+    type: Object,
+    default: () => ({})
   }
 
 });
@@ -330,7 +294,20 @@ watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
   if (newVal) {
     form.ipoNo = props.newCode
+    form.scheduleCode = props.scheduleData.scheduleCode
+    form.purchaserHqCode = props.scheduleData.purchaserHqCode
+    form.supplierCode = props.scheduleData.supplierCode
+    form.supplierName = props.scheduleData.supplierName
+    form.categoryCode = props.scheduleData.categoryCode
+    form.subclassCode = props.scheduleData.subclassCode
+    form.poItemId = props.scheduleData.poItemId
+    form.productModel = props.scheduleData.itemSpec
+    form.unit = props.scheduleData.itemUnit
+    form.materialsName = props.scheduleData.itemName
+    form.materialsCode = props.scheduleData.itemCode
+    form.materialsUnit = props.scheduleData.itemUnit
   }
+
 });
 
 
@@ -347,6 +324,9 @@ const handleSelect = (data) => {
   form.poItemId = data.poItemId
   form.productModel = data.itemSpec
   form.unit = data.itemUnit
+  form.materialsName = data.itemName
+  form.materialsCode = data.itemCode
+  form.materialsUnit = data.itemUnit
 }
 
 const formRef = ref(null);
@@ -379,7 +359,7 @@ const form = reactive({
   workshopName: '',
   ipoStatus: '',
   center: '',
-  dataSource: '手工录入',
+  dataSource: '供应商侧',
   dataSourceCreateTime: new Date().toISOString(),
   ownerId: '',
   openId: '',
@@ -410,7 +390,7 @@ const rules = reactive({
   unit: [{ required: true, message: '请输入计量单位', trigger: 'blur' }],
   planStartDate: [{ required: true, message: '请选择计划开始日期', trigger: 'change' }],
   planFinishDate: [{ required: true, message: '请选择计划完成日期', trigger: 'change' }],
-  dataSource: [{  message: '请输入数据来源', trigger: 'blur' }],
+  dataSource: [{ message: '请输入数据来源', trigger: 'blur' }],
   dataSourceCreateTime: [{ required: true, message: '请选择来源数据创建时间', trigger: 'change' }],
   writer: [{ required: true, message: '请输入记录创建人', trigger: 'blur' }]
 });

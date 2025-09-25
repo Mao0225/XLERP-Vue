@@ -149,7 +149,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="20">
+      <!-- <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
             <el-date-picker
@@ -166,7 +166,7 @@
             <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
           </el-form-item>
         </el-col>
-      </el-row>
+      </el-row> -->
 
       <!-- 生产信息 -->
       <el-divider content-position="left">生产信息</el-divider>

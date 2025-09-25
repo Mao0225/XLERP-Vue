@@ -56,67 +56,73 @@
       stripe
       @selection-change="handleSelectionChange"
     >
-        <el-table-column type="index" label="序号" width="80" />
+        <el-table-column type="index" label="序号" width="60" />
       
       <el-table-column 
         prop="ipoNo" 
-        label="生产订单编号" 
-        width="180" 
+        label="生产订单号" 
+        width="150" 
         show-overflow-tooltip
       />
     <el-table-column 
         prop="contractNo" 
         label="合同编号" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
         prop="contractName" 
         label="合同名称" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
         prop="itemName" 
-        label="合同产品名称" 
-        width="180" 
+        label="产品名称" 
+        width="100" 
         show-overflow-tooltip
       />
 
       <el-table-column 
         prop="itemSpec" 
-        label="合同产品型号" 
-        width="180" 
+        label="产品型号" 
+        width="100" 
         show-overflow-tooltip
       />
     <el-table-column 
         prop="materialsCode" 
-        label="厂家物料编码" 
-        width="180" 
+        label="物料编码" 
+        width="100" 
         show-overflow-tooltip
       />
-            <el-table-column 
+            <!-- <el-table-column 
         prop="materialsName" 
         label="厂家物料名称" 
-        width="180" 
+        width="100" 
         show-overflow-tooltip
-      />
+      /> -->
                   <el-table-column 
         prop="materialsDesc" 
-        label="厂家物料描述" 
-        width="180" 
+        label="物料描述" 
+        width="100" 
         show-overflow-tooltip
       />
             <el-table-column 
         prop="materialsUnit" 
-        label="厂家物料单位" 
-        width="180" 
+        label="物料单位" 
+        width="100" 
         show-overflow-tooltip
       />
       <el-table-column 
         prop="amount" 
-        label="生产数量" 
+        label="订单生产数量" 
         width="120" 
+        align="center"
+      />
+      <el-table-column 
+        prop="allocatedAmount" 
+        label="已分配数量" 
+        width="100" 
         align="center"
       />
     
@@ -130,7 +136,7 @@
           <el-button 
             type="primary" 
             size="small" 
-            @click="handleSelect(row)"
+            @click="openAddDialog(row)"
           >
             选择
           </el-button>
@@ -157,6 +163,10 @@
         <el-button @click="handleClose">取消</el-button>
       </span>
     </template>
+
+        <!-- 新增/编辑弹窗（保持原引用，优化事件名） -->
+    <addOrder :visible="addDialogVisible" :newCode="newCode" :producOrder ="selectedRows"  @update:visible="addDialogVisible = $event"
+      @success="handleAddSuccess" />
   </el-dialog>
 </template>
 
@@ -165,7 +175,8 @@ import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { getConfirmOrderList } from '@/api/plmanage/plproductionorder'
-
+import { getNewNoNyName } from '@/api/system/basno';
+import addOrder from './addOrder.vue'
 // Props定义
 const props = defineProps({
   visible: {
@@ -200,6 +211,8 @@ const pagination = reactive({
   size: 10,
   total: 0
 })
+
+const addDialogVisible = ref(false); // 新增弹窗显隐
 
 
 // 获取数据
@@ -259,6 +272,36 @@ const handleSearch = () => {
   fetchData()
 }
 
+
+const newCode = ref(''); // 新工单编码
+
+const generateNewCode = async () => {
+  try {
+    const res = await getNewNoNyName('scgd');
+    if (res?.code === 200) {
+      return res.data.fullNoNyName;
+    }
+    ElMessage.error(res?.msg || '获取编码失败');
+    return '';
+  } catch (error) {
+    console.error('生成编码出错:', error);
+    ElMessage.error('请求编码服务时发生错误');
+    return '';
+  }
+};
+
+const handleAddSuccess = () => {
+  addDialogVisible.value = false;
+  ElMessage.success('新增成功');
+  fetchData();
+};
+
+// 弹窗操作（优化事件名与模板一致）
+const openAddDialog = async (selection) => {
+  newCode.value = await generateNewCode();
+  selectedRows.value = selection
+  addDialogVisible.value = true;
+};
 // 处理重置
 const handleReset = () => {
   Object.assign(filters, {
@@ -286,13 +329,6 @@ const handleCurrentChange = (val) => {
 // 处理选择变化
 const handleSelectionChange = (selection) => {
   selectedRows.value = selection
-}
-
-// 处理单行选择
-const handleSelect = (row) => {
-
-  emits('select', row)
-  handleClose()
 }
 
 

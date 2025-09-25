@@ -70,11 +70,6 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="实际来货数量(件)" prop="quantity">
-            <el-input v-model.number="form.quantity" placeholder="请输入数量" clearable size="small" step="0.01" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="抽检数量(件)" prop="sampleQuantity">
             <el-input v-model.number="form.sampleQuantity" placeholder="请输入抽检数量" type="number" clearable size="small" step="0.01" />
           </el-form-item>
@@ -143,33 +138,8 @@
             <el-select v-model="form.finalConclusion" placeholder="请选择检验结论" clearable size="small">
               <el-option label="合格" value="合格"></el-option>
               <el-option label="不合格" value="不合格"></el-option>
-              <el-option label="复检" value="复检"></el-option>
+              <!-- <el-option label="复检" value="复检"></el-option> -->
             </el-select>
-          </el-form-item>
-        </el-col>
-
-        <!-- 文件上传和备注 -->
-        <el-col :span="24">
-          <el-form-item label="质量证明书" prop="certificate">
-            <el-upload
-              ref="certificateUpload"
-              :auto-upload="false"
-              :on-change="handleCertificateChange"
-              :limit="10"
-              accept=".pdf,.jpg,.jpeg,.png"
-              :file-list="certificateFileList"
-              :show-file-list="false"
-            >
-              <el-button type="primary" size="small">上传文件</el-button>
-            </el-upload>
-            <div class="uploaded-files" v-if="form.certificate && JSON.parse(form.certificate).length > 0">
-              <div v-for="(file, index) in JSON.parse(form.certificate)" :key="index" class="uploaded-file">
-                <span class="file-name" @click="openFileInNewWindow(file.url, file.name)">
-                  {{ file.name }}
-                </span>
-                <el-button type="text" size="small" @click="deleteCertificateFile(index)">删除</el-button>
-              </div>
-            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -198,7 +168,6 @@ import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
 import SupplierSelector from '../components/SupplierSelector.vue'
-
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -224,11 +193,8 @@ const chemicals = [
 
 const supplierSelectorVisible = ref(false)
 const emit = defineEmits(['update:visible', 'success'])
-const userStore = useUserStore()
 const baseUrl = baseURL
 const formRef = ref(null)
-const certificateUpload = ref(null)
-const certificateFileList = ref([])
 const submitting = ref(false)
 
 const form = reactive({
@@ -256,7 +222,6 @@ const form = reactive({
   chemTiRequired: '',
   leaveFactoryDate: '',
   detectionTime: '',
-  certificate: '[]',
   status: '40',
   memo: '',
   basNo: '',
@@ -266,14 +231,14 @@ const form = reactive({
   material: '',
   type: '',
   standard: '',
-  appearanceSize: '',
+  appearanceSize: '合格',
   auditor: '',
   checker: '',
   checkFinishTime: '',
   contractNo: '',
   contractName: '',
   acceptQuantity: '',
-  finalConclusion: ''
+  finalConclusion: '合格'
 })
 
 const rules = reactive({
@@ -355,9 +320,6 @@ const rules = reactive({
   detectionTime: [
     { required: true, message: '请选择入厂检测日期', trigger: 'change' }
   ],
-  certificate: [
-    { required: true, message: '请上传质量证明书', trigger: 'change' }
-  ],
   basNo: [
     { required: true, message: '单据号不能为空', trigger: 'blur' }
   ],
@@ -391,12 +353,6 @@ const rules = reactive({
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   checker: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
-  contractNo: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
-  contractName: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   acceptQuantity: [
@@ -434,7 +390,6 @@ watch(() => props.initialData, (newData) => {
       chemTiRequired: newData.chemTiRequired || '',
       leaveFactoryDate: newData.leaveFactoryDate || '',
       detectionTime: newData.detectionTime || '',
-      certificate: newData.certificate || '[]',
       status: newData.status || '40',
       memo: newData.memo || '',
       basNo: newData.basNo || '',
@@ -453,7 +408,6 @@ watch(() => props.initialData, (newData) => {
       acceptQuantity: newData.acceptQuantity || '',
       finalConclusion: newData.finalConclusion || ''
     })
-    certificateFileList.value = JSON.parse(form.certificate)
   }
 }, { immediate: true })
 
@@ -469,10 +423,7 @@ const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
   }
-  if (certificateUpload.value) {
-    certificateUpload.value.clearFiles()
-  }
-  certificateFileList.value = []
+ 
   Object.assign(form, {
     id: undefined,
     matRecheckNo: '',
@@ -498,14 +449,15 @@ const resetForm = () => {
     chemTiRequired: '',
     leaveFactoryDate: '',
     detectionTime: '',
-    certificate: '[]',
     status: '40',
-    memo: '',
+    memo: '',//请检单备注
+    checkMemo: '',//检验数据备注
     basNo: '',
     batchNo: '',
-    quantity: '',
-    sampleQuantity: '',
-    material: '',
+    sampleQuantity: '',//总检验数量
+    compInspQty:1,//成分检验数量
+    mechInspQty:3,//力学性能检验数量
+    material: '',//材质
     type: '',
     standard: '',
     appearanceSize: '',
@@ -518,40 +470,6 @@ const resetForm = () => {
     finalConclusion: ''
   })
 }
-
-const handleCertificateChange = async (file) => {
-  const formData = new FormData()
-  formData.append('file', file.raw)
-  try {
-    const res = await uploadFile(formData)
-    if (res.success && res.data && res.data.url) {
-      const relativeUrl = res.data.url
-      const fileList = JSON.parse(form.certificate)
-      fileList.push({ name: file.name, url: relativeUrl })
-      form.certificate = JSON.stringify(fileList)
-      certificateFileList.value.push({ name: file.name, url: relativeUrl })
-      ElMessage.success(`${file.name} 上传成功`)
-    } else {
-      throw new Error(res.msg || '文件上传失败')
-    }
-  } catch (error) {
-    console.error('文件上传失败', error)
-    ElMessage.error(`${file.name} 上传失败`)
-    certificateUpload.value.clearFiles()
-  }
-}
-
-const deleteCertificateFile = (index) => {
-  const fileList = JSON.parse(form.certificate)
-  fileList.splice(index, 1)
-  form.certificate = JSON.stringify(fileList)
-  certificateFileList.value.splice(index, 1)
-}
-
-const openFileInNewWindow = (url) => {
-  window.open(baseUrl + url, '_blank')
-}
-
 const submitForm = async () => {
   if (!formRef.value) return
   submitting.value = true
