@@ -70,4 +70,13 @@ export function updateTuzhi(data) {
 export function deleteTuzhi(params) {
   return del('/bastuzhi/delete', params)
 }
+
+/**
+ * 根据Xls和xlsx文件导入基础物料列表
+ * @param {File} itemListFile 文件
+ * @return {tuzhiList} 图纸列表
+ */
+export function importTuzhiList(data) {
+  return post('/bastuzhi/importTuzhi', data)
+}
  
