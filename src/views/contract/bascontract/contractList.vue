@@ -16,7 +16,7 @@
             @clear="getContractListData" @keyup.enter="getContractListData" />
         </div>
       </div>
-      <!-- 状态筛选（使用RadioGroup） -->
+      <!-- 状态筛选（使用RadioGroup）
       <div class="filter-row">
         <div class="status-filter">
           <span class="filter-label">合同状态：</span>
@@ -30,7 +30,7 @@
             </el-radio-button>
           </el-radio-group>
         </div>
-      </div>
+      </div> -->
       <!-- 筛选操作 -->
       <div class="filter-actions">
         <el-button type="primary" @click="getContractListData">
