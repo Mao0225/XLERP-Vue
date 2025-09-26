@@ -73,37 +73,39 @@
 
           <el-table :data="displayPlans" :highlight-current-row="true" @current-change="selectPlan" v-loading="loading"
             height="600">
-            <el-table-column type="index" label="序号" width="80" />
-            <el-table-column label="状态" width="120">
+            <el-table-column type="index" label="序号" width="60" />
+            <el-table-column label="状态" width="105">
             <template #default="{ row }">
               <el-tag :type="getStatusTagType(row.status)" size="small">
                 <el-icon>
                   <component :is="getStatusIcon(row.status)" />
                 </el-icon>
-                {{ row.status == 10 ? '录入' : row.status == 20 ? '确认' : '审核完成' }}
+                {{ getStatusText(row.status) }}
+
               </el-tag>
             </template>
           </el-table-column>
 
-            <el-table-column prop="scheduleCode" label="排产计划编码" width="180" show-overflow-tooltip>
+            <el-table-column prop="scheduleCode" label="排产计划编码" width="120" show-overflow-tooltip>
               <template #default="{ row }">
                 <el-link type="primary" @click="selectPlan(row)">{{ row.scheduleCode }}</el-link>
               </template>
             </el-table-column>
 
             <!-- <el-table-column prop="poItemId" label="采购项ID" width="120" /> -->
-             <el-table-column prop="contractNo" label="合同号" width="100" show-overflow-tooltip />
-             <el-table-column prop="contractName" label="合同名称" width="100" show-overflow-tooltip />
+             <!-- <el-table-column prop="contractNo" label="合同号" width="100" show-overflow-tooltip />
+             <el-table-column prop="contractName" label="合同名称" width="100" show-overflow-tooltip /> -->
              <el-table-column prop="itemName" label="产品名称" width="100" show-overflow-tooltip />
              <el-table-column prop="itemSpec" label="产品型号" width="100" show-overflow-tooltip />
-
-
-
-            <!-- <el-table-column label="计划数量" width="120">
+                         <el-table-column label="计划数量" width="120">
               <template #default="{ row }">
                 {{ row.amount }} {{ row.unit }}
               </template>
-            </el-table-column> -->
+            </el-table-column>
+
+
+
+
 
             <el-table-column label="计划日期" width="200">
               <template #default="{ row }">
@@ -118,7 +120,22 @@
 
             <el-table-column label="操作" width="300" fixed="right">
               <template #default="{ row }">
-                <!-- 如果状态是20，只显示反确认按钮 -->
+
+                <template v-if="row.status == 30">
+                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 40)">
+                    <el-icon>
+                      <Select />
+                    </el-icon>
+                    确认完成
+                  </el-button>
+                   <el-button type="primary" size="small" @click="opennProductionOrderDialog(row.scheduleCode)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看订单情况
+                  </el-button>
+                </template>
+
                 <template v-if="row.status == 20">
                   <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 10)">
                     <el-icon>
@@ -273,6 +290,7 @@
 
     <editPlan :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
       @success="handleSuccessEdit" />
+    <productionOrderList v-model:visible="productionOrderDialogVisible"  :scheduleCode = "selectedCode" />
   </div>
 
 </template>
@@ -284,6 +302,7 @@ import { Search, CircleCheckFilled, CircleCloseFilled, Close, Edit, Delete, Sele
 import { getPlSchedulePlanList, deletePlSchedulePlan, getPlSchedulePlanById, updatePlanStatus } from '@/api/plmanage/plscheduleplan';
 import addPlan from './components/addPlan.vue';
 import editPlan from './components/editPlan.vue';
+import productionOrderList from './components/productionOrderList.vue';
 
 
 import { getNewNoNyName } from '@/api/system/basno'
@@ -316,7 +335,13 @@ const formData = ref({});
 // 控制新增弹窗显示
 const addDialogVisible = ref(false)
 const editDialogVisible = ref(false)
+const productionOrderDialogVisible = ref(false)
+const selectedCode = ref('');
 
+const opennProductionOrderDialog = (code) => {
+  selectedCode.value = code;
+  productionOrderDialogVisible.value = true;
+}
 
 // 打开弹窗
 const openAddDialog = async () => {
@@ -348,12 +373,13 @@ const handleStatusUpdate = async (id, newStatus) => {
     const statusText = {
       10: '反确认',
       20: '确认', 
-      30: '审核通过'
+      30: '审核通过',
+      40: '已完成'
     };
     
     // 弹窗确认
     await ElMessageBox.confirm(
-      `确定要${statusText[newStatus] || '修改'}排产计划吗？`,
+      `确定${statusText[newStatus] || '修改'}该排产计划吗？`,
       '提示',
       {
         confirmButtonText: '确定',
@@ -381,7 +407,7 @@ const sendStatusUpdateRequest = async (id, newStatus) => {
     });
 
     if (res.code === 200) {
-      ElMessage.success(`${newStatus === 20 ? '确认' : '反确认'}成功`);
+      ElMessage.success(`状态更新成功`);
       loadData(); // 重新加载数据
     } else {
       ElMessage.error(res.msg || '修改失败');
@@ -501,8 +527,20 @@ const pagination = reactive({
 const statusOptions = [
   { value: '10', label: '录入' },
   { value: '20', label: '确认' },
-  { value: '30', label: '审核通过' }  // 新增这一行
+  { value: '30', label: '审核通过' },
+  { value: '40', label: '已完成' }  // 新增这一行
 ];
+
+
+const getStatusText = (status) => {
+  const texts = {
+    '10': '录入',
+    '20': '确认',
+    '30': '审核通过',  // 新增这一行
+    '40': '已完成'
+  };
+  return texts[status] || '';
+}
 
 // 移除前端过滤逻辑，直接使用后端数据
 const displayPlans = computed(() => {
@@ -527,7 +565,8 @@ const getStatusClass = (status) => {
   const classes = {
     '10': 'status-entered',
     '20': 'status-confirmed',
-    '30': 'status-approved'  // 新增这一行
+    '30': 'status-approved',
+    '40': 'status-approved'
   };
   return classes[status] || '';
 };
@@ -536,7 +575,8 @@ const getStatusTagType = (status) => {
   const types = {
     '10': 'info',
     '20': 'primary',
-    '30': 'success'  // 新增这一行
+    '30': 'success',
+    '40': 'success'
   };
   return types[status] || '';
 };
@@ -545,7 +585,8 @@ const getStatusIcon = (status) => {
   const icons = {
     '10': 'Clock',
     '20': 'CircleCheck',
-    '30': 'Select'  // 新增这一行，或者用其他合适的图标
+    '30': 'Select',
+    '40': 'Select'
   };
   return icons[status] || 'Clock';
 };

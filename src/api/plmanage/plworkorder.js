@@ -76,3 +76,13 @@ return get ('/pl_work_order/getConfirmedList', params)
 export function updateOrderStatus (data) {
 return get ('/pl_work_order/updateStatus', data)
 }
+
+
+/**
+ * 根据生产订单号查询关联的工单
+ * @param {Object} params - 查询参数
+ * @param {string} params.ipoNo - 生产订单号
+ */
+export function getWorkOrderByIpoNo (params) {
+return get ('/pl_work_order/getListByIpoNo', params)
+}

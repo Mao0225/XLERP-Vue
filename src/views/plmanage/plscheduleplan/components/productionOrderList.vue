@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    title="工序列表"
+    title="订单进程列表"
     width="800px"
     :before-close="handleClose"
     destroy-on-close
@@ -15,15 +15,21 @@
         <span>加载中...</span>
       </div>
 
+      <!-- 统计信息 -->
+      <div v-if="orderList.length > 0" class="summary-container">
+        <span>已完成订单数量总和: {{ completedAmountSum }}</span>
+      </div>
+
       <!-- 表头 -->
       <div v-if="orderList.length > 0" class="table-header">
         <div class="header-index">序号</div>
-        <div class="header-process">工序名称</div>
-        <div class="header-workshop">车间名称</div>
+        <div class="header-ipoNo">关联订单号</div>
+        <div class="header-materials">物料名称</div>
+        <div class="header-amount">数量</div>
         <div class="header-status">完成状态</div>
       </div>
 
-      <!-- 工序列表 -->
+      <!-- 工单进程列表 -->
       <div v-if="orderList.length > 0" class="order-list">
         <div
           v-for="(item, index) in orderList"
@@ -34,11 +40,14 @@
             <div class="col-index">
               <span class="order-index">{{ index + 1 }}</span>
             </div>
-            <div class="col-process">
-              <div class="process-name">{{ item.processName || '-' }}</div>
+            <div class="col-ipoNo">
+              <div class="ipoNo">{{ item.ipoNo || '-' }}</div>
             </div>
-            <div class="col-workshop">
-              <div class="workshop-name">{{ item.workshopName || '-' }}</div>
+            <div class="col-materials">
+              <div class="materials-name">{{ item.materialsName || '-' }}</div>
+            </div>
+            <div class="col-amount">
+              <div class="amount">{{ item.amount || '-' }}</div>
             </div>
             <div class="col-status">
               <el-tag
@@ -55,7 +64,7 @@
 
       <!-- 空数据状态 -->
       <div v-else class="empty-container">
-        <el-empty description="暂无工序数据" />
+        <el-empty description="暂无工单数据" />
       </div>
     </div>
 
@@ -71,9 +80,7 @@
 import { ref, watch, computed } from 'vue'
 import { ElDialog, ElTag, ElButton, ElIcon, ElEmpty } from 'element-plus'
 import { Clock, CircleCheck, VideoPlay, Check, Loading } from '@element-plus/icons-vue'
-import { getPlReportWorkOrderListByWoNo } from '@/api/plmanage/plreportworkorder'
-
-import { getWorkOrderByIpoNo } from '@/api/plmanage/plworkorder'
+import { getOrderListByScheduleCode } from '@/api/plmanage/plproductionorder'
 
 // 定义组件属性
 const props = defineProps({
@@ -81,7 +88,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  woNo: {
+  scheduleCode: {
     type: String,
     default: ''
   }
@@ -98,6 +105,13 @@ const loading = ref(false)
 const dialogVisible = computed({
   get: () => props.visible,
   set: (value) => emit('update:visible', value)
+})
+
+// 计算属性：已完成工单数量总和
+const completedAmountSum = computed(() => {
+  return orderList.value
+    .filter(item => item.status === '40')
+    .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0)
 })
 
 // 状态配置
@@ -123,20 +137,20 @@ const getStatusType = (status) => {
   return statusConfig[status]?.type || 'info'
 }
 
-// 获取工序列表数据
+// 获取工单进程列表数据
 const fetchOrderList = async () => {
-  if (!props.woNo) return
+  if (!props.scheduleCode) return
   
   loading.value = true
   try {
-    const response = await getPlReportWorkOrderListByWoNo({woNo:props.woNo})
+    const response = await getOrderListByScheduleCode({ scheduleCode: props.scheduleCode })
     if (response.success && response.data?.orderList) {
       orderList.value = response.data.orderList
     } else {
       orderList.value = []
     }
   } catch (error) {
-    console.error('获取工序列表失败：', error)
+    console.error('获取工单进程列表失败：', error)
     orderList.value = []
   } finally {
     loading.value = false
@@ -149,11 +163,11 @@ const handleClose = () => {
   orderList.value = []
 }
 
-// 监听弹窗显示状态和woNo变化
+// 监听弹窗显示状态和scheduleCode变化
 watch(
-  () => [props.visible, props.woNo],
-  ([visible, woNo]) => {
-    if (visible && woNo) {
+  () => [props.visible, props.scheduleCode],
+  ([visible, scheduleCode]) => {
+    if (visible && scheduleCode) {
       fetchOrderList()
     }
   },
@@ -164,6 +178,16 @@ watch(
 <style scoped>
 .order-list-container {
   min-height: 300px;
+}
+
+.summary-container {
+  padding: 12px 16px;
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #1890ff;
 }
 
 .loading-container {
@@ -198,14 +222,20 @@ watch(
   flex-shrink: 0;
 }
 
-.header-process {
+.header-ipoNo {
   flex: 1;
   min-width: 150px;
 }
 
-.header-workshop {
+.header-materials {
   flex: 1;
   min-width: 150px;
+}
+
+.header-amount {
+  width: 100px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .header-status {
@@ -246,16 +276,22 @@ watch(
   flex-shrink: 0;
 }
 
-.col-process {
+.col-ipoNo {
   flex: 1;
   min-width: 150px;
   padding-right: 16px;
 }
 
-.col-workshop {
+.col-materials {
   flex: 1;
   min-width: 150px;
   padding-right: 16px;
+}
+
+.col-amount {
+  width: 100px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .col-status {
@@ -277,13 +313,19 @@ watch(
   font-size: 13px;
 }
 
-.process-name {
+.ipoNo {
   font-size: 14px;
   color: #303133;
   font-weight: 500;
 }
 
-.workshop-name {
+.materials-name {
+  font-size: 14px;
+  color: #303133;
+  font-weight: 500;
+}
+
+.amount {
   font-size: 14px;
   color: #606266;
 }

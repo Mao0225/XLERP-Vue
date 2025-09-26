@@ -118,7 +118,26 @@
             </el-table-column>
             <el-table-column label="操作" width="240" fixed="right">
 
+
+              
+
               <template #default="{ row }">
+
+                <template v-if="row.status == 30">
+                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 40)">
+                    <el-icon>
+                      <Select />
+                    </el-icon>
+                    确认完成
+                  </el-button>
+                   <el-button type="primary" size="small" @click="openWorkListDialog(row.ipoNo)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看工单情况
+                  </el-button>
+                </template>
+
                 <template v-if="row.status == 20">
                   <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 10)">
                     <el-icon>
@@ -327,27 +346,35 @@
     />
 
     <schedule-selector v-model:visible="showSelector" @closed="loadData" />
+    <workOrderList v-model:visible="showWorkOrderList" :ipoNo="selectedIpoNo" />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, Refresh, Clock, CircleCheck, Edit, Delete, Close,CircleCheckFilled,CircleCloseFilled,Select} from '@element-plus/icons-vue';
+import { Search, Refresh, Clock, CircleCheck, Edit, Delete, Close,CircleCheckFilled,CircleCloseFilled,Select, Document} from '@element-plus/icons-vue';
 import { getPlProductionOrderList, deletePlProductionOrder, getPlProductionOrderById,updateOrderStatus } from '@/api/plmanage/plproductionorder';
 import editOrder from './components/editOrder.vue';
 import scheduleSelector from './components/scheduleSelector.vue';
-
+import workOrderList from './components/workOrderList.vue';
 
 // 状态管理
 const loading = ref(false); // 表格加载状态
 const selectedOrder = ref(null); // 选中的订单
 const editDialogVisible = ref(false); // 编辑弹窗显隐
-const newCode = ref(''); // 新订单编码
 const formData = ref({}); // 编辑表单数据
 const tableData = ref([]); // 表格数据
 const showSelector = ref(false)
+const selectedIpoNo = ref('')
+const showWorkOrderList = ref(false)
 
+
+
+const openWorkListDialog = (ipoNo) => { 
+  selectedIpoNo.value = ipoNo
+  showWorkOrderList.value = true
+}
 // 筛选条件
 const filters = reactive({
   contractNo: '',
@@ -500,12 +527,13 @@ const handleStatusUpdate = async (id, newStatus) => {
     const statusText = {
       10: '反确认',
       20: '确认', 
-      30: '审核通过'
+      30: '审核通过',
+      40: '已完成'
     };
     
     // 弹窗确认
     await ElMessageBox.confirm(
-      `确定要${statusText[newStatus] || '修改'}生产订单吗？`,
+      `确定${statusText[newStatus] || '修改'}该生产订单吗？`,
       '提示',
       {
         confirmButtonText: '确定',
@@ -533,7 +561,7 @@ const sendStatusUpdateRequest = async (id, newStatus) => {
     });
 
     if (res.code === 200) {
-      ElMessage.success(`${newStatus === 20 ? '确认' : '反确认'}成功`);
+      ElMessage.success(`状态更新成功`);
       loadData(); // 重新加载数据
     } else {
       ElMessage.error(res.msg || '修改失败');
@@ -592,7 +620,8 @@ const getStatusClass = (status) => {
   const classes = {
     '10': 'status-entered',
     '20': 'status-confirmed',
-    '30': 'status-approved'  // 新增这一行
+    '30': 'status-approved',
+    '40': 'status-approved'
   };
   return classes[status] || '';
 };
@@ -610,7 +639,8 @@ const getStatusIcon = (status) => {
   const icons = {
     '10': 'Clock',
     '20': 'CircleCheck',
-    '30': 'Select'  // 新增这一行，或者用其他合适的图标
+    '30': 'Select',
+    '40': 'Select'
   };
   return icons[status] || 'Clock';
 };
@@ -619,7 +649,8 @@ const getStatusText = (status) =>{
   const texts = {
     '10': '录入',
     '20': '确认',
-    '30': '审核通过'  // 新增这一行
+    '30': '审核通过',  // 新增这一行
+    '40': '已完成'
   };
   return texts[status] || '';
 }

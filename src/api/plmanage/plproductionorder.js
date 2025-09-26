@@ -75,3 +75,12 @@ return get ('/pl_production_order/getConfirmedList', params)
 export function updateOrderStatus (data) {
 return get ('/pl_production_order/updateStatus', data)
 }
+
+/**
+ * 根据排产计划号获取关联的订单列表
+ * @param {Object} params - 查询参数
+ * @param {string} params.scheduleCode - 排产计划号
+ */
+export function getOrderListByScheduleCode (params) {
+return get ('/pl_production_order/getListByScheduleCode', params)
+}
