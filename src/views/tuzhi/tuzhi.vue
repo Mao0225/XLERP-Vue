@@ -15,6 +15,8 @@
         <el-icon><Refresh /></el-icon> 刷新
       </el-button>
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增图纸</el-button>
+      <el-button type="primary" @click="importTuzhi" >导入图纸</el-button>
+      <el-button type="info" @click="downloadExsl">下载模板</el-button>
     </div>
 
     <el-table :data="tuzhiList" border v-loading="loading" style="width: 100%">
@@ -124,18 +126,28 @@
         <el-button @click="cailiaoDialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
+
+    <ImportResultDialog 
+      v-model="importResultVisible" 
+      :import-data="importResultData"
+      @confirm="handleImportResultConfirm"
+    />
+
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getTuzhis, getTuzhiById, createTuzhi, updateTuzhi, deleteTuzhi } from '@/api/tuzhi/tuzhi'
+import { getTuzhis, getTuzhiById, createTuzhi, updateTuzhi, deleteTuzhi, importTuzhiList } from '@/api/tuzhi/tuzhi'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import Tuzhicailiao from './tuzhicailiao.vue'
 import { Refresh } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
+
+import ImportResultDialog from '@/views/tuzhi/components/ImportResultDialog.vue'
+
 
 // 引入用户store
 const userStore = useUserStore()
@@ -432,6 +444,170 @@ const handleRefresh = () => {
   queryParams.pageNumber = 1
   getTuzhiList()
 }
+
+
+const importResultData = ref({});
+const importResultVisible = ref(false); // 新增：控制导入结果弹窗的显示/隐藏
+/**
+ * 导入图纸数据
+ */
+/* const importTuzhi = () => {
+  // 创建隐藏的文件输入元素
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xls,.xlsx';
+  input.style.display = 'none';
+
+  // 添加 change 事件监听
+  input.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      ElMessage.error('未选择文件');
+      return;
+    }
+
+    // 验证文件类型
+    const validTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+      ElMessage.error('请选择 Excel 文件 (.xls 或 .xlsx)');
+      return;
+    }
+
+    // 准备 FormData
+    const formData = new FormData();
+    formData.append('tuzhiListFile', file);
+
+    try {
+      // 调用导入接口
+      const res = await importTuzhiList(formData);
+
+      // 检查响应是否成功
+      if (res.code === 200 && res.data) {
+        // 显示导入结果弹窗
+        showImportResultDialog(res.data);
+        
+        // 显示简要成功消息
+        ElMessage.success(`文件导入完成，总计 ${res.data.totalRows} 条，成功 ${res.data.successCount} 条`);
+      } else {
+        ElMessage.error('导入失败：' + (res.msg || '未知错误'));
+      }
+    } catch (error) {
+      console.error('导入错误', error);
+      ElMessage.error('导入图纸失败');
+    } finally {
+      // 移除临时输入元素
+      document.body.removeChild(input);
+    }
+  });
+
+  // 触发文件选择对话框
+  document.body.appendChild(input);
+  input.click();
+};
+ */
+
+// tuzhi.vue 中找到 importTuzhi 函数，替换为以下代码
+const importTuzhi = () => {
+  // 新增：导入前强制提示使用官方模板，避免表头错误
+  ElMessageBox.confirm(
+    `请务必使用官方模板填写数据！\n1. 模板可通过「下载模板」按钮获取\n2. 表头不可修改（如"图纸编号"不可改为"编号"）\n3. 禁止合并单元格、表头空格`,
+    '重要：导入前须知',
+    {
+      confirmButtonText: '已确认，选择文件',
+      cancelButtonText: '取消',
+      type: 'warning',
+      dangerouslyUseHTMLString: true // 支持换行符\n
+    }
+  ).then(() => {
+    // 创建隐藏文件输入框（原逻辑保留）
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xls,.xlsx';
+    input.style.display = 'none';
+
+    // 文件选择后处理（原逻辑保留，新增错误详情展示）
+    input.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) {
+        ElMessage.error('未选择文件');
+        return;
+      }
+
+      // 验证文件类型（原逻辑保留）
+      const validTypes = [
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ];
+      if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+        ElMessage.error('请选择 Excel 文件（.xls 或 .xlsx）');
+        return;
+      }
+
+      // 准备FormData并调用接口（原逻辑保留，新增错误详情）
+      const formData = new FormData();
+      formData.append('tuzhiListFile', file);
+
+      try {
+        const res = await importTuzhiList(formData);
+        if (res.code === 200 && res.data) {
+          showImportResultDialog(res.data);
+          ElMessage.success(`导入完成：总计${res.data.totalRows}条，成功${res.data.successCount}条`);
+        } else {
+          ElMessage.error('导入失败：' + (res.msg || '未知错误'));
+        }
+      } catch (error) {
+        // 新增：展示后端返回的具体错误（如“缺少表头”）
+        const errorMsg = error.response?.data?.msg || '文件解析失败，请检查模板是否正确';
+        ElMessage.error(`导入错误：${errorMsg}`);
+        console.error('导入详细错误：', error); // 控制台打印完整错误，方便开发排查
+      } finally {
+        document.body.removeChild(input); // 移除临时元素
+      }
+    });
+
+    // 触发文件选择对话框
+    document.body.appendChild(input);
+    input.click();
+  }).catch(() => {
+    // 用户取消导入，不执行任何操作
+  });
+};
+
+/**
+ * 显示导入结果弹窗
+ * @param {Object} data - 导入结果数据
+ */
+const showImportResultDialog = (data) => {
+  importResultData.value = data;
+  importResultVisible.value = true;
+};
+
+/**
+ * 导入结果确认回调
+ */
+const handleImportResultConfirm = () => {
+  // 刷新合同信息
+  getTuzhiList();
+};
+
+
+//下载模板。模板地址/xlsxTemplate/图纸.xlsx
+const downloadExsl = () => {
+  try {
+    const url = `${baseURL}/xlsxTemplates/图纸.xlsx`;
+    window.open(url, '_blank');
+  } catch (error) {
+    console.error('下载模板失败:', error);
+    ElMessage({
+      message: '下载模板失败，请检查网络或联系管理员',
+      type: 'error',
+      duration: 5 * 1000
+    });
+  }
+};
 
 // 页面初始化
 onMounted(() => {
