@@ -3,6 +3,10 @@
     <div class="action-bar">
 
       <div class="search-inputs">
+                        <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
+          clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
+        <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
+          clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
         <el-input
           v-model="queryParams.mafactory"
           placeholder="请输入原材料制造商查询"
@@ -12,24 +16,8 @@
           @keyup.enter="getAluminumIngotList"
         />
         <el-input
-          v-model="queryParams.inNo"
-          placeholder="请输入入库单号查询"
-          style="width: 200px; margin-right: 10px;"
-          clearable
-          @clear="getAluminumIngotList"
-          @keyup.enter="getAluminumIngotList"
-        />
-        <el-input
-          v-model="queryParams.matMaterial"
-          placeholder="请输入铝锭牌号查询"
-          style="width: 200px; margin-right: 10px;"
-          clearable
-          @clear="getAluminumIngotList"
-          @keyup.enter="getAluminumIngotList"
-        />
-        <el-input
           v-model="queryParams.matRecheckNo"
-          placeholder="请输入来料检验批次号"
+          placeholder="请输入复检单号"
           style="width: 200px; margin-right: 10px;"
           clearable
           @clear="getAluminumIngotList"
@@ -86,6 +74,20 @@
           </el-tooltip>
         </template>
       </el-table-column>
+       <el-table-column prop="contractNo" label="合同编号" width="140">
+        <template #default="{ row }">
+          <el-tooltip :content="row.contractNo" placement="top">
+            <span class="truncate">{{ row.contractNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+            <el-table-column prop="contractName" label="合同名称" width="140">
+        <template #default="{ row }">
+          <el-tooltip :content="row.contractName" placement="top">
+            <span class="truncate">{{ row.contractName }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="matMaterial" label="牌号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.matMaterial" placement="top">
@@ -128,13 +130,6 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <!-- <el-table-column prop="inNo" label="入库单号" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.inNo" placement="top">
-            <span class="truncate">{{ row.inNo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column> -->
       <el-table-column prop="checkWriter" label="检验人" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.checkWriter" placement="top">
@@ -327,9 +322,9 @@ const formData = ref({})
 
 
 const queryParams = reactive({
+  contractNo: '',
+  contractName: '',
   mafactory: '',
-  inNo: '',
-  matMaterial: '',
   matRecheckNo: '',
   status: 40,//默认待审核数据从状态40开始
   pageNumber: 1,
@@ -414,9 +409,9 @@ const handleCurrentChange = (page) => {
 }
 
 const handleRefresh = () => {
+  queryParams.contractNo = ''
+  queryParams.contractName = ''
   queryParams.mafactory = ''
-  queryParams.inNo = ''
-  queryParams.matMaterial = ''
   queryParams.matRecheckNo = ''
   queryParams.pageNumber = 1
   getAluminumIngotList()

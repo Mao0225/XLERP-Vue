@@ -8,8 +8,6 @@
           clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
         <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
           clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
-        <el-input v-model="queryParams.matMaterial" placeholder="请输入牌号查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
         <el-input v-model="queryParams.basNo" placeholder="请输入单据号查询" style="width: 200px; margin-right: 10px;" clearable
           @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
         <el-button type="primary" @click="getAluminumIngotList">搜索</el-button>
@@ -276,7 +274,6 @@ const formData = ref({})
 const queryParams = reactive({
   contractNo: '',
   contractName: '',
-  matMaterial: '',
   basNo: '',
   status: '', // 添加状态筛选参数
   pageNumber: 1,
@@ -411,7 +408,6 @@ const handleCurrentChange = (page) => {
 const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
-  queryParams.matMaterial = ''
   queryParams.basNo = ''
   queryParams.status = ''
   queryParams.pageNumber = 1
