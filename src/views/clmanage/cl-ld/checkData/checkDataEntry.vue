@@ -29,7 +29,7 @@
         />
         <el-input
           v-model="queryParams.matRecheckNo"
-          placeholder="请输入来料检验批次号"
+          placeholder="请输入复检单号"
           style="width: 200px; margin-right: 10px;"
           clearable
           @clear="getAluminumIngotList"
@@ -64,7 +64,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="matRecheckNo" label="检验批次号" width="140">
+      <el-table-column prop="matRecheckNo" label="复检单号" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.matRecheckNo" placement="top">
             <span class="truncate">{{ row.matRecheckNo }}</span>
@@ -85,14 +85,14 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="matMaterial" label="铝锭牌号" width="120">
+      <el-table-column prop="matMaterial" label="牌号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.matMaterial" placement="top">
             <span class="truncate">{{ row.matMaterial }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="material" label="材料" width="100">
+      <el-table-column prop="material" label="材质" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.material" placement="top">
             <span class="truncate">{{ row.material }}</span>
@@ -120,38 +120,31 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="quantity" label="数量" width="90">
-        <template #default="{ row }">
-          <el-tooltip :content="row.quantity" placement="top">
-            <span class="truncate">{{ row.quantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
       <el-table-column prop="sampleQuantity" label="样品数量" width="90">
         <template #default="{ row }">
           <el-tooltip :content="row.sampleQuantity" placement="top">
-            <span class="truncate">{{ row.sampleQuantity }} t</span>
+            <span class="truncate">{{ row.sampleQuantity }} 件</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="inNo" label="入库单号" width="120">
+      <!-- <el-table-column prop="inNo" label="入库单号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.inNo" placement="top">
             <span class="truncate">{{ row.inNo }}</span>
           </el-tooltip>
         </template>
-      </el-table-column>
-      <el-table-column prop="checker" label="检验人" width="100">
+      </el-table-column> -->
+      <el-table-column prop="checkWriter" label="检验人" width="100">
         <template #default="{ row }">
-          <el-tooltip :content="row.checker" placement="top">
-            <span class="truncate">{{ row.checker }}</span>
+          <el-tooltip :content="row.checkWriter" placement="top">
+            <span class="truncate">{{ row.checkWriter }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="auditor" label="审核人" width="100">
+      <el-table-column prop="checkAuditor" label="审核人" width="100">
         <template #default="{ row }">
-          <el-tooltip :content="row.auditor" placement="top">
-            <span class="truncate">{{ row.auditor }}</span>
+          <el-tooltip :content="row.checkAuditor" placement="top">
+            <span class="truncate">{{ row.checkAuditor }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -164,31 +157,17 @@
       <el-table-column prop="chemZn" label="Zn(%)" width="90" />
       <el-table-column prop="chemTi" label="Ti(%)" width="90" />
       <el-table-column prop="chemMg" label="Mg(%)" width="90" />
-      <el-table-column prop="memo" label="备注" width="140">
+      <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
             <span class="truncate">{{ row.memo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="writer" label="录入人" width="120">
+      <el-table-column prop="checkMemo" label="复检备注" width="140">
         <template #default="{ row }">
-          <el-tooltip :content="row.writer" placement="top">
-            <span class="truncate">{{ row.writer }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="writeTime" label="录入时间" width="140" >
-        <template #default="{ row }">
-          <el-tooltip :content="row.writeTime" placement="top">
-            <span class="truncate">{{ row.writeTime }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="leavefactoryDate" label="出厂日期" width="120" >
-        <template #default="{ row }">
-          <el-tooltip :content="row.leavefactoryDate" placement="top">
-            <span class="truncate">{{ row.leavefactoryDate }}</span>
+          <el-tooltip :content="row.checkMemo" placement="top">
+            <span class="truncate">{{ row.checkMemo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -238,42 +217,68 @@
         @current-change="handleCurrentChange"
       />
     </div>
+
+    <editForm
+      :visible="editDialogVisible"
+      :initial-data="formData"
+      @update:visible="editDialogVisible = $event"
+      @success="handleSuccessEdit"
+    />
+    <checkDataPreview
+      :visible="previewDialogVisible"
+      :initial-data="formData"
+      @update:visible="previewDialogVisible = $event"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled } from '@element-plus/icons-vue'
+import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled,Document } from '@element-plus/icons-vue'
 import { getLdPage, deleteLd, getLdById, updateStatus } from '@/api/clmanage/cl-ld'
 import { useRouter } from 'vue-router'
+import editForm from './entryCheckDataForm.vue'
 import { baseURL } from '@/utils/request'
-import { getNewNoNyName } from '@/api/system/basno'
+import checkDataPreview from './checkDataPreview.vue'
+import { useUserStore } from '@/store/user'
+const userStore = useUserStore()
 
+const previewDialogVisible = ref(false)
+
+const handlePreview = async (id) => {
+  const res = await getLdById({ id: id })
+  formData.value = res.data.record
+  previewDialogVisible.value = true
+}
 // =============== 状态常量定义 ===============
 // 状态值-名称映射表
 const STATUS_LABEL_MAP = {
-  "40": "待审核",
+  "30": "待录入数据",
+  "40": "录入确认，待审核",
   "50": "检验完成", 
-  DEFAULT: "未知"
+  DEFAULT: "检验完成"
 }
 
 // 状态值-图标映射表
 const STATUS_ICON_MAP = {
+  "30": "Clock", // 时钟图标
   "40": "Edit", // 编辑图标
   "50": "CircleCheck", // 对勾圆图标
-  DEFAULT: "Clock"
+  DEFAULT: "Check"
 }
 
 // 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
-  "40": "warning", // 深蓝色
+  "30": "info", // 蓝色
+  "40": "primary", // 深蓝色
   "50": "success", // 橙色
-  DEFAULT: "info"
+  DEFAULT: "success"
 }
 
 // 状态值-Radio按钮自定义类映射表
 const STATUS_CLASS_MAP = {
+  "30": "status-pending",
   "40": "status-data-entry",
   "50": "status-data-confirmed",
   DEFAULT: ""
@@ -282,13 +287,19 @@ const STATUS_CLASS_MAP = {
 
 // 状态操作权限映射（当前状态→可执行操作）
 const STATUS_ACTION_MAP = {
-
-  "40": [ // 检验数据录入状态可执行操作
-    { action: "auditPass", text: "审核通过", icon: "Check", type: "success", targetStatus: "50" },
-    { action: "backToDataEntry", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "30" }
+  "30": [ // 待录入数据状态可执行操作
+    { action: "edit", text: "录入数据", icon: "Edit", type: "primary" },
+    { action: "confirmDataEntry", text: "确认录入", icon: "CircleCheck", type: "warning", targetStatus: "40" },
+    { action: "delete", text: "删除", icon: "Delete", type: "danger" },
   ],
-  "50": [ // 检验数据录入确认状态可执行操作
-    // { action: "backToDataEntry", text: "返回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "40" }
+  "40": [ // 检验数据录入状态可执行操作
+    { action: "backToPending", text: "撤回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "30" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ],
+  "50": [
+            { action: "preview", text: "查看信息", icon: "Document", type: "primary" },
+            
   ],
 }
 
@@ -309,7 +320,6 @@ const getStatusTagType = (statusValue) => {
 }
 
 
-
 // 获取当前状态可执行操作列表
 const getStatusActions = (statusValue) => {
   return STATUS_ACTION_MAP[statusValue] ?? []
@@ -318,25 +328,26 @@ const getStatusActions = (statusValue) => {
 // 根据目标状态获取操作文本
 const getStatusActionText = (targetStatus) => {
   switch (targetStatus) {
-    case "40": return "退回录入"
-    case "50": return "确认审核通过"
+    case "30": return "撤回录入"
+    case "40": return "确认录入"
+    case "50": return "检验完成"
     default: return "更新状态"
   }
 }
 
 // =============== 响应式数据 ===============
-const newCode = ref('')
-const addDialogVisible = ref(false)
+
 const editDialogVisible = ref(false)
 const formData = ref({})
 
+const router = useRouter()
 
 const queryParams = reactive({
   mafactory: '',
   inNo: '',
   matMaterial: '',
   matRecheckNo: '',
-  status: 40,//默认待审核数据从状态40开始
+  status: 30,//默认待录入数据从状态30开始
   pageNumber: 1,
   pageSize: 10
 })
@@ -345,35 +356,14 @@ const aluminumIngotList = ref([])
 const total = ref(0)
 const loading = ref(false)
 
-// =============== 业务方法 ===============
-// 生成新的单据号编码
-const generateNewCode = async () => {
-  try {
-    const res = await getNewNoNyName('cl-ld')
-    
-    if (res?.code === 200) {
-      console.log("获取编码成功", res.data.fullNoNyName)
-      return res.data.fullNoNyName
-    }
-    
-    ElMessage.error(res?.msg || '获取编码失败')
-    return ''
-    
-  } catch (error) {
-    console.error('生成编码出错:', error)
-    ElMessage.error('请求编码服务时发生错误')
-    return ''
-  }
-}
-
 // 统一处理操作按钮点击
 const handleActionClick = (action, row) => {
   switch (action.action) {
     case "edit":
       handleEdit(row.id)
       break
-    case "delete":
-      handleDelete(row)
+    case "preview":
+      handlePreview(row.id)
       break
     case "startDataEntry":
     case "confirmDataEntry":
@@ -399,7 +389,7 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
     )
     
     // 调用接口更新状态
-    const response = await updateStatus({ id: orderId, status: targetStatus })
+    const response = await updateStatus({ id: orderId, status: targetStatus,updatePerson:userStore.realName })
     
     // 处理结果
     if (response?.code === 200) {
@@ -415,11 +405,6 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
   }
 }
 
-const handleAdd = async () => {
-  newCode.value = await generateNewCode()
-  console.log("newCode.value", newCode.value)
-  addDialogVisible.value = true
-}
 
 const handleEdit = async (id) => {
   const res = await getLdById({ id: id })
@@ -427,11 +412,6 @@ const handleEdit = async (id) => {
   editDialogVisible.value = true
 }
 
-const handleSuccessAdd = () => {
-  addDialogVisible.value = false
-  ElMessage.success('铝锭记录新增成功')
-  getAluminumIngotList()
-}
 
 const handleSuccessEdit = () => {
   editDialogVisible.value = false
@@ -472,7 +452,6 @@ const handleRefresh = () => {
   queryParams.pageNumber = 1
   getAluminumIngotList()
 }
-
 
 const openFileInNewWindow = (url) => {
   window.open(baseURL + url, '_blank')

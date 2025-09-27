@@ -41,13 +41,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="matRecheckNo" label="复检单号" width="140">
+      <!-- <el-table-column prop="matRecheckNo" label="复检单号" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.matRecheckNo" placement="top">
             <span class="truncate">{{ row.matRecheckNo }}</span>
           </el-tooltip>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column prop="batchNo" label="炉批号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.batchNo" placement="top">
@@ -97,37 +97,18 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="materialDoc" label="材质书" width="120">
+      
+      <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
-          <div v-for="(file, index) in JSON.parse(row.materialDoc || '[]')" :key="index">
-            <el-tooltip :content="file.name" placement="top">
-              <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
-            </el-tooltip>
-          </div>
+          <el-tooltip :content="row.requestWriter" placement="top">
+            <span class="truncate">{{ row.requestWriter }}</span>
+          </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="qualificationCert" label="合格证" width="120">
+       <el-table-column prop="requestAuditor" label="审核人" width="120">
         <template #default="{ row }">
-          <div v-for="(file, index) in JSON.parse(row.qualificationCert || '[]')" :key="index">
-            <el-tooltip :content="file.name" placement="top">
-              <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
-            </el-tooltip>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="factoryReport" label="出厂报告" width="120">
-        <template #default="{ row }">
-          <div v-for="(file, index) in JSON.parse(row.factoryReport || '[]')" :key="index">
-            <el-tooltip :content="file.name" placement="top">
-              <span class="file-link" @click="openFileInNewWindow(file.url, file.name)">{{ file.name }}</span>
-            </el-tooltip>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="writer" label="录入人" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.writer" placement="top">
-            <span class="truncate">{{ row.writer }}</span>
+          <el-tooltip :content="row.requestAuditor" placement="top">
+            <span class="truncate">{{ row.requestAuditor }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -178,6 +159,7 @@
         :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total"
         @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
+    <requestFormPreview :visible="previewDialogVisible" :initial-data="formData" @update:visible="previewDialogVisible = $event"/>
 
   </div>
 </template>
@@ -185,12 +167,22 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled } from '@element-plus/icons-vue'
+import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
 import { getLdPage,  getLdById, updateStatus } from '@/api/clmanage/cl-ld'
 import { baseURL } from '@/utils/request'
-import { getNewNoNyName } from '@/api/system/basno'
-
+import { useUserStore } from '@/store/user'
+import requestFormPreview from './requestFormPreview.vue'
+const userStore = useUserStore()
 // =============== 状态常量定义 ===============
+
+
+const previewDialogVisible = ref(false)
+
+const handlePreview = async (id) => {
+  const res = await getLdById({ id: id })
+  formData.value = res.data.record
+  previewDialogVisible.value = true
+}
 // 状态值-名称映射表
 const STATUS_LABEL_MAP = {
   "20": "待审核",
@@ -227,9 +219,16 @@ const STATUS_ACTION_MAP = {
     { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
     { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
   ],
-  "30": [], // 检验录入完成状态无操作
-  "40": [], // 检验审核完成状态无操作
-  "50": []  // 已入库状态无操作
+  "30": [
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ], // 检验录入完成状态无操作
+  "40": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ], // 检验审核完成状态无操作
+  "50": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ] 
 }
 
 // =============== 状态工具函数 ===============
@@ -286,31 +285,11 @@ const total = ref(0)
 const loading = ref(false)
 
 // =============== 业务方法 ===============
-// 生成新的单据号编码
-const generateNewCode = async () => {
-  try {
-    const res = await getNewNoNyName('cl-ld')
-    if (res?.code === 200) {
-      console.log("获取编码成功", res.data.fullNoNyName)
-      return res.data.fullNoNyName
-    }
-    ElMessage.error(res?.msg || '获取编码失败')
-    return ''
-  } catch (error) {
-    console.error('生成编码出错:', error)
-    ElMessage.error('请求编码服务时发生错误')
-    return ''
-  }
-}
-
 // 统一处理操作按钮点击
 const handleActionClick = (action, row) => {
   switch (action.action) {
-    case "edit":
-      handleEdit(row.id)
-      break
-    case "delete":
-      handleDelete(row)
+    case "preview":
+      handlePreview(row.id)
       break
     case "confirm":
     case "audit":
@@ -333,7 +312,7 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
     )
     
     // 调用接口更新状态
-    const response = await updateStatus({ id: orderId, status: targetStatus })
+    const response = await updateStatus({ id: orderId, status: targetStatus,updatePerson:userStore.realName })
     
     // 处理结果
     if (response?.code === 200) {
@@ -349,29 +328,7 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
   }
 }
 
-const handleAdd = async () => {
-  newCode.value = await generateNewCode()
-  console.log("newCode.value", newCode.value)
-  addDialogVisible.value = true
-}
 
-const handleEdit = async (id) => {
-  const res = await getLdById({ id: id })
-  formData.value = res.data.record
-  editDialogVisible.value = true
-}
-
-const handleSuccessAdd = () => {
-  addDialogVisible.value = false
-  ElMessage.success('请检单记录新增成功')
-  getAluminumIngotList()
-}
-
-const handleSuccessEdit = () => {
-  editDialogVisible.value = false
-  ElMessage.success('请检单记录修改成功')
-  getAluminumIngotList()
-}
 
 const getAluminumIngotList = async () => {
   loading.value = true
@@ -405,28 +362,6 @@ const handleRefresh = () => {
   queryParams.status = ''
   queryParams.pageNumber = 1
   getAluminumIngotList()
-}
-
-const handleDelete = async (row) => {
-  try {
-    await ElMessageBox.confirm(
-      `确认删除请检单记录"${row.basNo}"吗？`,
-      "提示",
-      { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
-    )
-    
-    const response = await deleteLd({ id: row.id })
-    if (response?.code === 200) {
-      ElMessage.success("删除成功")
-      getAluminumIngotList()
-    } else {
-      ElMessage.error(response?.msg || "删除失败")
-    }
-  } catch (error) {
-    if (error !== "cancel") {
-      ElMessage.error("删除失败")
-    }
-  }
 }
 
 const openFileInNewWindow = (url) => {

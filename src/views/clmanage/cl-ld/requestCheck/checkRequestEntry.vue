@@ -159,19 +159,24 @@
       @success="handleSuccessAdd" />
     <editForm :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
       @success="handleSuccessEdit" />
+    <requestFormPreview :visible="previewDialogVisible" :initial-data="formData" @update:visible="previewDialogVisible = $event"/>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled } from '@element-plus/icons-vue'
+import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
 import { getLdPage, deleteLd, getLdById, updateStatus } from '@/api/clmanage/cl-ld'
 import addForm from './addRequest.vue'
 import editForm from './editCheckRequest.vue'
 import { baseURL } from '@/utils/request'
 import { getNewNoNyName } from '@/api/system/basno'
+import requestFormPreview from './requestFormPreview.vue'
 
+
+
+const previewDialogVisible = ref(false)
 // =============== 状态常量定义 ===============
 // 状态值-名称映射表
 // 状态值-名称映射表
@@ -212,12 +217,19 @@ const STATUS_ACTION_MAP = {
     { action: "confirm", text: "确认录入", icon: "CircleCheck", type: "success", targetStatus: "20" }
   ],
   "20": [ // 确认状态可执行操作
-    { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
     { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
   ],
-  "30": [], // 检验录入完成状态无操作
-  "40": [], // 检验审核完成状态无操作
-  "50": []  // 已入库状态无操作
+  "30": [
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ], // 检验录入完成状态无操作
+  "40": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ], // 检验审核完成状态无操作
+  "50": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ]  // 已入库状态无操作
 }
 
 // =============== 状态工具函数 ===============
@@ -302,6 +314,9 @@ const handleActionClick = (action, row) => {
     case "delete":
       handleDelete(row)
       break
+    case "preview":
+      handlePreview(row.id)
+      break
     case "confirm":
     case "audit":
     case "cancelConfirm":
@@ -349,6 +364,12 @@ const handleEdit = async (id) => {
   const res = await getLdById({ id: id })
   formData.value = res.data.record
   editDialogVisible.value = true
+}
+
+const handlePreview = async (id) => {
+  const res = await getLdById({ id: id })
+  formData.value = res.data.record
+  previewDialogVisible.value = true
 }
 
 const handleSuccessAdd = () => {

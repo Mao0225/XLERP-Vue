@@ -91,13 +91,14 @@ const viewComponents = {
 
   
   //铝锭检验数据录入
-  'clmanage/clld/checkDataEntry': () => import('@/views/clmanage/cl-ld/checkDataEntry.vue'),
+  'clmanage/clld/checkDataEntry': () => import('@/views/clmanage/cl-ld/checkData/checkDataEntry.vue'),
   //铝锭检验数据审核
-  'clmanage/clld/checkDataReview': () => import('@/views/clmanage/cl-ld/checkDataReview.vue'),
+  'clmanage/clld/checkDataReview': () => import('@/views/clmanage/cl-ld/checkData/checkDataReview.vue'),
   //铝锭请检单录入
-  'clmanage/clld/checkRequestEntry': () => import('@/views/clmanage/cl-ld/checkRequestEntry.vue'),
+  'clmanage/clld/checkRequestEntry': () => import('@/views/clmanage/cl-ld/requestCheck/checkRequestEntry.vue'),
   //铝锭请检单审核
-  'clmanage/clld/checkRequestReview': () => import('@/views/clmanage/cl-ld/checkRequestReview.vue'),
+  'clmanage/clld/checkRequestReview': () => import('@/views/clmanage/cl-ld/requestCheck/checkRequestReview.vue'),
+
 
  
     //圆钢检验

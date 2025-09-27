@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="新增请检单" :model-value="visible" width="800px" :center="true" :close-on-click-modal="false"
+  <el-dialog title="编辑请检单" :model-value="visible" width="800px" :center="true" :close-on-click-modal="false"
     @update:model-value="$emit('update:visible', $event)" @closed="resetForm">
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" class="custom-form">
       <el-row :gutter="20">
@@ -15,12 +15,11 @@
           </el-form-item>
         </el-col>
 
-        <!-- 合同信息 -->
         <el-col :span="12">
           <el-form-item label="合同编号" prop="contractNo">
-            <el-input v-model="form.contractNo" placeholder="选择合同" readonly clearable @click="selectContract"
+            <el-input v-model="form.contractNo" placeholder="选择合同" readonly clearable="" @click="selectContract"
               size="small">
-              <template #append>
+              <template #append="">
                 <el-button @click="selectContract" size="small">选择</el-button>
               </template>
             </el-input>
@@ -28,67 +27,68 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="合同名称" prop="contractName">
-            <el-input v-model="form.contractName" placeholder="请输入合同名称" readonly clearable size="small" />
-          </el-form-item>
+            <el-input v-model="form.contractName" placeholder="请输入合同名称" readonly clearable="" size="small">
+            </el-input></el-form-item>
         </el-col>
 
-        <!-- 制造商信息 -->
         <el-col :span="24">
           <el-form-item label="原材料制造商" prop="mafactory">
-            <el-input v-model="form.mafactory" placeholder="选择原材料制造商" readonly clearable @click="selectManufacturer"
+            <el-input v-model="form.mafactory" placeholder="选择原材料制造商" readonly clearable="" @click="selectManufacturer"
               size="small">
-              <template #append>
+              <template #append="">
                 <el-button @click="selectManufacturer" size="small">选择</el-button>
               </template>
             </el-input>
           </el-form-item>
         </el-col>
 
-        <!-- 批次和单号信息 -->
-          <el-col :span="12">
+        <el-col :span="12">
           <el-form-item label="炉批号" prop="batchNo">
-            <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable size="small" />
-          </el-form-item>
+            <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable="" size="small">
+            </el-input></el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="批次号" prop="batchNum">
-            <el-input v-model="form.batchNum" placeholder="请输入批次号" clearable size="small" />
-          </el-form-item>
+            <el-input v-model="form.batchNum" placeholder="请输入批次号" clearable="" size="small">
+            </el-input></el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="材质" prop="material">
-            <el-input v-model="form.material" placeholder="请输入铝锭材质" clearable size="small" />
-          </el-form-item>
+            <el-autocomplete v-model="form.material" :fetch-suggestions="queryMaterialSuggestions"
+              placeholder="请选择或输入材质" clearable="" size="small">
+            </el-autocomplete></el-form-item>
         </el-col>
-       
 
-        <!-- 材料和规格信息 -->
         <el-col :span="12">
           <el-form-item label="牌号" prop="matMaterial">
-            <el-input v-model="form.matMaterial" placeholder="请输入牌号" clearable size="small" />
-          </el-form-item>
+            <el-input v-model="form.matMaterial" placeholder="请输入牌号" clearable="" size="small">
+            </el-input></el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="型号" prop="type">
-            <el-input v-model="form.type" placeholder="请输入型号" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="送货数量" prop="deliveryQuantity">
-            <el-input v-model.number="form.deliveryQuantity" placeholder="请输入送货数量" type="number" clearable size="small" step="0.01" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="验收数量" prop="acceptQuantity">
-            <el-input v-model.number="form.acceptQuantity" placeholder="请输入验收数量" type="number" clearable size="small" step="0.01" />
-          </el-form-item>
+            <el-autocomplete v-model="form.type" :fetch-suggestions="queryTypeSuggestions" placeholder="请选择或输入型号"
+              clearable="" size="small">
+            </el-autocomplete></el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="单位" prop="unit">
-            <el-input v-model.number="form.unit" placeholder="请输入单位" clearable size="small" />
-          </el-form-item>
+            <el-input v-model="form.unit" placeholder="请输入单位" clearable="" size="small">
+            </el-input></el-form-item>
         </el-col>
-       
+        <el-col :span="12">
+          <el-form-item label="送货数量" prop="deliveryQuantity">
+            <el-input v-model.number="form.deliveryQuantity" placeholder="请输入送货数量" type="number" clearable=""
+              size="small" step="0.01">
+            </el-input></el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="验收数量" prop="acceptQuantity">
+            <el-input v-model.number="form.acceptQuantity" placeholder="请输入验收数量" type="number" clearable="" size="small"
+              step="0.01">
+            </el-input></el-form-item>
+        </el-col>
+        
+
         <el-col :span="24">
           <el-form-item label="质量证明书" prop="certificate">
             <el-upload ref="certificateUpload" :auto-upload="false" :on-change="handleCertificateChange" :limit="10"
@@ -106,48 +106,47 @@
           </el-form-item>
         </el-col>
 
-        <!-- 备注 -->
         <el-col :span="24">
           <el-form-item label="备注" prop="memo">
-            <el-input v-model="form.memo" type="textarea" :rows="3" placeholder="请输入备注信息" clearable maxlength="200"
-              show-word-limit />
-          </el-form-item>
+            <el-input v-model="form.memo" type="textarea" :rows="3" placeholder="请输入备注信息" clearable="" maxlength="200"
+              show-word-limit="">
+            </el-input></el-form-item>
         </el-col>
-      </el-row>
-    </el-form>
 
-    <template #footer>
+
+
+        <SupplierSelector v-model:visible="supplierSelectorVisible" @select="handleSelect" />
+        <ContractSelector v-model:visible="ContractSelectorVisible" @select="handleContractSelect" />
+        </el-row>
+        
+        
+        </el-form>
+            <template #footer>
       <span class="dialog-footer">
         <el-button @click="$emit('update:visible', false)" size="small">取消</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting" size="small">确定</el-button>
       </span>
     </template>
-
-    <!-- 供应商选择弹窗 -->
-    <SupplierSelector v-model:visible="supplierSelectorVisible" @select="handleSelect" />
-    <ContractSelector v-model:visible="ContractSelectorVisible" @select="handleContractSelect" />
-
   </el-dialog>
 </template>
-
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { createLd } from '@/api/clmanage/cl-ld'
+import { updateLd } from '@/api/clmanage/cl-ld'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
-import SupplierSelector from '../components/SupplierSelector.vue'
-import ContractSelector from '../components/contractSelector.vue'
+import SupplierSelector from '../../components/SupplierSelector.vue'
+import ContractSelector from '../../components/contractSelector.vue'
 
 const props = defineProps({
   visible: {
     type: Boolean,
     required: true
   },
-  newCode: {
-    type: String,
-    default: ''
+  initialData: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -182,6 +181,42 @@ const handleContractSelect = (contract) => {
   form.contractName = contract.name
 }
 
+const materialOptions = [
+  { value: 'ZLD102' },
+  { value: 'AL99.7' }
+]
+
+const typeOptions = [
+  { value: 'ZLD102' },
+  { value: 'AL99.7' }
+]
+
+const standardOptions = [
+  { value: 'GBT1196-2017' },
+  { value: 'GB/T8733-2016' }
+]
+
+const queryMaterialSuggestions = (queryString, cb) => {
+  const results = queryString
+    ? materialOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+    : materialOptions
+  cb(results)
+}
+
+const queryTypeSuggestions = (queryString, cb) => {
+  const results = queryString
+    ? typeOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+    : typeOptions
+  cb(results)
+}
+
+const queryStandardSuggestions = (queryString, cb) => {
+  const results = queryString
+    ? standardOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+    : standardOptions
+  cb(results)
+}
+
 const form = reactive({
   id: undefined,
   basNo: '',
@@ -195,11 +230,11 @@ const form = reactive({
   type: '',
   deliveryQuantity: '',
   acceptQuantity: '',
-  unit:'kg',
+  unit: 'kg',
   certificate: '[]',
   requestWriter: userStore.descr || '未知用户',
   writeTime: '',
-  status: '10', // 初始状态为检验单录入
+  status: '10',
   memo: ''
 })
 
@@ -228,9 +263,10 @@ const rules = reactive({
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   batchNo: [
-    { required:true,max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+    { required: true, max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   type: [
+    { required: true, message: '请输入型号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   deliveryQuantity: [
@@ -239,9 +275,6 @@ const rules = reactive({
   acceptQuantity: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  // certificate: [
-  //   { required: true, message: '请上传质量证明书', trigger: 'change' }
-  // ],
   requestWriter: [
     { required: true, message: '录入人不能为空', trigger: 'blur' }
   ],
@@ -267,7 +300,7 @@ const resetForm = () => {
     mafactory: '',
     matMaterial: '',
     batchNo: '',
-    batchNum:'',
+    batchNum: '',
     type: '',
     deliveryQuantity: '',
     acceptQuantity: '',
@@ -301,15 +334,12 @@ const handleCertificateChange = async (file) => {
   }
 }
 
-
-
 const deleteCertificateFile = (index) => {
   const fileList = JSON.parse(form.certificate)
   fileList.splice(index, 1)
   form.certificate = JSON.stringify(fileList)
   certificateFileList.value.splice(index, 1)
 }
-
 
 const openFileInNewWindow = (url) => {
   window.open(baseUrl + url, '_blank')
@@ -332,27 +362,44 @@ const submitForm = async () => {
     const minutes = String(now.getMinutes()).padStart(2, '0')
     const seconds = String(now.getSeconds()).padStart(2, '0')
     form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-    await createLd(form)
+    await updateLd(form)
     emit('success')
     emit('update:visible', false)
-    ElMessage.success('新增成功')
+    ElMessage.success('更新成功')
   } catch (error) {
-    console.error('保存数据失败', error)
-    ElMessage.error('保存数据失败')
+    console.error('更新数据失败', error)
+    ElMessage.error('更新数据失败')
   } finally {
     submitting.value = false
   }
 }
 
-const dialogVisible = ref(props.visible)
 watch(() => props.visible, (newVal) => {
-  dialogVisible.value = newVal
-  if (newVal) {
-    form.basNo = props.newCode
+  if (newVal && props.initialData) {
+    Object.assign(form, {
+      id: props.initialData.id || undefined,
+      basNo: props.initialData.basNo || '',
+      contractNo: props.initialData.contractNo || '',
+      contractName: props.initialData.contractName || '',
+      material: props.initialData.material || '',
+      mafactory: props.initialData.mafactory || '',
+      matMaterial: props.initialData.matMaterial || '',
+      batchNo: props.initialData.batchNo || '',
+      batchNum: props.initialData.batchNum || '',
+      type: props.initialData.type || '',
+      deliveryQuantity: props.initialData.deliveryQuantity || '',
+      acceptQuantity: props.initialData.acceptQuantity || '',
+      unit: props.initialData.unit || 'kg',
+      certificate: props.initialData.certificate || '[]',
+      requestWriter: props.initialData.requestWriter || userStore.descr || '未知用户',
+      writeTime: props.initialData.writeTime || '',
+      status: props.initialData.status || '10',
+      memo: props.initialData.memo || ''
+    })
+    certificateFileList.value = JSON.parse(form.certificate) || []
   }
 })
 </script>
-
 <style scoped>
 :deep(.el-dialog) {
   border-radius: 8px;

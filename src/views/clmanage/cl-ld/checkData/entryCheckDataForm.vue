@@ -8,8 +8,8 @@
     @update:model-value="$emit('update:visible', $event)"
     @closed="resetForm"
   >
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="140px" class="custom-form">
-      <el-row :gutter="24">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" class="custom-form">
+      <el-row :gutter="16">
         <!-- 基础信息 -->
         <el-col :span="24">
           <el-divider content-position="left">基础信息</el-divider>
@@ -32,7 +32,6 @@
               readonly
               clearable
             >
-
             </el-input>
           </el-form-item>
         </el-col>
@@ -70,8 +69,18 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
+          <el-form-item label="批次号" prop="batchNum">
+            <el-input v-model="form.batchNum" placeholder="批次号" readonly size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="成分抽检数(件)" prop="compInspQty">
+            <el-input v-model.number="form.compInspQty" placeholder="请输入成分检验抽检数量" type="number" clearable size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
           <el-form-item label="抽检数量(件)" prop="sampleQuantity">
-            <el-input v-model.number="form.sampleQuantity" placeholder="请输入抽检数量" type="number" clearable size="small" step="0.01" />
+            <el-input v-model.number="form.sampleQuantity" placeholder="总抽检数量" readonly size="small" />
           </el-form-item>
         </el-col>
 
@@ -80,10 +89,10 @@
           <el-divider content-position="left">化学成分 (%)</el-divider>
         </el-col>
         <el-col :span="24">
-          <el-row :gutter="24">
+          <el-row :gutter="16">
             <el-col :span="8" v-for="chem in chemicals" :key="chem.key">
               <el-form-item :label="chem.label">
-                <el-row :gutter="10">
+                <el-row :gutter="8">
                   <el-col :span="12">
                     <el-form-item :prop="chem.actualProp" :rules="rules[chem.actualProp]">
                       <el-input v-model.number="form[chem.actualProp]" :placeholder="chem.label + '实测值'" clearable size="small" />
@@ -138,8 +147,22 @@
             <el-select v-model="form.finalConclusion" placeholder="请选择检验结论" clearable size="small">
               <el-option label="合格" value="合格"></el-option>
               <el-option label="不合格" value="不合格"></el-option>
-              <!-- <el-option label="复检" value="复检"></el-option> -->
             </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="检验数据录入人" prop="checkWriter">
+            <el-input v-model="form.checkWriter" placeholder="请输入录入人" readonly size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="请检单备注" prop="memo">
+            <el-input v-model="form.memo" placeholder="请检单备注" readonly size="small" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="检验备注" prop="checkMemo">
+            <el-input v-model="form.checkMemo" placeholder="请输入检验备注" clearable size="small" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -151,12 +174,6 @@
         <el-button type="primary" @click="submitForm" :loading="submitting" size="small">确定</el-button>
       </span>
     </template>
-
-    <!-- 供应商选择弹窗 -->
-    <SupplierSelector
-      v-model:visible="supplierSelectorVisible"
-      @select="handleSelect"
-    />
   </el-dialog>
 </template>
 
@@ -167,7 +184,7 @@ import { updateLd } from '@/api/clmanage/cl-ld'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
-import SupplierSelector from '../components/SupplierSelector.vue'
+const userStore = useUserStore()
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -191,7 +208,6 @@ const chemicals = [
   { key: 'Ti', label: 'Ti', actualProp: 'chemTi', requiredProp: 'chemTiRequired' }
 ]
 
-const supplierSelectorVisible = ref(false)
 const emit = defineEmits(['update:visible', 'success'])
 const baseUrl = baseURL
 const formRef = ref(null)
@@ -224,10 +240,14 @@ const form = reactive({
   detectionTime: '',
   status: '40',
   memo: '',
+  checkMemo: '',
   basNo: '',
   batchNo: '',
+  batchNum: '',
   quantity: '',
-  sampleQuantity: '',
+  sampleQuantity: 1,
+  compInspQty: 1,
+  mechInspQty: 0,
   material: '',
   type: '',
   standard: '',
@@ -238,7 +258,8 @@ const form = reactive({
   contractNo: '',
   contractName: '',
   acceptQuantity: '',
-  finalConclusion: '合格'
+  finalConclusion: '合格',
+  checkWriter: userStore.realName
 })
 
 const rules = reactive({
@@ -326,13 +347,25 @@ const rules = reactive({
   memo: [
     { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
   ],
+  checkMemo: [
+    { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
+  ],
   batchNo: [
+    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  batchNum: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   quantity: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   sampleQuantity: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  compInspQty: [
+    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechInspQty: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   material: [
@@ -392,10 +425,14 @@ watch(() => props.initialData, (newData) => {
       detectionTime: newData.detectionTime || '',
       status: newData.status || '40',
       memo: newData.memo || '',
+      checkMemo: newData.checkMemo || '',
       basNo: newData.basNo || '',
       batchNo: newData.batchNo || '',
+      batchNum: newData.batchNum || '',
       quantity: newData.quantity || '',
       sampleQuantity: newData.sampleQuantity || '',
+      compInspQty: newData.compInspQty || 1,
+      mechInspQty: newData.mechInspQty || 0,
       material: newData.material || '',
       type: newData.type || '',
       standard: newData.standard || '',
@@ -411,13 +448,13 @@ watch(() => props.initialData, (newData) => {
   }
 }, { immediate: true })
 
-const selectManufacturer = () => {
-  supplierSelectorVisible.value = true
-}
-
-const handleSelect = (supplier) => {
-  form.mafactory = supplier.descr
-}
+watch(
+  () => [form.compInspQty, form.mechInspQty],
+  () => {
+    form.sampleQuantity = (form.compInspQty || 0) + (form.mechInspQty || 0);
+  },
+  { immediate: true }
+)
 
 const resetForm = () => {
   if (formRef.value) {
@@ -450,14 +487,15 @@ const resetForm = () => {
     leaveFactoryDate: '',
     detectionTime: '',
     status: '40',
-    memo: '',//请检单备注
-    checkMemo: '',//检验数据备注
+    memo: '',
+    checkMemo: '',
     basNo: '',
     batchNo: '',
-    sampleQuantity: '',//总检验数量
-    compInspQty:1,//成分检验数量
-    mechInspQty:3,//力学性能检验数量
-    material: '',//材质
+    batchNum: '',
+    sampleQuantity: 1,
+    compInspQty: 1,
+    mechInspQty: 0,
+    material: '',
     type: '',
     standard: '',
     appearanceSize: '',
@@ -470,6 +508,7 @@ const resetForm = () => {
     finalConclusion: ''
   })
 }
+
 const submitForm = async () => {
   if (!formRef.value) return
   submitting.value = true
@@ -494,26 +533,26 @@ const submitForm = async () => {
 
 <style scoped>
 :deep(.el-dialog) {
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  max-width: 1000px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
 }
 
 :deep(.el-dialog__header) {
   background: #f5f7fa;
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid #e8ecef;
 }
 
 :deep(.el-dialog__title) {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #303133;
 }
 
 :deep(.el-dialog__body) {
-  padding: 20px 24px;
-  max-height: 75vh;
+  padding: 12px 16px;
+  max-height: 70vh;
   overflow-y: auto;
 }
 
@@ -522,32 +561,33 @@ const submitForm = async () => {
 }
 
 :deep(.el-form-item) {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 :deep(.el-form-item__label) {
   color: #606266;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 36px;
+  line-height: 30px;
 }
 
 :deep(.el-divider--horizontal) {
-  margin: 16px 0;
+  margin: 12px 0;
 }
 
 :deep(.el-divider__text) {
-  font-size: 14px;
+  font-size: 13px;
   color: #409eff;
   font-weight: 600;
   background: #fff;
-  padding: 0 12px;
+  padding: 0 8px;
 }
 
 :deep(.el-input--small .el-input__inner) {
-  height: 36px;
-  line-height: 36px;
-  border-radius: 6px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 4px;
+  font-size: 13px;
 }
 
 :deep(.el-date-editor--date) {
@@ -559,9 +599,9 @@ const submitForm = async () => {
 }
 
 :deep(.el-button--small) {
-  padding: 8px 16px;
-  font-size: 13px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
 }
 
 :deep(.el-button--primary) {
@@ -570,21 +610,21 @@ const submitForm = async () => {
 }
 
 .uploaded-files {
-  margin-top: 10px;
-  max-height: 120px;
+  margin-top: 8px;
+  max-height: 100px;
   overflow-y: auto;
   border: 1px solid #e8ecef;
-  border-radius: 6px;
-  padding: 10px;
+  border-radius: 4px;
+  padding: 8px;
   background: #fafafa;
 }
 
 .uploaded-file {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-  padding: 6px 10px;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 4px 8px;
   background: #f5f7fa;
   border-radius: 4px;
 }
@@ -592,7 +632,7 @@ const submitForm = async () => {
 .file-name {
   color: #409eff;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -606,30 +646,30 @@ const submitForm = async () => {
 :deep(.el-button--text) {
   color: #f56c6c;
   padding: 0;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 
 :deep(.el-dialog__footer) {
-  padding: 14px 24px;
+  padding: 10px 16px;
   border-top: 1px solid #e8ecef;
   background: #f5f7fa;
 }
 
 :deep(.el-textarea__inner) {
   resize: vertical;
-  font-size: 13px;
-  border-radius: 6px;
+  font-size: 12px;
+  border-radius: 4px;
 }
 
 @media (max-width: 768px) {
   :deep(.el-dialog) {
-    width: 90%;
+    width: 95%;
   }
 
   .el-col:nth-child(n) {

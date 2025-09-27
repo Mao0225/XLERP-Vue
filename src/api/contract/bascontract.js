@@ -8,14 +8,14 @@ export function getContractList(params) {
 }
 
 /**
- * 根据合同编号获取合同信息和物料明细
+ * 根据合同编号获取单个合同信息
  */
 export function getContractInfoByNo(params) {
   return get('/bascontract/getContractByNo', params)
 }
 
 /**
- * 根据合同编号获取单个合同信息
+ * 根据合同编号获取合同信息和物料明细
  */
 export function getContractByNo(params) {
   return get('/bascontract/getContractInfoByNo', params)

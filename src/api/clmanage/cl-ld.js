@@ -61,6 +61,7 @@ export function batchDeleteLd(params) {
 
 /**
  * 7.更新状态
+ * @param {Object} data - 更新状态数据（需包含id字段标识待更新记录，及status字段，updatePeson字段）
  */
 export function updateStatus(data) {
   return get('/cl_ld/updateStatus', data)
