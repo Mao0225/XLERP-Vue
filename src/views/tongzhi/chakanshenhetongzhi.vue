@@ -1,6 +1,11 @@
 <template>
     <div class="chakantongzhi">
       <el-table :data="tongzhiDetails" border style="width: 100%">
+        <el-table-column label="序号" width="60">
+  <template #default="scope">
+    {{ (queryParams.pageNumber - 1) * queryParams.pageSize + scope.$index + 1 }}
+  </template>
+</el-table-column>
         <el-table-column prop="itemno" label="产品型号" />
         <el-table-column prop="spec" label="规格" />
         <el-table-column prop="itemnum" label="数量" />
