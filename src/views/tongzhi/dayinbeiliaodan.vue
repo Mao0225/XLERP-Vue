@@ -222,13 +222,13 @@ const mergedBeiliaoList = computed(() => {
     if (mergedMap.has(key)) {
       // 如果已存在相同的材料，则累加子材料数量和实际备货数量
       const mergedItem = mergedMap.get(key);
-      mergedItem.sxcltihuoshuliang += item.sxcltihuoshuliang || 0;
+      mergedItem.sxcltihuoshuliang += parseFloat(item.sxcltihuoshuliang) || 0;
       mergedItem.sxclshijishuliang += parseFloat(item.sxclshijishuliang) || 0;
     } else {
       // 否则添加新的材料项，并复制相关属性
       mergedMap.set(key, {  // 这里将 put 改为 set
         ...item,
-        sxcltihuoshuliang: item.sxcltihuoshuliang || 0,
+        sxcltihuoshuliang: parseFloat(item.sxcltihuoshuliang) || 0,
         sxclshijishuliang: parseFloat(item.sxclshijishuliang) || 0
       });
     }

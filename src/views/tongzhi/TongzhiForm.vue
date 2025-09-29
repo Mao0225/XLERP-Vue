@@ -172,6 +172,7 @@
         </template>
 
         <el-table :data="productList" border size="small" style="width: 100%">
+          <el-table-column label="序号" type="index" width="50" :index="(index) => index + 1" />
           <el-table-column prop="noticeid" label="通知编号" min-width="60" />
           <el-table-column prop="id" label="产品id" width="30" />
           <el-table-column prop="itemNo" label="产品编号" width="120" />
