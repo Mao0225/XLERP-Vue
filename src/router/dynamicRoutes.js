@@ -98,6 +98,14 @@ const viewComponents = {
   'clmanage/clld/checkRequestEntry': () => import('@/views/clmanage/cl-ld/requestCheck/checkRequestEntry.vue'),
   //铝锭请检单审核
   'clmanage/clld/checkRequestReview': () => import('@/views/clmanage/cl-ld/requestCheck/checkRequestReview.vue'),
+    //无缝钢管检验数据录入
+  'clmanage/clwfg/checkDataEntry': () => import('@/views/clmanage/cl-wfg/checkData/checkDataEntry.vue'),
+  //无缝钢管检验数据审核
+  'clmanage/clwfg/checkDataReview': () => import('@/views/clmanage/cl-wfg/checkData/checkDataReview.vue'),
+  //无缝钢管请检单录入
+  'clmanage/clwfg/checkRequestEntry': () => import('@/views/clmanage/cl-wfg/requestCheck/checkRequestEntry.vue'),
+  //无缝钢管请检单审核
+  'clmanage/clwfg/checkRequestReview': () => import('@/views/clmanage/cl-wfg/requestCheck/checkRequestReview.vue'),
 
 
  
@@ -106,7 +114,7 @@ const viewComponents = {
   //钢板检验
   'clmanage/clgb': () => import('@/views/clmanage/cl-gb/list.vue'),
   //无缝刚
-  'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
+  // 'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
   
  
   //橡胶检验--刘国奇
