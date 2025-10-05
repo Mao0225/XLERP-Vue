@@ -118,8 +118,9 @@ const viewComponents = {
   
  
   //橡胶检验--刘国奇
-  'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
-
+  //铝锭检验数据录入
+  'clmanage/clxj/checkRequestEntry': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestEntry.vue'),
+  
 }
 
 // 动态导入组件函数 - 使用预定义的映射
