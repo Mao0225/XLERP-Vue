@@ -118,9 +118,16 @@ const viewComponents = {
   
  
   //橡胶检验--刘国奇
-  //铝锭检验数据录入
+  //橡胶检验数据录入
   'clmanage/clxj/checkRequestEntry': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestEntry.vue'),
+  //橡胶检验数据审核
+  'clmanage/clxj/checkRequestReview': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestReview.vue'),
+  //橡胶检验数据录入
+  'clmanage/clxj/checkDataEntry': () => import('@/views/clmanage/cl-xj/checkData/checkDataEntry.vue'),
+  //橡胶检验管理
   
+  'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射

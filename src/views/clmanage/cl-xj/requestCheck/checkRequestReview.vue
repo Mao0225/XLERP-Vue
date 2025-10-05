@@ -161,11 +161,10 @@
   import { getXjPage, getXjById, updateXjStatus } from '@/api/clmanage/cl-xj'
   import requestFormPreview from './requestFormPreview.vue'
   import { baseURL } from '@/utils/request'
-  import { useStore } from 'vuex'
+  import { useUserStore } from '@/store/user' // 导入用户信息的 Pinia Store
   
-  const store = useStore()
-  const userStore = store.state.user
-  
+  const userStore = useUserStore()
+   
   // 预览相关
   const previewDialogVisible = ref(false)
   const previewData = ref({})
@@ -202,25 +201,23 @@
   }
   
   // 状态操作权限映射（当前状态→可执行操作）
-  const STATUS_ACTION_MAP = {
-    "20": [ // 待审核状态可执行操作
-      { action: "preview", text: "预览", icon: "Document", type: "info" },
-      { action: "audit", text: "审核通过", icon: "Check", type: "success", targetStatus: "30" },
-      { action: "cancelConfirm", text: "审核不通过", icon: "CircleCloseFilled", type: "danger", targetStatus: "10" }
-    ],
-    "30": [ // 待检验状态可执行操作
-      { action: "preview", text: "预览", icon: "Document", type: "info" }
-    ],
-    "40": [ // 检验待审核状态可执行操作
-      { action: "preview", text: "预览", icon: "Document", type: "info" },
-      { action: "audit", text: "审核通过", icon: "Check", type: "success", targetStatus: "50" },
-      { action: "cancelConfirm", text: "审核不通过", icon: "CircleCloseFilled", type: "danger", targetStatus: "30" }
-    ],
-    "50": [ // 检验完成状态可执行操作
-      { action: "preview", text: "预览", icon: "Document", type: "info" }
-    ],
-    DEFAULT: []
-  }
+  // 状态操作权限映射（当前状态→可执行操作）
+const STATUS_ACTION_MAP = {
+  "20": [ // 确认状态可执行操作
+    { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
+    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+  ],
+  "30": [
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ], // 检验录入完成状态无操作
+  "40": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ], // 检验审核完成状态无操作
+  "50": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ] 
+}
   
   // =============== 状态相关方法 ===============
   // 获取状态显示文本
