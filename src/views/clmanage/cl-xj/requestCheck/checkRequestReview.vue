@@ -39,7 +39,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="basno" label="单据号" width="140">
+        <el-table-column prop="basno" label="单据号" width="160">
           <template #default="{ row }">
             <el-tooltip :content="row.basno" placement="top">
               <span class="truncate">{{ row.basno }}</span>

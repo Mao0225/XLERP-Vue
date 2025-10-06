@@ -64,7 +64,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="basno" label="单据号" width="140">
+        <el-table-column prop="basno" label="单据号" width="160">
           <template #default="{ row }">
             <el-tooltip :content="row.basno" placement="top">
               <span class="truncate">{{ row.basno }}</span>
@@ -72,14 +72,28 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="inNo" label="检验单号" width="140">
+        <!--el-table-column prop="inNo" label="检验单号" width="140">
           <template #default="{ row }">
             <el-tooltip :content="row.inNo" placement="top">
               <span class="truncate">{{ row.inNo }}</span>
             </el-tooltip>
           </template>
-        </el-table-column>
+        </el-table-column-->
         
+        <el-table-column prop="contractno" label="合同编号" width="180">
+          <template #default="{ row }">
+            <el-tooltip :content="String(row.contractno)" placement="top">
+              <span class="truncate">{{ row.contractno }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column><el-table-column prop="contractName" label="工程名称" width="180">
+          <template #default="{ row }">
+            <el-tooltip :content="String(row.contractName)" placement="top">
+              <span class="truncate">{{ row.contractName }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="mafactoryname" label="供应商名称" width="180">
           <template #default="{ row }">
             <el-tooltip :content="row.mafactoryname" placement="top">
