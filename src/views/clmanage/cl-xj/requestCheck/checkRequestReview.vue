@@ -157,7 +157,7 @@
   <script setup>
   import { ref, reactive, onMounted } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
-  import { Refresh, Clock, CircleCheck, DataBoard, Check, Document, CircleCloseFilled } from '@element-plus/icons-vue'
+  import { Refresh, Clock, CircleCheck, DataBoard, Check, Document, CircleCloseFilled, Close } from '@element-plus/icons-vue'
   import { getXjPage, getXjById, updateXjStatus } from '@/api/clmanage/cl-xj'
   import requestFormPreview from './requestFormPreview.vue'
   import { baseURL } from '@/utils/request'
@@ -177,6 +177,7 @@
     "30": "审核通过，待检验",
     "40": "检验录入，待审核",
     "50": "检验完成",
+    "60": "已驳回",
     DEFAULT: "未知"
   }
   
@@ -187,6 +188,7 @@
     "30": "DataBoard",
     "40": "Check",
     "50": "Check",
+    "60": "Close",
     DEFAULT: "Clock"
   }
   
@@ -197,6 +199,7 @@
     "30": "warning",
     "40": "success",
     "50": "success",
+    "60": "danger",
     DEFAULT: "info"
   }
   
@@ -216,7 +219,8 @@ const STATUS_ACTION_MAP = {
   ], // 检验审核完成状态无操作
   "50": [
         { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-  ] 
+  ], 
+  DEFAULT: []
 }
   
   // =============== 状态相关方法 ===============

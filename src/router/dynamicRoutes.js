@@ -122,10 +122,11 @@ const viewComponents = {
   'clmanage/clxj/checkRequestEntry': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestEntry.vue'),
   //橡胶检验数据审核
   'clmanage/clxj/checkRequestReview': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestReview.vue'),
-  //橡胶检验数据录入
+  //橡胶检验数据录入  clmanage/clxj/checkDataReview
   'clmanage/clxj/checkDataEntry': () => import('@/views/clmanage/cl-xj/checkData/checkDataEntry.vue'),
+  //橡胶检验结果审核
+  'clmanage/clxj/checkDataReview': () => import('@/views/clmanage/cl-xj/checkData/checkDataReview.vue'),
   //橡胶检验管理
-  
   'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
 
 }

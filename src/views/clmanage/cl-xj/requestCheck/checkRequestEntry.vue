@@ -180,7 +180,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, Document, CircleCloseFilled } from '@element-plus/icons-vue'
+import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, Document, CircleCloseFilled, Close } from '@element-plus/icons-vue'
 import { getXjPage, deleteXj, getXjById, updateXjStatus } from '@/api/clmanage/cl-xj'
 import AddRequest from './addRequest.vue'
 import EditCheckRequest from './editCheckRequest.vue'
@@ -205,6 +205,7 @@ const STATUS_LABEL_MAP = {
   "30": "审核通过，待检验",
   "40": "检验录入，待审核",
   "50": "检验完成",
+  "60": "已驳回",
   DEFAULT: "未知"
 }
 
@@ -215,6 +216,7 @@ const STATUS_ICON_MAP = {
   "30": "DataBoard",
   "40": "Check",
   "50": "Check",
+  "60": "Close",
   DEFAULT: "Clock"
 }
 
@@ -225,6 +227,7 @@ const STATUS_TAG_TYPE_MAP = {
   "30": "warning",
   "40": "success",
   "50": "success",
+  "60": "danger",
   DEFAULT: "info"
 }
 

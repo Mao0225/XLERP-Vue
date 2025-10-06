@@ -69,7 +69,7 @@
         
         <el-table-column prop="basno" label="单据号" width="140">
           <template #default="{ row }">
-            <el-tooltip :content="row.basno" placement="top">
+            <el-tooltip :content="String(row.basno)" placement="top">
               <span class="truncate">{{ row.basno }}</span>
             </el-tooltip>
           </template>
@@ -79,7 +79,7 @@
         
         <el-table-column prop="mafactoryname" label="供应商名称" width="180">
           <template #default="{ row }">
-            <el-tooltip :content="row.mafactoryname" placement="top">
+            <el-tooltip :content="String(row.mafactoryname)" placement="top">
               <span class="truncate">{{ row.mafactoryname }}</span>
             </el-tooltip>
           </template>
@@ -87,7 +87,7 @@
         
         <el-table-column prop="matname" label="材料名称" width="120">
           <template #default="{ row }">
-            <el-tooltip :content="row.matname" placement="top">
+            <el-tooltip :content="String(row.matname)" placement="top">
               <span class="truncate">{{ row.matname }}</span>
             </el-tooltip>
           </template>
@@ -95,7 +95,7 @@
         
         <el-table-column prop="material" label="材质" width="100">
           <template #default="{ row }">
-            <el-tooltip :content="row.material" placement="top">
+            <el-tooltip :content="String(row.material)" placement="top">
               <span class="truncate">{{ row.material }}</span>
             </el-tooltip>
           </template>
@@ -103,7 +103,7 @@
         
         <el-table-column prop="mattype" label="规格" width="100">
           <template #default="{ row }">
-            <el-tooltip :content="row.mattype" placement="top">
+            <el-tooltip :content="String(row.mattype)" placement="top">
               <span class="truncate">{{ row.mattype }}</span>
             </el-tooltip>
           </template>
@@ -111,7 +111,7 @@
 
         <el-table-column prop="quantity" label="来料数量" width="100">
           <template #default="{ row }">
-            <el-tooltip :content="row.quantity" placement="top">
+            <el-tooltip :content="String(row.quantity)" placement="top"> <!-- 转换为字符串 -->
               <span class="truncate">{{ row.quantity }}</span>
             </el-tooltip>
           </template>
@@ -119,7 +119,7 @@
 
         <el-table-column prop="sampleQuantity" label="抽检数量" width="100">
           <template #default="{ row }">
-            <el-tooltip :content="row.sampleQuantity" placement="top">
+            <el-tooltip :content="String(row.sampleQuantity)" placement="top">
               <span class="truncate">{{ row.sampleQuantity }} 件</span>
             </el-tooltip>
           </template>
@@ -127,7 +127,7 @@
 
         <el-table-column prop="matdepartment" label="使用单位" width="120">
           <template #default="{ row }">
-            <el-tooltip :content="row.matdepartment" placement="top">
+            <el-tooltip :content="String(row.matdepartment)" placement="top">
               <span class="truncate">{{ row.matdepartment }}</span>
             </el-tooltip>
           </template>
@@ -135,7 +135,7 @@
 
         <el-table-column prop="standard" label="执行标准" width="120">
           <template #default="{ row }">
-            <el-tooltip :content="row.standard" placement="top">
+            <el-tooltip :content="String(row.standard)" placement="top">
               <span class="truncate">{{ row.standard }}</span>
             </el-tooltip>
           </template>
@@ -161,7 +161,7 @@
 
         <el-table-column prop="matjixiexingnengresult" label="硬度检测结果" width="120">
           <template #default="{ row }">
-            <el-tooltip :content="row.matjixiexingnengresult" placement="top">
+            <el-tooltip :content="String(row.matjixiexingnengresult)" placement="top">
               <span class="truncate">{{ row.matjixiexingnengresult || '-' }}</span>
             </el-tooltip>
           </template>
@@ -236,7 +236,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, Check, Delete, Edit, CircleCloseFilled, Document } from '@element-plus/icons-vue'
+import { Refresh, Clock, CircleCheck, Check, Delete, Edit, CircleCloseFilled, Document, Close } from '@element-plus/icons-vue'
 import EntryCheckDataForm from './entryCheckDataForm.vue'
 import CheckDataPreview from './checkDataPreview.vue'
  
@@ -255,6 +255,7 @@ const STATUS_LABEL_MAP = {
   "30": "待录入检验数据",
   "40": "待审核",
   "50": "检验完成",
+  "60": "已驳回",
   DEFAULT: "未知状态"
 }
 
@@ -265,6 +266,7 @@ const STATUS_ICON_MAP = {
   "30": "Edit",
   "40": "Clock",
   "50": "CircleCheck",
+  "60": "Close",
   DEFAULT: "CircleCloseFilled"
 }
 
@@ -275,6 +277,7 @@ const STATUS_TAG_TYPE_MAP = {
   "30": "primary",
   "40": "warning",
   "50": "success",
+  "60": "danger",
   DEFAULT: "default"
 }
 
@@ -291,9 +294,15 @@ const STATUS_ACTION_MAP = {
 
   ],
   "50": [
-            { action: "preview", text: "查看信息", icon: "Document", type: "primary" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" },
             
   ],
+  "60": [
+    { action: "edit", text: "录入数据", icon: "Edit", type: "primary" },
+    { action: "confirmDataEntry", text: "确认录入", icon: "CircleCheck", type: "warning", targetStatus: "40" },
+     
+  ],
+  default:[]
 }
 
 // =============== 状态工具函数 ===============

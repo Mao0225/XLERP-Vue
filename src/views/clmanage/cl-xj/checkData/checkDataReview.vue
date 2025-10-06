@@ -3,9 +3,9 @@
       <div class="action-bar">
         <div class="status-filter">
           <el-radio-group v-model="queryParams.status" @change="handleStatusChange">
-            <el-radio-button label="">全部状态</el-radio-button>
-            <el-radio-button label="40">待审核</el-radio-button>
-            <el-radio-button label="50">已审核</el-radio-button>
+            <el-radio-button value="">全部状态</el-radio-button>
+            <el-radio-button value="40">待审核</el-radio-button>
+            <el-radio-button value="50">已审核</el-radio-button>
           </el-radio-group>
         </div>
         
@@ -172,8 +172,8 @@
   import { ElMessage, ElTag, ElIcon } from 'element-plus'
   import { Refresh, Check, Clock, CircleClose, Close } from '@element-plus/icons-vue'
   import CheckDataPreview from './checkDataPreview.vue'
-  import { getXjPage, getXjById, updateXjStatus } from '@/api/cl-xj'
-  import { useUserStore } from '@/stores/user'
+  import { getXjPage,updateXj, getXjById, updateXjStatus } from '@/api/clmanage/cl-xj'
+  import { useUserStore } from '@/store/user'
   
   const userStore = useUserStore()
   
