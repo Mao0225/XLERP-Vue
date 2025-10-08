@@ -158,6 +158,27 @@ const viewComponents = {
   //闭口销请检单审核
   'clmanage/clbkx/checkRequestReview': () => import('@/views/clmanage/cl-bkx/requestCheck/checkRequestReview.vue'),
 
+
+  
+  //铜板检验数据录入
+  'clmanage/cltb/checkDataEntry': () => import('@/views/clmanage/cl-tb/checkData/checkDataEntry.vue'),
+  //铜板检验数据审核
+  'clmanage/cltb/checkDataReview': () => import('@/views/clmanage/cl-tb/checkData/checkDataReview.vue'),
+  //铜板请检单录入
+  'clmanage/cltb/checkRequestEntry': () => import('@/views/clmanage/cl-tb/requestCheck/checkRequestEntry.vue'),
+  //铜板请检单审核
+  'clmanage/cltb/checkRequestReview': () => import('@/views/clmanage/cl-tb/requestCheck/checkRequestReview.vue'),
+
+
+    //铝合金线检验数据录入
+  'clmanage/cllhjx/checkDataEntry': () => import('@/views/clmanage/cl-lhjx/checkData/checkDataEntry.vue'),
+  //铝合金线检验数据审核
+  'clmanage/cllhjx/checkDataReview': () => import('@/views/clmanage/cl-lhjx/checkData/checkDataReview.vue'),
+  //铝合金线请检单录入
+  'clmanage/cllhjx/checkRequestEntry': () => import('@/views/clmanage/cl-lhjx/requestCheck/checkRequestEntry.vue'),
+  //铝合金线请检单审核
+  'clmanage/cllhjx/checkRequestReview': () => import('@/views/clmanage/cl-lhjx/requestCheck/checkRequestReview.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射
