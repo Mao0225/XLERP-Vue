@@ -206,7 +206,7 @@
     </el-form>
 
     <!-- 编辑产品对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑产品信息" width="80%">
+    <el-dialog v-model="editDialogVisible" title="制定图纸信息 *图纸必须预先录入，并且子材料是正确完整的" width="80%">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="80px" size="small">
         <el-row :gutter="12">
           <el-col :span="4">

@@ -23,6 +23,7 @@
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="tuzhibianhao" label="图纸编号" />
       <el-table-column prop="tuzhimingcheng" label="图纸名称" />
+      <el-table-column prop="zicailiaoshuliang" label="子材料数量" />
       <el-table-column prop="tuzhizuozhe" label="图纸作者" />
       <el-table-column prop="chuangzuoriqi" label="创作日期" />
       <el-table-column prop="tuzhimiaoshu" label="图纸描述" />
