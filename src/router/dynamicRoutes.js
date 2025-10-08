@@ -109,10 +109,10 @@ const viewComponents = {
 
 
  
-    //圆钢检验
-  'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),
-  //钢板检验
-  'clmanage/clgb': () => import('@/views/clmanage/cl-gb/list.vue'),
+  //   //圆钢检验
+  // 'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),
+  // //钢板检验
+  // 'clmanage/clgb': () => import('@/views/clmanage/cl-gb/list.vue'),
   //无缝刚
   // 'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
   
@@ -128,6 +128,35 @@ const viewComponents = {
   'clmanage/clxj/checkDataReview': () => import('@/views/clmanage/cl-xj/checkData/checkDataReview.vue'),
   //橡胶检验管理
   'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
+
+
+  
+  //圆钢检验数据录入--谭
+  'clmanage/clyg/checkDataEntry': () => import('@/views/clmanage/cl-yg/checkData/checkDataEntry.vue'),
+  //圆钢检验数据审核
+  'clmanage/clyg/checkDataReview': () => import('@/views/clmanage/cl-yg/checkData/checkDataReview.vue'),
+  //圆钢请检单录入
+  'clmanage/clyg/checkRequestEntry': () => import('@/views/clmanage/cl-yg/requestCheck/checkRequestEntry.vue'),
+  //圆钢请检单审核
+  'clmanage/clyg/checkRequestReview': () => import('@/views/clmanage/cl-yg/requestCheck/checkRequestReview.vue'),
+
+  //钢板检验数据录入--谭
+  'clmanage/clgb/checkDataEntry': () => import('@/views/clmanage/cl-gb/checkData/checkDataEntry.vue'),
+  //钢板检验数据审核
+  'clmanage/clgb/checkDataReview': () => import('@/views/clmanage/cl-gb/checkData/checkDataReview.vue'), 
+  //钢板请检单录入
+  'clmanage/clgb/checkRequestEntry': () => import('@/views/clmanage/cl-gb/requestCheck/checkRequestEntry.vue'),
+  //钢板请检单审核
+  'clmanage/clgb/checkRequestReview': () => import('@/views/clmanage/cl-gb/requestCheck/checkRequestReview.vue'),
+
+  //闭口销检验数据录入--谭
+  'clmanage/clbkx/checkDataEntry': () => import('@/views/clmanage/cl-bkx/checkData/checkDataEntry.vue'),
+  //闭口销检验数据审核
+  'clmanage/clbkx/checkDataReview': () => import('@/views/clmanage/cl-bkx/checkData/checkDataReview.vue'),
+  //闭口销请检单录入
+  'clmanage/clbkx/checkRequestEntry': () => import('@/views/clmanage/cl-bkx/requestCheck/checkRequestEntry.vue'),
+  //闭口销请检单审核
+  'clmanage/clbkx/checkRequestReview': () => import('@/views/clmanage/cl-bkx/requestCheck/checkRequestReview.vue'),
 
 }
 
