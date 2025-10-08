@@ -187,12 +187,11 @@ const materialOptions = [
 ]
 
 const typeOptions = [
-{ value: '245*14' }
+{ value: 'Φ254*14' }
 ]
 
 const standardOptions = [
-{ value: 'GBT1196-2017' },
-{ value: 'GB/T8733-2016' }
+{ value: 'GB/T 699-2015' }
 ]
 
 const queryMaterialSuggestions = (queryString, cb) => {
@@ -221,12 +220,12 @@ id: undefined,
 basNo: '',
 contractNo: '',
 contractName: '',
-material: '',
+material: '20#',
 mafactory: '',
 matMaterial: '',
 batchNo: '',
 batchNum: '',
-type: '',
+type: 'Φ254*14',
 deliveryQuantity: '',
 acceptQuantity: '',
 unit: 'kg',
@@ -296,12 +295,12 @@ id: undefined,
 basNo: '',
 contractNo: '',
 contractName: '',
-material: '',
+material: '20#',
 mafactory: '',
 matMaterial: '',
 batchNo: '',
 batchNum: '',
-type: '',
+type: 'Φ254*14',
 deliveryQuantity: '',
 acceptQuantity: '',
 certificate: '[]',

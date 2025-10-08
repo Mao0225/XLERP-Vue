@@ -87,12 +87,12 @@
             >
               <el-form-item :label="chem.replace('chem', '')">
                 <el-row :gutter="8">
-                  <el-col :span="12">
+                  <el-col :span="10">
                     <el-form-item :label="chem.replace('chem', '') + '实测值'">
                       <span>{{ initialData[chem] || '-' }}</span>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="12">
+                  <el-col :span="14">
                     <el-form-item :label="chem.replace('chem', '') + '要求值'">
                       <span>{{ initialData[chem + 'Required'] || '-' }}</span>
                     </el-form-item>
@@ -107,12 +107,31 @@
         <el-col :span="24">
           <el-divider content-position="left">力学性能</el-divider>   
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="抗拉强度实测值1(MPa)">
-            <span>{{ initialData.tensileStrength1 || '-' }}</span>
+        <el-col :span="24">
+          <el-form-item label="抗拉强度实测值(MPa)">
+            <el-col :span="6">
+               <el-form-item label="实测值1(MPa)">
+                   <span>{{ initialData.tensileStrength1 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="实测值2(MPa)">
+                   <span>{{ initialData.tensileStrength2 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="实测值3(MPa)">
+                   <span>{{ initialData.tensileStrength3 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="要求值(MPa)">
+                   <span>{{ initialData.tensileStrengthRequired || '-' }}</span>
+               </el-form-item>
+            </el-col>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <!-- <el-col :span="12">
           <el-form-item label="抗拉强度实测值2(MPa)">
             <span>{{ initialData.tensileStrength2 || '-' }}</span>
           </el-form-item>
@@ -126,13 +145,32 @@
           <el-form-item label="抗拉强度要求值(MPa)">
             <span>{{ initialData.tensileStrengthRequired || '-' }}</span>
           </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="屈服强度实测值1(MPa)">
-            <span>{{ initialData.yieldStrength1 || '-' }}</span>
+        </el-col> -->
+        <el-col :span="24">
+          <el-form-item label="屈服强度实测值(MPa)">
+            <el-col :span="6">
+               <el-form-item label="实测值1(MPa)">
+                   <span>{{ initialData.yieldStrength1 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="实测值2(MPa)">
+                   <span>{{ initialData.yieldStrength2 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="实测值3(MPa)">
+                   <span>{{ initialData.yieldStrength3 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="要求值(MPa)">
+                   <span>{{ initialData.yieldStrengthRequired || '-' }}</span>
+               </el-form-item>
+            </el-col>
           </el-form-item>
         </el-col>
-         <el-col :span="12">
+         <!-- <el-col :span="12">
           <el-form-item label="屈服强度实测值2(MPa)">
             <span>{{ initialData.yieldStrength2 || '-' }}</span>
           </el-form-item>
@@ -146,13 +184,32 @@
           <el-form-item label="屈服强度要求值(MPa)">
             <span>{{ initialData.yieldStrengthRequired || '-' }}</span>
           </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="延伸率实测值1(%)">
-            <span>{{ initialData.elongation1 || '-' }}</span>
+        </el-col> -->
+        <el-col :span="24">
+          <el-form-item label="延伸率实测值(%)">
+            <el-col :span="6">
+               <el-form-item label="实测值1(%)">
+                   <span>{{ initialData.elongation1 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="实测值2(%)">
+                   <span>{{ initialData.elongation2 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="实测值3(%)">
+                   <span>{{ initialData.elongation3 || '-' }}</span>
+               </el-form-item>
+            </el-col>
+            <el-col :span="6">
+               <el-form-item label="要求值(%)">
+                   <span>{{ initialData.elongationRequired || '-' }}</span>
+               </el-form-item>
+            </el-col>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <!-- <el-col :span="12">
           <el-form-item label="延伸率实测值2(%)">
             <span>{{ initialData.elongation2 || '-' }}</span>
           </el-form-item>
@@ -166,7 +223,7 @@
           <el-form-item label="延伸率要求值(%)">
             <span>{{ initialData.elongationRequired || '-' }}</span>
           </el-form-item>
-        </el-col>
+        </el-col> -->
 
 
         <!-- 过程信息 -->

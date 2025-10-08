@@ -147,9 +147,6 @@
       <el-table-column prop="chemC" label="C(%)" width="90" />
       <el-table-column prop="chemSi" label="Si(%)" width="90" />
       <el-table-column prop="chemMn" label="Mn(%)" width="90" />
-      <el-table-column prop="chemCu" label="Cu(%)" width="90" />
-      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
-      <el-table-column prop="chemCr" label="Cr(%)" width="90" />
       <el-table-column prop="chemP" label="P(%)" width="90" />
       <el-table-column prop="chemS" label="S(%)" width="90" />
       <el-table-column prop="tensileStrength1" label="抗拉强度1" width="100">

@@ -118,84 +118,84 @@
         <el-col :span="24">
           <el-divider content-position="left">力学性能</el-divider>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="抗拉强度测量值1" prop="tensileStrength1">
-            <el-input v-model.number="form.tensileStrength1" placeholder="抗拉强度测量值1" clearable size="small">
+            <el-input v-model="form.tensileStrength1" placeholder="抗拉强度测量值1" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="抗拉强度测量值2" prop="tensileStrength2">
-            <el-input v-model.number="form.tensileStrength2" placeholder="抗拉强度测量值2" clearable size="small">
+            <el-input v-model="form.tensileStrength2" placeholder="抗拉强度测量值2" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="抗拉强度测量值3" prop="tensileStrength3">
-            <el-input v-model.number="form.tensileStrength3" placeholder="抗拉强度测量值3" clearable size="small">
+            <el-input v-model="form.tensileStrength3" placeholder="抗拉强度测量值3" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="抗拉强度要求值" prop="tensileStrengthRequired">
             <el-input v-model="form.tensileStrengthRequired" placeholder="抗拉强度要求值" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="屈服强度测量值1" prop="yieldStrength1">
-            <el-input v-model.number="form.yieldStrength1" placeholder="屈服强度测量值1" clearable size="small">
+            <el-input v-model="form.yieldStrength1" placeholder="屈服强度测量值1" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="屈服强度测量值2" prop="yieldStrength2">
-            <el-input v-model.number="form.yieldStrength2" placeholder="屈服强度测量值2" clearable size="small">
+            <el-input v-model="form.yieldStrength2" placeholder="屈服强度测量值2" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="屈服强度测量值3" prop="yieldStrength3">
-            <el-input v-model.number="form.yieldStrength3" placeholder="屈服强度测量值3" clearable size="small">
+            <el-input v-model="form.yieldStrength3" placeholder="屈服强度测量值3" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="屈服强度要求值" prop="yieldStrengthRequired">
             <el-input v-model="form.yieldStrengthRequired" placeholder="屈服强度要求值" clearable size="small">
               <template #append>Mpa</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="延伸率测量值1" prop="elongation1">
-            <el-input v-model.number="form.elongation1" placeholder="延伸率测量值1" clearable size="small">
+            <el-input v-model="form.elongation1" placeholder="延伸率测量值1" clearable size="small">
               <template #append>%</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="延伸率测量值2" prop="elongation2">
-            <el-input v-model.number="form.elongation2" placeholder="延伸率测量值2" clearable size="small">
+            <el-input v-model="form.elongation2" placeholder="延伸率测量值2" clearable size="small">
               <template #append>%</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="延伸率测量值3" prop="elongation3">
-            <el-input v-model.number="form.elongation3" placeholder="延伸率测量值3" clearable size="small">
+            <el-input v-model="form.elongation3" placeholder="延伸率测量值3" clearable size="small">
               <template #append>%</template>
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="6">
           <el-form-item label="延伸率要求值" prop="elongationRequired">
             <el-input v-model="form.elongationRequired" placeholder="延伸率要求值" clearable size="small">
               <template #append>%</template>
@@ -294,9 +294,6 @@ const chemicals = [
   { key: 'C', label: 'C', actualProp: 'chemC', requiredProp: 'chemCRequired' },
   { key: 'Si', label: 'Si', actualProp: 'chemSi', requiredProp: 'chemSiRequired' },
   { key: 'Mn', label: 'Mn', actualProp: 'chemMn', requiredProp: 'chemMnRequired' },
-  { key: 'Cu', label: 'Cu', actualProp: 'chemCu', requiredProp: 'chemCuRequired' },
-  { key: 'Ni', label: 'Ni', actualProp: 'chemNi', requiredProp: 'chemNiRequired' },
-  { key: 'Cr', label: 'Cr', actualProp: 'chemCr', requiredProp: 'chemCrRequired' },
   { key: 'P', label: 'P', actualProp: 'chemP', requiredProp: 'chemPRequired' },
   { key: 'S', label: 'S', actualProp: 'chemS', requiredProp: 'chemSRequired' }
 ]
@@ -315,19 +312,13 @@ const form = reactive({
   chemC: '',
   chemSi: '',
   chemMn: '',
-  chemCu: '',
-  chemNi: '',
-  chemCr: '',
   chemP: '',
   chemS: '',
-  chemCRequired: '',
-  chemSiRequired: '',
-  chemMnRequired: '',
-  chemCuRequired: '',
-  chemNiRequired: '',
-  chemCrRequired: '',
-  chemPRequired: '',
-  chemSRequired: '',
+  chemCRequired: '0.17-0.23',
+  chemSiRequired: '0.17-0.37',
+  chemMnRequired: '0.35-0.65',
+  chemPRequired: '≤0.035',
+  chemSRequired: '≤0.035',
   // 力学性能
   tensileStrength1: '',
   tensileStrength2: '',
@@ -355,9 +346,9 @@ const form = reactive({
   compInspQty: 1,
   mechInspQty: 3,
   mechInspQty: 0,
-  material: '',
-  type: '',
-  standard: '',
+  material: '20#',
+  type: 'Φ254*14',
+  standard: 'GB/T 699-2015',
   appearanceSize: '合格',
   auditor: '',
   checker: '',
@@ -398,21 +389,6 @@ const rules = reactive({
     // { type: 'number', message: '必须为数字', trigger: 'blur' }
     { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
-  chemCu: [
-    // { required: false, message: '请输入Cu含量', trigger: 'blur' },
-    // { type: 'number', message: '必须为数字', trigger: 'blur' }
-    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
-  ],
-  chemNi: [
-    // { required: false, message: '请输入Ni含量', trigger: 'blur' },
-    // { type: 'number', message: '必须为数字', trigger: 'blur' }
-    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
-  ],
-  chemCr: [
-    // { required: false, message: '请输入Cr含量', trigger: 'blur' },
-    // { type: 'number', message: '必须为数字', trigger: 'blur' }
-    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
-  ],
   chemP: [
     // { required: false, message: '请输入P含量', trigger: 'blur' },
     // { type: 'number', message: '必须为数字', trigger: 'blur' }
@@ -432,15 +408,6 @@ const rules = reactive({
   chemMnRequired: [
     { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
-  chemCuRequired: [
-    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
-  ],
-  chemNiRequired: [
-    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
-  ],
-  chemCrRequired: [
-    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
-  ],
   chemPRequired: [
     { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
@@ -449,37 +416,37 @@ const rules = reactive({
   ],
   // 力学性能验证规则
   tensileStrength1: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   tensileStrength2: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   tensileStrength3: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   tensileStrengthRequired: [
     { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   yieldStrength1: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   yieldStrength2: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   yieldStrength3: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   yieldStrengthRequired: [
     { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   elongation1: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   elongation2: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   elongation3: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
   ],
   elongationRequired: [
     { max: 20, message: '长度不能超过20个字符', trigger: 'blur' }
@@ -553,19 +520,13 @@ watch(() => props.initialData, (newData) => {
       chemC: newData.chemC || '',
       chemSi: newData.chemSi || '',
       chemMn: newData.chemMn || '',
-      chemCu: newData.chemCu || '',
-      chemNi: newData.chemNi || '',
-      chemCr: newData.chemCr || '',
       chemP: newData.chemP || '',
       chemS: newData.chemS || '',
-      chemCRequired: newData.chemCRequired || '',
-      chemSiRequired: newData.chemSiRequired || '',
-      chemMnRequired: newData.chemMnRequired || '',
-      chemCuRequired: newData.chemCuRequired || '',
-      chemNiRequired: newData.chemNiRequired || '',
-      chemCrRequired: newData.chemCrRequired || '',
-      chemPRequired: newData.chemPRequired || '',
-      chemSRequired: newData.chemSRequired || '',
+      chemCRequired: newData.chemCRequired || '0.17-0.23',
+      chemSiRequired: newData.chemSiRequired || '0.17-0.37',
+      chemMnRequired: newData.chemMnRequired || '0.35-0.65',
+      chemPRequired: newData.chemPRequired || '≤0.035',
+      chemSRequired: newData.chemSRequired || '≤0.035',
       // 力学性能
       tensileStrength1: newData.tensileStrength1 || '',
       tensileStrength2: newData.tensileStrength2 || '',
@@ -592,9 +553,9 @@ watch(() => props.initialData, (newData) => {
       sampleQuantity: newData.sampleQuantity || '',
       compInspQty: newData.compInspQty || 1,
       mechInspQty: newData.mechInspQty || 3,
-      material: newData.material || '',
-      type: newData.type || '',
-      standard: newData.standard || '',
+      material: newData.material || '20#',
+      type: newData.type || 'Φ254*14',
+      standard: newData.standard || 'GB/T 699-2015',
       appearanceSize: newData.appearanceSize || '',
       auditor: newData.auditor || '',
       checker: newData.checker || '',
@@ -629,19 +590,13 @@ const resetForm = () => {
     chemC: '',
     chemSi: '',
     chemMn: '',
-    chemCu: '',
-    chemNi: '',
-    chemCr: '',
     chemP: '',
     chemS: '',
-    chemCRequired: '',
-    chemSiRequired: '',
-    chemMnRequired: '',
-    chemCuRequired: '',
-    chemNiRequired: '',
-    chemCrRequired: '',
-    chemPRequired: '',
-    chemSRequired: '',
+    chemCRequired: '0.17-0.23',
+    chemSiRequired: '0.17-0.37',
+    chemMnRequired: '0.35-0.65',
+    chemPRequired: '≤0.035',
+    chemSRequired: '≤0.035',
     // 力学性能
     tensileStrength1: '',
     tensileStrength2: '',
@@ -667,9 +622,9 @@ const resetForm = () => {
     sampleQuantity: 4,
     compInspQty: 1,
     mechInspQty: 3,
-    material: '',
-    type: '',
-    standard: '',
+    material: '20#',
+    type: 'Φ254*14',
+    standard: 'GB/T 699-2015',
     appearanceSize: '',
     auditor: '',
     checker: '',
@@ -696,6 +651,7 @@ const submitForm = async () => {
     ElMessage.success('更新成功')
   } catch (error) {
     console.error('更新数据失败', error)
+    console.log('验证错误详情:', error)
     ElMessage.error('更新数据失败')
   } finally {
     submitting.value = false
