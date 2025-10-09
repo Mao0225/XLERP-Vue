@@ -179,6 +179,17 @@ const viewComponents = {
   //铝合金线请检单审核
   'clmanage/cllhjx/checkRequestReview': () => import('@/views/clmanage/cl-lhjx/requestCheck/checkRequestReview.vue'),
 
+
+  
+  //镀锌钢绞线检验数据录入
+  'clmanage/cldxgjx/checkDataEntry': () => import('@/views/clmanage/cl-dxgjx/checkData/checkDataEntry.vue'),
+  //镀锌钢绞线检验数据审核
+  'clmanage/cldxgjx/checkDataReview': () => import('@/views/clmanage/cl-dxgjx/checkData/checkDataReview.vue'),
+  //镀锌钢绞线请检单录入
+  'clmanage/cldxgjx/checkRequestEntry': () => import('@/views/clmanage/cl-dxgjx/requestCheck/checkRequestEntry.vue'),
+  //镀锌钢绞线请检单审核
+  'clmanage/cldxgjx/checkRequestReview': () => import('@/views/clmanage/cl-dxgjx/requestCheck/checkRequestReview.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射
