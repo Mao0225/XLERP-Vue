@@ -268,7 +268,7 @@ const queryParams = reactive({
   contractNo: '',
   contractName: '',
   basNo: '',
-  status: '', // 添加状态筛选参数
+  status: 20, // 添加状态筛选参数
   pageNumber: 1,
   pageSize: 10
 })
@@ -351,7 +351,6 @@ const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
   queryParams.basNo = ''
-  queryParams.status = ''
   queryParams.pageNumber = 1
   getAluminumIngotList()
 }

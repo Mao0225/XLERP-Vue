@@ -133,7 +133,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { creatTb } from '@/api/clmanage/cl-tb'
+import { createTb } from '@/api/clmanage/cl-tb'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
