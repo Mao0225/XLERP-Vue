@@ -171,8 +171,14 @@
           </div>
         </template>
 
-        <el-table :data="productList" border size="small" style="width: 100%">
-          <el-table-column label="序号" type="index" width="50" :index="(index) => index + 1" />
+        <el-table 
+            :data="productList" 
+            border 
+            size="small" 
+            style="width: 100%"
+            :row-class-name="tableRowClassName"   
+          >         
+           <el-table-column label="序号" type="index" width="50" :index="(index) => index + 1" />
           <el-table-column prop="noticeid" label="通知编号" min-width="60" />
           <el-table-column prop="id" label="产品id" width="30" />
           <el-table-column prop="itemNo" label="产品编号" width="120" />
@@ -427,6 +433,14 @@ const calculateTotal = (key, fallbackKey = null) => {
     const value = item[key] ?? (fallbackKey ? item[fallbackKey] : 0);
     return sum + (Number(value) || 0);
   }, 0);
+};
+
+const tableRowClassName = ({ row }) => {
+  // 如果通知编号是 N/A，则返回自定义类名
+  if (row.noticeid === 'N/A') {
+    return 'notice-na-row';
+  }
+  return '';
 };
 
 const totalAmount = computed(() => calculateTotal('itemsum'));
@@ -731,4 +745,15 @@ onMounted(() => {
 :deep(.el-dialog) {
   display: block !important;
 }
+/* 新增：定义红色行的样式 */
+:deep(.notice-na-row) {
+  color: red !important;
+}
+
+/* 如果需要同时改变背景色，可以添加以下样式 */
+/*
+:deep(.notice-na-row > td) {
+  background-color: #fff1f1 !important;
+}
+*/
 </style>      

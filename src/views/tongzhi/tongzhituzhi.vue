@@ -20,6 +20,7 @@
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="tuzhibianhao" label="图纸编号" />
       <el-table-column prop="tuzhimingcheng" label="图纸名称" />
+      <el-table-column prop="zicailiaoshuliang" label="子材料数" />
       <el-table-column prop="tuzhizuozhe" label="图纸作者" />
       <el-table-column prop="chuangzuoriqi" label="创作日期" />
       <el-table-column prop="tuzhimiaoshu" label="图纸描述" />
@@ -34,7 +35,14 @@
       <el-table-column prop="writer" label="录入者" />
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleSelect(row)">选择</el-button>
+          <el-button 
+            type="primary" 
+            size="small" 
+            @click="handleSelect(row)"
+            :disabled="!row.zicailiaoshuliang || row.zicailiaoshuliang <= 0"
+          >
+        选择
+      </el-button>
         </template>
       </el-table-column>
     </el-table>
