@@ -20,22 +20,6 @@
         </div>
       </div>
 
-      <!-- 状态筛选（改为RadioGroup，与模板一致） -->
-      <!-- <div class="filter-row">
-        <div class="status-filter">
-          <span class="filter-label">工单状态：</span>
-          <el-radio-group v-model="filters.status">
-            <el-radio-button v-for="item in statusOptions" :key="item.value" :label="item.value"
-              :class="getStatusClass(item.value)">
-              <el-icon>
-                <component :is="item.icon" />
-              </el-icon>
-              {{ item.label }}
-            </el-radio-button>
-          </el-radio-group>
-        </div>
-      </div> -->
-
       <!-- 筛选操作（保持模板样式） -->
       <div class="filter-actions">
         <el-button type="primary" @click="handleSearch">
@@ -129,7 +113,7 @@
                     </el-icon>
                     确认工单完成
                   </el-button>
-                    <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
+                  <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
                     <el-icon>
                       <Document />
                     </el-icon>
@@ -256,20 +240,51 @@
               </div>
             </div>
 
-            <!-- <div class="detail-section">
-              <h4>状态信息</h4>
-              <div class="progress-info">
-                <div class="status-info">
-                  <el-tag :type="getStatusTagType(selectedOrder.status)">
-                    <el-icon>
-                      <component :is="getStatusIcon(selectedOrder.status)" />
-                    </el-icon>
-                    {{ getStatusText(selectedOrder.status) }}
-                  </el-tag>
-                  <span class="schedule-text">{{ selectedOrder.woStatus || '无' }}</span>
+            <div class="detail-section">
+              <h4>图纸信息</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">通知编号：</span>
+                  <span class="value">{{ selectedOrder.noticeId || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">图纸编号：</span>
+                  <span class="value">{{ selectedOrder.noticeDrawNo || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">替代型号：</span>
+                  <span class="value">{{ selectedOrder.noticeInstead || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">通知名称：</span>
+                  <span class="value">{{ selectedOrder.noticeName || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">通知作者：</span>
+                  <span class="value">{{ selectedOrder.noticeAuthor || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">通知制定日期：</span>
+                  <span class="value">{{ selectedOrder.noticeBuildDate || '无' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">通知备注：</span>
+                  <span class="value">{{ selectedOrder.noticeComment || '无' }}</span>
                 </div>
               </div>
-            </div> -->
+              <!-- 图纸文件列表 -->
+              <!-- 图纸文件列表 -->
+              <div class="file-list-section">
+                <h5>图纸文件：</h5>
+                <div class="file-list">
+                  <div v-if="selectedOrder.tuzhiUrl && selectedOrder.tuzhiUrl.length > 0"
+                    v-for="(file, index) in selectedOrder.tuzhiUrl" :key="index">
+                    <span class="file-link" @click="downloadFile(file.url, file.name)">{{ file.name }}</span>
+                  </div>
+                  <span v-else>无</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <el-empty v-else description="请选择列表中的生产工单查看详情" />
@@ -283,7 +298,7 @@
 
 
     <productionOrderSelector v-model:visible="showSelector" @close="loadData" />
-    <reportOrderList v-model:visible="showReportSelector" :woNo = "selectWoNo" />
+    <reportOrderList v-model:visible="showReportSelector" :woNo="selectWoNo" />
   </div>
 </template>
 
@@ -293,11 +308,12 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 // 图标按需引入（补充反确认所需图标）
 import {
   Search, Refresh, Close, Edit, Delete, CircleCheck,
-  CircleCheckFilled, CircleCloseFilled, Clock,Select,
+  CircleCheckFilled, CircleCloseFilled, Clock, Select,
   Document
 } from '@element-plus/icons-vue';
 // 接口与组件引用（保持原逻辑）
 import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById, updateOrderStatus } from '@/api/plmanage/plworkorder';
+import { baseURL } from '@/utils/request'
 import editOrder from './components/editOrder.vue';
 import productionOrderSelector from './components/productionOrderSelector.vue';
 import reportOrderList from './components/reportOrderList.vue';
@@ -315,6 +331,28 @@ const openReportOrderList = (woNo) => {
   showReportSelector.value = true;
 };
 
+// 下载文件
+const downloadFile = (url, filename) => {
+  // 拼接 baseURL，确保 URL 是完整的
+  const fullUrl = url.startsWith('http') ? url : baseURL + url
+  const fileExtension = filename.split('.').pop().toLowerCase()
+  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf']
+
+  if (viewableTypes.includes(fileExtension)) {
+    window.open(fullUrl, '_blank')
+  } else {
+    const link = document.createElement('a')
+    link.href = fullUrl
+    link.download = filename
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+      document.body.removeChild(link)
+    }, 100)
+  }
+}
+
 // 2. 筛选条件（改为单选状态，移除前端筛选字段）
 const filters = reactive({
   contractNo: '',
@@ -330,12 +368,6 @@ const pagination = reactive({
   total: 0
 });
 
-// 4. 状态配置（与模板一致，补充图标映射）
-const statusOptions = ref([
-  { value: '', label: '全部', icon: 'Refresh' },
-  { value: '10', label: '录入', icon: Clock },
-  { value: '20', label: '确认', icon: CircleCheck }
-]);
 
 // 6. 表格数据（纯后端返回，无前端筛选）
 const tableData = ref([]);
@@ -383,7 +415,16 @@ const loadData = async () => {
         dataSourceCreateTime: item.dataSourceCreateTime ? item.dataSourceCreateTime.split(' ')[0] : '',
         modelSpec: item.modelSpec || '无',
         status: item.status || '10', // 状态默认设为"录入"
-        writer: item.writer || '未知'
+        writer: item.writer || '未知',
+        // 新增图纸信息字段
+        noticeId: item.noticeid || '无',
+        noticeDrawNo: item.noticedrawno || '无',
+        noticeInstead: item.noticeinstead || '无',
+        noticeName: item.noticename || '无',
+        noticeAuthor: item.noticeauther || '无',
+        noticeBuildDate: item.noticebuilddate ? item.noticebuilddate.split(' ')[0] : '无',
+        noticeComment: item.noticecomment || '无',
+        tuzhiUrl: JSON.parse(item.tuzhiurl || '[]')
       }));
       tableData.value = data;
       pagination.total = res.data.page.totalRow;
@@ -450,11 +491,11 @@ const handleStatusUpdate = async (id, newStatus) => {
     }
     const statusText = {
       10: '反确认',
-      20: '确认', 
+      20: '确认',
       30: '审核通过',
       40: '已完成',
     };
-    
+
     // 弹窗确认
     await ElMessageBox.confirm(
       `确定${statusText[newStatus] || '修改'}该生产工单吗？`,
@@ -467,7 +508,7 @@ const handleStatusUpdate = async (id, newStatus) => {
     );
 
     // 用户确认后发送请求
-   const res = await updateOrderStatus({
+    const res = await updateOrderStatus({
       id: id,
       status: newStatus
     });;
@@ -508,18 +549,6 @@ const deleteOrder = async (row) => {
   } catch (err) {
     if (err !== 'cancel') ElMessage.error(err.message || '删除失败');
   }
-};
-
-
-// 方法
-const getStatusClass = (status) => {
-  const classes = {
-    '10': 'status-entered',
-    '20': 'status-confirmed',
-    '30': 'status-approved',  // 新增这一行
-    '40': 'status-approved'  // 新增这一行
-  };
-  return classes[status] || '';
 };
 
 const getStatusTagType = (status) => {
@@ -602,18 +631,6 @@ onMounted(() => {
   margin-bottom: 0;
 }
 
-.status-filter {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.status-filter .filter-label {
-  min-width: auto;
-}
-
 .filter-actions {
   display: flex;
   gap: 12px;
@@ -682,6 +699,34 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 12px 0;
+}
+
+.file-list-section {
+  margin-top: 12px;
+}
+
+.file-list-section h5 {
+  color: #303133;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.file-link {
+  cursor: pointer;
+  color: #409eff;
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+.file-link:hover {
+  color: #66b1ff;
 }
 
 .info-grid {
@@ -778,9 +823,16 @@ onMounted(() => {
     width: 100% !important;
   }
 
-  .status-filter {
+  .info-item {
     flex-direction: column;
     align-items: flex-start;
+    gap: 2px;
+  }
+
+  .info-item .label,
+  .info-item .value {
+    text-align: left;
+    min-width: auto;
   }
 }
 </style>
