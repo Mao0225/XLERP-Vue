@@ -180,6 +180,8 @@ const viewComponents = {
   'clmanage/cllhjx/checkRequestReview': () => import('@/views/clmanage/cl-lhjx/requestCheck/checkRequestReview.vue'),
 
 
+
+
   
   //镀锌钢绞线检验数据录入
   'clmanage/cldxgjx/checkDataEntry': () => import('@/views/clmanage/cl-dxgjx/checkData/checkDataEntry.vue'),
@@ -189,6 +191,17 @@ const viewComponents = {
   'clmanage/cldxgjx/checkRequestEntry': () => import('@/views/clmanage/cl-dxgjx/requestCheck/checkRequestEntry.vue'),
   //镀锌钢绞线请检单审核
   'clmanage/cldxgjx/checkRequestReview': () => import('@/views/clmanage/cl-dxgjx/requestCheck/checkRequestReview.vue'),
+
+
+  
+    //铝板检验数据录入
+  'clmanage/cllb/checkDataEntry': () => import('@/views/clmanage/cl-lb/checkData/checkDataEntry.vue'),
+  //铝板检验数据审核
+  'clmanage/cllb/checkDataReview': () => import('@/views/clmanage/cl-lb/checkData/checkDataReview.vue'),
+  //铝板请检单录入
+  'clmanage/cllb/checkRequestEntry': () => import('@/views/clmanage/cl-lb/requestCheck/checkRequestEntry.vue'),
+  //铝板请检单审核
+  'clmanage/cllb/checkRequestReview': () => import('@/views/clmanage/cl-lb/requestCheck/checkRequestReview.vue'),
 
 }
 

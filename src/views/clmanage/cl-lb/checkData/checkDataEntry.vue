@@ -1,28 +1,29 @@
 <template>
-  <div class="galvanized-steel-strand-management">
+  <div class="aluminum-plate-management">
     <div class="action-bar">
+
       <div class="search-inputs">
-        <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="getGalvanizedSteelStrandList" @keyup.enter="getGalvanizedSteelStrandList" />
+                <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
+          clearable @clear="getAluminumPlateList" @keyup.enter="getAluminumPlateList" />
         <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="getGalvanizedSteelStrandList" @keyup.enter="getGalvanizedSteelStrandList" />
+          clearable @clear="getAluminumPlateList" @keyup.enter="getAluminumPlateList" />
         <el-input
           v-model="queryParams.mafactory"
           placeholder="请输入原材料制造商查询"
           style="width: 200px; margin-right: 10px;"
           clearable
-          @clear="getGalvanizedSteelStrandList"
-          @keyup.enter="getGalvanizedSteelStrandList"
+          @clear="getAluminumPlateList"
+          @keyup.enter="getAluminumPlateList"
         />
         <el-input
           v-model="queryParams.matRecheckNo"
           placeholder="请输入复检单号"
           style="width: 200px; margin-right: 10px;"
           clearable
-          @clear="getGalvanizedSteelStrandList"
-          @keyup.enter="getGalvanizedSteelStrandList"
+          @clear="getAluminumPlateList"
+          @keyup.enter="getAluminumPlateList"
         />
-        <el-button type="primary" @click="getGalvanizedSteelStrandList">搜索</el-button>
+        <el-button type="primary" @click="getAluminumPlateList">搜索</el-button>
         <el-button type="warning" @click="handleRefresh">
           <el-icon>
             <Refresh />
@@ -31,7 +32,7 @@
      </div>
     </div>
 
-    <el-table :data="galvanizedSteelStrandList" border v-loading="loading" style="width: 100%">
+    <el-table :data="aluminumPlateList" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
       
       <!-- 状态列使用 Tag 显示 -->
@@ -58,14 +59,14 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="contractNo" label="合同编号" width="140">
+            <el-table-column prop="contractNo" label="合同编号" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.contractNo" placement="top">
             <span class="truncate">{{ row.contractNo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="contractName" label="合同名称" width="140">
+            <el-table-column prop="contractName" label="合同名称" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.contractName" placement="top">
             <span class="truncate">{{ row.contractName }}</span>
@@ -76,13 +77,6 @@
         <template #default="{ row }">
           <el-tooltip :content="row.batchNo" placement="top">
             <span class="truncate">{{ row.batchNo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="batchNum" label="批次号" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.batchNum" placement="top">
-            <span class="truncate">{{ row.batchNum }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -135,13 +129,6 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="mechInspQty" label="力学性能抽检数" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.mechInspQty" placement="top">
-            <span class="truncate">{{ row.mechInspQty }} 件</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
       <el-table-column prop="checkWriter" label="检验人" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.checkWriter" placement="top">
@@ -156,17 +143,17 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      
-      <!-- 力学性能字段 -->
-      <el-table-column prop="monoStrengthRequired" label="单丝强度要求值(MPa)" width="140" />
-      <el-table-column prop="monoStrengthA" label="单丝强度A(MPa)" width="130" />
-      <el-table-column prop="monoStrengthB" label="单丝强度B(MPa)" width="130" />
-      <el-table-column prop="monoStrengthC" label="单丝强度C(MPa)" width="130" />
-      <el-table-column prop="breakingForceRequired" label="破断拉力要求值(kN)" width="140" />
-      <el-table-column prop="breakingForceA" label="破断拉力A(kN)" width="130" />
-      <el-table-column prop="breakingForceB" label="破断拉力B(kN)" width="130" />
-      <el-table-column prop="breakingForceC" label="破断拉力C(kN)" width="130" />
-      
+      <el-table-column prop="chemAl" label="Al(%)" width="90" />
+      <el-table-column prop="chemSi" label="Si(%)" width="90" />
+      <el-table-column prop="chemFe" label="Fe(%)" width="90" />
+      <el-table-column prop="chemCu" label="Cu(%)" width="90" />
+      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
+      <el-table-column prop="chemMn" label="Mn(%)" width="90" />
+      <el-table-column prop="chemZn" label="Zn(%)" width="90" />
+      <el-table-column prop="chemTi" label="Ti(%)" width="90" />
+      <el-table-column prop="chemMg" label="Mg(%)" width="90" />
+      <el-table-column prop="mechTS" label="抗拉强度（MPa)" width="130" />
+      <el-table-column prop="mechEL" label="伸长率(%)" width="130" />
       <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
@@ -246,7 +233,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled,Document } from '@element-plus/icons-vue'
-import { getDxgjxPage, deleteDxgjx, getDxgjxById, updateStatus } from '@/api/clmanage/cl-dxgjx'
+import { getLbPage, deleteLb, getLbById, updateStatus } from '@/api/clmanage/cl-lb'
 import { useRouter } from 'vue-router'
 import editForm from './entryCheckDataForm.vue'
 import { baseURL } from '@/utils/request'
@@ -257,12 +244,12 @@ const userStore = useUserStore()
 const previewDialogVisible = ref(false)
 
 const handlePreview = async (id) => {
-  const res = await getDxgjxById({ id: id })
+  const res = await getLbById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
-
 // =============== 状态常量定义 ===============
+// 状态值-名称映射表
 const STATUS_LABEL_MAP = {
   "30": "待录入数据",
   "40": "录入确认，待审核",
@@ -270,52 +257,72 @@ const STATUS_LABEL_MAP = {
   DEFAULT: "检验完成"
 }
 
+// 状态值-图标映射表
 const STATUS_ICON_MAP = {
-  "30": "Clock",
-  "40": "Edit",
-  "50": "CircleCheck",
+  "30": "Clock", // 时钟图标
+  "40": "Edit", // 编辑图标
+  "50": "CircleCheck", // 对勾圆图标
   DEFAULT: "Check"
 }
 
+// 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
-  "30": "info",
-  "40": "primary",
-  "50": "success",
+  "30": "info", // 蓝色
+  "40": "primary", // 深蓝色
+  "50": "success", // 橙色
   DEFAULT: "success"
 }
 
+// 状态值-Radio按钮自定义类映射表
+const STATUS_CLASS_MAP = {
+  "30": "status-pending",
+  "40": "status-data-entry",
+  "50": "status-data-confirmed",
+  DEFAULT: ""
+}
+
+
+// 状态操作权限映射（当前状态→可执行操作）
 const STATUS_ACTION_MAP = {
-  "30": [
+  "30": [ // 待录入数据状态可执行操作
     { action: "edit", text: "录入数据", icon: "Edit", type: "primary" },
     { action: "confirmDataEntry", text: "确认录入", icon: "CircleCheck", type: "warning", targetStatus: "40" },
     { action: "delete", text: "删除", icon: "Delete", type: "danger" },
   ],
-  "40": [
+  "40": [ // 检验数据录入状态可执行操作
     { action: "backToPending", text: "撤回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "30" },
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
   ],
   "50": [
-    { action: "preview", text: "查看信息", icon: "Document", type: "primary" },
+            { action: "preview", text: "查看信息", icon: "Document", type: "primary" },
+            
   ],
 }
 
 // =============== 状态工具函数 ===============
+// 获取状态名称
 const getStatusLabel = (statusValue) => {
   return STATUS_LABEL_MAP[statusValue] ?? STATUS_LABEL_MAP.DEFAULT
 }
 
+// 获取状态对应图标
 const getStatusIcon = (statusValue) => {
   return STATUS_ICON_MAP[statusValue] ?? STATUS_ICON_MAP.DEFAULT
 }
 
+// 获取状态Tag组件类型
 const getStatusTagType = (statusValue) => {
   return STATUS_TAG_TYPE_MAP[statusValue] ?? STATUS_TAG_TYPE_MAP.DEFAULT
 }
 
+
+// 获取当前状态可执行操作列表
 const getStatusActions = (statusValue) => {
   return STATUS_ACTION_MAP[statusValue] ?? []
 }
 
+// 根据目标状态获取操作文本
 const getStatusActionText = (targetStatus) => {
   switch (targetStatus) {
     case "30": return "撤回录入"
@@ -326,6 +333,7 @@ const getStatusActionText = (targetStatus) => {
 }
 
 // =============== 响应式数据 ===============
+
 const editDialogVisible = ref(false)
 const formData = ref({})
 
@@ -336,12 +344,12 @@ const queryParams = reactive({
   contractName: '',
   mafactory: '',
   matRecheckNo: '',
-  status: 30,
+  status: 30,//默认待录入数据从状态30开始
   pageNumber: 1,
   pageSize: 10
 })
 
-const galvanizedSteelStrandList = ref([])
+const aluminumPlateList = ref([])
 const total = ref(0)
 const loading = ref(false)
 
@@ -360,6 +368,7 @@ const handleActionClick = (action, row) => {
     case "completeStorage":
     case "backToPending":
     case "backToDataEntry":
+      // 状态更新类操作，调用通用状态更新方法
       handleStatusUpdate(row.id, action.targetStatus)
       break
     default:
@@ -376,42 +385,47 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
       { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
     )
     
+    // 调用接口更新状态
     const response = await updateStatus({ id: orderId, status: targetStatus,updatePerson:userStore.realName })
     
+    // 处理结果
     if (response?.code === 200) {
       ElMessage.success(`${getStatusActionText(targetStatus)}成功`)
-      getGalvanizedSteelStrandList()
+      getAluminumPlateList() // 重新加载表格数据
     } else {
       ElMessage.error(response?.msg || "状态更新失败")
     }
   } catch (error) {
-    if (error !== "cancel") {
+    if (error !== "cancel") { // 排除用户取消操作
       ElMessage.error("操作失败，请重试")
     }
   }
 }
 
+
 const handleEdit = async (id) => {
-  const res = await getDxgjxById({ id: id })
+  const res = await getLbById({ id: id })
   formData.value = res.data.record
   editDialogVisible.value = true
 }
 
+
 const handleSuccessEdit = () => {
   editDialogVisible.value = false
-  ElMessage.success('镀锌钢绞线记录修改成功')
-  getGalvanizedSteelStrandList()
+  ElMessage.success('铝板记录修改成功')
+  getAluminumPlateList()
 }
 
-const getGalvanizedSteelStrandList = async () => {
+const getAluminumPlateList = async () => {
   loading.value = true
   try {
-    const res = await getDxgjxPage(queryParams)
-    galvanizedSteelStrandList.value = res.data.page.list
+    
+    const res = await getLbPage(queryParams)
+    aluminumPlateList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
-    console.error('获取镀锌钢绞线列表失败', error)
-    ElMessage.error('获取镀锌钢绞线列表失败')
+    console.error('获取铝板列表失败', error)
+    ElMessage.error('获取铝板列表失败')
   } finally {
     loading.value = false
   }
@@ -419,12 +433,12 @@ const getGalvanizedSteelStrandList = async () => {
 
 const handleSizeChange = (size) => {
   queryParams.pageSize = size
-  getGalvanizedSteelStrandList()
+  getAluminumPlateList()
 }
 
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page
-  getGalvanizedSteelStrandList()
+  getAluminumPlateList()
 }
 
 const handleRefresh = () => {
@@ -433,7 +447,7 @@ const handleRefresh = () => {
   queryParams.mafactory = ''
   queryParams.matRecheckNo = ''
   queryParams.pageNumber = 1
-  getGalvanizedSteelStrandList()
+  getAluminumPlateList()
 }
 
 const openFileInNewWindow = (url) => {
@@ -441,12 +455,12 @@ const openFileInNewWindow = (url) => {
 }
 
 onMounted(() => {
-  getGalvanizedSteelStrandList()
+  getAluminumPlateList()
 })
 </script>
 
 <style scoped>
-.galvanized-steel-strand-management {
+.aluminum-plate-management {
   padding: 20px;
 }
 
@@ -507,6 +521,7 @@ onMounted(() => {
   background-color: var(--el-color-primary);
   border-color: var(--el-color-primary);
 }
+
 
 /* 防止表头换行 */
 :deep(.el-table .cell) {

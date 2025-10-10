@@ -1,121 +1,166 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="新增明细" width="800px" :close-on-click-modal="false" @closed="handleClose">
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" class="add-form">
+  <el-dialog v-model="dialogVisible" title="新增明细" width="900px" :close-on-click-modal="false" @closed="handleClose">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="90px" class="add-form">
       <!-- 物料信息 -->
-      <div class="form-row">
-        <el-form-item label="物料编号" prop="materialCode">
-          <el-input v-model="form.materialCode" placeholder="请输入物料编号" @click="openDialog" readonly >
-            <template #append>
-              <el-button type="primary" icon="el-icon-search" size="small" @click="openDialog" >选择</el-button>
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="物料名称" prop="materialName">
-          <el-input v-model="form.materialName" placeholder="请输入物料名称" />
-        </el-form-item>
-      </div>
-      
-      <div class="form-row">
-        <el-form-item label="规格型号" prop="materialSpec">
-          <el-input v-model="form.materialSpec" placeholder="请输入规格型号" />
-        </el-form-item>
-        <el-form-item label="计量单位" prop="materialUnit">
-          <el-input v-model="form.materialUnit" placeholder="请输入计量单位" />
-        </el-form-item>
-      </div>
-
-      <div class="form-row">
-
-        <el-form-item label="操作仓库" prop="warehouse">
-          <el-input v-model="form.warehouse" placeholder="请输入操作仓库" />
-        </el-form-item>
-        <el-form-item label="数量" prop="quantity">
-          <el-input-number 
-            v-model="form.quantity" 
-            placeholder="请输入数量" 
-            style="width: 100%"
-            :precision="2"
-          />
-        </el-form-item>
+      <div class="section">
+        <div class="section-title">物料信息</div>
+        <div class="form-row">
+          <el-form-item label="物料编号" prop="materialCode">
+            <el-input v-model="form.materialCode" placeholder="请输入物料编号" @click="openDialog" readonly >
+              <template #append>
+                <el-button type="primary" icon="el-icon-search" size="small" @click="openDialog" >选择</el-button>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="物料名称" prop="materialName">
+            <el-input v-model="form.materialName" placeholder="请输入物料名称" />
+          </el-form-item>
+          <el-form-item label="规格型号" prop="materialSpec">
+            <el-input v-model="form.materialSpec" placeholder="请输入规格型号" />
+          </el-form-item>
+        </div>
+        
+        <div class="form-row">
+          <el-form-item label="计量单位" prop="materialUnit">
+            <el-input v-model="form.materialUnit" placeholder="请输入计量单位" />
+          </el-form-item>
+          <el-form-item label="计划规格" prop="planSpec">
+            <el-input v-model="form.planSpec" placeholder="请输入计划规格" maxlength="50" />
+          </el-form-item>
+          <el-form-item label="计划材质" prop="planMaterial">
+            <el-input v-model="form.planMaterial" placeholder="请输入计划材质" maxlength="100" />
+          </el-form-item>
+        </div>
       </div>
 
-      <div class="form-row">
-        <el-form-item label="单重" prop="unitWeight">
-          <el-input-number 
-            v-model="form.unitWeight" 
-            placeholder="请输入单重" 
-            style="width: 100%"
-            :precision="3"
-            :min="0"
-          />
-        </el-form-item>
-        <el-form-item label="总重" prop="totalWeight">
-          <el-input-number 
-            v-model="form.totalWeight" 
-            placeholder="请输入总重" 
-            style="width: 100%"
-            :precision="3"
-            :min="0"
-          />
-        </el-form-item>
+      <!-- 供应商信息 -->
+      <div class="section">
+        <div class="section-title">供应商信息</div>
+        <div class="form-row">
+          <el-form-item label="供应商名称" prop="supplierName">
+            <el-input v-model="form.supplierName" placeholder="请输入供应商名称" maxlength="100" />
+          </el-form-item>
+          <el-form-item label="存放位置" prop="warehouse">
+            <el-input v-model="form.warehouse" placeholder="请输入存放位置" />
+          </el-form-item>
+          <el-form-item></el-form-item> <!-- 占位 -->
+        </div>
+      </div>
+
+      <!-- 库存信息 -->
+      <div class="section">
+        <div class="section-title">库存信息</div>
+        <div class="form-row">
+          <el-form-item label="数量" prop="quantity">
+            <el-input-number 
+              v-model="form.quantity" 
+              placeholder="请输入数量" 
+              style="width: 100%"
+              :precision="2"
+            />
+          </el-form-item>
+          <el-form-item label="计划数量" prop="planQuanlity">
+            <el-input-number 
+              v-model="form.planQuanlity" 
+              placeholder="请输入计划数量" 
+              style="width: 100%"
+              :controls="false"
+              :precision="2"
+              :min="0"
+            />
+          </el-form-item>
+                    <el-form-item label="计划重量" prop="planWeight">
+            <el-input-number 
+              v-model="form.planWeight" 
+              placeholder="请输入计划重量" 
+                            :controls="false"
+
+              style="width: 100%"
+              :precision="2"
+              :min="0"
+            />
+          </el-form-item>
+
+        </div>
+
+        <div class="form-row">
+          <el-form-item label="单重" prop="unitWeight">
+            <el-input-number 
+              v-model="form.unitWeight" 
+              placeholder="请输入单重" 
+              style="width: 100%"
+              :precision="3"
+              :min="0"
+            />
+          </el-form-item>
+          <el-form-item label="总重" prop="totalWeight">
+            <el-input-number 
+              v-model="form.totalWeight" 
+              placeholder="请输入总重" 
+              style="width: 100%"
+              :precision="3"
+              :min="0"
+            />
+          </el-form-item>
+          <el-form-item></el-form-item> <!-- 占位 -->
+        </div>
       </div>
 
       <!-- 价格信息 -->
-      <div class="form-row">
-        <el-form-item label="销售单价" prop="salesPrice">
-          <el-input-number 
-            v-model="form.salesPrice" 
-            placeholder="请输入销售单价" 
-            style="width: 100%"
-            :precision="2"
-            :min="0"
-          />
-        </el-form-item>
-        <el-form-item label="销售金额" prop="salesTotalAmount">
-          <el-input-number 
-            v-model="form.salesTotalAmount" 
-            placeholder="请输入销售金额" 
-            style="width: 100%"
-            :precision="2"
-            :min="0"
-          />
-        </el-form-item>
+      <div class="section">
+        <div class="section-title">价格信息</div>
+        <div class="form-row">
+          <el-form-item label="销售单价" prop="salesPrice">
+            <el-input-number 
+              v-model="form.salesPrice" 
+              placeholder="请输入销售单价" 
+              style="width: 100%"
+              :precision="2"
+              :min="0"
+            />
+          </el-form-item>
+          <el-form-item label="销售金额" prop="salesTotalAmount">
+            <el-input-number 
+              v-model="form.salesTotalAmount" 
+              placeholder="请输入销售金额" 
+              style="width: 100%"
+              :precision="2"
+              :min="0"
+            />
+          </el-form-item>
+          <el-form-item></el-form-item> <!-- 占位 -->
+        </div>
       </div>
 
       <!-- 合同信息 -->
-      <div class="form-row">
-        <el-form-item label="关联合同编号" prop="contractNo">
-          <el-input v-model="form.contractNo" placeholder="请输入关联合同编号" >
-            <template #append>
-              <el-button type="primary" icon="el-icon-search" size="small" @click="contractSelectorVisible = true" >选择</el-button>
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="关联合同名称" prop="contractName">
-          <el-input v-model="form.contractName" placeholder="请输入关联合同名称" />
-        </el-form-item>
+      <div class="section">
+        <div class="section-title">合同信息</div>
+        <div class="form-row">
+          <el-form-item label="关联合同编号" prop="contractNo">
+            <el-input v-model="form.contractNo" placeholder="请输入关联合同编号" >
+              <template #append>
+                <el-button type="primary" icon="el-icon-search" size="small" @click="contractSelectorVisible = true" >选择</el-button>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="关联合同名称" prop="contractName">
+            <el-input v-model="form.contractName" placeholder="请输入关联合同名称" />
+          </el-form-item>
+          <el-form-item></el-form-item> <!-- 占位 -->
+        </div>
       </div>
-
-      <!-- 出库相关字段（入库时不显示） -->
-      <div class="form-row" v-if="showOutboundFields">
-        <el-form-item label="申请数量" prop="requestQuantity">
-          <el-input-number 
-            v-model="form.requestQuantity" 
-            placeholder="请输入申请数量" 
-            style="width: 100%"
-            :precision="2"
+      
+      <div class="section">
+        <div class="section-title">备注</div>
+        <el-form-item label="明细备注" prop="memo">
+          <el-input 
+            v-model="form.memo" 
+            type="textarea" 
+            :rows="3"
+            placeholder="请输入明细备注"
           />
         </el-form-item>
       </div>
-      
-      <el-form-item label="明细备注" prop="memo">
-        <el-input 
-          v-model="form.memo" 
-          type="textarea" 
-          :rows="3"
-          placeholder="请输入明细备注"
-        />
-      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -202,6 +247,11 @@ const form = reactive({
   materialName: '',
   materialSpec: '',
   materialUnit: '',
+  planSpec: '',
+  planMaterial: '',
+  supplierName: '',
+  planQuanlity: null,
+  planWeight: null,
   quantity: null,
   unitWeight: null,
   totalWeight: null,
@@ -236,7 +286,24 @@ const rules = {
     { type: 'number', message: '数量必须为数字', trigger: 'blur' }
   ],
   warehouse: [
-    { required: true, message: '请输入操作仓库', trigger: 'blur' }
+    { required: true, message: '请输入存放位置', trigger: 'blur' }
+  ],
+  planSpec: [
+    { required: false, message: '请输入计划规格', trigger: 'blur' }
+  ],
+  planMaterial: [
+    { required: false, message: '请输入计划材质', trigger: 'blur' }
+  ],
+  supplierName: [
+    { required: false, message: '请输入供应商名称', trigger: 'blur' }
+  ],
+  planQuanlity: [
+    { required: false, message: '请输入计划数量', trigger: 'blur' },
+    { type: 'number', message: '计划数量必须为数字', trigger: 'blur' }
+  ],
+  planWeight: [
+    { required: false, message: '请输入计划重量', trigger: 'blur' },
+    { type: 'number', message: '计划重量必须为数字', trigger: 'blur' }
   ]
 };
 
@@ -256,6 +323,11 @@ const resetForm = () => {
     materialName: '',
     materialSpec: '',
     materialUnit: '',
+    planSpec: '',
+    planMaterial: '',
+    supplierName: '',
+    planQuanlity: null,
+    planWeight: null,
     quantity: null,
     unitWeight: null,
     totalWeight: null,
@@ -322,14 +394,27 @@ watch([() => form.quantity, () => form.unitWeight], () => {
 .add-form {
   max-height: 70vh;
   overflow-y: auto;
-  padding: 0 20px;
+  padding: 0 10px;
+}
+
+.section {
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 4px;
+  padding-left: 4px;
+  border-left: 3px solid #409eff;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
 .dialog-footer {
@@ -341,12 +426,16 @@ watch([() => form.quantity, () => form.unitWeight], () => {
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 6px;
   }
   
   .add-form {
-    max-height: 60vh;
-    padding: 0 10px;
+    max-height: 65vh;
+    padding: 0 8px;
+  }
+  
+  .el-dialog {
+    width: 90vw !important;
   }
 }
 </style>

@@ -41,6 +41,7 @@
             </el-input>
           </el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="炉批号" prop="batchNo">
             <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable="" size="small">
@@ -53,9 +54,11 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="材质" prop="material">
-            <el-input v-model="form.material" placeholder="请输入材质" clearable="" size="small">
-            </el-input></el-form-item>
+            <el-autocomplete v-model="form.material" :fetch-suggestions="queryMaterialSuggestions"
+              placeholder="请选择或输入材质" clearable="" size="small">
+            </el-autocomplete></el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="牌号" prop="matMaterial">
             <el-input v-model="form.matMaterial" placeholder="请输入牌号" clearable="" size="small">
@@ -63,10 +66,11 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="型号" prop="type">
-            <el-input v-model="form.type" placeholder="请输入型号" clearable="" size="small">
-            </el-input></el-form-item>
+            <el-autocomplete v-model="form.type" :fetch-suggestions="queryTypeSuggestions" placeholder="请选择或输入型号"
+              clearable="" size="small">
+            </el-autocomplete></el-form-item>
         </el-col>
-        <el-col :span="12">
+      <el-col :span="12">
           <el-form-item label="单位" prop="unit">
             <el-input v-model="form.unit" placeholder="请输入单位" clearable="" size="small">
             </el-input></el-form-item>
@@ -84,7 +88,7 @@
               step="0.01">
             </el-input></el-form-item>
         </el-col>
-
+       
         <el-col :span="24">
           <el-form-item label="质量证明书" prop="certificate">
             <el-upload ref="certificateUpload" :auto-upload="false" :on-change="handleCertificateChange" :limit="10"
@@ -109,6 +113,9 @@
             </el-input></el-form-item>
         </el-col>
 
+
+        
+
         <SupplierSelector v-model:visible="supplierSelectorVisible" @select="handleSelect" />
         <ContractSelector v-model:visible="ContractSelectorVisible" @select="handleContractSelect" />
       </el-row>
@@ -126,7 +133,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { createDxgjx } from '@/api/clmanage/cl-dxgjx'
+import { createLb } from '@/api/clmanage/cl-lb'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
@@ -175,13 +182,49 @@ form.contractNo = contract.no
 form.contractName = contract.name
 }
 
+const materialOptions = [
+{ value: 'ZLD102' },
+{ value: 'AL99.7' }
+]
+
+const typeOptions = [
+{ value: 'ZLD102' },
+{ value: 'AL99.7' }
+]
+
+const standardOptions = [
+{ value: 'GBT1196-2017' },
+{ value: 'GB/T8733-2016' }
+]
+
+const queryMaterialSuggestions = (queryString, cb) => {
+const results = queryString
+? materialOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+: materialOptions
+cb(results)
+}
+
+const queryTypeSuggestions = (queryString, cb) => {
+const results = queryString
+? typeOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+: typeOptions
+cb(results)
+}
+
+const queryStandardSuggestions = (queryString, cb) => {
+const results = queryString
+? standardOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+: standardOptions
+cb(results)
+}
+
 const form = reactive({
 id: undefined,
 basNo: '',
 contractNo: '',
 contractName: '',
+material: '',
 mafactory: '',
-material: '', 
 matMaterial: '',
 batchNo: '',
 batchNum: '',
@@ -212,23 +255,22 @@ mafactory: [
 { required: true, message: '请选择原材料制造商', trigger: 'blur' },
 { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
 ],
-material: [ 
+material: [
+{ required: true, message: '请输入材质信息', trigger: 'blur' },
 { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
 ],
 matMaterial: [
 { required: true, message: '请输入牌号', trigger: 'blur' },
 { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
 ],
-batchNum: [
-{ max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-],
 batchNo: [
-{ max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+{ required: true, max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
 ],
 type: [
 { required: true, message: '请输入型号', trigger: 'blur' },
 { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
 ],
+
 deliveryQuantity: [
 { type: 'number', message: '必须为数字', trigger: 'blur' }
 ],
@@ -256,15 +298,14 @@ id: undefined,
 basNo: '',
 contractNo: '',
 contractName: '',
+material: '',
 mafactory: '',
-material: '', 
 matMaterial: '',
 batchNo: '',
 batchNum: '',
 type: '',
 deliveryQuantity: '',
 acceptQuantity: '',
-unit: 'kg',
 certificate: '[]',
 requestWriter: userStore.descr || '未知用户',
 writeTime: '',
@@ -307,36 +348,32 @@ window.open(baseUrl + url, '_blank')
 }
 
 const submitForm = async () => {
-  if (!formRef.value) return
-  submitting.value = true
-  try {
-    await formRef.value.validate()
-    if (!form.basNo) {
-      ElMessage.error('单据号未生成，请刷新重试')
-      return
-    }
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
-    const hours = String(now.getHours()).padStart(2, '0')
-    const minutes = String(now.getMinutes()).padStart(2, '0')
-    const seconds = String(now.getSeconds()).padStart(2, '0')
-    form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-    
-    // 临时生成一个随机ID（长期解决方案应该是后端生成）
-    form.id = Date.now() + Math.floor(Math.random() * 1000)
-    
-    await createDxgjx(form)
-    emit('success')
-    emit('update:visible', false)
-    ElMessage.success('新增成功')
-  } catch (error) {
-    console.error('保存数据失败', error)
-    ElMessage.error('保存数据失败')
-  } finally {
-    submitting.value = false
-  }
+if (!formRef.value) return
+submitting.value = true
+try {
+await formRef.value.validate()
+if (!form.basNo) {
+ElMessage.error('单据号未生成，请刷新重试')
+return
+}
+const now = new Date()
+const year = now.getFullYear()
+const month = String(now.getMonth() + 1).padStart(2, '0')
+const day = String(now.getDate()).padStart(2, '0')
+const hours = String(now.getHours()).padStart(2, '0')
+const minutes = String(now.getMinutes()).padStart(2, '0')
+const seconds = String(now.getSeconds()).padStart(2, '0')
+form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+await createLb(form)
+emit('success')
+emit('update:visible', false)
+ElMessage.success('新增成功')
+} catch (error) {
+console.error('保存数据失败', error)
+ElMessage.error('保存数据失败')
+} finally {
+submitting.value = false
+}
 }
 
 const dialogVisible = ref(props.visible)

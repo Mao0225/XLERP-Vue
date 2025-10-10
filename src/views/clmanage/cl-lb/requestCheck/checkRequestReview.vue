@@ -1,16 +1,16 @@
 <!-- 请检数据录入 -->
 <template>
-  <div class="aluminum-ingot-management">
+  <div class="aluminum-sheet-management">
     <div class="action-bar">
 
       <div class="search-inputs">
         <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
+          clearable @clear="getAluminumSheetList" @keyup.enter="getAluminumSheetList" />
         <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
+          clearable @clear="getAluminumSheetList" @keyup.enter="getAluminumSheetList" />
         <el-input v-model="queryParams.basNo" placeholder="请输入单据号查询" style="width: 200px; margin-right: 10px;" clearable
-          @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
-        <el-button type="primary" @click="getAluminumIngotList">搜索</el-button>
+          @clear="getAluminumSheetList" @keyup.enter="getAluminumSheetList" />
+        <el-button type="primary" @click="getAluminumSheetList">搜索</el-button>
         <el-button type="warning" @click="handleRefresh">
           <el-icon>
             <Refresh />
@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <el-table :data="aluminumIngotList" border v-loading="loading" style="width: 100%">
+    <el-table :data="aluminumSheetList" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
       
       <!-- 状态列使用 Tag 显示 -->
@@ -84,16 +84,14 @@
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit }}
-</span>
+            <span class="truncate">{{ row.deliveryQuantity }} t</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="acceptQuantity" label="验收数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.acceptQuantity" placement="top">
-            <span class="truncate">{{ row.acceptQuantity }} {{ row.unit }}
-</span>
+            <span class="truncate">{{ row.acceptQuantity }} t</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -137,7 +135,7 @@
       </el-table-column>
       
       <!-- 操作列使用动态按钮 -->
-      <el-table-column label="操作" width="350" fixed="right">
+      <el-table-column label="操作" width="280" fixed="right">
         <template #default="{ row }">
           <el-button
             v-for="action in getStatusActions(row.status)"
@@ -168,7 +166,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
-import { getWfgPage,  getWfgById, updateStatus } from '@/api/clmanage/cl-wfg'
+import { getLbPage,  getLbById, updateStatus } from '@/api/clmanage/cl-lb'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
 import requestFormPreview from './requestFormPreview.vue'
@@ -179,7 +177,7 @@ const userStore = useUserStore()
 const previewDialogVisible = ref(false)
 
 const handlePreview = async (id) => {
-  const res = await getWfgById({ id: id })
+  const res = await getLbById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
@@ -217,8 +215,7 @@ const STATUS_TAG_TYPE_MAP = {
 const STATUS_ACTION_MAP = {
   "20": [ // 确认状态可执行操作
     { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
-    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
-    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
   ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
@@ -276,7 +273,7 @@ const queryParams = reactive({
   pageSize: 10
 })
 
-const aluminumIngotList = ref([])
+const aluminumSheetList = ref([])
 const total = ref(0)
 const loading = ref(false)
 
@@ -313,7 +310,7 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
     // 处理结果
     if (response?.code === 200) {
       ElMessage.success(`${getStatusActionText(targetStatus)}成功`)
-      getAluminumIngotList() // 重新加载表格数据
+      getAluminumSheetList() // 重新加载表格数据
     } else {
       ElMessage.error(response?.msg || "状态更新失败")
     }
@@ -326,11 +323,11 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
 
 
 
-const getAluminumIngotList = async () => {
+const getAluminumSheetList = async () => {
   loading.value = true
   try {
-    const res = await getWfgPage(queryParams)
-    aluminumIngotList.value = res.data.page.list
+    const res = await getLbPage(queryParams)
+    aluminumSheetList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
     console.error('获取请检单列表失败', error)
@@ -342,12 +339,12 @@ const getAluminumIngotList = async () => {
 
 const handleSizeChange = (size) => {
   queryParams.pageSize = size
-  getAluminumIngotList()
+  getAluminumSheetList()
 }
 
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page
-  getAluminumIngotList()
+  getAluminumSheetList()
 }
 
 const handleRefresh = () => {
@@ -356,7 +353,7 @@ const handleRefresh = () => {
   queryParams.basNo = ''
   queryParams.status = ''
   queryParams.pageNumber = 1
-  getAluminumIngotList()
+  getAluminumSheetList()
 }
 
 const openFileInNewWindow = (url) => {
@@ -364,12 +361,12 @@ const openFileInNewWindow = (url) => {
 }
 
 onMounted(() => {
-  getAluminumIngotList()
+  getAluminumSheetList()
 })
 </script>
 
 <style scoped>
-.aluminum-ingot-management {
+.aluminum-sheet-management {
   padding: 20px;
 }
 

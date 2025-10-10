@@ -65,6 +65,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
+      <el-table-column prop="batchNo" label="炉批号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.batchNo" placement="top">
+            <span class="truncate">{{ row.batchNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="mafactory" label="制造商" width="160">
         <template #default="{ row }">
           <el-tooltip :content="row.mafactory" placement="top">
@@ -90,6 +97,13 @@
         <template #default="{ row }">
           <el-tooltip :content="row.matMaterial" placement="top">
             <span class="truncate">{{ row.matMaterial }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="material" label="材质" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.material" placement="top">
+            <span class="truncate">{{ row.material }}</span>
           </el-tooltip>
         </template>
       </el-table-column>

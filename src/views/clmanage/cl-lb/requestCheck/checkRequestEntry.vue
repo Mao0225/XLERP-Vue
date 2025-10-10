@@ -1,14 +1,16 @@
+<!-- 请检数据录入 -->
 <template>
-  <div class="galvanized-steel-strand-management">
+  <div class="aluminum-sheet-management">
     <div class="action-bar">
+
       <div class="search-inputs">
         <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="handleRefresh" @keyup.enter="handleSearch" />
+          clearable @clear="getAluminumSheetList" @keyup.enter="getAluminumSheetList" />
         <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="handleRefresh" @keyup.enter="handleSearch" />
+          clearable @clear="getAluminumSheetList" @keyup.enter="getAluminumSheetList" />
         <el-input v-model="queryParams.basNo" placeholder="请输入单据号查询" style="width: 200px; margin-right: 10px;" clearable
-          @clear="handleRefresh" @keyup.enter="handleSearch" />
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
+          @clear="getAluminumSheetList" @keyup.enter="getAluminumSheetList" />
+        <el-button type="primary" @click="getAluminumSheetList">搜索</el-button>
         <el-button type="warning" @click="handleRefresh">
           <el-icon>
             <Refresh />
@@ -18,7 +20,7 @@
       </div>
     </div>
 
-    <el-table :data="galvanizedSteelStrandList" border v-loading="loading" style="width: 100%">
+    <el-table :data="aluminumSheetList" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
       
       <!-- 状态列使用 Tag 显示 -->
@@ -67,28 +69,27 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="batchNo" label="炉批号" width="120">
+            <el-table-column prop="batchNo" label="炉批号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.batchNo" placement="top">
             <span class="truncate">{{ row.batchNo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-<el-table-column prop="deliveryQuantity" label="送货数量" width="100">
-  <template #default="{ row }">
-    <el-tooltip :content="`${row.deliveryQuantity} ${row.unit || ''}`" placement="top">
-      <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || '' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-
-<el-table-column prop="acceptQuantity" label="验收数量" width="100">
-  <template #default="{ row }">
-    <el-tooltip :content="`${row.acceptQuantity} ${row.unit || ''}`" placement="top">
-      <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || '' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
+      <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.deliveryQuantity" placement="top">
+            <span class="truncate">{{ row.deliveryQuantity }} t</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="acceptQuantity" label="验收数量" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.acceptQuantity" placement="top">
+            <span class="truncate">{{ row.acceptQuantity }} t</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
   
       <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
@@ -147,54 +148,35 @@
     </el-table>
     
     <div class="pagination-container">
-      <el-pagination 
-        v-model:current-page="queryParams.pageNumber" 
-        v-model:page-size="queryParams.pageSize"
-        :page-sizes="[10, 20, 50, 100]" 
-        layout="total, sizes, prev, pager, next, jumper" 
-        :total="total"
-        @size-change="handleSizeChange" 
-        @current-change="handleCurrentChange" />
+      <el-pagination v-model:current-page="queryParams.pageNumber" v-model:page-size="queryParams.pageSize"
+        :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
 
-    <!-- 对话框组件 -->
-    <addForm 
-      :newCode="newCode" 
-      :visible="addDialogVisible" 
-      @update:visible="addDialogVisible = $event"
+    <addForm :newCode="newCode" :visible="addDialogVisible" @update:visible="addDialogVisible = $event"
       @success="handleSuccessAdd" />
-      
-    <editForm 
-      :visible="editDialogVisible" 
-      :initial-data="formData" 
-      @update:visible="editDialogVisible = $event"
+    <editForm :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
       @success="handleSuccessEdit" />
-      
-    <requestFormPreview 
-      :visible="previewDialogVisible" 
-      :initial-data="formData" 
-      @update:visible="previewDialogVisible = $event"/>
+    <requestFormPreview :visible="previewDialogVisible" :initial-data="formData" @update:visible="previewDialogVisible = $event"/>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled, Document } from '@element-plus/icons-vue'
-import { getDxgjxPage, deleteDxgjx, getDxgjxById, updateStatus } from '@/api/clmanage/cl-dxgjx'
+import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
+import { getLbPage, deleteLb, getLbById, updateStatus } from '@/api/clmanage/cl-lb'
 import addForm from './addRequest.vue'
 import editForm from './editCheckRequest.vue'
 import { baseURL } from '@/utils/request'
 import { getNewNoNyName } from '@/api/system/basno'
 import requestFormPreview from './requestFormPreview.vue'
 
-const previewDialogVisible = ref(false)
-const addDialogVisible = ref(false)
-const editDialogVisible = ref(false)
-const newCode = ref('')
-const formData = ref({})
 
+
+const previewDialogVisible = ref(false)
 // =============== 状态常量定义 ===============
+// 状态值-名称映射表
 const STATUS_LABEL_MAP = {
   "10": "请检单录入",
   "20": "录入确认，待审核",
@@ -204,6 +186,7 @@ const STATUS_LABEL_MAP = {
   DEFAULT: "未知"
 }
 
+// 状态值-图标映射表
 const STATUS_ICON_MAP = {
   "10": "Clock",
   "20": "CircleCheck",
@@ -213,6 +196,7 @@ const STATUS_ICON_MAP = {
   DEFAULT: "Clock"
 }
 
+// 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
   "10": "info",
   "20": "primary",
@@ -222,44 +206,53 @@ const STATUS_TAG_TYPE_MAP = {
   DEFAULT: "info"
 }
 
+// 状态操作权限映射（当前状态→可执行操作）
 const STATUS_ACTION_MAP = {
-  "10": [
+  "10": [ // 录入状态可执行操作
     { action: "edit", text: "编辑", icon: "Edit", type: "primary" },
     { action: "delete", text: "删除", icon: "Delete", type: "danger" },
     { action: "confirm", text: "确认录入", icon: "CircleCheck", type: "success", targetStatus: "20" }
   ],
-"20": [
-  { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
-  { action: "preview", text: "查看信息", icon: "Document", type: "primary" } 
-],
+  "20": [ // 确认状态可执行操作
+    { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+  ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-  ],
+  ], // 检验录入完成状态无操作
   "40": [
-    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-  ],
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ], // 检验审核完成状态无操作
   "50": [
-    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-  ]
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+
+  ]  // 已入库状态无操作
 }
 
 // =============== 状态工具函数 ===============
+// 获取状态名称
 const getStatusLabel = (statusValue) => {
   return STATUS_LABEL_MAP[statusValue] ?? STATUS_LABEL_MAP.DEFAULT
 }
 
+// 获取状态对应图标
 const getStatusIcon = (statusValue) => {
   return STATUS_ICON_MAP[statusValue] ?? STATUS_ICON_MAP.DEFAULT
 }
 
+// 获取状态Tag组件类型
 const getStatusTagType = (statusValue) => {
   return STATUS_TAG_TYPE_MAP[statusValue] ?? STATUS_TAG_TYPE_MAP.DEFAULT
 }
 
+
+
+// 获取当前状态可执行操作列表
 const getStatusActions = (statusValue) => {
   return STATUS_ACTION_MAP[statusValue] ?? []
 }
 
+// 根据目标状态获取操作文本
 const getStatusActionText = (targetStatus) => {
   switch (targetStatus) {
     case "10": return "反确认"
@@ -272,16 +265,21 @@ const getStatusActionText = (targetStatus) => {
 }
 
 // =============== 响应式数据 ===============
+const newCode = ref('')
+const addDialogVisible = ref(false)
+const editDialogVisible = ref(false)
+const formData = ref({})
+
 const queryParams = reactive({
   contractNo: '',
   contractName: '',
   basNo: '',
-  status: '',
+  status: '', // 添加状态筛选参数
   pageNumber: 1,
   pageSize: 10
 })
 
-const galvanizedSteelStrandList = ref([])
+const aluminumSheetList = ref([])
 const total = ref(0)
 const loading = ref(false)
 
@@ -289,7 +287,7 @@ const loading = ref(false)
 // 生成新的单据号编码
 const generateNewCode = async () => {
   try {
-    const res = await getNewNoNyName('cl-dxgjx')
+    const res = await getNewNoNyName('cl-lb')
     if (res?.code === 200) {
       console.log("获取编码成功", res.data.fullNoNyName)
       return res.data.fullNoNyName
@@ -303,37 +301,30 @@ const generateNewCode = async () => {
   }
 }
 
-
-
-// 修复操作按钮点击处理
-const handleActionClick = async (action, row) => {
-  console.log('执行操作:', action.action, '数据:', row)
-  
-  try {
-    switch (action.action) {
-      case "edit":
-        await handleEdit(row.id)
-        break
-      case "delete":
-        await handleDelete(row)
-        break
-      case "preview":
-        await handlePreview(row.id)
-        break
-      case "confirm":
-      case "cancelConfirm":
-        await handleStatusUpdate(row.id, action.targetStatus)
-        break
-      default:
-        console.log("未知操作：", action.action)
-    }
-  } catch (error) {
-    console.error('操作执行失败:', error)
-    ElMessage.error('操作执行失败')
+// 统一处理操作按钮点击
+const handleActionClick = (action, row) => {
+  switch (action.action) {
+    case "edit":
+      handleEdit(row.id)
+      break
+    case "delete":
+      handleDelete(row)
+      break
+    case "preview":
+      handlePreview(row.id)
+      break
+    case "confirm":
+    case "audit":
+    case "cancelConfirm":
+      // 状态更新类操作，调用通用状态更新方法
+      handleStatusUpdate(row.id, action.targetStatus)
+      break
+    default:
+      console.log("未知操作：", action.action)
   }
 }
 
-// 修复状态更新方法
+// 执行状态更新（通用方法）
 const handleStatusUpdate = async (orderId, targetStatus) => {
   try {
     await ElMessageBox.confirm(
@@ -342,159 +333,103 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
       { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
     )
     
+    // 调用接口更新状态
     const response = await updateStatus({ id: orderId, status: targetStatus })
     
+    // 处理结果
     if (response?.code === 200) {
       ElMessage.success(`${getStatusActionText(targetStatus)}成功`)
-      await getGalvanizedSteelStrandList()
+      getAluminumSheetList() // 重新加载表格数据
     } else {
       ElMessage.error(response?.msg || "状态更新失败")
     }
   } catch (error) {
-    if (error !== "cancel") {
+    if (error !== "cancel") { // 排除用户取消操作
       ElMessage.error("操作失败，请重试")
     }
   }
 }
 
-// 修复新增方法
 const handleAdd = async () => {
-  try {
-    newCode.value = await generateNewCode()
-    console.log("生成的编码:", newCode.value)
-    addDialogVisible.value = true
-  } catch (error) {
-    console.error('新增操作失败:', error)
-    ElMessage.error('新增操作失败')
-  }
+  newCode.value = await generateNewCode()
+  console.log("newCode.value", newCode.value)
+  addDialogVisible.value = true
 }
 
-// 修复编辑方法
 const handleEdit = async (id) => {
-  try {
-    console.log('开始编辑，ID:', id)
-    const res = await getDxgjxById({ id: id })
-    if (res?.code === 200 && res.data?.record) {
-      formData.value = { ...res.data.record }
-      console.log('编辑数据加载成功:', formData.value)
-      editDialogVisible.value = true
-    } else {
-      ElMessage.error('获取数据失败')
-    }
-  } catch (error) {
-    console.error('编辑操作失败:', error)
-    ElMessage.error('编辑操作失败')
-  }
+  const res = await getLbById({ id: id })
+  formData.value = res.data.record
+  editDialogVisible.value = true
 }
 
-// 修复预览方法
 const handlePreview = async (id) => {
-  try {
-    console.log('开始预览，ID:', id)
-    const res = await getDxgjxById({ id: id })
-    if (res?.code === 200 && res.data?.record) {
-      formData.value = { ...res.data.record }
-      console.log('预览数据加载成功:', formData.value)
-      previewDialogVisible.value = true
-    } else {
-      ElMessage.error('获取数据失败')
-    }
-  } catch (error) {
-    console.error('预览操作失败:', error)
-    ElMessage.error('预览操作失败')
-  }
+  const res = await getLbById({ id: id })
+  formData.value = res.data.record
+  previewDialogVisible.value = true
 }
 
-// 修复成功回调
 const handleSuccessAdd = () => {
   addDialogVisible.value = false
   ElMessage.success('请检单记录新增成功')
-  getGalvanizedSteelStrandList()
+  getAluminumSheetList()
 }
 
 const handleSuccessEdit = () => {
   editDialogVisible.value = false
   ElMessage.success('请检单记录修改成功')
-  getGalvanizedSteelStrandList()
+  getAluminumSheetList()
 }
 
-// 修复查询方法
-const handleSearch = () => {
-  queryParams.pageNumber = 1 // 搜索时重置到第一页
-  getGalvanizedSteelStrandList()
-}
-
-// 修复获取列表方法
-const getGalvanizedSteelStrandList = async () => {
+const getAluminumSheetList = async () => {
   loading.value = true
   try {
-    console.log('查询参数:', queryParams)
-    const res = await getDxgjxPage(queryParams)
-    if (res?.code === 200) {
-      galvanizedSteelStrandList.value = res.data.page?.list || []
-      total.value = res.data.page?.totalRow || 0
-      console.log('获取数据成功:', galvanizedSteelStrandList.value)
-    } else {
-      ElMessage.error(res?.msg || '获取数据失败')
-      galvanizedSteelStrandList.value = []
-      total.value = 0
-    }
+    const res = await getLbPage(queryParams)
+    aluminumSheetList.value = res.data.page.list
+    total.value = res.data.page.totalRow
   } catch (error) {
     console.error('获取请检单列表失败', error)
     ElMessage.error('获取请检单列表失败')
-    galvanizedSteelStrandList.value = []
-    total.value = 0
   } finally {
     loading.value = false
   }
 }
 
-// 修复分页方法
 const handleSizeChange = (size) => {
   queryParams.pageSize = size
-  queryParams.pageNumber = 1 // 改变页大小时重置到第一页
-  getGalvanizedSteelStrandList()
+  getAluminumSheetList()
 }
 
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page
-  getGalvanizedSteelStrandList()
+  getAluminumSheetList()
 }
 
-// 修复刷新方法
 const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
   queryParams.basNo = ''
   queryParams.status = ''
   queryParams.pageNumber = 1
-  getGalvanizedSteelStrandList()
+  getAluminumSheetList()
 }
 
-// 修复删除方法
 const handleDelete = async (row) => {
   try {
     await ElMessageBox.confirm(
-      `确认删除请检单记录"${row.basNo}"吗？此操作不可恢复。`,
+      `确认删除请检单记录"${row.basNo}"吗？`,
       "提示",
-      { 
-        confirmButtonText: "确定", 
-        cancelButtonText: "取消", 
-        type: "warning",
-        confirmButtonClass: 'el-button--danger'
-      }
+      { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
     )
     
-    const response = await deleteDxgjx({ id: row.id })
+    const response = await deleteLb({ id: row.id })
     if (response?.code === 200) {
       ElMessage.success("删除成功")
-      await getGalvanizedSteelStrandList()
+      getAluminumSheetList()
     } else {
       ElMessage.error(response?.msg || "删除失败")
     }
   } catch (error) {
     if (error !== "cancel") {
-      console.error('删除失败:', error)
       ElMessage.error("删除失败")
     }
   }
@@ -505,12 +440,12 @@ const openFileInNewWindow = (url) => {
 }
 
 onMounted(() => {
-  getGalvanizedSteelStrandList()
+  getAluminumSheetList()
 })
 </script>
 
 <style scoped>
-.galvanized-steel-strand-management {
+.aluminum-sheet-management {
   padding: 20px;
 }
 
@@ -520,6 +455,8 @@ onMounted(() => {
   gap: 15px;
   margin-bottom: 20px;
 }
+
+
 
 .search-inputs {
   display: flex;
@@ -556,11 +493,13 @@ onMounted(() => {
   font-style: italic;
 }
 
+
 /* 选中状态Radio按钮样式 */
 :deep(.el-radio-button.is-checked .el-radio-button__inner) {
   background-color: var(--el-color-primary);
   border-color: var(--el-color-primary);
 }
+
 
 /* 防止表头换行 */
 :deep(.el-table .cell) {

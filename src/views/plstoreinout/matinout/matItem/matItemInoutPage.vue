@@ -81,14 +81,19 @@
             <el-table-column prop="materialName" label="物料名称" width="150" show-overflow-tooltip />
             <el-table-column prop="materialSpec" label="规格型号" width="180" show-overflow-tooltip />
             <el-table-column prop="materialUnit" label="单位" width="80" show-overflow-tooltip />
+            <el-table-column prop="planSpec" label="计划规格" width="120" show-overflow-tooltip />
+            <el-table-column prop="planMaterial" label="计划材质" width="150" show-overflow-tooltip />
             <el-table-column prop="quantity" label="数量" width="100" show-overflow-tooltip />
+            <el-table-column prop="planQuantity" label="计划数量" width="100" show-overflow-tooltip />
             <el-table-column prop="unitWeight" label="单重(kg)" width="100" show-overflow-tooltip />
+            <el-table-column prop="planWeight" label="计划重量(kg)" width="120" show-overflow-tooltip />
             <el-table-column prop="totalWeight" label="总重(kg)" width="100" show-overflow-tooltip />
             <el-table-column prop="salesPrice" label="单价(元)" width="120" show-overflow-tooltip />
             <el-table-column prop="salesTotalAmount" label="总金额(元)" width="120" show-overflow-tooltip />
             <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip />
             <el-table-column prop="handler" label="经手人" width="100" show-overflow-tooltip />
-            <el-table-column prop="warehouse" label="仓库" width="120" show-overflow-tooltip />
+            <el-table-column prop="warehouse" label="存放位置" width="120" show-overflow-tooltip />
+            <el-table-column prop="supplierName" label="供应商名称" width="150" show-overflow-tooltip />
             <el-table-column prop="contractNo" label="合同编号" width="140" show-overflow-tooltip />
             <el-table-column prop="contractName" label="合同名称" width="200" show-overflow-tooltip />
             <el-table-column prop="memo" label="备注" width="150" show-overflow-tooltip />

@@ -2,14 +2,13 @@
 <template>
   <div class="galvanized-steel-strand-management">
     <div class="action-bar">
-
       <div class="search-inputs">
         <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
           clearable @clear="getGalvanizedSteelStrandList" @keyup.enter="getGalvanizedSteelStrandList" />
         <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
           clearable @clear="getGalvanizedSteelStrandList" @keyup.enter="getGalvanizedSteelStrandList" />
-         <el-input v-model="queryParams.contractName" placeholder="请输入单据号查询" style="width: 200px; margin-right: 10px;"
-          clearable @clear="getGalvanizedSteelStrandList" @keyup.enter="getGalvanizedSteelStrandList" /> 
+        <el-input v-model="queryParams.basNo" placeholder="请输入单据号查询" style="width: 200px; margin-right: 10px;" clearable
+          @clear="getGalvanizedSteelStrandList" @keyup.enter="getGalvanizedSteelStrandList" />
         <el-button type="primary" @click="getGalvanizedSteelStrandList">搜索</el-button>
         <el-button type="warning" @click="handleRefresh">
           <el-icon>
@@ -36,6 +35,13 @@
         <template #default="{ row }">
           <el-tooltip :content="row.basNo" placement="top">
             <span class="truncate">{{ row.basNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="batchNo" label="炉批号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.batchNo" placement="top">
+            <span class="truncate">{{ row.batchNo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -67,20 +73,21 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="acceptQuantity" label="验收数量" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.acceptQuantity" placement="top">
-            <span class="truncate">{{ row.acceptQuantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+<el-table-column prop="deliveryQuantity" label="送货数量" width="100">
+  <template #default="{ row }">
+    <el-tooltip :content="`${row.deliveryQuantity} ${row.unit || ''}`" placement="top">
+      <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || '' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="acceptQuantity" label="验收数量" width="100">
+  <template #default="{ row }">
+    <el-tooltip :content="`${row.acceptQuantity} ${row.unit || ''}`" placement="top">
+      <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || '' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
       
       <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
@@ -169,73 +176,71 @@ const handlePreview = async (id) => {
 }
 // 状态值-名称映射表
 const STATUS_LABEL_MAP = {
+  "10": "请检单录入",
   "20": "待审核",
-  "30": "审核通过，待检验",//待录入数据
+  "30": "审核通过，待检验",
   "40": "检验录入，待审核",
-  "50": "检验完成",
-
-  DEFAULT: "未知"
+  "50": "检验完成"
 }
 
 // 状态值-图标映射表
 const STATUS_ICON_MAP = {
-  "20": "CircleCheck", // 对勾圆图标
-  "30": "DataBoard", // 数据板图标
-  "40": "Check", // 对勾图标
-  "50": "Check", // 对勾图标
-
-  DEFAULT: "Clock"
+  "10": "Clock",
+  "20": "CircleCheck",
+  "30": "DataBoard",
+  "40": "Check",
+  "50": "Check"
 }
 
 // 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
-  "20": "primary", // 深蓝色
-  "30": "warning", // 橙色
-  "40": "success", // 绿色
-  "50": "success", // 绿色
-
-  DEFAULT: "info"
+  "10": "info",
+  "20": "primary",
+  "30": "warning",
+  "40": "success",
+  "50": "success"
 }
 
 // 状态操作权限映射（当前状态→可执行操作）
 const STATUS_ACTION_MAP = {
-  "20": [ // 确认状态可执行操作
+  "10": [
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ],
+  "20": [
     { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
-    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-  ], // 检验录入完成状态无操作
+  ],
   "40": [
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-
-  ], // 检验审核完成状态无操作
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ],
   "50": [
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ] 
 }
 
 // =============== 状态工具函数 ===============
 // 获取状态名称
 const getStatusLabel = (statusValue) => {
-  return STATUS_LABEL_MAP[statusValue] ?? STATUS_LABEL_MAP.DEFAULT
+  return STATUS_LABEL_MAP[statusValue] || "未知"
 }
 
 // 获取状态对应图标
 const getStatusIcon = (statusValue) => {
-  return STATUS_ICON_MAP[statusValue] ?? STATUS_ICON_MAP.DEFAULT
+  return STATUS_ICON_MAP[statusValue] || "Clock"
 }
 
 // 获取状态Tag组件类型
 const getStatusTagType = (statusValue) => {
-  return STATUS_TAG_TYPE_MAP[statusValue] ?? STATUS_TAG_TYPE_MAP.DEFAULT
+  return STATUS_TAG_TYPE_MAP[statusValue] || "info"
 }
-
-
 
 // 获取当前状态可执行操作列表
 const getStatusActions = (statusValue) => {
-  return STATUS_ACTION_MAP[statusValue] ?? []
+  return STATUS_ACTION_MAP[statusValue] || []
 }
 
 // 根据目标状态获取操作文本
@@ -254,7 +259,7 @@ const queryParams = reactive({
   contractNo: '',
   contractName: '',
   basNo: '',
-  status: '', // 添加状态筛选参数
+  status: '20', 
   pageNumber: 1,
   pageSize: 10
 })
@@ -307,8 +312,6 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
   }
 }
 
-
-
 const getGalvanizedSteelStrandList = async () => {
   loading.value = true
   try {
@@ -337,7 +340,7 @@ const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
   queryParams.basNo = ''
-  queryParams.status = ''
+  queryParams.status = '20'
   queryParams.pageNumber = 1
   getGalvanizedSteelStrandList()
 }

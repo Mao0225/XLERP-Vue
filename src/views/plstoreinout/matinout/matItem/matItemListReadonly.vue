@@ -3,8 +3,10 @@
     <!-- 单据信息 -->
     <div class="doc-info">
       <el-tag type="primary" size="large">单据编号：{{ inboundInfo?.docNo }}</el-tag>
-      <el-tag type="info" size="large">发货单位：{{ inboundInfo?.deliveryOrg }}</el-tag>
+      <!-- <el-tag type="info" size="large">发货单位：{{ inboundInfo?.deliveryOrg }}</el-tag> -->
       <el-tag type="warning" size="large">经手人：{{ inboundInfo?.handler }}</el-tag>
+      <el-tag type="warning" size="large">库管员：{{ inboundInfo?.storekeeper }}</el-tag>
+      <el-tag type="info" size="large">入库时间：{{ inboundInfo?.transactionDate }}</el-tag>
     </div>
 
     <!-- 搜索区域 -->
@@ -37,7 +39,8 @@
       <el-table-column prop="materialCode" label="物料编号" width="120" show-overflow-tooltip />
       <el-table-column prop="materialName" label="物料名称" width="150" show-overflow-tooltip />
       <el-table-column prop="materialSpec" label="规格型号" width="120" show-overflow-tooltip />
-      <el-table-column prop="materialUnit" label="计量单位" width="100" />
+      <el-table-column prop="planSpec" label="计划规格" width="120" show-overflow-tooltip />
+      <el-table-column prop="planMaterial" label="计划材质" width="150" show-overflow-tooltip />
       <el-table-column prop="quantity" label="数量" width="100">
         <template #default="{ row }">
           <span :class="row.quantity < 0 ? 'negative-qty' : 'positive-qty'">
@@ -45,11 +48,16 @@
           </span>
         </template>
       </el-table-column>
+      <el-table-column prop="materialUnit" label="计量单位" width="100" />
+
+      <el-table-column prop="planQuantity" label="计划数量" width="100" />
       <el-table-column prop="unitWeight" label="单重" width="80" />
+      <el-table-column prop="planWeight" label="计划重量" width="100" />
       <el-table-column prop="contractNo" label="关联合同编号" width="120" show-overflow-tooltip />
       <el-table-column prop="contractName" label="关联合同名称" width="150" show-overflow-tooltip />
-      <el-table-column prop="warehouse" label="操作仓库" width="100" show-overflow-tooltip />
-      <el-table-column prop="memo" label="备注" width="120" show-overflow-tooltip />s
+      <el-table-column prop="warehouse" label="存放位置" width="100" show-overflow-tooltip />
+      <el-table-column prop="supplierName" label="供应商名称" width="150" show-overflow-tooltip />
+      <el-table-column prop="memo" label="备注" width="120" show-overflow-tooltip />
       <el-table-column prop="operateTime" label="录入时间" width="140" show-overflow-tooltip />
     </el-table>
 

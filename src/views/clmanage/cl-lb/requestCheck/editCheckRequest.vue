@@ -41,63 +41,51 @@
             </el-input>
           </el-form-item>
         </el-col>
+
         <el-col :span="12">
           <el-form-item label="炉批号" prop="batchNo">
             <el-input v-model="form.batchNo" placeholder="请输入炉批号" clearable="" size="small">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
-        
         <el-col :span="12">
           <el-form-item label="批次号" prop="batchNum">
             <el-input v-model="form.batchNum" placeholder="请输入批次号" clearable="" size="small">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="材质" prop="material">
             <el-autocomplete v-model="form.material" :fetch-suggestions="queryMaterialSuggestions"
-              placeholder="请输入材质" clearable="" size="small">
-            </el-autocomplete>
-          </el-form-item>
+              placeholder="请选择或输入材质" clearable="" size="small">
+            </el-autocomplete></el-form-item>
         </el-col>
-        
+
         <el-col :span="12">
           <el-form-item label="牌号" prop="matMaterial">
             <el-input v-model="form.matMaterial" placeholder="请输入牌号" clearable="" size="small">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
-        
         <el-col :span="12">
           <el-form-item label="型号" prop="type">
             <el-autocomplete v-model="form.type" :fetch-suggestions="queryTypeSuggestions" placeholder="请选择或输入型号"
               clearable="" size="small">
-            </el-autocomplete>
-          </el-form-item>
+            </el-autocomplete></el-form-item>
         </el-col>
-        
         <el-col :span="12">
           <el-form-item label="单位" prop="unit">
             <el-input v-model="form.unit" placeholder="请输入单位" clearable="" size="small">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
-        
         <el-col :span="12">
           <el-form-item label="送货数量" prop="deliveryQuantity">
             <el-input v-model.number="form.deliveryQuantity" placeholder="请输入送货数量" type="number" clearable=""
               size="small" step="0.01">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
-        
         <el-col :span="12">
           <el-form-item label="验收数量" prop="acceptQuantity">
             <el-input v-model.number="form.acceptQuantity" placeholder="请输入验收数量" type="number" clearable="" size="small"
               step="0.01">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
         
 
@@ -122,16 +110,18 @@
           <el-form-item label="备注" prop="memo">
             <el-input v-model="form.memo" type="textarea" :rows="3" placeholder="请输入备注信息" clearable="" maxlength="200"
               show-word-limit="">
-            </el-input>
-          </el-form-item>
+            </el-input></el-form-item>
         </el-col>
+
+
 
         <SupplierSelector v-model:visible="supplierSelectorVisible" @select="handleSelect" />
         <ContractSelector v-model:visible="ContractSelectorVisible" @select="handleContractSelect" />
-      </el-row>
-    </el-form>
-    
-    <template #footer>
+        </el-row>
+        
+        
+        </el-form>
+            <template #footer>
       <span class="dialog-footer">
         <el-button @click="$emit('update:visible', false)" size="small">取消</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting" size="small">确定</el-button>
@@ -139,11 +129,10 @@
     </template>
   </el-dialog>
 </template>
-
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { updateDxgjx } from '@/api/clmanage/cl-dxgjx'
+import { updateLb } from '@/api/clmanage/cl-lb'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
@@ -173,28 +162,6 @@ const certificateFileList = ref([])
 const submitting = ref(false)
 const ContractSelectorVisible = ref(false)
 
-const materialOptions = [
-
-]
-
-const typeOptions = [
-
-]
-
-const queryMaterialSuggestions = (queryString, cb) => {
-  const results = queryString
-    ? materialOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
-    : materialOptions
-  cb(results)
-}
-
-const queryTypeSuggestions = (queryString, cb) => {
-  const results = queryString
-    ? typeOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
-    : typeOptions
-  cb(results)
-}
-
 const selectManufacturer = () => {
   supplierSelectorVisible.value = true
 }
@@ -214,20 +181,55 @@ const handleContractSelect = (contract) => {
   form.contractName = contract.name
 }
 
+const materialOptions = [
+  { value: 'ZLD102' },
+  { value: 'AL99.7' }
+]
+
+const typeOptions = [
+  { value: 'ZLD102' },
+  { value: 'AL99.7' }
+]
+
+const standardOptions = [
+  { value: 'GBT1196-2017' },
+  { value: 'GB/T8733-2016' }
+]
+
+const queryMaterialSuggestions = (queryString, cb) => {
+  const results = queryString
+    ? materialOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+    : materialOptions
+  cb(results)
+}
+
+const queryTypeSuggestions = (queryString, cb) => {
+  const results = queryString
+    ? typeOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+    : typeOptions
+  cb(results)
+}
+
+const queryStandardSuggestions = (queryString, cb) => {
+  const results = queryString
+    ? standardOptions.filter(item => item.value.toLowerCase().includes(queryString.toLowerCase()))
+    : standardOptions
+  cb(results)
+}
+
 const form = reactive({
   id: undefined,
   basNo: '',
   contractNo: '',
   contractName: '',
+  material: '',
   mafactory: '',
-  batchNo: '', 
-  batchNum: '',
-  material: '', 
   matMaterial: '',
+  batchNo: '',
+  batchNum: '',
   type: '',
   deliveryQuantity: '',
   acceptQuantity: '',
-  mechInspQty: 1,
   unit: 'kg',
   certificate: '[]',
   requestWriter: userStore.descr || '未知用户',
@@ -252,18 +254,16 @@ const rules = reactive({
     { required: true, message: '请选择原材料制造商', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  batchNo: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
   material: [
+    { required: true, message: '请输入材质信息', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   matMaterial: [
     { required: true, message: '请输入牌号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  batchNum: [
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  batchNo: [
+    { required: true, max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   type: [
     { required: true, message: '请输入型号', trigger: 'blur' },
@@ -274,9 +274,6 @@ const rules = reactive({
   ],
   acceptQuantity: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  mechInspQty: [
-    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   requestWriter: [
     { required: true, message: '录入人不能为空', trigger: 'blur' }
@@ -299,15 +296,14 @@ const resetForm = () => {
     basNo: '',
     contractNo: '',
     contractName: '',
-    mafactory: '',
-    batchNo: '', 
-    batchNum: '',
     material: '',
+    mafactory: '',
     matMaterial: '',
+    batchNo: '',
+    batchNum: '',
     type: '',
     deliveryQuantity: '',
     acceptQuantity: '',
-    mechInspQty: 1,
     certificate: '[]',
     requestWriter: userStore.descr || '未知用户',
     writeTime: '',
@@ -358,15 +354,6 @@ const submitForm = async () => {
       ElMessage.error('单据号未生成，请刷新重试')
       return
     }
-    
-    // 确保数字字段是数字类型
-    const submitData = {
-      ...form,
-      deliveryQuantity: Number(form.deliveryQuantity) || 0,
-      acceptQuantity: Number(form.acceptQuantity) || 0,
-      mechInspQty: Number(form.mechInspQty) || 1
-    }
-    
     const now = new Date()
     const year = now.getFullYear()
     const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -374,19 +361,14 @@ const submitForm = async () => {
     const hours = String(now.getHours()).padStart(2, '0')
     const minutes = String(now.getMinutes()).padStart(2, '0')
     const seconds = String(now.getSeconds()).padStart(2, '0')
-    submitData.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-    
-    const response = await updateDxgjx(submitData)
-    if (response?.code === 200) {
-      emit('success')
-      emit('update:visible', false)
-      ElMessage.success('更新成功')
-    } else {
-      throw new Error(response?.msg || '更新失败')
-    }
+    form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+    await updateLb(form)
+    emit('success')
+    emit('update:visible', false)
+    ElMessage.success('更新成功')
   } catch (error) {
     console.error('更新数据失败', error)
-    ElMessage.error(error.message || '更新数据失败')
+    ElMessage.error('更新数据失败')
   } finally {
     submitting.value = false
   }
@@ -399,15 +381,14 @@ watch(() => props.visible, (newVal) => {
       basNo: props.initialData.basNo || '',
       contractNo: props.initialData.contractNo || '',
       contractName: props.initialData.contractName || '',
+      material: props.initialData.material || '',
       mafactory: props.initialData.mafactory || '',
-      batchNo: props.initialData.batchNo || '', // 炉批号
-      batchNum: props.initialData.batchNum || '',
-      material: props.initialData.material || '', // 材质
       matMaterial: props.initialData.matMaterial || '',
+      batchNo: props.initialData.batchNo || '',
+      batchNum: props.initialData.batchNum || '',
       type: props.initialData.type || '',
       deliveryQuantity: props.initialData.deliveryQuantity || '',
       acceptQuantity: props.initialData.acceptQuantity || '',
-      mechInspQty: props.initialData.mechInspQty || 1,
       unit: props.initialData.unit || 'kg',
       certificate: props.initialData.certificate || '[]',
       requestWriter: props.initialData.requestWriter || userStore.descr || '未知用户',
@@ -419,7 +400,6 @@ watch(() => props.visible, (newVal) => {
   }
 })
 </script>
-
 <style scoped>
 :deep(.el-dialog) {
   border-radius: 8px;

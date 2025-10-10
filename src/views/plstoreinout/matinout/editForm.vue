@@ -19,7 +19,7 @@
         </el-form-item>
       </div>
       
-      <div class="form-row">
+      <!-- <div class="form-row">
         <el-form-item label="发货单位" prop="deliveryOrg">
           <el-input 
             v-model="form.deliveryOrg" 
@@ -35,7 +35,7 @@
         <el-form-item label="申请人" prop="requester">
           <el-input v-model="form.requester" placeholder="请输入申请人" />
         </el-form-item>
-      </div>
+      </div> -->
 
       <!-- 人员信息 -->
       <div class="form-row">
@@ -48,7 +48,7 @@
       </div>
 
       <!-- 其他信息 -->
-      <div class="form-row">
+      <!-- <div class="form-row">
         <el-form-item label="是否有发票" prop="hasInvoice">
           <el-radio-group v-model="form.hasInvoice">
             <el-radio :label="1">有</el-radio>
@@ -62,7 +62,7 @@
             placeholder="请输入业务期间"
           />
         </el-form-item>
-      </div>
+      </div> -->
       
       <el-form-item label="单据备注" prop="remark">
         <el-input 

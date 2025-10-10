@@ -9,12 +9,12 @@
           <el-input v-model="filters.docNo" placeholder="请输入单据编号" clearable style="width: 200px;"
             @clear="getInboundListData" @keyup.enter="getInboundListData" />
         </div>
-        <!-- 筛选项：发货单位 -->
+        <!-- 筛选项：发货单位
         <div class="filter-item">
           <span class="filter-label">发货单位：</span>
           <el-input v-model="filters.deliveryOrg" placeholder="请输入发货单位" clearable style="width: 200px;"
             @clear="getInboundListData" @keyup.enter="getInboundListData" />
-        </div>
+        </div> -->
         <!-- 筛选项：经手人 -->
         <div class="filter-item">
           <span class="filter-label">经手人：</span>
@@ -66,20 +66,20 @@
               </template>
             </el-table-column>
             <el-table-column prop="docNo" label="单据编号" width="140" show-overflow-tooltip />
-            <el-table-column prop="transactionDate" label="单据日期" width="120" show-overflow-tooltip />
-            <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip />
+            <el-table-column prop="transactionDate" label="入库日期" width="120" show-overflow-tooltip />
+            <!-- <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip /> -->
             <el-table-column prop="handler" label="经手人" width="100" show-overflow-tooltip />
             <el-table-column prop="storekeeper" label="库管员" width="100" show-overflow-tooltip />
-            <el-table-column label="是否有发票" width="100">
+            <!-- <el-table-column label="是否有发票" width="100">
               <template #default="{ row }">
                 <el-tag :type="row.hasInvoice ? 'success' : 'info'" size="small">
                   {{ row.hasInvoice ? '有' : '无' }}
                 </el-tag>
               </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="term" label="业务期间" width="100" show-overflow-tooltip />
             <el-table-column prop="remark" label="备注" width="150" show-overflow-tooltip />
-            <el-table-column prop="operateTime" label="录入时间" width="140" show-overflow-tooltip />
+            <!-- <el-table-column prop="operateTime" label="录入时间" width="140" show-overflow-tooltip /> -->
             <!-- 操作列 -->
             <el-table-column label="操作" width="350" fixed="right">
               <template #default="{ row }">

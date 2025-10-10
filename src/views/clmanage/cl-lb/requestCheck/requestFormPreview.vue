@@ -68,6 +68,7 @@
             <span class="value">{{ initialData.material || '无' }}</span>
           </div>
         </el-col>
+
         <!-- 材料和规格信息 -->
         <el-col :span="12">
           <div class="form-item">
@@ -192,7 +193,7 @@ const openFileInNewWindow = (url) => {
 }
 
 .label {
-  width: 120px;
+  width: 100px;
   color: #606266;
   font-size: 13px;
   font-weight: 500;

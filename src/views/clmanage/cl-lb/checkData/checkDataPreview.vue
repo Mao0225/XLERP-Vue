@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="查看镀锌钢绞线检验数据"
+    title="查看铝板检验数据"
     :model-value="visible"
     width="1200px"
     :center="true"
@@ -24,16 +24,6 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="合同编号">
-            <span>{{ initialData.contractNo || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="合同名称">
-            <span>{{ initialData.contractName || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="原材料制造商">
             <span>{{ initialData.mafactory || '-' }}</span>
           </el-form-item>
@@ -41,6 +31,11 @@
         <el-col :span="12">
           <el-form-item label="牌号">
             <span>{{ initialData.matMaterial || '-' }}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="材质">
+            <span>{{ initialData.material || '-' }}</span>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -59,86 +54,103 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="批次号">
-            <span>{{ initialData.batchNum || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="炉批号">
             <span>{{ initialData.batchNo || '-' }}</span>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="材质">
-            <span>{{ initialData.material || '-' }}</span>
+          <el-form-item label="批次号">
+            <span>{{ initialData.batchNum || '-' }}</span>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="力学性能抽检数(件)">
-            <span>{{ initialData.mechInspQty || '3' }}</span>
+          <el-form-item label="成分抽检数(件)">
+            <span>{{ initialData.compInspQty || '-' }}</span>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="抽检数量(件)">
-            <span>{{ initialData.sampleQuantity || '3' }}</span>
+            <span>{{ initialData.sampleQuantity || '-' }}</span>
           </el-form-item>
+        </el-col>
+
+        <!-- 化学成分 -->
+        <el-col :span="24">
+          <el-divider content-position="left">化学成分 (%)</el-divider>
+        </el-col>
+        <el-col :span="24">
+          <el-row :gutter="16">
+            <el-col
+              :span="8"
+              v-for="chem in Object.keys(initialData).filter(key => key.startsWith('chem') && !key.endsWith('Required'))"
+              :key="chem"
+            >
+              <el-form-item :label="chem.replace('chem', '')">
+                <el-row :gutter="8">
+                  <el-col :span="12">
+                    <el-form-item :label="chem.replace('chem', '') + '实测值'">
+                      <span>{{ initialData[chem] || '-' }}</span>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item :label="chem.replace('chem', '') + '要求值'">
+                      <span>{{ initialData[chem + 'Required'] || '-' }}</span>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-col>
 
         <!-- 力学性能 -->
         <el-col :span="24">
           <el-divider content-position="left">力学性能</el-divider>
         </el-col>
+        <el-col :span="24">
+          <el-row :gutter="16">
+            <el-col
+                 :span="8"
+                 v-for="mechItem in Object.keys(initialData).filter(key => key.startsWith('mech') && !key.endsWith('Required'))"
+                 :key="mechItem"
+            >
+                 <template v-if="mechItem === 'mechTS'">
+                    <el-form-item :label="mechItem.replace('mech', '') + '(MPa)'">
+                        <el-row :gutter="8">
+                            <el-col :span="12">
+                                <el-form-item :label="mechItem.replace('mech', '') + '实测值(MPa)'">
+                                    <span>{{ initialData[mechItem] || '-' }}</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item :label="mechItem.replace('mech', '') + '要求值(MPa)'">
+                                    <span>{{ initialData[mechItem + 'Required'] || '-' }}</span>
+                                </el-form-item>
+                            </el-col>        
+                        </el-row>
+                    </el-form-item>
+                </template>
+                <template v-if="mechItem === 'mechEL'">
+                    <el-form-item :label="mechItem.replace('mech', '') + '(%)'">
+                        <el-row :gutter="8">
+                            <el-col :span="12">
+                                <el-form-item :label="mechItem.replace('mech', '') + '实测值(%)'">
+                                    <span>{{ initialData[mechItem] || '-' }}</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item :label="mechItem.replace('mech', '') + '要求值(%)'">
+                                    <span>{{ initialData[mechItem + 'Required'] || '-' }}</span>
+                                </el-form-item>
+                            </el-col>        
+                        </el-row>
+                    </el-form-item>
+                </template>
+
+            </el-col>
+          </el-row>
+        </el-col>
         
-        <!-- 单丝强度 -->
-        <el-col :span="24">
-          <div class="sub-group-title">单丝强度 (MPa)</div>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="要求值">
-            <span>{{ initialData.monoStrengthRequired || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="实测值A">
-            <span>{{ initialData.monoStrengthA || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="实测值B">
-            <span>{{ initialData.monoStrengthB || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="实测值C">
-            <span>{{ initialData.monoStrengthC || '-' }}</span>
-          </el-form-item>
-        </el-col>
-
-        <!-- 破断拉力 -->
-        <el-col :span="24">
-          <div class="sub-group-title">破断拉力总和 (kN)</div>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="要求值">
-            <span>{{ initialData.breakingForceRequired || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="实测值A">
-            <span>{{ initialData.breakingForceA || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="实测值B">
-            <span>{{ initialData.breakingForceB || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="实测值C">
-            <span>{{ initialData.breakingForceC || '-' }}</span>
-          </el-form-item>
-        </el-col>
-
         <!-- 过程信息 -->
         <el-col :span="24">
           <el-divider content-position="left">过程信息</el-divider>
@@ -163,7 +175,7 @@
             <span>{{ initialData.finalConclusion || '-' }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+                <el-col :span="12">
           <el-form-item label="检验备注">
             <span>{{ initialData.checkMemo || '-' }}</span>
           </el-form-item>
@@ -173,11 +185,12 @@
             <span>{{ initialData.checkWriter || '-' }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+                <el-col :span="12">
           <el-form-item label="检验数据审核人">
             <span>{{ initialData.checkAuditor || '-' }}</span>
           </el-form-item>
         </el-col>
+
       </el-row>
     </el-form>
 
@@ -273,15 +286,6 @@ defineEmits(['update:visible'])
 :deep(.el-button--primary) {
   background-color: #409eff;
   border-color: #409eff;
-}
-
-/* 子分组标题样式 */
-.sub-group-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #409eff;
-  margin: 8px 0;
-  padding-left: 0;
 }
 
 .dialog-footer {
