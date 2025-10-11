@@ -31,7 +31,7 @@ const viewComponents = {
   //图纸管理
   'tuzhi/tuzhi': () => import('@/views/tuzhi/tuzhi.vue'),
   //人员管理
-  'hruser/hruserlist': () => import('@/views/hruser/hruserlist.vue'),
+  'hruser/hruserlist': () => import('@/views/hruser/list.vue'),
   //实物ID
   'plmanage/plentityid': () => import('@/views/plmanage/plentityid/plentityid.vue'),
 

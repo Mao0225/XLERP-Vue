@@ -3,7 +3,7 @@
     <el-form ref="formRef" :model="form" :rules="rules" label-width="90px" class="add-form">
       <!-- 物料信息 -->
       <div class="section">
-        <div class="section-title">物料信息</div>
+        <div class="section-title">基础信息</div>
         <div class="form-row">
           <el-form-item label="物料编号" prop="materialCode">
             <el-input v-model="form.materialCode" placeholder="请输入物料编号" @click="openDialog" readonly >
@@ -31,21 +31,32 @@
             <el-input v-model="form.planMaterial" placeholder="请输入计划材质" maxlength="100" />
           </el-form-item>
         </div>
-      </div>
-
-      <!-- 供应商信息 -->
-      <div class="section">
-        <div class="section-title">供应商信息</div>
-        <div class="form-row">
+         <div class="form-row">
+          <el-form-item label="材质" prop="material">
+            <el-input v-model="form.material" placeholder="请输入材质" maxlength="100" />
+          </el-form-item>
           <el-form-item label="供应商名称" prop="supplierName">
-            <el-input v-model="form.supplierName" placeholder="请输入供应商名称" maxlength="100" />
+             <el-input 
+                  v-model="form.supplierName" 
+                  placeholder="选择供应商" 
+                  readonly 
+                  @click="showSupplierSelector = true"
+                >
+                  <template #append>
+                    <el-button @click="showSupplierSelector = true" size="small">选择</el-button>
+                  </template>
+            </el-input>
           </el-form-item>
-          <el-form-item label="存放位置" prop="warehouse">
-            <el-input v-model="form.warehouse" placeholder="请输入存放位置" />
-          </el-form-item>
+
           <el-form-item></el-form-item> <!-- 占位 -->
         </div>
       </div>
+
+      <!-- 供应商信息
+      <div class="section">
+        <div class="section-title">供应商信息</div>
+       
+      </div> -->
 
       <!-- 库存信息 -->
       <div class="section">
@@ -59,9 +70,9 @@
               :precision="2"
             />
           </el-form-item>
-          <el-form-item label="计划数量" prop="planQuanlity">
+          <el-form-item label="计划数量" prop="planQuantity">
             <el-input-number 
-              v-model="form.planQuanlity" 
+              v-model="form.planQuantity" 
               placeholder="请输入计划数量" 
               style="width: 100%"
               :controls="false"
@@ -102,13 +113,12 @@
               :min="0"
             />
           </el-form-item>
-          <el-form-item></el-form-item> <!-- 占位 -->
+                    <el-form-item label="存放位置" prop="warehouse">
+            <el-input v-model="form.warehouse" placeholder="请输入存放位置" />
+          </el-form-item>
         </div>
-      </div>
 
-      <!-- 价格信息 -->
-      <div class="section">
-        <div class="section-title">价格信息</div>
+
         <div class="form-row">
           <el-form-item label="销售单价" prop="salesPrice">
             <el-input-number 
@@ -132,19 +142,45 @@
         </div>
       </div>
 
+      <!-- 价格信息 -->
+      <!-- <div class="section">
+        <div class="section-title">价格信息</div>
+        <div class="form-row">
+          <el-form-item label="销售单价" prop="salesPrice">
+            <el-input-number 
+              v-model="form.salesPrice" 
+              placeholder="请输入销售单价" 
+              style="width: 100%"
+              :precision="2"
+              :min="0"
+            />
+          </el-form-item>
+          <el-form-item label="销售金额" prop="salesTotalAmount">
+            <el-input-number 
+              v-model="form.salesTotalAmount" 
+              placeholder="请输入销售金额" 
+              style="width: 100%"
+              :precision="2"
+              :min="0"
+            />
+          </el-form-item>
+          <el-form-item></el-form-item>
+        </div>
+      </div> -->
+
       <!-- 合同信息 -->
       <div class="section">
         <div class="section-title">合同信息</div>
         <div class="form-row">
-          <el-form-item label="关联合同编号" prop="contractNo">
-            <el-input v-model="form.contractNo" placeholder="请输入关联合同编号" >
+          <el-form-item label="合同编号" prop="contractNo">
+            <el-input v-model="form.contractNo" placeholder="请选择合同编号" >
               <template #append>
                 <el-button type="primary" icon="el-icon-search" size="small" @click="contractSelectorVisible = true" >选择</el-button>
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item label="关联合同名称" prop="contractName">
-            <el-input v-model="form.contractName" placeholder="请输入关联合同名称" />
+          <el-form-item label="合同名称" prop="contractName">
+            <el-input v-model="form.contractName" placeholder="请选择合同" />
           </el-form-item>
           <el-form-item></el-form-item> <!-- 占位 -->
         </div>
@@ -175,7 +211,10 @@
       @select="selectItem"
     />
      <contractSelector v-model:visible="contractSelectorVisible" @select="selectContract" />
-
+      <supplierSelector
+      v-model="showSupplierSelector"
+      @select="selectSupplier"
+    />
 
   </el-dialog>
 </template>
@@ -186,6 +225,8 @@ import { ElMessage } from 'element-plus';
 import { createPlMatInoutItem } from '@/api/plstoreinout/matinout.js';
 import itemSelector from '../../components/itemSelector.vue';
 import contractSelector from '../../components/contractSelector.vue';
+import supplierSelector from '../../components/supplierSelector.vue';
+
 
 const props = defineProps({
   visible: {
@@ -213,6 +254,12 @@ const dialogVisible = computed({
 const itemSelectorVisible = ref(false);
 const contractSelectorVisible = ref(false);
 
+const showSupplierSelector = ref(false);
+
+const selectSupplier = (supplier) => {
+  form.supplierName = supplier.descr;
+  showSupplierSelector.value = false;
+};
 
 const openDialog = () => { 
   itemSelectorVisible.value = true;
@@ -249,8 +296,9 @@ const form = reactive({
   materialUnit: '',
   planSpec: '',
   planMaterial: '',
+  material: '',
   supplierName: '',
-  planQuanlity: null,
+  planQuantity: null,
   planWeight: null,
   quantity: null,
   unitWeight: null,
@@ -297,7 +345,7 @@ const rules = {
   supplierName: [
     { required: false, message: '请输入供应商名称', trigger: 'blur' }
   ],
-  planQuanlity: [
+  planQuantity: [
     { required: false, message: '请输入计划数量', trigger: 'blur' },
     { type: 'number', message: '计划数量必须为数字', trigger: 'blur' }
   ],
@@ -326,7 +374,7 @@ const resetForm = () => {
     planSpec: '',
     planMaterial: '',
     supplierName: '',
-    planQuanlity: null,
+    planQuantity: null,
     planWeight: null,
     quantity: null,
     unitWeight: null,

@@ -26,24 +26,24 @@
       <!-- 序号 -->
        <el-table-column type="index" label="序号" width="80" />
       <!-- <el-table-column prop="id" label="ID" width="80" /> -->
-      <el-table-column prop="no" label="人员编号" width="120" />
+      <!-- <el-table-column prop="no" label="人员编号" width="120" /> -->
       <el-table-column prop="name" label="人员姓名" width="120" />
       <el-table-column prop="sex" label="性别"  />
       <el-table-column prop="age" label="年龄"  />
       <el-table-column prop="department" label="部门名称"  />
       <el-table-column prop="duty" label="职务"  />
       
-      <el-table-column prop="workstatus" label="工作状态" width="120">
+      <!-- <el-table-column prop="workstatus" label="工作状态" width="120">
         <template #default="{ row }">
           {{ getWorkStatusLabel(row.workstatus) }}
         </template>
-      </el-table-column>
-      <el-table-column prop="phone1" label="联系电话" width="120" />
-      <el-table-column prop="status" label="状态" width="100">
+      </el-table-column> -->
+      <!-- <el-table-column prop="phone1" label="联系电话" width="120" /> -->
+      <!-- <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
           {{ row.status === 0 ? '正常' : '停用' }}
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>

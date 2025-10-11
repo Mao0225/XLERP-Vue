@@ -43,8 +43,8 @@
       <el-table-column prop="materialCode" label="物料编号" width="120" show-overflow-tooltip />
       <el-table-column prop="materialName" label="物料名称" width="150" show-overflow-tooltip />
       <el-table-column prop="materialSpec" label="规格型号" width="120" show-overflow-tooltip />
-      <el-table-column prop="materialUnit" label="计量单位" width="100" />
       <el-table-column prop="planSpec" label="计划规格" width="120" show-overflow-tooltip />
+      <el-table-column prop="material" label="材质" width="120" show-overflow-tooltip />
       <el-table-column prop="planMaterial" label="计划材质" width="150" show-overflow-tooltip />
       <el-table-column prop="quantity" label="数量" width="100">
         <template #default="{ row }">
@@ -53,7 +53,10 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="planQuantity" label="计划数量" width="100" />
+            <el-table-column prop="planQuantity" label="计划数量" width="100" />
+
+            <el-table-column prop="materialUnit" label="计量单位" width="100" />
+
       <el-table-column prop="unitWeight" label="单重" width="80" />
       <el-table-column prop="planWeight" label="计划重量" width="100" />
       <el-table-column prop="contractNo" label="关联合同编号" width="120" show-overflow-tooltip />

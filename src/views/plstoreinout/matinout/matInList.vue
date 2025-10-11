@@ -65,8 +65,8 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="docNo" label="单据编号" width="140" show-overflow-tooltip />
-            <el-table-column prop="transactionDate" label="入库日期" width="120" show-overflow-tooltip />
+            <el-table-column prop="docNo" label="单据编号" width="180" show-overflow-tooltip />
+            <el-table-column prop="transactionDate" label="入库日期" width="180" show-overflow-tooltip />
             <!-- <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip /> -->
             <el-table-column prop="handler" label="经手人" width="100" show-overflow-tooltip />
             <el-table-column prop="storekeeper" label="库管员" width="100" show-overflow-tooltip />
