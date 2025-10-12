@@ -83,6 +83,11 @@
             <el-input v-model.number="form.sampleQuantity" placeholder="总抽检数量" readonly size="small" />
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="力学性能抽检数(件)" prop="mechInspQty">
+            <el-input v-model.number="form.mechInspQty" placeholder="请输入力学性能检验抽检数量" type="number" clearable size="small" />
+          </el-form-item>
+        </el-col>
 
         <!-- 化学成分 -->
         <el-col :span="24">
@@ -238,15 +243,11 @@ const props = defineProps({
 })
 
 const chemicals = [
-  { key: 'Al', label: 'Al', actualProp: 'chemAl', requiredProp: 'chemAlRequired' },
   { key: 'Si', label: 'Si', actualProp: 'chemSi', requiredProp: 'chemSiRequired' },
   { key: 'Fe', label: 'Fe', actualProp: 'chemFe', requiredProp: 'chemFeRequired' },
   { key: 'Cu', label: 'Cu', actualProp: 'chemCu', requiredProp: 'chemCuRequired' },
   { key: 'Mn', label: 'Mn', actualProp: 'chemMn', requiredProp: 'chemMnRequired' },
   { key: 'Mg', label: 'Mg', actualProp: 'chemMg', requiredProp: 'chemMgRequired' },
-  { key: 'Zn', label: 'Zn', actualProp: 'chemZn', requiredProp: 'chemZnRequired' },
-  { key: 'Ni', label: 'Ni', actualProp: 'chemNi', requiredProp: 'chemNiRequired' },
-  { key: 'Ti', label: 'Ti', actualProp: 'chemTi', requiredProp: 'chemTiRequired' }
 ]
 
 const mechanicalProperties = [
@@ -276,24 +277,16 @@ const form = reactive({
   matRecheckNo: '',
   mafactory: '',
   matMaterial: '',
-  chemAl: '',
   chemSi: '',
   chemFe: '',
   chemCu: '',
   chemMn: '',
   chemMg: '',
-  chemZn: '',
-  chemNi: '',
-  chemTi: '',
-  chemAlRequired: '',
   chemSiRequired: '',
   chemFeRequired: '',
   chemCuRequired: '',
   chemMnRequired: '',
   chemMgRequired: '',
-  chemZnRequired: '',
-  chemNiRequired: '',
-  chemTiRequired: '',
   mechTS:'',
   mechEL:'',
   mechTSRequired:'',
@@ -307,9 +300,9 @@ const form = reactive({
   batchNo: '',
   batchNum: '',
   quantity: '',
-  sampleQuantity: 1,
+  sampleQuantity: 2,
   compInspQty: 1,
-  mechInspQty: 0,
+  mechInspQty: 1,
   material: '',
   type: '',
   standard: '',
@@ -337,10 +330,6 @@ const rules = reactive({
     { required: true, message: '请输入牌号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  chemAl: [
-    { required: true, message: '请输入Al含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
   chemSi: [
     { required: true, message: '请输入Si含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
@@ -361,27 +350,12 @@ const rules = reactive({
     { required: true, message: '请输入Mg含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemZn: [
-    { required: true, message: '请输入Zn含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemNi: [
-    { required: true, message: '请输入Ni含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemTi: [
-    { required: true, message: '请输入Ti含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
   mechTS: [
     { required: true, message: '请输入抗拉强度值', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   mechEL: [
     { required: true, message: '请输入伸长率', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemAlRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemSiRequired: [
@@ -397,15 +371,6 @@ const rules = reactive({
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemMgRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemZnRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemNiRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemTiRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   mechTSRequired: [
@@ -442,7 +407,7 @@ const rules = reactive({
     { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   mechInspQty: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   material: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
@@ -479,26 +444,18 @@ watch(() => props.initialData, (newData) => {
       matRecheckNo: newData.matRecheckNo || '',
       mafactory: newData.mafactory || '',
       matMaterial: newData.matMaterial || '',
-      chemAl: newData.chemAl || '',
       chemSi: newData.chemSi || '',
       chemFe: newData.chemFe || '',
       chemCu: newData.chemCu || '',
       chemMn: newData.chemMn || '',
       chemMg: newData.chemMg || '',
-      chemZn: newData.chemZn || '',
-      chemNi: newData.chemNi || '',
-      chemTi: newData.chemTi || '',
       mechTS: newData.mechTS || '',
       mechEL: newData.mechEL || '',
-      chemAlRequired: newData.chemAlRequired || '',
       chemSiRequired: newData.chemSiRequired || '',
       chemFeRequired: newData.chemFeRequired || '',
       chemCuRequired: newData.chemCuRequired || '',
       chemMnRequired: newData.chemMnRequired || '',
       chemMgRequired: newData.chemMgRequired || '',
-      chemZnRequired: newData.chemZnRequired || '',
-      chemNiRequired: newData.chemNiRequired || '',
-      chemTiRequired: newData.chemTiRequired || '',
       mechTSRequired: newData.mechTSRequired || '',
       mechELRequired: newData.mechELRequired || '',
       leaveFactoryDate: newData.leaveFactoryDate || '',
@@ -510,9 +467,9 @@ watch(() => props.initialData, (newData) => {
       batchNo: newData.batchNo || '',
       batchNum: newData.batchNum || '',
       quantity: newData.quantity || '',
-      sampleQuantity: newData.sampleQuantity || '',
+      sampleQuantity: newData.sampleQuantity || 2,
       compInspQty: newData.compInspQty || 1,
-      mechInspQty: newData.mechInspQty || 0,
+      mechInspQty: newData.mechInspQty || 1,
       material: newData.material || '',
       type: newData.type || '',
       standard: newData.standard || '',
@@ -546,26 +503,18 @@ const resetForm = () => {
     matRecheckNo: '',
     mafactory: '',
     matMaterial: '',
-    chemAl: '',
     chemSi: '',
     chemFe: '',
     chemCu: '',
     chemMn: '',
     chemMg: '',
-    chemZn: '',
-    chemNi: '',
-    chemTi: '',
     mechTS: '',
     mechEL: '',
-    chemAlRequired: '',
     chemSiRequired: '',
     chemFeRequired: '',
     chemCuRequired: '',
     chemMnRequired: '',
     chemMgRequired: '',
-    chemZnRequired: '',
-    chemNiRequired: '',
-    chemTiRequired: '',
     mechTSRequired: '',
     mechELRequired: '',
     leaveFactoryDate: '',
@@ -576,9 +525,9 @@ const resetForm = () => {
     basNo: '',
     batchNo: '',
     batchNum: '',
-    sampleQuantity: 1,
+    sampleQuantity: 2,
     compInspQty: 1,
-    mechInspQty: 0,
+    mechInspQty: 1,
     material: '',
     type: '',
     standard: '',

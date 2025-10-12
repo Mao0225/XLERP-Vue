@@ -143,10 +143,10 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="tensileStrength1" label="抗拉强度实测值1" width="90" />
-      <el-table-column prop="tensileStrength2" label="抗拉强度实测值2" width="90" />
-      <el-table-column prop="tensileStrength3" label="抗拉强度实测值3" width="90" />
-      <el-table-column prop="tensileStrengthRequired" label="抗拉强度要求值" width="90" />
+      <el-table-column prop="tensileStrength1" label="抗拉强度实测值1" width="150" />
+      <el-table-column prop="tensileStrength2" label="抗拉强度实测值2" width="150" />
+      <el-table-column prop="tensileStrength3" label="抗拉强度实测值3" width="150" />
+      <el-table-column prop="tensileStrengthRequired" label="抗拉强度要求值" width="150" />
       <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">

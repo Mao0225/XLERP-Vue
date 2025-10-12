@@ -1,5 +1,5 @@
 <template>
-  <div class="aluminum-plate-management">
+  <div class="aluminum-sheet-management">
     <div class="action-bar">
 
       <div class="search-inputs">
@@ -143,14 +143,10 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="chemAl" label="Al(%)" width="90" />
       <el-table-column prop="chemSi" label="Si(%)" width="90" />
       <el-table-column prop="chemFe" label="Fe(%)" width="90" />
       <el-table-column prop="chemCu" label="Cu(%)" width="90" />
-      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
       <el-table-column prop="chemMn" label="Mn(%)" width="90" />
-      <el-table-column prop="chemZn" label="Zn(%)" width="90" />
-      <el-table-column prop="chemTi" label="Ti(%)" width="90" />
       <el-table-column prop="chemMg" label="Mg(%)" width="90" />
       <el-table-column prop="mechTS" label="抗拉强度（MPa)" width="130" />
       <el-table-column prop="mechEL" label="伸长率(%)" width="130" />
@@ -344,7 +340,7 @@ const queryParams = reactive({
   contractName: '',
   mafactory: '',
   matRecheckNo: '',
-  status: 30,//默认待录入数据从状态30开始
+  minStatus: 30, // 修改：使用minStatus查询状态>=30的记录
   pageNumber: 1,
   pageSize: 10
 })
@@ -353,11 +349,15 @@ const aluminumPlateList = ref([])
 const total = ref(0)
 const loading = ref(false)
 
+// =============== 业务方法 ===============
 // 统一处理操作按钮点击
 const handleActionClick = (action, row) => {
   switch (action.action) {
     case "edit":
       handleEdit(row.id)
+      break
+    case "delete":
+      handleDelete(row)
       break
     case "preview":
       handlePreview(row.id)
@@ -373,6 +373,29 @@ const handleActionClick = (action, row) => {
       break
     default:
       console.log("未知操作：", action.action)
+  }
+}
+
+// 删除记录
+const handleDelete = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确认删除铝板检验记录"${row.basNo}"吗？`,
+      "提示",
+      { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
+    )
+    
+    const response = await deleteLb({ id: row.id })
+    if (response?.code === 200) {
+      ElMessage.success("删除成功")
+      getAluminumPlateList()
+    } else {
+      ElMessage.error(response?.msg || "删除失败")
+    }
+  } catch (error) {
+    if (error !== "cancel") {
+      ElMessage.error("删除失败")
+    }
   }
 }
 

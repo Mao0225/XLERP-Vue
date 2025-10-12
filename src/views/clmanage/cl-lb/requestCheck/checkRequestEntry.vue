@@ -1,4 +1,3 @@
-<!-- 请检数据录入 -->
 <template>
   <div class="aluminum-sheet-management">
     <div class="action-bar">
@@ -79,14 +78,14 @@
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} t</span>
+            <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || 'kg' }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="acceptQuantity" label="验收数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.acceptQuantity" placement="top">
-            <span class="truncate">{{ row.acceptQuantity }} t</span>
+            <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || 'kg' }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -130,7 +129,7 @@
       </el-table-column>
       
       <!-- 操作列使用动态按钮 -->
-      <el-table-column label="操作" width="280" fixed="right">
+      <el-table-column label="操作" width="350" fixed="right">
         <template #default="{ row }">
           <el-button
             v-for="action in getStatusActions(row.status)"
@@ -211,21 +210,21 @@ const STATUS_ACTION_MAP = {
   "10": [ // 录入状态可执行操作
     { action: "edit", text: "编辑", icon: "Edit", type: "primary" },
     { action: "delete", text: "删除", icon: "Delete", type: "danger" },
-    { action: "confirm", text: "确认录入", icon: "CircleCheck", type: "success", targetStatus: "20" }
+    { action: "confirm", text: "确认录入", icon: "CircleCheck", type: "success", targetStatus: "20" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" } // 新增查看信息按钮
   ],
   "20": [ // 确认状态可执行操作
-    { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+    { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" } // 确保状态20也有查看信息按钮
   ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ], // 检验录入完成状态无操作
   "40": [
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ], // 检验审核完成状态无操作
   "50": [
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ]  // 已入库状态无操作
 }
 

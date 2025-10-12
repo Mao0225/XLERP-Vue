@@ -306,6 +306,8 @@ watch(() => props.visible, (newVal) => {
     form.materialsName = props.scheduleData.itemName
     form.materialsCode = props.scheduleData.itemCode
     form.materialsUnit = props.scheduleData.itemUnit
+    form.planStartDate = props.scheduleData.planStartDate
+    form.planFinishDate = props.scheduleData.planFinishDate
   }
 
 });
@@ -345,7 +347,7 @@ const form = reactive({
   materialsCode: '',
   materialsName: '',
   materialsUnit: '',
-  materialsDesc: '',
+  materialsDesc: '无',
   amount: null,
   unit: '',
   productIdGrpNo: '',

@@ -84,14 +84,14 @@
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} t</span>
+            <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || 'kg' }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="acceptQuantity" label="验收数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.acceptQuantity" placement="top">
-            <span class="truncate">{{ row.acceptQuantity }} t</span>
+            <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || 'kg' }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -135,7 +135,7 @@
       </el-table-column>
       
       <!-- 操作列使用动态按钮 -->
-      <el-table-column label="操作" width="280" fixed="right">
+      <el-table-column label="操作" width="300" fixed="right">
         <template #default="{ row }">
           <el-button
             v-for="action in getStatusActions(row.status)"
@@ -187,7 +187,6 @@ const STATUS_LABEL_MAP = {
   "30": "审核通过，待检验",//待录入数据
   "40": "检验录入，待审核",
   "50": "检验完成",
-
   DEFAULT: "未知"
 }
 
@@ -197,7 +196,6 @@ const STATUS_ICON_MAP = {
   "30": "DataBoard", // 数据板图标
   "40": "Check", // 对勾图标
   "50": "Check", // 对勾图标
-
   DEFAULT: "Clock"
 }
 
@@ -207,7 +205,6 @@ const STATUS_TAG_TYPE_MAP = {
   "30": "warning", // 橙色
   "40": "success", // 绿色
   "50": "success", // 绿色
-
   DEFAULT: "info"
 }
 
@@ -215,17 +212,17 @@ const STATUS_TAG_TYPE_MAP = {
 const STATUS_ACTION_MAP = {
   "20": [ // 确认状态可执行操作
     { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
-    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" } // 新增查看信息按钮
   ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ], // 检验录入完成状态无操作
   "40": [
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ], // 检验审核完成状态无操作
   "50": [
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ] 
 }
 
@@ -326,7 +323,14 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
 const getAluminumSheetList = async () => {
   loading.value = true
   try {
-    const res = await getLbPage(queryParams)
+    // 在请求参数中添加状态筛选，只获取状态为20及以上的记录
+    const res = await getLbPage({
+      ...queryParams,
+      // 明确指定只查询状态为20及以上的记录，排除状态为10（未确认录入）的记录
+      status: queryParams.status || undefined,
+      // 添加状态范围筛选，确保只显示已确认的记录
+      minStatus: '20'
+    })
     aluminumSheetList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {

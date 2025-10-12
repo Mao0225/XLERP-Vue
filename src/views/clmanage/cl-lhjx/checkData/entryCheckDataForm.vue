@@ -74,8 +74,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="成分抽检数(件)" prop="compInspQty">
-            <el-input v-model.number="form.compInspQty" placeholder="请输入成分检验抽检数量" type="number" clearable size="small" />
+          <el-form-item label="力学性能抽检数(件)" prop="mechInspQty">
+            <el-input v-model.number="form.mechInspQty" placeholder="请输入力学性能检验抽检数量" type="number" clearable size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -90,20 +90,31 @@
         </el-col>
         <el-col :span="24">
           <el-row :gutter="16">
-            <el-col :span="8" v-for="tensileStrength in chemicals" :key="tensileStrength.key">
+            <!-- 循环渲染三个实测值 -->
+            <el-col :span="6" v-for="tensileStrength in chemicals" :key="tensileStrength.key">
               <el-form-item :label="tensileStrength.label">
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item :prop="tensileStrength.actualProp" :rules="rules[tensileStrength.actualProp]">
-                      <el-input v-model.number="form[tensileStrength.actualProp]" :placeholder="tensileStrength.label + '实测值'" clearable size="small" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item :prop="tensileStrength.requiredProp" :rules="rules[tensileStrength.requiredProp]">
-                      <el-input v-model.number="form[tensileStrength.requiredProp]" :placeholder="tensileStrength.label + '要求值'" clearable size="small" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
+                <el-form-item :prop="tensileStrength.actualProp" :rules="rules[tensileStrength.actualProp]">
+                  <el-input 
+                    v-model.number="form[tensileStrength.actualProp]" 
+                    :placeholder="tensileStrength.label" 
+                    clearable 
+                    size="small" 
+                  />
+                </el-form-item>
+              </el-form-item>
+            </el-col>
+            
+            <!-- 单独添加要求值，不参与循环 -->
+            <el-col :span="6">
+              <el-form-item label="要求值">
+                <el-form-item prop="tensileStrengthRequired" :rules="rules.tensileStrengthRequired">
+                  <el-input 
+                    v-model.number="form.tensileStrengthRequired" 
+                    placeholder="要求值" 
+                    clearable 
+                    size="small" 
+                  />
+                </el-form-item>
               </el-form-item>
             </el-col>
           </el-row>
@@ -197,9 +208,10 @@ const props = defineProps({
 })
 
 const chemicals = [
-  { key: '1', label: '1', actualProp: 'tensileStrength1', requiredProp: 'tensileStrength1Required' },
-  { key: '2', label: '2', actualProp: 'tensileStrength2', requiredProp: 'tensileStrength2Required' },
-  { key: '3', label: '3', actualProp: 'tensileStrength3', requiredProp: 'tensileStrength3Required' },
+  { key: 'tensile1', label: '实测值一', actualProp: 'tensileStrength1' },
+  { key: 'tensile2', label: '实测值二', actualProp: 'tensileStrength2' },
+  { key: 'tensile3', label: '实测值三', actualProp: 'tensileStrength3' }
+
 ]
 
 const emit = defineEmits(['update:visible', 'success'])
@@ -225,9 +237,9 @@ const form = reactive({
   batchNo: '',
   batchNum: '',
   quantity: '',
-  sampleQuantity: 1,
+  sampleQuantity: 3,
   compInspQty: 1,
-  mechInspQty: 0,
+  mechInspQty: 3,
   material: '',
   type: '',
   standard: '',
@@ -256,15 +268,15 @@ const rules = reactive({
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   tensileStrength1: [
-    { required: true, message: '请输入1含量', trigger: 'blur' },
+    { required: true, message: '请输入实测值一值含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   tensileStrength2: [
-    { required: true, message: '请输入2含量', trigger: 'blur' },
+    { required: true, message: '请输入实测值二含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   tensileStrength3: [
-    { required: true, message: '请输入3含量', trigger: 'blur' },
+    { required: true, message: '请输入实测值三含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
  tensileStrengthRequired: [
@@ -336,9 +348,9 @@ watch(() => props.initialData, (newData) => {
       mafactory: newData.mafactory || '',
       matMaterial: newData.matMaterial || '',
       tensileStrength1: newData.tensileStrength1 || '',
-      tensileStrength2: newDatatensileStrength2 || '',
+      tensileStrength2: newData.tensileStrength2 || '',
       tensileStrength3: newData.tensileStrength3 || '',
-      tensileStrengthRequired: newData.tensileStrength1Required || '',
+      tensileStrengthRequired: newData.tensileStrengthRequired || '',
       leaveFactoryDate: newData.leaveFactoryDate || '',
       detectionTime: newData.detectionTime || '',
       status: newData.status || '40',
@@ -348,9 +360,9 @@ watch(() => props.initialData, (newData) => {
       batchNo: newData.batchNo || '',
       batchNum: newData.batchNum || '',
       quantity: newData.quantity || '',
-      sampleQuantity: newData.sampleQuantity || '',
+      sampleQuantity: newData.sampleQuantity || 3,
       compInspQty: newData.compInspQty || 1,
-      mechInspQty: newData.mechInspQty || 0,
+      mechInspQty: newData.mechInspQty || 3,
       material: newData.material || '',
       type: newData.type || '',
       standard: newData.standard || '',
@@ -396,9 +408,9 @@ const resetForm = () => {
     basNo: '',
     batchNo: '',
     batchNum: '',
-    sampleQuantity: 1,
+    sampleQuantity: 3,
     compInspQty: 1,
-    mechInspQty: 0,
+    mechInspQty: 3,
     material: '',
     type: '',
     standard: '',

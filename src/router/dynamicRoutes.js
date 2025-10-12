@@ -203,6 +203,16 @@ const viewComponents = {
   //铝板请检单审核
   'clmanage/cllb/checkRequestReview': () => import('@/views/clmanage/cl-lb/requestCheck/checkRequestReview.vue'),
 
+
+     //镀锌螺栓检验数据录入
+  'clmanage/cldxls/checkDataEntry': () => import('@/views/clmanage/cl-dxls/checkData/checkDataEntry.vue'),
+  //镀锌螺栓检验数据审核
+  'clmanage/cldxls/checkDataReview': () => import('@/views/clmanage/cl-dxls/checkData/checkDataReview.vue'),
+  //镀锌螺栓请检单录入
+  'clmanage/cldxls/checkRequestEntry': () => import('@/views/clmanage/cl-dxls/requestCheck/checkRequestEntry.vue'),
+  //镀锌螺栓请检单审核
+  'clmanage/cldxls/checkRequestReview': () => import('@/views/clmanage/cl-dxls/requestCheck/checkRequestReview.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射

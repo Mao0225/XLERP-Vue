@@ -73,6 +73,11 @@
             <span>{{ initialData.sampleQuantity || '-' }}</span>
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="力学性能抽检数(件)">
+            <span>{{ initialData.mechInspQty || '-' }}</span>
+          </el-form-item>
+        </el-col>
 
         <!-- 化学成分 -->
         <el-col :span="24">

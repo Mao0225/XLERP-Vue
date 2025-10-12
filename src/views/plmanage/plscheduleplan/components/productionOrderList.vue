@@ -25,6 +25,7 @@
         <div class="header-index">序号</div>
         <div class="header-ipoNo">关联订单号</div>
         <div class="header-materials">物料名称</div>
+        <div class="header-workshopName">生产车间</div>
         <div class="header-amount">数量</div>
         <div class="header-status">完成状态</div>
       </div>
@@ -45,6 +46,9 @@
             </div>
             <div class="col-materials">
               <div class="materials-name">{{ item.materialsName || '-' }}</div>
+            </div>
+            <div class="col-workshopName">
+              <div class="workshopName">{{ item.workshopName || '-' }}</div>
             </div>
             <div class="col-amount">
               <div class="amount">{{ item.amount || '-' }}</div>
@@ -216,32 +220,34 @@ watch(
   font-size: 14px;
 }
 
+.header-index,
+.header-amount,
+.header-status {
+  flex-shrink: 0;
+  text-align: center;
+  padding-right: 16px;
+}
+
 .header-index {
   width: 80px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.header-ipoNo {
-  flex: 1;
-  min-width: 150px;
-}
-
-.header-materials {
-  flex: 1;
-  min-width: 150px;
 }
 
 .header-amount {
   width: 100px;
-  text-align: center;
-  flex-shrink: 0;
 }
 
 .header-status {
   width: 120px;
-  text-align: center;
-  flex-shrink: 0;
+  padding-right: 0; /* 最后一列无右padding */
+}
+
+.header-ipoNo,
+.header-materials,
+.header-workshopName {
+  flex: 1;
+  min-width: 130px;
+  padding-right: 16px;
+  box-sizing: border-box; /* 确保padding计入宽度 */
 }
 
 .order-list {
@@ -270,34 +276,35 @@ watch(
   padding: 16px;
 }
 
+.col-index,
+.col-amount,
+.col-status {
+  flex-shrink: 0;
+  text-align: center;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
 .col-index {
   width: 80px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.col-ipoNo {
-  flex: 1;
-  min-width: 150px;
-  padding-right: 16px;
-}
-
-.col-materials {
-  flex: 1;
-  min-width: 150px;
-  padding-right: 16px;
 }
 
 .col-amount {
   width: 100px;
-  text-align: center;
-  flex-shrink: 0;
 }
 
 .col-status {
   width: 120px;
-  text-align: center;
-  flex-shrink: 0;
+  padding-right: 0; /* 最后一列无右padding */
+}
+
+.col-ipoNo,
+.col-materials,
+.col-workshopName {
+  flex: 1;
+  min-width: 130px;
+  padding-right: 16px;
+  box-sizing: border-box; /* 确保padding计入宽度 */
 }
 
 .order-index {
@@ -313,13 +320,9 @@ watch(
   font-size: 13px;
 }
 
-.ipoNo {
-  font-size: 14px;
-  color: #303133;
-  font-weight: 500;
-}
-
-.materials-name {
+.ipoNo,
+.materials-name,
+.workshopName {
   font-size: 14px;
   color: #303133;
   font-weight: 500;

@@ -144,10 +144,50 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="tensileStrength1" label="抗拉强度实测值1" width="150" />
-      <el-table-column prop="tensileStrength2" label="抗拉强度实测值2" width="150" />
-      <el-table-column prop="tensileStrength3" label="抗拉强度实测值3" width="150" />
-      <el-table-column prop="tensileStrengthRequired" label="抗拉强度要求值" width="150" />
+      <el-table-column prop="chemC1" label="C1" width="90" />
+      <el-table-column prop="chemC2" label="C2" width="90" />
+      <el-table-column prop="chemC3" label="C3" width="90" />
+      <el-table-column prop="chemSi1" label="Si1" width="90" />
+      <el-table-column prop="chemSi2" label="Si2" width="90" />
+      <el-table-column prop="chemSi3" label="Si3" width="90" />
+      <el-table-column prop="chemMn1" label="Mn1" width="90" />
+      <el-table-column prop="chemMn2" label="Mn2" width="90" />
+      <el-table-column prop="chemMn3" label="Mn3" width="90" />
+      <el-table-column prop="chemP1" label="P1" width="90" />
+      <el-table-column prop="chemP2" label="P2" width="90" />
+      <el-table-column prop="chemP3" label="P3" width="90" />
+      <el-table-column prop="chemS1" label="S1" width="90" />
+      <el-table-column prop="chemS2" label="S2" width="90" />
+      <el-table-column prop="chemS3" label="S3" width="90" />
+      <el-table-column prop="hardness1" label="hardness1" width="90" />
+      <el-table-column prop="hardness2" label="hardness2" width="90" />
+      <el-table-column prop="hardness3" label="hardness3" width="90" />
+      <el-table-column prop="hardness4" label="hardness4" width="90" />
+      <el-table-column prop="hardness5" label="hardness5" width="90" />
+      <el-table-column prop="zincLayerThicknessSingle1" label="Single1" width="90" />
+      <el-table-column prop="zincLayerThicknessSingle2" label="Single2" width="90" />
+      <el-table-column prop="zincLayerThicknessSingle3" label="Single3" width="90" />
+      <el-table-column prop="zincLayerThicknessSingle4" label="Single4" width="90" />
+      <el-table-column prop="zincLayerThicknessSingle5" label="Single5" width="90" />
+      <el-table-column prop="zincLayerThicknessTotal" label="Total" width="90" />
+      <el-table-column prop="mechanicalProperties1" label="mechanicalProperties1" width="90" />
+      <el-table-column prop="mechanicalProperties2" label="mechanicalProperties2" width="90" />
+      <el-table-column prop="mechanicalProperties3" label="mechanicalProperties3" width="90" />
+      <el-table-column prop="sized1" label="d1" width="90" />
+      <el-table-column prop="sized2" label="d2" width="90" />
+      <el-table-column prop="sized3" label="d3" width="90" />
+      <el-table-column prop="sized4" label="d4" width="90" />
+      <el-table-column prop="sized5" label="d5" width="90" />
+      <el-table-column prop="sizeL1" label="L1" width="90" />
+      <el-table-column prop="sizeL2" label="L2" width="90" />
+      <el-table-column prop="sizeL3" label="L3" width="90" />
+      <el-table-column prop="sizeL4" label="L4" width="90" />
+      <el-table-column prop="sizeL5" label="L5" width="90" />
+      <el-table-column prop="sizeb1" label="b1" width="90" />
+      <el-table-column prop="sizeb2" label="b2" width="90" />
+      <el-table-column prop="sizeb3" label="b3" width="90" />
+      <el-table-column prop="sizeb4" label="b4" width="90" />
+      <el-table-column prop="sizeb5" label="b5" width="90" />
      <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
@@ -221,7 +261,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled } from '@element-plus/icons-vue'
-import { getLhjxPage, getLhjxById, updateStatus } from '@/api/clmanage/cl-lhjx'
+import { getDxlsPage, getDxlsById, updateStatus } from '@/api/clmanage/cl-dxls'
 import { baseURL } from '@/utils/request'
 import checkDataPreview from './checkDataPreview.vue'
 
@@ -232,7 +272,7 @@ const userStore = useUserStore()
 
 const previewDialogVisible = ref(false)
 const handlePreview = async (id) => {
-  const res = await getLhjxById({ id: id })
+  const res = await getDxlsById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
@@ -382,12 +422,12 @@ const getAluminumIngotList = async () => {
   loading.value = true
   try {
     
-    const res = await getLhjxPage(queryParams)
+    const res = await getDxlsPage(queryParams)
     aluminumIngotList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
-    console.error('获取铝合金线列表失败', error)
-    ElMessage.error('获取铝合金线列表失败')
+    console.error('获取镀锌螺栓列表失败', error)
+    ElMessage.error('获取镀锌螺栓列表失败')
   } finally {
     loading.value = false
   }

@@ -75,33 +75,31 @@
         </el-col>
 
         <!-- 力学性能 -->
-        <el-col :span="24">
-          <el-divider content-position="left">力学性能 (MPa)</el-divider>
-        </el-col>
-        <el-col :span="24">
-          <el-row :gutter="16">
-            <el-col
-              :span="8"
-              v-for="tensileStrength in Object.keys(initialData).filter(key => key.startsWith('tensileStrength') && !key.endsWith('Required'))"
-              :key="tensileStrength"
-            >
-              <el-form-item :label="tensileStrength.replace('tensileStrength', '')">
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item :label="tensileStrength.replace('tensileStrength', '') + '实测值'">
-                      <span>{{ initialData[tensileStrength] || '-' }}</span>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item :label="tensileStrength.replace('tensileStrength', '') + '要求值'">
-                      <span>{{ initialData[tensileStrength + 'Required'] || '-' }}</span>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-col>
+          <el-col :span="24">
+            <el-divider content-position="left">力学性能 (MPa)</el-divider>
+          </el-col>
+          <el-col :span="24">
+            <el-row :gutter="16">
+              <!-- 固定顺序渲染 1实测值、2实测值、3实测值（显式定义顺序，替代原Object.keys遍历） -->
+              <el-col :span="6" v-for="(item, index) in [
+                { key: 'tensileStrength1', label: '实测值一' },  // 第一组实测值，对应tensileStrength1字段
+                { key: 'tensileStrength2', label: '实测值二' },  // 第二组实测值，对应tensileStrength2字段
+                { key: 'tensileStrength3', label: '实测值三' }   // 第三组实测值，对应tensileStrength3字段
+              ]" :key="index">  <!-- 用index作为key（固定数组无新增删除，无性能风险） -->
+                <el-form-item :label="item.label">
+                  <!-- 渲染对应字段值，无数据时显示“-” -->
+                  <span>{{ initialData[item.key] || '-' }}</span>
+                </el-form-item>
+              </el-col>
+              
+              <!-- 固定在最后渲染“要求值”，与实测值保持一行布局 -->
+              <el-col :span="6">
+                <el-form-item label="要求值">
+                  <span>{{ initialData.tensileStrengthRequired || '-' }}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-col>
 
         <!-- 过程信息 -->
         <el-col :span="24">

@@ -133,7 +133,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { createLhjx } from '@/api/clmanage/cl-lhjx'
+import { createDxls } from '@/api/clmanage/cl-dxls'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
@@ -183,16 +183,17 @@ form.contractName = contract.name
 }
 
 const materialOptions = [
-{ value: '5B05' }
+  { value: '45#' }
 ]
 
 const typeOptions = [
-{ value: '5B05' }
+  { value: 'M16*70*25(6.8)' },
+  { value: 'M16' }
 ]
 
 const standardOptions = [
-{ value: 'GB/T3190-2020' },
-{ value: 'GB/T 3195-2016'}
+  { value: 'DL/T284-2021' },
+  { value: 'DL/T764-2014' }
 ]
 
 const queryMaterialSuggestions = (queryString, cb) => {
@@ -268,7 +269,6 @@ type: [
 { required: true, message: '请输入型号', trigger: 'blur' },
 { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
 ],
-
 deliveryQuantity: [
 { required: true, message: '请输入送货数量', trigger: 'blur' },
 { type: 'number', message: '必须为数字', trigger: 'blur' }
@@ -364,7 +364,7 @@ const hours = String(now.getHours()).padStart(2, '0')
 const minutes = String(now.getMinutes()).padStart(2, '0')
 const seconds = String(now.getSeconds()).padStart(2, '0')
 form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-await createLhjx(form)
+await createDxls(form)
 emit('success')
 emit('update:visible', false)
 ElMessage.success('新增成功')

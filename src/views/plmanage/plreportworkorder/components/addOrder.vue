@@ -262,6 +262,8 @@ watch(() => props.visible, (newVal) => {
   form.woNo = props.workOrder.woNo
   form.categoryCode = props.workOrder.categoryCode
   form.subclassCode = props.workOrder.subclassCode
+  form.planStartTime = props.workOrder.planStartDate
+  form.planEndTime = props.workOrder.planFinishDate
   }
 });
 

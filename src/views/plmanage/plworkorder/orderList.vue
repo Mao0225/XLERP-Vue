@@ -107,7 +107,7 @@
                 </template>
 
                 <template v-if="row.status === '30'">
-                  <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 40)">
+                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 40)">
                     <el-icon>
                       <Select />
                     </el-icon>

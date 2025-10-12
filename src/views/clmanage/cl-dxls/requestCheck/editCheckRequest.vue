@@ -87,7 +87,6 @@
               step="0.01">
             </el-input></el-form-item>
         </el-col>
-    
         
 
         <el-col :span="24">
@@ -133,7 +132,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { updateLhjx } from '@/api/clmanage/cl-lhjx'
+import { updateDxls } from '@/api/clmanage/cl-dxls'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
@@ -183,16 +182,17 @@ const handleContractSelect = (contract) => {
 }
 
 const materialOptions = [
-  { value: '5B05' }
+  { value: '45#' }
 ]
 
 const typeOptions = [
-  { value: '5B05' }
+  { value: 'M16*70*25(6.8)' },
+  { value: 'M16' }
 ]
 
 const standardOptions = [
-  { value: 'GB/T3190-2020' },
-  { value: 'GB/T 3195-2016' }
+  { value: 'DL/T284-2021' },
+  { value: 'DL/T764-2014' }
 ]
 
 const queryMaterialSuggestions = (queryString, cb) => {
@@ -268,7 +268,7 @@ const rules = reactive({
     { required: true, message: '请输入型号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-   deliveryQuantity: [
+  deliveryQuantity: [
     { required: true, message: '请输入送货数量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
@@ -363,7 +363,7 @@ const submitForm = async () => {
     const minutes = String(now.getMinutes()).padStart(2, '0')
     const seconds = String(now.getSeconds()).padStart(2, '0')
     form.writeTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-    await updateLhjx(form)
+    await updateDxls(form)
     emit('success')
     emit('update:visible', false)
     ElMessage.success('更新成功')

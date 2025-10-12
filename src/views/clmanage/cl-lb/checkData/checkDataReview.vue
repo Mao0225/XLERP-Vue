@@ -144,14 +144,10 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="chemAl" label="Al(%)" width="90" />
       <el-table-column prop="chemSi" label="Si(%)" width="90" />
       <el-table-column prop="chemFe" label="Fe(%)" width="90" />
       <el-table-column prop="chemCu" label="Cu(%)" width="90" />
-      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
       <el-table-column prop="chemMn" label="Mn(%)" width="90" />
-      <el-table-column prop="chemZn" label="Zn(%)" width="90" />
-      <el-table-column prop="chemTi" label="Ti(%)" width="90" />
       <el-table-column prop="chemMg" label="Mg(%)" width="90" />
       <el-table-column prop="mechTS" label="抗拉强度（MPa)" width="130" />
       <el-table-column prop="mechEL" label="伸长率(%)" width="130" />
@@ -227,7 +223,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled } from '@element-plus/icons-vue'
+import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled, Document } from '@element-plus/icons-vue'
 import { getLbPage, getLbById, updateStatus } from '@/api/clmanage/cl-lb'
 import { baseURL } from '@/utils/request'
 import checkDataPreview from './checkDataPreview.vue'
@@ -248,21 +244,21 @@ const handlePreview = async (id) => {
 const STATUS_LABEL_MAP = {
   "40": "待审核",
   "50": "检验完成", 
-  DEFAULT: "未知"
+  DEFAULT: "检验完成"
 }
 
 // 状态值-图标映射表
 const STATUS_ICON_MAP = {
   "40": "Edit", // 编辑图标
   "50": "CircleCheck", // 对勾圆图标
-  DEFAULT: "Clock"
+  DEFAULT: "CircleCheck"
 }
 
 // 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
   "40": "warning", // 深蓝色
   "50": "success", // 橙色
-  DEFAULT: "info"
+  DEFAULT: "success"
 }
 
 // 状态值-Radio按钮自定义类映射表
@@ -282,9 +278,7 @@ const STATUS_ACTION_MAP = {
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ],
   "50": [ // 检验数据录入确认状态可执行操作
-    // { action: "backToDataEntry", text: "返回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "40" }
-        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ],
 }
 
@@ -328,7 +322,7 @@ const queryParams = reactive({
   contractName: '',
   mafactory: '',
   matRecheckNo: '',
-  status: 40,//默认待审核数据从状态40开始
+  minStatus: 40, 
   pageNumber: 1,
   pageSize: 10
 })

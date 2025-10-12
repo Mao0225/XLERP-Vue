@@ -1,39 +1,25 @@
+<!-- 请检数据录入 -->
 <template>
   <div class="aluminum-ingot-management">
     <div class="action-bar">
 
       <div class="search-inputs">
-                        <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
+        <el-input v-model="queryParams.contractNo" placeholder="请输入合同编号查询" style="width: 200px; margin-right: 10px;"
           clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
         <el-input v-model="queryParams.contractName" placeholder="请输入合同名称查询" style="width: 200px; margin-right: 10px;"
           clearable @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
-        <el-input
-          v-model="queryParams.mafactory"
-          placeholder="请输入原材料制造商查询"
-          style="width: 200px; margin-right: 10px;"
-          clearable
-          @clear="getAluminumIngotList"
-          @keyup.enter="getAluminumIngotList"
-        />
-        <el-input
-          v-model="queryParams.matRecheckNo"
-          placeholder="请输入复检单号"
-          style="width: 200px; margin-right: 10px;"
-          clearable
-          @clear="getAluminumIngotList"
-          @keyup.enter="getAluminumIngotList"
-        />
+        <el-input v-model="queryParams.basNo" placeholder="请输入单据号查询" style="width: 200px; margin-right: 10px;" clearable
+          @clear="getAluminumIngotList" @keyup.enter="getAluminumIngotList" />
         <el-button type="primary" @click="getAluminumIngotList">搜索</el-button>
         <el-button type="warning" @click="handleRefresh">
           <el-icon>
             <Refresh />
           </el-icon> 刷新
         </el-button>
-     </div>
+      </div>
     </div>
 
-      
-       <el-table :data="aluminumIngotList" border v-loading="loading" style="width: 100%">
+    <el-table :data="aluminumIngotList" border v-loading="loading" style="width: 100%">
       <el-table-column type="index" label="序号" width="80" />
       
       <!-- 状态列使用 Tag 显示 -->
@@ -53,13 +39,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="matRecheckNo" label="复检单号" width="140">
+      <!-- <el-table-column prop="matRecheckNo" label="复检单号" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.matRecheckNo" placement="top">
             <span class="truncate">{{ row.matRecheckNo }}</span>
           </el-tooltip>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column prop="batchNo" label="炉批号" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.batchNo" placement="top">
@@ -74,38 +60,17 @@
           </el-tooltip>
         </template>
       </el-table-column>
-       <el-table-column prop="contractNo" label="合同编号" width="140">
+      <el-table-column prop="contractNo" label="合同编号" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.contractNo" placement="top">
             <span class="truncate">{{ row.contractNo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-            <el-table-column prop="contractName" label="合同名称" width="140">
+      <el-table-column prop="contractName" label="合同名称" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.contractName" placement="top">
             <span class="truncate">{{ row.contractName }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="matMaterial" label="牌号" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.matMaterial" placement="top">
-            <span class="truncate">{{ row.matMaterial }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="material" label="材质" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.material" placement="top">
-            <span class="truncate">{{ row.material }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="standard" label="检验标准" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.standard" placement="top">
-            <span class="truncate">{{ row.standard }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -116,60 +81,50 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="appearanceSize" label="外观尺寸" width="100">
+      <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
-          <el-tooltip :content="row.appearanceSize" placement="top">
-            <span class="truncate">{{ row.appearanceSize }}</span>
+          <el-tooltip :content="row.deliveryQuantity" placement="top">
+            <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || '' }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="sampleQuantity" label="样品数量" width="90">
+      <el-table-column prop="acceptQuantity" label="验收数量" width="100">
         <template #default="{ row }">
-          <el-tooltip :content="row.sampleQuantity" placement="top">
-            <span class="truncate">{{ row.sampleQuantity }} 件</span>
+          <el-tooltip :content="row.acceptQuantity" placement="top">
+            <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || '' }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="checkWriter" label="检验人" width="100">
+      
+      <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
-          <el-tooltip :content="row.checkWriter" placement="top">
-            <span class="truncate">{{ row.checkWriter }}</span>
+          <el-tooltip :content="row.requestWriter" placement="top">
+            <span class="truncate">{{ row.requestWriter }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="checkAuditor" label="审核人" width="100">
+       <el-table-column prop="requestAuditor" label="审核人" width="120">
         <template #default="{ row }">
-          <el-tooltip :content="row.checkAuditor" placement="top">
-            <span class="truncate">{{ row.checkAuditor }}</span>
+          <el-tooltip :content="row.requestAuditor" placement="top">
+            <span class="truncate">{{ row.requestAuditor }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="tensileStrength1" label="抗拉强度实测值1" width="150" />
-      <el-table-column prop="tensileStrength2" label="抗拉强度实测值2" width="150" />
-      <el-table-column prop="tensileStrength3" label="抗拉强度实测值3" width="150" />
-      <el-table-column prop="tensileStrengthRequired" label="抗拉强度要求值" width="150" />
-     <el-table-column prop="memo" label="请检单备注" width="140">
+      <el-table-column prop="writeTime" label="录入时间" width="140">
+        <template #default="{ row }">
+          <el-tooltip :content="row.writeTime" placement="top">
+            <span class="truncate">{{ row.writeTime }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="memo" label="备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
             <span class="truncate">{{ row.memo }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="checkMemo" label="复检备注" width="140">
-        <template #default="{ row }">
-          <el-tooltip :content="row.checkMemo" placement="top">
-            <span class="truncate">{{ row.checkMemo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="detectionTime" label="入厂检测日期" width="130" >
-        <template #default="{ row }">
-          <el-tooltip :content="row.detectionTime" placement="top">
-            <span class="truncate">{{ row.detectionTime }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="certificate" label="质量证明" width="100">
+      <el-table-column prop="certificate" label="质量证明书" width="120">
         <template #default="{ row }">
           <div v-for="(file, index) in JSON.parse(row.certificate || '[]')" :key="index">
             <el-tooltip :content="file.name" placement="top">
@@ -180,7 +135,7 @@
       </el-table-column>
       
       <!-- 操作列使用动态按钮 -->
-      <el-table-column label="操作" width="300" fixed="right">
+      <el-table-column label="操作" width="280" fixed="right">
         <template #default="{ row }">
           <el-button
             v-for="action in getStatusActions(row.status)"
@@ -196,89 +151,82 @@
         </template>
       </el-table-column>
     </el-table>
-
+    
     <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="queryParams.pageNumber"
-        v-model:page-size="queryParams.pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination v-model:current-page="queryParams.pageNumber" v-model:page-size="queryParams.pageSize"
+        :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
+    <requestFormPreview :visible="previewDialogVisible" :initial-data="formData" @update:visible="previewDialogVisible = $event"/>
 
-       <checkDataPreview
-      :visible="previewDialogVisible"
-      :initial-data="formData"
-      @update:visible="previewDialogVisible = $event"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled } from '@element-plus/icons-vue'
-import { getLhjxPage, getLhjxById, updateStatus } from '@/api/clmanage/cl-lhjx'
+import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
+import { getDxlsPage,  getDxlsById, updateStatus } from '@/api/clmanage/cl-dxls'
 import { baseURL } from '@/utils/request'
-import checkDataPreview from './checkDataPreview.vue'
-
-
 import { useUserStore } from '@/store/user'
+import requestFormPreview from './requestFormPreview.vue'
 const userStore = useUserStore()
+// =============== 状态常量定义 ===============
 
 
 const previewDialogVisible = ref(false)
+
 const handlePreview = async (id) => {
-  const res = await getLhjxById({ id: id })
+  const res = await getDxlsById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
-// =============== 状态常量定义 ===============
 // 状态值-名称映射表
 const STATUS_LABEL_MAP = {
-  "40": "待审核",
-  "50": "检验完成", 
+  "20": "待审核",
+  "30": "审核通过，待检验",//待录入数据
+  "40": "检验录入，待审核",
+  "50": "检验完成",
+
   DEFAULT: "未知"
 }
 
 // 状态值-图标映射表
 const STATUS_ICON_MAP = {
-  "40": "Edit", // 编辑图标
-  "50": "CircleCheck", // 对勾圆图标
+  "20": "CircleCheck", // 对勾圆图标
+  "30": "DataBoard", // 数据板图标
+  "40": "Check", // 对勾图标
+  "50": "Check", // 对勾图标
+
   DEFAULT: "Clock"
 }
 
 // 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
-  "40": "warning", // 深蓝色
-  "50": "success", // 橙色
+  "20": "primary", // 深蓝色
+  "30": "warning", // 橙色
+  "40": "success", // 绿色
+  "50": "success", // 绿色
+
   DEFAULT: "info"
 }
 
-// 状态值-Radio按钮自定义类映射表
-const STATUS_CLASS_MAP = {
-  "40": "status-data-entry",
-  "50": "status-data-confirmed",
-  DEFAULT: ""
-}
-
-
 // 状态操作权限映射（当前状态→可执行操作）
 const STATUS_ACTION_MAP = {
-
-  "40": [ // 检验数据录入状态可执行操作
-    { action: "auditPass", text: "审核通过", icon: "Check", type: "success", targetStatus: "50" },
-    { action: "backToDataEntry", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "30" },
-    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  "20": [ // 确认状态可执行操作
+    { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
+    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
   ],
-  "50": [ // 检验数据录入确认状态可执行操作
-    // { action: "backToDataEntry", text: "返回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "40" }
+  "30": [
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ], // 检验录入完成状态无操作
+  "40": [
         { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
 
-  ],
+  ], // 检验审核完成状态无操作
+  "50": [
+        { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
+  ] 
 }
 
 // =============== 状态工具函数 ===============
@@ -307,21 +255,20 @@ const getStatusActions = (statusValue) => {
 // 根据目标状态获取操作文本
 const getStatusActionText = (targetStatus) => {
   switch (targetStatus) {
-    case "40": return "退回录入"
-    case "50": return "确认审核通过"
+    case "10": return "退回录入"
+    case "20": return "确认录入"
+    case "30": return "审核通过"
     default: return "更新状态"
   }
 }
 
 const formData = ref({})
 
-
 const queryParams = reactive({
   contractNo: '',
   contractName: '',
-  mafactory: '',
-  matRecheckNo: '',
-  status: 40,//默认待审核数据从状态40开始
+  basNo: '',
+  status: '', // 添加状态筛选参数
   pageNumber: 1,
   pageSize: 10
 })
@@ -331,19 +278,15 @@ const total = ref(0)
 const loading = ref(false)
 
 // =============== 业务方法 ===============
-
 // 统一处理操作按钮点击
 const handleActionClick = (action, row) => {
   switch (action.action) {
     case "preview":
       handlePreview(row.id)
       break
-    case "startDataEntry":
-    case "confirmDataEntry":
-    case "auditPass":
-    case "completeStorage":
-    case "backToPending":
-    case "backToDataEntry":
+    case "confirm":
+    case "audit":
+    case "cancelConfirm":
       // 状态更新类操作，调用通用状态更新方法
       handleStatusUpdate(row.id, action.targetStatus)
       break
@@ -378,16 +321,17 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
   }
 }
 
+
+
 const getAluminumIngotList = async () => {
   loading.value = true
   try {
-    
-    const res = await getLhjxPage(queryParams)
+    const res = await getDxlsPage(queryParams)
     aluminumIngotList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
-    console.error('获取铝合金线列表失败', error)
-    ElMessage.error('获取铝合金线列表失败')
+    console.error('获取请检单列表失败', error)
+    ElMessage.error('获取请检单列表失败')
   } finally {
     loading.value = false
   }
@@ -406,12 +350,11 @@ const handleCurrentChange = (page) => {
 const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
-  queryParams.mafactory = ''
-  queryParams.matRecheckNo = ''
+  queryParams.basNo = ''
+  queryParams.status = ''
   queryParams.pageNumber = 1
   getAluminumIngotList()
 }
-
 
 const openFileInNewWindow = (url) => {
   window.open(baseURL + url, '_blank')
@@ -434,9 +377,7 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-.status-filter {
-  align-self: flex-start;
-}
+
 
 .search-inputs {
   display: flex;
@@ -473,11 +414,6 @@ onMounted(() => {
   font-style: italic;
 }
 
-/* 状态Radio按钮基础样式 */
-:deep(.el-radio-button__inner) {
-  border-radius: 4px;
-  padding: 6px 16px;
-}
 
 /* 选中状态Radio按钮样式 */
 :deep(.el-radio-button.is-checked .el-radio-button__inner) {

@@ -257,6 +257,8 @@ watch(() => props.visible, (newVal) => {
     form.materialsDescription = props.producOrder.materialsDesc
     form.modelSpec = props.producOrder.itemSpec
     form.unit = props.producOrder.itemUnit
+    form.planStartDate = props.producOrder.planStartDate
+    form.planFinishDate = props.producOrder.planFinishDate
   }
 });
 
