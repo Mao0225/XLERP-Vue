@@ -213,6 +213,17 @@ const viewComponents = {
   //镀锌螺栓请检单审核
   'clmanage/cldxls/checkRequestReview': () => import('@/views/clmanage/cl-dxls/requestCheck/checkRequestReview.vue'),
 
+
+
+    //锤头检验数据录入
+  'clmanage/clct/checkDataEntry': () => import('@/views/clmanage/cl-ct/checkData/checkDataEntry.vue'),
+  //锤头检验数据审核
+  'clmanage/clct/checkDataReview': () => import('@/views/clmanage/cl-ct/checkData/checkDataReview.vue'),
+  //锤头请检单录入
+  'clmanage/clct/checkRequestEntry': () => import('@/views/clmanage/cl-ct/requestCheck/checkRequestEntry.vue'),
+  //锤头请检单审核
+  'clmanage/clct/checkRequestReview': () => import('@/views/clmanage/cl-ct/requestCheck/checkRequestReview.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射

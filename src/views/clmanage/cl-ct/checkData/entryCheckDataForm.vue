@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="录入铜板检验数据"
+    title="录入锤头检验数据"
     :model-value="visible"
     width="1200px"
     :center="true"
@@ -35,14 +35,10 @@
             </el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="牌号" prop="matMaterial">
-            <el-input v-model="form.matMaterial" placeholder="请输入牌号" clearable size="small" />
-          </el-form-item>
-        </el-col>
+        
         <el-col :span="12">
           <el-form-item label="材质" prop="material">
-            <el-input v-model="form.material" placeholder="请输入材质" readonly clearable size="small" />
+            <el-input v-model="form.material" placeholder="请输入材质" clearable size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -63,11 +59,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="炉批号" prop="batchNo">
-            <el-input v-model="form.batchNo" placeholder="请输入炉批号" readonly clearable size="small" />
-          </el-form-item>
-        </el-col>
+       
         <el-col :span="12">
           <el-form-item label="批次号" prop="batchNum">
             <el-input v-model="form.batchNum" placeholder="批次号" readonly size="small" />
@@ -78,12 +70,6 @@
             <el-input v-model.number="form.compInspQty" placeholder="请输入成分检验抽检数量" type="number" clearable size="small" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="力学性能抽检数(件)" prop="mechInspQty">
-            <el-input v-model.number="form.mechInspQty" placeholder="请输入力学性能抽检数量" type="number" clearable size="small" />
-          </el-form-item>
-        </el-col>
-
         <el-col :span="12">
           <el-form-item label="抽检数量(件)" prop="sampleQuantity">
             <el-input v-model.number="form.sampleQuantity" placeholder="总抽检数量" readonly size="small" />
@@ -114,6 +100,446 @@
             </el-col>
           </el-row>
         </el-col>
+<!-- 力学性能 -->
+<el-col :span="24">
+  <el-divider content-position="left">力学性能</el-divider>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="力学性能抽检数(件)" prop="mechInspQty">
+    <el-input
+      v-model.number="form.mechInspQty"
+      placeholder="请输入力学性能抽检数量"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="屈服强度(MPa)" prop="yieldStrength">
+    <el-input
+      v-model.number="form.yieldStrength"
+      placeholder="请输入屈服强度"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="抗拉强度(MPa)" prop="tensileStrength">
+    <el-input
+      v-model.number="form.tensileStrength"
+      placeholder="请输入抗拉强度"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="延伸率(%)" prop="elongation">
+    <el-input
+      v-model.number="form.elongation"
+      placeholder="请输入延伸率"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<!-- 尺寸信息-->
+<el-col :span="24">
+  <el-divider content-position="left">尺寸信息</el-divider>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="孔" prop="kong1">
+    <el-input
+      v-model.number="form.kong1"
+      placeholder="请输入孔实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="孔" prop="kong2">
+    <el-input
+      v-model.number="form.kong2"
+      placeholder="请输入孔实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="孔" prop="kong3">
+    <el-input
+      v-model.number="form.kong3"
+      placeholder="请输入孔实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="孔" prop="kong4">
+    <el-input
+      v-model.number="form.kong4"
+      placeholder="请输入孔实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="孔" prop="kong5">
+    <el-input
+      v-model.number="form.kong5"
+      placeholder="请输入孔实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="判断结果" prop="kongJudgmentResult">
+    <el-input
+      v-model="form.kongJudgmentResult"
+      placeholder="请输入判断结果"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+
+<el-col :span="8">
+  <el-form-item label="总长" prop="zongChang1">
+    <el-input
+      v-model.number="form.zongChang1"
+      placeholder="请输入总长实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="总长" prop="zongChang2">
+    <el-input
+      v-model.number="form.zongChang2"
+      placeholder="请输入总长实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="总长" prop="zongChang3">
+    <el-input
+      v-model.number="form.zongChang3"
+      placeholder="请输入总长实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="总长" prop="zongChang4">
+    <el-input
+      v-model.number="form.zongChang4"
+      placeholder="请输入总长实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="总长" prop="zongChang5">
+    <el-input
+      v-model.number="form.zongChang5"
+      placeholder="请输入总长实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="判断结果" prop="zongChangJudgmentResult">
+    <el-input
+      v-model="form.zongChangJudgmentResult"
+      placeholder="请输入判断结果"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+
+<el-col :span="8">
+  <el-form-item label="宽" prop="kuan1">
+    <el-input
+      v-model.number="form.kuan1"
+      placeholder="请输入宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="宽" prop="kuan2">
+    <el-input
+      v-model.number="form.kuan2"
+      placeholder="请输入宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="宽" prop="kuan3">
+    <el-input
+      v-model.number="form.kuan3"
+      placeholder="请输入宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="宽" prop="kuan4">
+    <el-input
+      v-model.number="form.kuan4"
+      placeholder="请输入宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="宽" prop="kuan5">
+    <el-input
+      v-model.number="form.kuan5"
+      placeholder="请输入宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="判断结果" prop="kuanJudgmentResult">
+    <el-input
+      v-model="form.kuanJudgmentResult"
+      placeholder="请输入判断结果"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+
+<el-col :span="8">
+  <el-form-item label="头宽" prop="touKuan1">
+    <el-input
+      v-model.number="form.touKuan1"
+      placeholder="请输入头宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="头宽" prop="touKuan2">
+    <el-input
+      v-model.number="form.touKuan2"
+      placeholder="请输入头宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="头宽" prop="touKuan3">
+    <el-input
+      v-model.number="form.touKuan3"
+      placeholder="请输入头宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="头宽" prop="touKuan4">
+    <el-input
+      v-model.number="form.touKuan4"
+      placeholder="请输入头宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="头宽" prop="touKuan5">
+    <el-input
+      v-model.number="form.touKuan5"
+      placeholder="请输入头宽实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="判断结果" prop="touKuanJudgmentResult">
+    <el-input
+      v-model="form.touKuanJudgmentResult"
+      placeholder="请输入判断结果"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+
+<!-- 外形信息 -->
+<el-col :span="8">
+  <el-form-item label="规格" prop="type">
+    <el-input
+      v-model.number="form.type"
+      placeholder="请输入规格实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col> 
+<el-col :span="8">
+  <el-form-item label="外形" prop="appearance">
+    <el-input
+      v-model.number="form.appearance"
+      placeholder="请输入外形实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="判断结果" prop="appearanceJudgmentResult">
+    <el-input
+      v-model="form.appearanceJudgmentResult"
+      placeholder="请输入判断结果"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<!-- 机械性能 -->
+<el-col :span="8">
+  <el-form-item label="规格" prop="type">
+    <el-input
+      v-model.number="form.type"
+      placeholder="请输入规格实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="重量" prop="zhongLiang1">
+    <el-input
+      v-model.number="form.zhongLiang1"
+      placeholder="请输入重量实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="重量" prop="zhongLiang2">
+    <el-input
+      v-model.number="form.zhongLiang2"
+      placeholder="请输入重量实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="重量" prop="zhongLiang3">
+    <el-input
+      v-model.number="form.zhongLiang3"
+      placeholder="请输入重量实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="重量" prop="zhongLiang4">
+    <el-input
+      v-model.number="form.zhongLiang4"
+      placeholder="请输入重量实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+<el-col :span="8">
+  <el-form-item label="重量" prop="zhongLiang5">
+    <el-input
+      v-model.number="form.zhongLiang5"
+      placeholder="请输入重量实际测量值"
+      type="number"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
+<el-col :span="8">
+  <el-form-item label="判断结果" prop="machineryJudgmentResult">
+    <el-input
+      v-model="form.appearanceJudgmentResult"
+      placeholder="请输入判断结果"
+      clearable
+      size="small"
+    />
+  </el-form-item>
+</el-col>
+
 
         <!-- 过程信息 -->
         <el-col :span="24">
@@ -186,7 +612,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { updateTb } from '@/api/clmanage/cl-tb'
+import { updateCt } from '@/api/clmanage/cl-ct'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/store/user'
@@ -203,11 +629,12 @@ const props = defineProps({
 })
 
 const chemicals = [
-  { key: 'CuAl', label: 'CuAl', actualProp: 'chemCuAl', requiredProp: 'chemCuAlRequired' },
-  { key: 'Sb', label: 'Sb', actualProp: 'chemSb', requiredProp: 'chemSbRequired' },
-  { key: 'As', label: 'As', actualProp: 'chemAs', requiredProp: 'chemAsRequired' },
-  { key: 'Fe', label: 'Fe', actualProp: 'chemFe', requiredProp: 'chemFeRequired' },
+  { key: 'C', label: 'C', actualProp: 'chemC', requiredProp: 'chemCRequired' },
+  { key: 'Si', label: 'Si', actualProp: 'chemSi', requiredProp: 'chemSiRequired' },
+  { key: 'Mn', label: 'Mn', actualProp: 'chemMn', requiredProp: 'chemMnRequired' },
+  { key: 'P', label: 'P', actualProp: 'chemP', requiredProp: 'chemPRequired' },
   { key: 'S', label: 'S', actualProp: 'chemS', requiredProp: 'chemSRequired' },
+
 ]
 
 const emit = defineEmits(['update:visible', 'success'])
@@ -220,17 +647,18 @@ const form = reactive({
   matRecheckNo: '',
   mafactory: '',
   matMaterial: '',
-  chemCuAl: '',
-  chemSb: '',
-  chemAs: '',
-  chemFe: '',
+  chemC: '',
+  chemSi: '',
+  chemMn: '',
+  chemP: '',
   chemS: '',
   
-  chemCuAlRequired: '',
-  chemSbRequired: '',
-  chemAsRequired: '',
-  chemFeRequired: '',
+  chemCRequired: '',
+  chemSiRequired: '',
+  chemMnRequired: '',
+  chemPRequired: '',
   chemSRequired: '',
+  
   leaveFactoryDate: '',
   detectionTime: '',
   status: '40',
@@ -240,9 +668,32 @@ const form = reactive({
   batchNo: '',
   batchNum: '',
   quantity: '',
-  sampleQuantity: 2,
+  sampleQuantity: 1,
   compInspQty: 1,
   mechInspQty: 1,
+  yieldStrength: '', // 屈服强度
+  tensileStrength: '', // 抗拉强度
+  elongation: '', // 延伸率
+  // 尺寸信息
+kong1: '', kong2: '', kong3: '', kong4: '', kong5: '',
+kongJudgmentResult: '',
+
+zongChang1: '', zongChang2: '', zongChang3: '', zongChang4: '', zongChang5: '',
+zongChangJudgmentResult: '',
+
+kuan1: '', kuan2: '', kuan3: '', kuan4: '', kuan5: '',
+kuanJudgmentResult: '',
+
+touKuan1: '', touKuan2: '', touKuan3: '', touKuan4: '', touKuan5: '',
+touKuanJudgmentResult: '',
+
+// 外形信息
+appearance: '',
+appearanceJudgmentResult: '',
+
+// 机械性能
+zhongLiang1: '', zhongLiang2: '', zhongLiang3: '', zhongLiang4: '', zhongLiang5: '',
+machineryJudgmentResult: '',
   material: '',
   type: '',
   standard: '',
@@ -270,20 +721,20 @@ const rules = reactive({
     { required: true, message: '请输入牌号', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  chemCuAl: [
-    { required: true, message: '请输入Cu+Al含量', trigger: 'blur' },
+  chemC: [
+    { required: true, message: '请输入C含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemSb: [
-    { required: true, message: '请输入Sb含量', trigger: 'blur' },
+  chemSi: [
+    { required: true, message: '请输入Si含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemAs: [
-    { required: true, message: '请输入As含量', trigger: 'blur' },
+  chemMn: [
+    { required: true, message: '请输入Mn含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemFe: [
-    { required: true, message: '请输入Fe含量', trigger: 'blur' },
+  chemP: [
+    { required: true, message: '请输入P含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemS: [
@@ -291,21 +742,31 @@ const rules = reactive({
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   
-  chemCuAlRequired: [
+  chemCRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemSbRequired: [
+  chemSiRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemAsRequired: [
+  chemMnRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemFeRequired: [
+  chemPRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemSRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
+ yieldStrength: [
+  { type: 'number', message: '屈服强度必须为数字', trigger: 'blur' }
+],
+tensileStrength: [
+  { type: 'number', message: '抗拉强度必须为数字', trigger: 'blur' }
+],
+elongation: [
+  { type: 'number', message: '延伸率必须为数字', trigger: 'blur' }
+],
+
   detectionTime: [
     { required: true, message: '请选择入厂检测日期', trigger: 'change' }
   ],
@@ -371,18 +832,21 @@ watch(() => props.initialData, (newData) => {
       matRecheckNo: newData.matRecheckNo || '',
       mafactory: newData.mafactory || '',
       matMaterial: newData.matMaterial || '',
-      chemCuAl: newData.chemCuAl || '',
-      chemSb: newData.chemSb || '',
-      chemAs: newData.chemAs || '',
-      chemFe: newData.chemFe || '',
+      chemC: newData.chemC || '',
+      chemSi: newData.chemSi || '',
+      chemMn: newData.chemMn || '',
+      chemP: newData.chemP || '',
       chemS: newData.chemS || '',
       
-      chemCuAlRequired: newData.chemCuAlRequired || '',
-      chemSbRequired: newData.chemSbRequired || '',
-      chemAsRequired: newData.chemAsRequired || '',
-      chemFeRequired: newData.chemFeRequired || '',
+      chemCRequired: newData.chemCRequired || '',
+      chemSiRequired: newData.chemSiRequired || '',
+      chemMnRequired: newData.chemMnRequired || '',
+      chemPRequired: newData.chemPRequired || '',
       chemSRequired: newData.chemSRequired || '',
-      
+      yieldStrength: newData.yieldStrength || '',
+      tensileStrength: newData.tensileStrength || '',
+      elongation: newData.elongation || '',
+
       leaveFactoryDate: newData.leaveFactoryDate || '',
       detectionTime: newData.detectionTime || '',
       status: newData.status || '40',
@@ -392,7 +856,7 @@ watch(() => props.initialData, (newData) => {
       batchNo: newData.batchNo || '',
       batchNum: newData.batchNum || '',
       quantity: newData.quantity || '',
-      sampleQuantity: newData.sampleQuantity || 2,
+      sampleQuantity: newData.sampleQuantity || 1,
       compInspQty: newData.compInspQty || 1,
       mechInspQty: newData.mechInspQty || 1,
       material: newData.material || '',
@@ -405,18 +869,47 @@ watch(() => props.initialData, (newData) => {
       contractNo: newData.contractNo || '',
       contractName: newData.contractName || '',
       acceptQuantity: newData.acceptQuantity || '',
-      finalConclusion: newData.finalConclusion || ''
+      finalConclusion: newData.finalConclusion || '',
+      kong1: newData.kong1 || '',
+      kong2: newData.kong2 || '',
+      kong3: newData.kong3 || '',
+      kong4: newData.kong4 || '',
+      kong5: newData.kong5 || '',
+      kongJudgmentResult: newData.kongJudgmentResult || '',
+
+      zongChang1: newData.zongChang1 || '',
+      zongChang2: newData.zongChang2 || '',
+      zongChang3: newData.zongChang3 || '',
+      zongChang4: newData.zongChang4 || '',
+      zongChang5: newData.zongChang5 || '',
+      zongChangJudgmentResult: newData.zongChangJudgmentResult || '',
+
+      kuan1: newData.kuan1 || '',
+      kuan2: newData.kuan2 || '',
+      kuan3: newData.kuan3 || '',
+      kuan4: newData.kuan4 || '',
+      kuan5: newData.kuan5 || '',
+      kuanJudgmentResult: newData.kuanJudgmentResult || '',
+
+      touKuan1: newData.touKuan1 || '',
+      touKuan2: newData.touKuan2 || '',
+      touKuan3: newData.touKuan3 || '',
+      touKuan4: newData.touKuan4 || '',
+      touKuan5: newData.touKuan5 || '',
+      touKuanJudgmentResult: newData.touKuanJudgmentResult || '',
+
+      appearance: newData.appearance || '',
+      appearanceJudgmentResult: newData.appearanceJudgmentResult || '',
+
+      zhongLiang1: newData.zhongLiang1 || '',
+      zhongLiang2: newData.zhongLiang2 || '',
+      zhongLiang3: newData.zhongLiang3 || '',
+      zhongLiang4: newData.zhongLiang4 || '',
+      zhongLiang5: newData.zhongLiang5 || '',
+      machineryJudgmentResult: newData.machineryJudgmentResult || ''
     })
   }
 }, { immediate: true })
-
-watch(
-  () => [form.compInspQty, form.mechInspQty],
-  () => {
-    form.sampleQuantity = (form.compInspQty || 0) + (form.mechInspQty || 0);
-  },
-  { immediate: true }
-)
 
 const resetForm = () => {
   if (formRef.value) {
@@ -428,18 +921,21 @@ const resetForm = () => {
     matRecheckNo: '',
     mafactory: '',
     matMaterial: '',
-    chemCuAl: '',
-    chemSb: '',
-    chemAs: '',
-    chemFe: '',
+    chemC: '',
+    chemSi: '',
+    chemMn: '',
+    chemP: '',
     chemS: '',
     
-    chemCuAlRequired: '',
-    chemSbRequired: '',
-    chemAsRequired: '',
-    chemFeRequired: '',
+    chemCRequired: '',
+    chemSiRequired: '',
+    chemMnRequired: '',
+    chemPRequired: '',
     chemSRequired: '',
-    
+    yieldStrength: '',
+    tensileStrength: '',
+    elongation: '',
+
     leaveFactoryDate: '',
     detectionTime: '',
     status: '40',
@@ -448,7 +944,7 @@ const resetForm = () => {
     basNo: '',
     batchNo: '',
     batchNum: '',
-    sampleQuantity: 2,
+    sampleQuantity: 1,
     compInspQty: 1,
     mechInspQty: 1,
     material: '',
@@ -461,7 +957,46 @@ const resetForm = () => {
     contractNo: '',
     contractName: '',
     acceptQuantity: '',
-    finalConclusion: ''
+    finalConclusion: '',
+    kong1: newData.kong1 || '',
+  kong2: newData.kong2 || '',
+  kong3: newData.kong3 || '',
+  kong4: newData.kong4 || '',
+  kong5: newData.kong5 || '',
+  kongJudgmentResult: newData.kongJudgmentResult || '',
+
+  zongChang1: newData.zongChang1 || '',
+  zongChang2: newData.zongChang2 || '',
+  zongChang3: newData.zongChang3 || '',
+  zongChang4: newData.zongChang4 || '',
+  zongChang5: newData.zongChang5 || '',
+  zongChangJudgmentResult: newData.zongChangJudgmentResult || '',
+
+  kuan1: newData.kuan1 || '',
+  kuan2: newData.kuan2 || '',
+  kuan3: newData.kuan3 || '',
+  kuan4: newData.kuan4 || '',
+  kuan5: newData.kuan5 || '',
+  kuanJudgmentResult: newData.kuanJudgmentResult || '',
+
+  touKuan1: newData.touKuan1 || '',
+  touKuan2: newData.touKuan2 || '',
+  touKuan3: newData.touKuan3 || '',
+  touKuan4: newData.touKuan4 || '',
+  touKuan5: newData.touKuan5 || '',
+  touKuanJudgmentResult: newData.touKuanJudgmentResult || '',
+
+  // 新增外观字段
+  appearance: newData.appearance || '',
+  appearanceJudgmentResult: newData.appearanceJudgmentResult || '',
+
+  // 新增机械性能字段
+  zhongLiang1: newData.zhongLiang1 || '',
+  zhongLiang2: newData.zhongLiang2 || '',
+  zhongLiang3: newData.zhongLiang3 || '',
+  zhongLiang4: newData.zhongLiang4 || '',
+  zhongLiang5: newData.zhongLiang5 || '',
+  machineryJudgmentResult: newData.machineryJudgmentResult || ''
   })
 }
 
@@ -474,7 +1009,7 @@ const submitForm = async () => {
       ElMessage.error('单据号不能为空，请检查')
       return
     }
-    await updateTb(form)
+    await updateCt(form)
     emit('success')
     emit('update:visible', false)
     ElMessage.success('更新成功')

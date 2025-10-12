@@ -79,7 +79,7 @@
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }}  {{ row.unit }}</span>
+            <span class="truncate">{{ row.deliveryQuantity }} t</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -165,7 +165,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
-import { getTbPage, deleteTb, getTbById, updateStatus } from '@/api/clmanage/cl-tb'
+import { getCtPage, deleteCt, getCtById, updateStatus } from '@/api/clmanage/cl-ct'
 import addForm from './addRequest.vue'
 import editForm from './editCheckRequest.vue'
 import { baseURL } from '@/utils/request'
@@ -217,7 +217,7 @@ const STATUS_ACTION_MAP = {
   "20": [ // 确认状态可执行操作
   { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
   { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-],
+  ],
 
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
@@ -290,7 +290,7 @@ const loading = ref(false)
 // 生成新的单据号编码
 const generateNewCode = async () => {
   try {
-    const res = await getNewNoNyName('cl-tb')
+    const res = await getNewNoNyName('cl-ct')
     if (res?.code === 200) {
       console.log("获取编码成功", res.data.fullNoNyName)
       return res.data.fullNoNyName
@@ -360,13 +360,13 @@ const handleAdd = async () => {
 }
 
 const handleEdit = async (id) => {
-  const res = await getTbById({ id: id })
+  const res = await getCtById({ id: id })
   formData.value = res.data.record
   editDialogVisible.value = true
 }
 
 const handlePreview = async (id) => {
-  const res = await getTbById({ id: id })
+  const res = await getCtById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
@@ -386,7 +386,7 @@ const handleSuccessEdit = () => {
 const getAluminumIngotList = async () => {
   loading.value = true
   try {
-    const res = await getTbPage(queryParams)
+    const res = await getCtPage(queryParams)
     aluminumIngotList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
@@ -424,7 +424,7 @@ const handleDelete = async (row) => {
       { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
     )
     
-    const response = await deleteTb({ id: row.id })
+    const response = await deleteCt({ id: row.id })
     if (response?.code === 200) {
       ElMessage.success("删除成功")
       getAluminumIngotList()

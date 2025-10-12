@@ -84,7 +84,7 @@
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} t</span>
+            <span class="truncate">{{ row.deliveryQuantity }}  {{ row.unit }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -268,7 +268,7 @@ const queryParams = reactive({
   contractNo: '',
   contractName: '',
   basNo: '',
-  status: '', // 添加状态筛选参数
+  status: '20', // 添加状态筛选参数
   pageNumber: 1,
   pageSize: 10
 })
@@ -351,7 +351,7 @@ const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
   queryParams.basNo = ''
-  queryParams.status = ''
+  queryParams.status = '20'
   queryParams.pageNumber = 1
   getAluminumIngotList()
 }

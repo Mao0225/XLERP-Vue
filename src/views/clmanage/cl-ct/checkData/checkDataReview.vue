@@ -144,12 +144,287 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="chemAl" label="Cu+Al(%)" width="90" />
-      <el-table-column prop="chemSi" label="Sb(%)" width="90" />
-      <el-table-column prop="chemFe" label="As(%)" width="90" />
-      <el-table-column prop="chemCu" label="Fe(%)" width="90" />
-      <el-table-column prop="chemNi" label="S(%)" width="90" />
-    
+      <el-table-column prop="chemC" label="C(%)" width="90" />
+      <el-table-column prop="chemSi" label="Si(%)" width="90" />
+      <el-table-column prop="chemMn" label="Mn(%)" width="90" />
+      <el-table-column prop="chemP" label="P(%)" width="90" />
+      <el-table-column prop="chemS" label="S(%)" width="90" />
+      <!-- 力学性能 -->
+<el-table-column prop="yieldStrength" label="屈服强度 (MPa)" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.yieldStrength" placement="top">
+      <span class="truncate">{{ row.yieldStrength || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="tensileStrength" label="抗拉强度 (MPa)" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.tensileStrength" placement="top">
+      <span class="truncate">{{ row.tensileStrength || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="elongation" label="延伸率 (%)" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.elongation" placement="top">
+      <span class="truncate">{{ row.elongation || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<!-- 尺寸信息 -->
+<el-table-column prop="kong1" label="孔" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kong1" placement="top">
+      <span class="truncate">{{ row.kong1 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kong2" label="孔" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kong2" placement="top">
+      <span class="truncate">{{ row.kong2 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kong3" label="孔" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kong3" placement="top">
+      <span class="truncate">{{ row.kong3 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kong4" label="孔" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kong4" placement="top">
+      <span class="truncate">{{ row.kong4 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kong5" label="孔" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kong5" placement="top">
+      <span class="truncate">{{ row.kong5 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kongJudgmentResult" label="判断结果" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kongJudgmentResult" placement="top">
+      <span class="truncate">{{ row.kongJudgmentResult}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="zongChang1" label="总长" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChang1" placement="top">
+      <span class="truncate">{{ row.zongChang1 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zongChang2" label="总长" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChang2" placement="top">
+      <span class="truncate">{{ row.zongChang2 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zongChang3" label="总长" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChang3" placement="top">
+      <span class="truncate">{{ row.zongChang3 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zongChang4" label="总长" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChang4" placement="top">
+      <span class="truncate">{{ row.zongChang4 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="zongChang5" label="总长" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChang5" placement="top">
+      <span class="truncate">{{ row.zongChang5 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zongChangJudgmentResult" label="判断结果" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChangJudgmentResult" placement="top">
+      <span class="truncate">{{ row.zongChangJudgmentResult}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+
+<el-table-column prop="kuan1" label="宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuan1" placement="top">
+      <span class="truncate">{{ row.kuan1 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kuan2" label="宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuan2" placement="top">
+      <span class="truncate">{{ row.kuan2 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kuan3" label="宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuan3" placement="top">
+      <span class="truncate">{{ row.kuan3 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kuan4" label="宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuan4" placement="top">
+      <span class="truncate">{{ row.kuan4 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="kuan5" label="宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuan5" placement="top">
+      <span class="truncate">{{ row.kuan5 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kuanJudgmentResult" label="判断结果" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuanJudgmentResult" placement="top">
+      <span class="truncate">{{ row.kuanJudgmentResult}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="touKuan1" label="头宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuan1" placement="top">
+      <span class="truncate">{{ row.touKuan1 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="touKuan2" label="头宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuan2" placement="top">
+      <span class="truncate">{{ row.touKuan2 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="touKuan3" label="头宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuan3" placement="top">
+      <span class="truncate">{{ row.touKuan3 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="touKuan4" label="头宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuan4" placement="top">
+      <span class="truncate">{{ row.touKuan4 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="touKuan5" label="头宽" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuan5" placement="top">
+      <span class="truncate">{{ row.touKuan5 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="touKuanJudgmentResult" label="判断结果" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuanJudgmentResult" placement="top">
+      <span class="truncate">{{ row.touKuanJudgmentResult}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<!-- 外形信息 -->
+ <el-table-column prop="type " label="规格" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.type " placement="top">
+      <span class="truncate">{{ row.type  }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="appearance " label="外形" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.appearance " placement="top">
+      <span class="truncate">{{ row.appearance  }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="appearanceJudgmentResult" label="判断结果" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.appearanceJudgmentResult" placement="top">
+      <span class="truncate">{{ row.appearanceJudgmentResult}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<!-- 机械性能 -->
+<el-table-column prop="type " label="规格" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.type " placement="top">
+      <span class="truncate">{{ row.type  }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zhongLiang1" label="重量" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zhongLiang1" placement="top">
+      <span class="truncate">{{ row.zhongLiang1 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zhongLiang2" label="重量" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zhongLiang2" placement="top">
+      <span class="truncate">{{ row.zhongLiang2 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zhongLiang3" label="重量" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zhongLiang3" placement="top">
+      <span class="truncate">{{ row.zhongLiang3 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zhongLiang4" label="重量" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zhongLiang4" placement="top">
+      <span class="truncate">{{ row.zhongLiang4 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
+<el-table-column prop="zhongLiang5" label="重量" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zhongLiang5" placement="top">
+      <span class="truncate">{{ row.zhongLiang5 }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="machineryJudgmentResult" label="判断结果" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.machineryJudgmentResult" placement="top">
+      <span class="truncate">{{ row.machineryJudgmentResult}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+
      <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
@@ -223,7 +498,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled } from '@element-plus/icons-vue'
-import { getTbPage, getTbById, updateStatus } from '@/api/clmanage/cl-tb'
+import { getCtPage, getCtById, updateStatus } from '@/api/clmanage/cl-ct'
 import { baseURL } from '@/utils/request'
 import checkDataPreview from './checkDataPreview.vue'
 
@@ -234,7 +509,7 @@ const userStore = useUserStore()
 
 const previewDialogVisible = ref(false)
 const handlePreview = async (id) => {
-  const res = await getTbById({ id: id })
+  const res = await getCtById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
@@ -384,12 +659,12 @@ const getAluminumIngotList = async () => {
   loading.value = true
   try {
     
-    const res = await getTbPage(queryParams)
+    const res = await getCtPage(queryParams)
     aluminumIngotList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
-    console.error('获取铜板列表失败', error)
-    ElMessage.error('获取铜板列表失败')
+    console.error('获取锤头列表失败', error)
+    ElMessage.error('获取锤头列表失败')
   } finally {
     loading.value = false
   }

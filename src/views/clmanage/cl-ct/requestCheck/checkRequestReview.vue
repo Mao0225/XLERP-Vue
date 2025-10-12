@@ -16,7 +16,6 @@
             <Refresh />
           </el-icon> 刷新
         </el-button>
-        <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
     </div>
 
@@ -40,7 +39,20 @@
           </el-tooltip>
         </template>
       </el-table-column>
-
+      <!-- <el-table-column prop="matRecheckNo" label="复检单号" width="140">
+        <template #default="{ row }">
+          <el-tooltip :content="row.matRecheckNo" placement="top">
+            <span class="truncate">{{ row.matRecheckNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column> -->
+      <el-table-column prop="batchNo" label="炉批号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.batchNo" placement="top">
+            <span class="truncate">{{ row.batchNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="mafactory" label="制造商" width="160">
         <template #default="{ row }">
           <el-tooltip :content="row.mafactory" placement="top">
@@ -69,17 +81,10 @@
           </el-tooltip>
         </template>
       </el-table-column>
-            <el-table-column prop="batchNo" label="炉批号" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.batchNo" placement="top">
-            <span class="truncate">{{ row.batchNo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }}  {{ row.unit }}</span>
+            <span class="truncate">{{ row.deliveryQuantity }} t</span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -90,7 +95,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-  
+      
       <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.requestWriter" placement="top">
@@ -98,7 +103,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="requestAuditor" label="审核人" width="120">
+       <el-table-column prop="requestAuditor" label="审核人" width="120">
         <template #default="{ row }">
           <el-tooltip :content="row.requestAuditor" placement="top">
             <span class="truncate">{{ row.requestAuditor }}</span>
@@ -152,12 +157,8 @@
         :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total"
         @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
-
-    <addForm :newCode="newCode" :visible="addDialogVisible" @update:visible="addDialogVisible = $event"
-      @success="handleSuccessAdd" />
-    <editForm :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
-      @success="handleSuccessEdit" />
     <requestFormPreview :visible="previewDialogVisible" :initial-data="formData" @update:visible="previewDialogVisible = $event"/>
+
   </div>
 </template>
 
@@ -165,60 +166,57 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, DataBoard, Check, Edit, Delete, CircleCloseFilled,Document} from '@element-plus/icons-vue'
-import { getTbPage, deleteTb, getTbById, updateStatus } from '@/api/clmanage/cl-tb'
-import addForm from './addRequest.vue'
-import editForm from './editCheckRequest.vue'
+import { getCtPage,  getCtById, updateStatus } from '@/api/clmanage/cl-ct'
 import { baseURL } from '@/utils/request'
-import { getNewNoNyName } from '@/api/system/basno'
+import { useUserStore } from '@/store/user'
 import requestFormPreview from './requestFormPreview.vue'
-
+const userStore = useUserStore()
+// =============== 状态常量定义 ===============
 
 
 const previewDialogVisible = ref(false)
-// =============== 状态常量定义 ===============
-// 状态值-名称映射表
+
+const handlePreview = async (id) => {
+  const res = await getCtById({ id: id })
+  formData.value = res.data.record
+  previewDialogVisible.value = true
+}
 // 状态值-名称映射表
 const STATUS_LABEL_MAP = {
-  "10": "请检单录入",
-  "20": "录入确认，待审核",
-  "30": "审核通过，待检验",
+  "20": "待审核",
+  "30": "审核通过，待检验",//待录入数据
   "40": "检验录入，待审核",
   "50": "检验完成",
+
   DEFAULT: "未知"
 }
 
 // 状态值-图标映射表
 const STATUS_ICON_MAP = {
-  "10": "Clock",
-  "20": "CircleCheck",
-  "30": "DataBoard",
-  "40": "Check",
-  "50": "Check",
+  "20": "CircleCheck", // 对勾圆图标
+  "30": "DataBoard", // 数据板图标
+  "40": "Check", // 对勾图标
+  "50": "Check", // 对勾图标
+
   DEFAULT: "Clock"
 }
 
 // 状态值-Tag类型映射表
 const STATUS_TAG_TYPE_MAP = {
-  "10": "info",
-  "20": "primary",
-  "30": "warning",
-  "40": "success",
-  "50": "success",
+  "20": "primary", // 深蓝色
+  "30": "warning", // 橙色
+  "40": "success", // 绿色
+  "50": "success", // 绿色
+
   DEFAULT: "info"
 }
 
 // 状态操作权限映射（当前状态→可执行操作）
 const STATUS_ACTION_MAP = {
-  "10": [ // 录入状态可执行操作
-    { action: "edit", text: "编辑", icon: "Edit", type: "primary" },
-    { action: "delete", text: "删除", icon: "Delete", type: "danger" },
-    { action: "confirm", text: "确认录入", icon: "CircleCheck", type: "success", targetStatus: "20" }
-  ],
   "20": [ // 确认状态可执行操作
-  { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
-  { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-],
-
+    { action: "audit", text: "审核通过", icon: "Check", type: "warning", targetStatus: "30" },
+    { action: "cancelConfirm", text: "退回录入", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+  ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ], // 检验录入完成状态无操作
@@ -228,8 +226,7 @@ const STATUS_ACTION_MAP = {
   ], // 检验审核完成状态无操作
   "50": [
         { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
-
-  ]  // 已入库状态无操作
+  ] 
 }
 
 // =============== 状态工具函数 ===============
@@ -258,26 +255,20 @@ const getStatusActions = (statusValue) => {
 // 根据目标状态获取操作文本
 const getStatusActionText = (targetStatus) => {
   switch (targetStatus) {
-    case "10": return "反确认"
+    case "10": return "退回录入"
     case "20": return "确认录入"
     case "30": return "审核通过"
-    case "40": return "完成检验"
-    case "50": return "入库"
     default: return "更新状态"
   }
 }
 
-// =============== 响应式数据 ===============
-const newCode = ref('')
-const addDialogVisible = ref(false)
-const editDialogVisible = ref(false)
 const formData = ref({})
 
 const queryParams = reactive({
   contractNo: '',
   contractName: '',
   basNo: '',
-  status: '', // 添加状态筛选参数
+  status: '20', // 添加状态筛选参数
   pageNumber: 1,
   pageSize: 10
 })
@@ -287,32 +278,9 @@ const total = ref(0)
 const loading = ref(false)
 
 // =============== 业务方法 ===============
-// 生成新的单据号编码
-const generateNewCode = async () => {
-  try {
-    const res = await getNewNoNyName('cl-tb')
-    if (res?.code === 200) {
-      console.log("获取编码成功", res.data.fullNoNyName)
-      return res.data.fullNoNyName
-    }
-    ElMessage.error(res?.msg || '获取编码失败')
-    return ''
-  } catch (error) {
-    console.error('生成编码出错:', error)
-    ElMessage.error('请求编码服务时发生错误')
-    return ''
-  }
-}
-
 // 统一处理操作按钮点击
 const handleActionClick = (action, row) => {
   switch (action.action) {
-    case "edit":
-      handleEdit(row.id)
-      break
-    case "delete":
-      handleDelete(row)
-      break
     case "preview":
       handlePreview(row.id)
       break
@@ -337,7 +305,7 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
     )
     
     // 调用接口更新状态
-    const response = await updateStatus({ id: orderId, status: targetStatus })
+    const response = await updateStatus({ id: orderId, status: targetStatus,updatePerson:userStore.realName })
     
     // 处理结果
     if (response?.code === 200) {
@@ -353,40 +321,12 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
   }
 }
 
-const handleAdd = async () => {
-  newCode.value = await generateNewCode()
-  console.log("newCode.value", newCode.value)
-  addDialogVisible.value = true
-}
 
-const handleEdit = async (id) => {
-  const res = await getTbById({ id: id })
-  formData.value = res.data.record
-  editDialogVisible.value = true
-}
-
-const handlePreview = async (id) => {
-  const res = await getTbById({ id: id })
-  formData.value = res.data.record
-  previewDialogVisible.value = true
-}
-
-const handleSuccessAdd = () => {
-  addDialogVisible.value = false
-  ElMessage.success('请检单记录新增成功')
-  getAluminumIngotList()
-}
-
-const handleSuccessEdit = () => {
-  editDialogVisible.value = false
-  ElMessage.success('请检单记录修改成功')
-  getAluminumIngotList()
-}
 
 const getAluminumIngotList = async () => {
   loading.value = true
   try {
-    const res = await getTbPage(queryParams)
+    const res = await getCtPage(queryParams)
     aluminumIngotList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
@@ -411,31 +351,9 @@ const handleRefresh = () => {
   queryParams.contractNo = ''
   queryParams.contractName = ''
   queryParams.basNo = ''
-  queryParams.status = ''
+  queryParams.status = '20'
   queryParams.pageNumber = 1
   getAluminumIngotList()
-}
-
-const handleDelete = async (row) => {
-  try {
-    await ElMessageBox.confirm(
-      `确认删除请检单记录"${row.basNo}"吗？`,
-      "提示",
-      { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" }
-    )
-    
-    const response = await deleteTb({ id: row.id })
-    if (response?.code === 200) {
-      ElMessage.success("删除成功")
-      getAluminumIngotList()
-    } else {
-      ElMessage.error(response?.msg || "删除失败")
-    }
-  } catch (error) {
-    if (error !== "cancel") {
-      ElMessage.error("删除失败")
-    }
-  }
 }
 
 const openFileInNewWindow = (url) => {
