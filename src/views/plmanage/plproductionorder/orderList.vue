@@ -137,6 +137,15 @@
                     查看工单情况
                   </el-button>
                 </template>
+                
+                <template v-if="row.status == 40">
+                   <el-button type="primary" size="small" @click="openWorkListDialog(row.ipoNo)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看工单情况
+                  </el-button>
+                </template>
 
                 <template v-if="row.status == 20">
                   <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 10)">

@@ -224,6 +224,16 @@ const viewComponents = {
   //锤头请检单审核
   'clmanage/clct/checkRequestReview': () => import('@/views/clmanage/cl-ct/requestCheck/checkRequestReview.vue'),
 
+
+    //铝管检验数据录入
+  'clmanage/cllg/checkDataEntry': () => import('@/views/clmanage/cl-lg/checkData/checkDataEntry.vue'),
+  //铝管检验数据审核
+  'clmanage/cllg/checkDataReview': () => import('@/views/clmanage/cl-lg/checkData/checkDataReview.vue'),
+  //铝管请检单录入
+  'clmanage/cllg/checkRequestEntry': () => import('@/views/clmanage/cl-lg/requestCheck/checkRequestEntry.vue'),
+  //铝管请检单审核
+  'clmanage/cllg/checkRequestReview': () => import('@/views/clmanage/cl-lg/requestCheck/checkRequestReview.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射

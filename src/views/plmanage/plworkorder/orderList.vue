@@ -105,7 +105,14 @@
                     审核通过
                   </el-button>
                 </template>
-
+                <template v-if="row.status == 40">
+                   <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看报工情况
+                  </el-button>
+                </template>
                 <template v-if="row.status === '30'">
                   <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 40)">
                     <el-icon>

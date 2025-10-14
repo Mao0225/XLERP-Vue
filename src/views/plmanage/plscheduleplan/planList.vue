@@ -136,6 +136,15 @@
                   </el-button>
                 </template>
 
+                <template v-if="row.status == 40">
+                   <el-button type="primary" size="small" @click="opennProductionOrderDialog(row.scheduleCode)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看订单情况
+                  </el-button>
+                </template>
+
                 <template v-if="row.status == 20">
                   <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, 10)">
                     <el-icon>
