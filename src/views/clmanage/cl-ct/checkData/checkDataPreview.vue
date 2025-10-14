@@ -48,227 +48,203 @@
             <span>{{ initialData.standard || '-' }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="外观尺寸">
-            <span>{{ initialData.appearanceSize || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="炉批号">
-            <span>{{ initialData.batchNo || '-' }}</span>
-          </el-form-item>
-        </el-col>
+        
         <el-col :span="12">
           <el-form-item label="批次号">
             <span>{{ initialData.batchNum || '-' }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="成分抽检数(件)">
-            <span>{{ initialData.compInspQty || '-' }}</span>
-          </el-form-item>
-        </el-col>
+        
         <el-col :span="12">
           <el-form-item label="抽检数量(件)">
             <span>{{ initialData.sampleQuantity || '-' }}</span>
           </el-form-item>
         </el-col>
 
-        <!-- 化学成分 -->
-        <el-col :span="24">
-          <el-divider content-position="left">化学成分 (%)</el-divider>
-        </el-col>
-        <el-col :span="24">
-          <el-row :gutter="16">
-            <el-col
-              :span="8"
-              v-for="chem in Object.keys(initialData).filter(key => key.startsWith('chem') && !key.endsWith('Required'))"
-              :key="chem"
-            >
-              <el-form-item :label="chem.replace('chem', '')">
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item :label="chem.replace('chem', '') + '实测值'">
-                      <span>{{ initialData[chem] || '-' }}</span>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item :label="chem.replace('chem', '') + '要求值'">
-                      <span>{{ initialData[chem + 'Required'] || '-' }}</span>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-col>
-        <!-- 力学性能 -->
-<el-col :span="24">
-  <el-divider content-position="left">力学性能</el-divider>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="屈服强度 (MPa)">
-    <span>{{ initialData.yieldStrength || '-' }}</span>
-  </el-form-item>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="抗拉强度 (MPa)">
-    <span>{{ initialData.tensileStrength || '-' }}</span>
-  </el-form-item>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="延伸率 (MPa)">
-    <span>{{ initialData.elongation || '-' }}</span>
-  </el-form-item>
-</el-col>
+        
 <!-- 尺寸信息 -->
 <el-col :span="24">
   <el-divider content-position="left">尺寸信息</el-divider>
 </el-col>
-
-<el-col :span="12">
-  <el-form-item label="孔">
-    <span>{{ initialData.kong1 || '-' }}</span>
-  </el-form-item>
+<!-- 孔 -->
+<el-col :span="24">
+  <el-divider content-position="left">孔</el-divider>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="孔">
-    <span>{{ initialData.kong2 || '-' }}</span>
-  </el-form-item>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="孔">
-    <span>{{ initialData.kong3 || '-' }}</span>
-  </el-form-item>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="孔">
-    <span>{{ initialData.kong4 || '-' }}</span>
-  </el-form-item>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="孔">
-    <span>{{ initialData.kong5 || '-' }}</span>
-  </el-form-item>
-</el-col>
-<el-col :span="12">
-  <el-form-item label="判断结果">
-    <span>{{ initialData.kongJudgmentResult || '-' }}</span>
+  <el-form-item label="孔标准尺寸">
+  <span>{{ initialData.kongRequired|| '-' }}</span>
   </el-form-item>
 </el-col>
 
 <el-col :span="12">
-  <el-form-item label="总长 (mm)">
-    <span>{{ initialData.zongChang1 || '-' }}</span>
+  <el-form-item label="实测值1">
+    <span>{{ initialData.kong1|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="总长 (mm)">
-    <span>{{ initialData.zongChang2 || '-' }}</span>
+  <el-form-item label="实测值2">
+    <span>{{ initialData.kong2|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="总长 (mm)">
-    <span>{{ initialData.zongChang3 || '-' }}</span>
+  <el-form-item label="实测值3">
+    <span>{{ initialData.kong3|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="总长 (mm)">
-    <span>{{ initialData.zongChang4 || '-' }}</span>
+  <el-form-item label="实测值4">
+    <span>{{ initialData.kong4|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="总长 (mm)">
-    <span>{{ initialData.zongChang5 || '-' }}</span>
+  <el-form-item label="实测值5">
+    <span>{{ initialData.kong5|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
   <el-form-item label="判断结果">
-    <span>{{ initialData.zongChangJudgmentResult || '-' }}</span>
+    <span>{{ initialData.kongJudgmentResult|| '-' }}</span>
+  </el-form-item>
+</el-col>
+
+<!-- 总长 -->
+<el-col :span="24">
+  <el-divider content-position="left">总长</el-divider>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="总长标准尺寸(mm)">
+  <span>{{ initialData.zongChangRequired|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值1(mm)">
+    <span>{{ initialData.zongChang1|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值2(mm)">
+    <span>{{ initialData.zongChang2|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值3(mm)">
+    <span>{{ initialData.zongChang3|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值4(mm)">
+    <span>{{ initialData.zongChang4|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值5(mm)">
+    <span>{{ initialData.zongChang5|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="判断结果">
+    <span>{{ initialData.zongChangJudgmentResult|| '-' }}</span>
+  </el-form-item>
+</el-col>
+
+<!-- 宽 -->
+<el-col :span="24">
+  <el-divider content-position="left">宽</el-divider>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="宽标准尺寸(mm)">
+  <span>{{ initialData.kuanRequired|| '-' }}</span>
   </el-form-item>
 </el-col>
 
 <el-col :span="12">
-  <el-form-item label="宽 (mm)">
-    <span>{{ initialData.kuan1 || '-' }}</span>
+  <el-form-item label="实测值1(mm)">
+    <span>{{ initialData.kuan1|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="宽 (mm)">
-    <span>{{ initialData.kuan2 || '-' }}</span>
+  <el-form-item label="实测值2(mm)">
+    <span>{{ initialData.kuan2|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="宽 (mm)">
-    <span>{{ initialData.kuan3 || '-' }}</span>
+  <el-form-item label="实测值3(mm)">
+    <span>{{ initialData.kuan3|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="宽 (mm)">
-    <span>{{ initialData.kuan4 || '-' }}</span>
+  <el-form-item label="实测值4(mm)">
+    <span>{{ initialData.kuan4|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="宽 (mm)">
-    <span>{{ initialData.kuan5 || '-' }}</span>
+  <el-form-item label="实测值5(mm)">
+    <span>{{ initialData.kuan5|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
   <el-form-item label="判断结果">
-    <span>{{ initialData.kuanJudgmentResult || '-' }}</span>
+    <span>{{ initialData.kuanJudgmentResult|| '-' }}</span>
   </el-form-item>
 </el-col>
 
+<!-- 头宽 -->
+<el-col :span="24">
+  <el-divider content-position="left">头宽</el-divider>
+</el-col>
 <el-col :span="12">
-  <el-form-item label="头宽 (mm)">
-    <span>{{ initialData.touKuan1 || '-' }}</span>
+  <el-form-item label="头宽标准尺寸(mm)">
+  <span>{{ initialData.touKuanRequired|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="头宽 (mm)">
-    <span>{{ initialData.touKuan2 || '-' }}</span>
+  <el-form-item label="实测值1(mm)">
+    <span>{{ initialData.touKuan1|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="头宽 (mm)">
-    <span>{{ initialData.touKuan3 || '-' }}</span>
+  <el-form-item label="实测值2(mm)">
+    <span>{{ initialData.touKuan2|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="头宽 (mm)">
-    <span>{{ initialData.touKuan4 || '-' }}</span>
+  <el-form-item label="实测值3(mm)">
+    <span>{{ initialData.touKuan3|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="头宽 (mm)">
-    <span>{{ initialData.touKuan5 || '-' }}</span>
+  <el-form-item label="实测值4(mm)">
+    <span>{{ initialData.touKuan4|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值5(mm)">
+    <span>{{ initialData.touKuan5|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
   <el-form-item label="判断结果">
-    <span>{{ initialData.touKuanJudgmentResult || '-' }}</span>
+    <span>{{ initialData.touKuanJudgmentResult|| '-' }}</span>
   </el-form-item>
 </el-col>
 <!-- 外形信息 -->
 <el-col :span="24">
   <el-divider content-position="left">外形信息</el-divider>
 </el-col>
-
 <el-col :span="12">
-  <el-form-item label="规格">
-    <span>{{ initialData.type || '-' }}</span>
+  <el-form-item label="外形标准">
+  <span>{{ initialData.appearanceRequired|| '-' }}</span>
   </el-form-item>
 </el-col>
-
 <el-col :span="12">
   <el-form-item label="外形">
-    <span>{{ initialData.appearance || '-' }}</span>
+    <span>{{ initialData.appearance|| '-' }}</span>
   </el-form-item>
 </el-col>
 
 <el-col :span="12">
   <el-form-item label="判断结果">
-    <span>{{ initialData.appearanceJudgmentResult || '-' }}</span>
+    <span>{{ initialData.appearanceJudgmentResult|| '-' }}</span>
   </el-form-item>
 </el-col>
 <!-- 机械性能 -->
@@ -276,41 +252,44 @@
   <el-divider content-position="left">机械性能</el-divider>
 </el-col>
 
-<el-col :span="12">
-  <el-form-item label="规格">
-    <span>{{ initialData.type || '-' }}</span>
-  </el-form-item>
-</el-col>
-
-<el-col :span="12">
-  <el-form-item label="重量">
-    <span>{{ initialData.zhongLiang1 || '-' }}</span>
-  </el-form-item>
+<!-- 重量 -->
+<el-col :span="24">
+  <el-divider content-position="left">重量</el-divider>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="重量">
-    <span>{{ initialData.zhongLiang2 || '-' }}</span>
+  <el-form-item label="重量标准">
+  <span>{{ initialData.zhongLiangRequired|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="重量">
-    <span>{{ initialData.zhongLiang3 || '-' }}</span>
+  <el-form-item label="实测值1">
+    <span>{{ initialData.zhongLiang1|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="重量">
-    <span>{{ initialData.zhongLiang4 || '-' }}</span>
+  <el-form-item label="实测值2">
+    <span>{{ initialData.zhongLiang2|| '-' }}</span>
   </el-form-item>
 </el-col>
 <el-col :span="12">
-  <el-form-item label="重量">
-    <span>{{ initialData.zhongLiang5 || '-' }}</span>
+  <el-form-item label="实测值3">
+    <span>{{ initialData.zhongLiang3|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值4">
+    <span>{{ initialData.zhongLiang4|| '-' }}</span>
+  </el-form-item>
+</el-col>
+<el-col :span="12">
+  <el-form-item label="实测值5">
+    <span>{{ initialData.zhongLiang5|| '-' }}</span>
   </el-form-item>
 </el-col>
 
 <el-col :span="12">
   <el-form-item label="判断结果">
-    <span>{{ initialData.machineryJudgmentResult || '-' }}</span>
+    <span>{{ initialData.machineryJudgmentResult|| '-' }}</span>
   </el-form-item>
 </el-col>
 
@@ -321,12 +300,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="出厂检测日期">
-            <span>{{ initialData.leaveFactoryDate || '-' }}</span>
+            <span>{{ initialData.leaveFactoryDate|| '-' }}</span>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="入厂检测日期">
-            <span>{{ initialData.detectionTime || '-' }}</span>
+            <span>{{ initialData.detectionTime|| '-' }}</span>
           </el-form-item>
         </el-col>
 

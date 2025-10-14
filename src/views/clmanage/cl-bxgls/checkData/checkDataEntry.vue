@@ -73,7 +73,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      
+      <el-table-column prop="batchNo" label="炉批号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.batchNo" placement="top">
+            <span class="truncate">{{ row.batchNo }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="mafactory" label="制造商" width="160">
         <template #default="{ row }">
           <el-tooltip :content="row.mafactory" placement="top">
@@ -81,7 +87,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      
+      <el-table-column prop="matMaterial" label="牌号" width="120">
+        <template #default="{ row }">
+          <el-tooltip :content="row.matMaterial" placement="top">
+            <span class="truncate">{{ row.matMaterial }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="material" label="材质" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.material" placement="top">
@@ -103,7 +115,13 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      
+      <el-table-column prop="appearanceSize" label="外观尺寸" width="100">
+        <template #default="{ row }">
+          <el-tooltip :content="row.appearanceSize" placement="top">
+            <span class="truncate">{{ row.appearanceSize }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="sampleQuantity" label="样品数量" width="90">
         <template #default="{ row }">
           <el-tooltip :content="row.sampleQuantity" placement="top">
@@ -125,226 +143,24 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      
-      
-
-<template>
-  <el-table
-    :data="tableData"
-    border
-    stripe
-    style="width: 100%; font-size: 13px;"
-    header-cell-style="background: #f5f7fa; font-weight: bold; text-align: center;"
-  >
-    <!-- 尺寸信息 -->
-    <el-table-column label="尺寸信息">
-      <!-- 孔 -->
-       <el-table-column prop="kongRequired" label="孔标准尺寸" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.kongRequired" placement="top">
-            <span class="truncate">{{ row.kongRequired}}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column label="孔实际值检测">
-        <el-table-column
-          v-for="n in 5"
-          :key="'kong' + n"
-          :prop="'kong' + n"
-          :label="'测量值' + n"
-          width="120"
-          align="center"
-        >
-          <template #default="{ row }">
-            <el-tooltip :content="row['kong' + n]" placement="top">
-              <span class="truncate">{{ row['kong' + n] }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="kongJudgmentResult" label="判断结果" width="140" align="center">
-          <template #default="{ row }">
-            <el-select v-model="row.kongJudgmentResult" placeholder="请选择" size="small" clearable style="width: 110px">
-              <el-option label="合格" value="合格" />
-              <el-option label="不合格" value="不合格" />
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table-column>
-
-      <!-- 总长 -->
-        <el-table-column prop="zongChangRequired" label="总长标准尺寸" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.zongChangRequired" placement="top">
-            <span class="truncate">{{ row.zongChangRequired}}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column label="总长实际值检测">
-        <el-table-column
-          v-for="n in 5"
-          :key="'zongChang' + n"
-          :prop="'zongChang' + n"
-          :label="'测量值' + n"
-          width="120"
-          align="center"
-        >
-          <template #default="{ row }">
-            <el-tooltip :content="row['zongChang' + n]" placement="top">
-              <span class="truncate">{{ row['zongChang' + n] }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="zongChangJudgmentResult" label="判断结果" width="140" align="center">
-          <template #default="{ row }">
-            <el-select v-model="row.zongChangJudgmentResult" placeholder="请选择" size="small" clearable style="width: 110px">
-              <el-option label="合格" value="合格" />
-              <el-option label="不合格" value="不合格" />
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table-column>
-
-      <!-- 宽 -->
-       <el-table-column prop="kuanRequired" label="宽标准尺寸" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.kuanRequired" placement="top">
-            <span class="truncate">{{ row.kuanRequired}}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column label="宽实际值检测">
-        <el-table-column
-          v-for="n in 5"
-          :key="'kuan' + n"
-          :prop="'kuan' + n"
-          :label="'测量值' + n"
-          width="120"
-          align="center"
-        >
-          <template #default="{ row }">
-            <el-tooltip :content="row['kuan' + n]" placement="top">
-              <span class="truncate">{{ row['kuan' + n] }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        
-        <el-table-column prop="kuanJudgmentResult" label="判断结果" width="140" align="center">
-          <template #default="{ row }">
-            <el-select v-model="row.kuanJudgmentResult" placeholder="请选择" size="small" clearable style="width: 110px">
-              <el-option label="合格" value="合格" />
-              <el-option label="不合格" value="不合格" />
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table-column>
-
-      <!-- 头宽 -->
-       <el-table-column prop="touKuanRequired" label="头宽标准尺寸" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.touKuanRequired" placement="top">
-            <span class="truncate">{{ row.touKuanRequired}}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column label="头宽实际值检测">
-        <el-table-column
-          v-for="n in 5"
-          :key="'touKuan' + n"
-          :prop="'touKuan' + n"
-          :label="'测量值' + n"
-          width="120"
-          align="center"
-        >
-          <template #default="{ row }">
-            <el-tooltip :content="row['touKuan' + n]" placement="top">
-              <span class="truncate">{{ row['touKuan' + n] }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-      
-        <el-table-column prop="touKuanJudgmentResult" label="判断结果" width="140" align="center">
-          <template #default="{ row }">
-            <el-select v-model="row.touKuanJudgmentResult" placeholder="请选择" size="small" clearable style="width: 110px">
-              <el-option label="合格" value="合格" />
-              <el-option label="不合格" value="不合格" />
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table-column>
-    </el-table-column>
-
-    <!-- 外形信息 -->
-    <el-table-column label="外形信息">
-      <el-table-column prop="appearance" label="外形描述" width="180" align="center">
-        <template #default="{ row }">
-          <el-tooltip :content="row.appearance" placement="top">
-            <span class="truncate">{{ row.appearance }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="appearanceRequired" label="外形标准" width="180" align="center">
-        <template #default="{ row }">
-          <el-tooltip :content="row.appearanceRequired" placement="top">
-            <span class="truncate">{{ row.appearanceRequired }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="appearanceJudgmentResult" label="判断结果" width="140" align="center">
-        <template #default="{ row }">
-          <el-select v-model="row.appearanceJudgmentResult" placeholder="请选择" size="small" clearable style="width: 110px">
-            <el-option label="合格" value="合格" />
-            <el-option label="不合格" value="不合格" />
-          </el-select>
-        </template>
-      </el-table-column>
-    </el-table-column>
-
-    <!-- 机械性能 -->
-     <el-table-column prop="zhongLiangRequired" label="重量标准值" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.zhongLiangRequired" placement="top">
-            <span class="truncate">{{ row.zhongLiangRequired}}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-    <el-table-column label="机械性能">
-      <el-table-column label="重量实际值检测">
-        <el-table-column
-          v-for="n in 5"
-          :key="'zhongLiang' + n"
-          :prop="'zhongLiang' + n"
-          :label="'测量值' + n"
-          width="120"
-          align="center"
-        >
-          <template #default="{ row }">
-            <el-tooltip :content="row['zhongLiang' + n]" placement="top">
-              <span class="truncate">{{ row['zhongLiang' + n] }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-      <el-table-column prop="zhongLiangRequired" label="重量标准值" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.zhongLiangRequired" placement="top">
-            <span class="truncate">{{ row.zhongLiangRequired}}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-        <el-table-column prop="machineryJudgmentResult" label="判断结果" width="140" align="center">
-          <template #default="{ row }">
-            <el-select v-model="row.machineryJudgmentResult" placeholder="请选择" size="small" clearable style="width: 110px">
-              <el-option label="合格" value="合格" />
-              <el-option label="不合格" value="不合格" />
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table-column>
-    </el-table-column>
-  </el-table>
-</template>
-
-
-      
+      <el-table-column prop="chemC" label="C(%)" width="90" />
+      <el-table-column prop="chemSi" label="Si(%)" width="90" />
+      <el-table-column prop="chemMn" label="Mn(%)" width="90" />
+      <el-table-column prop="chemCr" label="Cr(%)" width="90" />
+      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
+      <el-table-column prop="chemStandard" label="化学成分规格" width="150" />
+      <el-table-column prop="chemBatchNo" label="化学成分炉号" width="150" />
+      <el-table-column prop="chemBatchNum" label="化学成分批号" width="150" />
+      <el-table-column prop="chemDeterminationResult" label="化学成分判断结果" width="150" />
+      <el-table-column prop="shapeStandard" label="外形规格" width="150" />
+      <el-table-column prop="shapeOutOfRoundness" label="外形不圆度" width="150" />
+      <el-table-column prop="shapeDeterminationResult" label="外形判断结果" width="150" />
+      <el-table-column prop="sizeStandard" label="尺寸规格" width="150" />
+      <el-table-column prop="sizeRequired1" label="尺寸实际测量值一" width="150" />
+      <el-table-column prop="sizeRequired2" label="尺寸实际测量值二" width="150" />
+      <el-table-column prop="sizeRequired3" label="尺寸实际测量值三" width="150" />
+      <el-table-column prop="sizeMean" label="尺寸平均值" width="150" />
+      <el-table-column prop="sizeDeterminationResult" label="尺寸判断结果" width="150" />
       <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
@@ -424,7 +240,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Clock, CircleCheck, Check, Box, Delete, Edit, CircleCloseFilled,Document } from '@element-plus/icons-vue'
-import { getCtPage, deleteCt, getCtById, updateStatus } from '@/api/clmanage/cl-ct'
+import { getBxglsPage, deleteBxgls, getBxglsById, updateStatus } from '@/api/clmanage/cl-bxgls'
 import { useRouter } from 'vue-router'
 import editForm from './entryCheckDataForm.vue'
 import { baseURL } from '@/utils/request'
@@ -435,7 +251,7 @@ const userStore = useUserStore()
 const previewDialogVisible = ref(false)
 
 const handlePreview = async (id) => {
-  const res = await getCtById({ id: id })
+  const res = await getBxglsById({ id: id })
   formData.value = res.data.record
   previewDialogVisible.value = true
 }
@@ -550,9 +366,6 @@ const handleActionClick = (action, row) => {
     case "edit":
       handleEdit(row.id)
       break
-    case "delete":
-      handleDelete(row.id)
-      break
     case "preview":
       handlePreview(row.id)
       break
@@ -598,7 +411,7 @@ const handleStatusUpdate = async (orderId, targetStatus) => {
 
 
 const handleEdit = async (id) => {
-  const res = await getCtById({ id: id })
+  const res = await getBxglsById({ id: id })
   formData.value = res.data.record
   editDialogVisible.value = true
 }
@@ -606,7 +419,7 @@ const handleEdit = async (id) => {
 
 const handleSuccessEdit = () => {
   editDialogVisible.value = false
-  ElMessage.success('锤头记录修改成功')
+  ElMessage.success('不锈钢螺栓记录修改成功')
   getAluminumIngotList()
 }
 
@@ -614,33 +427,14 @@ const getAluminumIngotList = async () => {
   loading.value = true
   try {
     
-    const res = await getCtPage(queryParams)
+    const res = await getBxglsPage(queryParams)
     aluminumIngotList.value = res.data.page.list
     total.value = res.data.page.totalRow
   } catch (error) {
-    console.error('获取锤头列表失败', error)
-    ElMessage.error('获取锤头列表失败')
+    console.error('获取不锈钢螺栓列表失败', error)
+    ElMessage.error('获取不锈钢螺栓列表失败')
   } finally {
     loading.value = false
-  }
-}
-const handleDelete = async (id) => {
-  try {
-    await ElMessageBox.confirm("确认要删除这条记录吗？", "提示", {
-      type: "warning",
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-    })
-
-    const res = await deleteCt({ id })
-    if (res.code === 200) {
-      ElMessage.success("删除成功")
-      getAluminumIngotList() // ✅ 删除后刷新列表
-    } else {
-      ElMessage.error(res.msg || "删除失败")
-    }
-  } catch {
-    // 用户取消，不提示
   }
 }
 

@@ -60,13 +60,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="batchNo" label="炉批号" width="120">
-        <template #default="{ row }">
-          <el-tooltip :content="row.batchNo" placement="top">
-            <span class="truncate">{{ row.batchNo }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      
       <el-table-column prop="mafactory" label="制造商" width="160">
         <template #default="{ row }">
           <el-tooltip :content="row.mafactory" placement="top">
@@ -116,13 +110,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="appearanceSize" label="外观尺寸" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.appearanceSize" placement="top">
-            <span class="truncate">{{ row.appearanceSize }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      
       <el-table-column prop="sampleQuantity" label="样品数量" width="90">
         <template #default="{ row }">
           <el-tooltip :content="row.sampleQuantity" placement="top">
@@ -144,69 +132,48 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="chemC" label="C(%)" width="90" />
-      <el-table-column prop="chemSi" label="Si(%)" width="90" />
-      <el-table-column prop="chemMn" label="Mn(%)" width="90" />
-      <el-table-column prop="chemP" label="P(%)" width="90" />
-      <el-table-column prop="chemS" label="S(%)" width="90" />
-      <!-- 力学性能 -->
-<el-table-column prop="yieldStrength" label="屈服强度 (MPa)" width="120">
-  <template #default="{ row }">
-    <el-tooltip :content="row.yieldStrength" placement="top">
-      <span class="truncate">{{ row.yieldStrength || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-
-<el-table-column prop="tensileStrength" label="抗拉强度 (MPa)" width="120">
-  <template #default="{ row }">
-    <el-tooltip :content="row.tensileStrength" placement="top">
-      <span class="truncate">{{ row.tensileStrength || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-
-<el-table-column prop="elongation" label="延伸率 (%)" width="120">
-  <template #default="{ row }">
-    <el-tooltip :content="row.elongation" placement="top">
-      <span class="truncate">{{ row.elongation || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
+      
 
 <!-- 尺寸信息 -->
-<el-table-column prop="kong1" label="孔" width="120">
+<el-table-column prop="kong1" label="实测值1" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kong1" placement="top">
-      <span class="truncate">{{ row.kong1 }}</span>
+      <span class="truncate">{{ row.kong1}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kong2" label="孔" width="120">
+<el-table-column prop="kong2" label="实测值2" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kong2" placement="top">
-      <span class="truncate">{{ row.kong2 }}</span>
+      <span class="truncate">{{ row.kong2}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kong3" label="孔" width="120">
+<el-table-column prop="kong3" label="实测值3" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kong3" placement="top">
-      <span class="truncate">{{ row.kong3 }}</span>
+      <span class="truncate">{{ row.kong3}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kong4" label="孔" width="120">
+<el-table-column prop="kong4" label="实测值4" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kong4" placement="top">
-      <span class="truncate">{{ row.kong4 }}</span>
+      <span class="truncate">{{ row.kong4}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kong5" label="孔" width="120">
+<el-table-column prop="kong5" label="实测值5" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kong5" placement="top">
-      <span class="truncate">{{ row.kong5 }}</span>
+      <span class="truncate">{{ row.kong5}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kongRequired" label="孔标准尺寸" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kongRequired" placement="top">
+      <span class="truncate">{{ row.kongRequired}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
@@ -218,39 +185,46 @@
   </template>
 </el-table-column>
 
-<el-table-column prop="zongChang1" label="总长" width="120">
+<el-table-column prop="zongChang1" label="实测值1" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zongChang1" placement="top">
-      <span class="truncate">{{ row.zongChang1 }}</span>
+      <span class="truncate">{{ row.zongChang1}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="zongChang2" label="总长" width="120">
+<el-table-column prop="zongChang2" label="实测值2" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zongChang2" placement="top">
-      <span class="truncate">{{ row.zongChang2 }}</span>
+      <span class="truncate">{{ row.zongChang2}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="zongChang3" label="总长" width="120">
+<el-table-column prop="zongChang3" label="实测值3" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zongChang3" placement="top">
-      <span class="truncate">{{ row.zongChang3 }}</span>
+      <span class="truncate">{{ row.zongChang3}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="zongChang4" label="总长" width="120">
+<el-table-column prop="zongChang4" label="实测值4" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zongChang4" placement="top">
-      <span class="truncate">{{ row.zongChang4 }}</span>
+      <span class="truncate">{{ row.zongChang4}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
 
-<el-table-column prop="zongChang5" label="总长" width="120">
+<el-table-column prop="zongChang5" label="实测值5" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zongChang5" placement="top">
-      <span class="truncate">{{ row.zongChang5 }}</span>
+      <span class="truncate">{{ row.zongChang5}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zongChangRequired" label="总长标准尺寸" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zongChangRequired" placement="top">
+      <span class="truncate">{{ row.zongChangRequired}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
@@ -263,39 +237,46 @@
 </el-table-column>
 
 
-<el-table-column prop="kuan1" label="宽" width="120">
+<el-table-column prop="kuan1" label="实测值1" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kuan1" placement="top">
-      <span class="truncate">{{ row.kuan1 }}</span>
+      <span class="truncate">{{ row.kuan1}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kuan2" label="宽" width="120">
+<el-table-column prop="kuan2" label="实测值2" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kuan2" placement="top">
-      <span class="truncate">{{ row.kuan2 }}</span>
+      <span class="truncate">{{ row.kuan2}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kuan3" label="宽" width="120">
+<el-table-column prop="kuan3" label="实测值3" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kuan3" placement="top">
-      <span class="truncate">{{ row.kuan3 }}</span>
+      <span class="truncate">{{ row.kuan3}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="kuan4" label="宽" width="120">
+<el-table-column prop="kuan4" label="实测值4" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kuan4" placement="top">
-      <span class="truncate">{{ row.kuan4 }}</span>
+      <span class="truncate">{{ row.kuan4}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
 
-<el-table-column prop="kuan5" label="宽" width="120">
+<el-table-column prop="kuan5" label="实测值5" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.kuan5" placement="top">
-      <span class="truncate">{{ row.kuan5 }}</span>
+      <span class="truncate">{{ row.kuan5}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="kuanRequired" label="宽标准尺寸" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.kuanRequired" placement="top">
+      <span class="truncate">{{ row.kuanRequired}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
@@ -307,39 +288,46 @@
   </template>
 </el-table-column>
 
-<el-table-column prop="touKuan1" label="头宽" width="120">
+<el-table-column prop="touKuan1" label="实测值1" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.touKuan1" placement="top">
-      <span class="truncate">{{ row.touKuan1 }}</span>
+      <span class="truncate">{{ row.touKuan1}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="touKuan2" label="头宽" width="120">
+<el-table-column prop="touKuan2" label="实测值2" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.touKuan2" placement="top">
-      <span class="truncate">{{ row.touKuan2 }}</span>
+      <span class="truncate">{{ row.touKuan2}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="touKuan3" label="头宽" width="120">
+<el-table-column prop="touKuan3" label="实测值3" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.touKuan3" placement="top">
-      <span class="truncate">{{ row.touKuan3 }}</span>
+      <span class="truncate">{{ row.touKuan3}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="touKuan4" label="头宽" width="120">
+<el-table-column prop="touKuan4" label="实测值4" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.touKuan4" placement="top">
-      <span class="truncate">{{ row.touKuan4 }}</span>
+      <span class="truncate">{{ row.touKuan4}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
 
-<el-table-column prop="touKuan5" label="头宽" width="120">
+<el-table-column prop="touKuan5" label="实测值5" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.touKuan5" placement="top">
-      <span class="truncate">{{ row.touKuan5 }}</span>
+      <span class="truncate">{{ row.touKuan5}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="touKuanRequired" label="头宽标准尺寸" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.touKuanRequired" placement="top">
+      <span class="truncate">{{ row.touKuanRequired}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
@@ -352,17 +340,17 @@
 </el-table-column>
 
 <!-- 外形信息 -->
- <el-table-column prop="type " label="规格" width="120">
+<el-table-column prop="appearance" label="外形" width="120">
   <template #default="{ row }">
-    <el-tooltip :content="row.type " placement="top">
-      <span class="truncate">{{ row.type  }}</span>
+    <el-tooltip :content="row.appearance" placement="top">
+      <span class="truncate">{{ row.appearance}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="appearance " label="外形" width="120">
+<el-table-column prop="appearanceRequired" label="外形标准" width="120">
   <template #default="{ row }">
-    <el-tooltip :content="row.appearance " placement="top">
-      <span class="truncate">{{ row.appearance  }}</span>
+    <el-tooltip :content="row.appearanceRequired" placement="top">
+      <span class="truncate">{{ row.appearanceRequired}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
@@ -374,46 +362,46 @@
   </template>
 </el-table-column>
 <!-- 机械性能 -->
-<el-table-column prop="type " label="规格" width="120">
-  <template #default="{ row }">
-    <el-tooltip :content="row.type " placement="top">
-      <span class="truncate">{{ row.type  }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-<el-table-column prop="zhongLiang1" label="重量" width="120">
+<el-table-column prop="zhongLiang1" label="实测值1" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zhongLiang1" placement="top">
-      <span class="truncate">{{ row.zhongLiang1 }}</span>
+      <span class="truncate">{{ row.zhongLiang1}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="zhongLiang2" label="重量" width="120">
+<el-table-column prop="zhongLiang2" label="实测值2" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zhongLiang2" placement="top">
-      <span class="truncate">{{ row.zhongLiang2 }}</span>
+      <span class="truncate">{{ row.zhongLiang2}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="zhongLiang3" label="重量" width="120">
+<el-table-column prop="zhongLiang3" label="实测值3" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zhongLiang3" placement="top">
-      <span class="truncate">{{ row.zhongLiang3 }}</span>
+      <span class="truncate">{{ row.zhongLiang3}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
-<el-table-column prop="zhongLiang4" label="重量" width="120">
+<el-table-column prop="zhongLiang4" label="实测值4" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zhongLiang4" placement="top">
-      <span class="truncate">{{ row.zhongLiang4 }}</span>
+      <span class="truncate">{{ row.zhongLiang4}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
 
-<el-table-column prop="zhongLiang5" label="重量" width="120">
+<el-table-column prop="zhongLiang5" label="实测值5" width="120">
   <template #default="{ row }">
     <el-tooltip :content="row.zhongLiang5" placement="top">
-      <span class="truncate">{{ row.zhongLiang5 }}</span>
+      <span class="truncate">{{ row.zhongLiang5}}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="zhongLiangRequired" label="重量标准" width="120">
+  <template #default="{ row }">
+    <el-tooltip :content="row.zhongLiangRequired" placement="top">
+      <span class="truncate">{{ row.zhongLiangRequired}}</span>
     </el-tooltip>
   </template>
 </el-table-column>
@@ -428,21 +416,21 @@
      <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
-            <span class="truncate">{{ row.memo }}</span>
+            <span class="truncate">{{ row.memo}}</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="checkMemo" label="复检备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.checkMemo" placement="top">
-            <span class="truncate">{{ row.checkMemo }}</span>
+            <span class="truncate">{{ row.checkMemo}}</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="detectionTime" label="入厂检测日期" width="130" >
         <template #default="{ row }">
           <el-tooltip :content="row.detectionTime" placement="top">
-            <span class="truncate">{{ row.detectionTime }}</span>
+            <span class="truncate">{{ row.detectionTime}}</span>
           </el-tooltip>
         </template>
       </el-table-column>

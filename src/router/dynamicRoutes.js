@@ -234,6 +234,16 @@ const viewComponents = {
   //铝管请检单审核
   'clmanage/cllg/checkRequestReview': () => import('@/views/clmanage/cl-lg/requestCheck/checkRequestReview.vue'),
 
+
+    //不锈钢螺栓检验数据录入
+  'clmanage/clbxgls/checkDataEntry': () => import('@/views/clmanage/cl-bxgls/checkData/checkDataEntry.vue'),
+  //不锈钢螺栓检验数据审核
+  'clmanage/clbxgls/checkDataReview': () => import('@/views/clmanage/cl-bxgls/checkData/checkDataReview.vue'),
+  //不锈钢螺栓请检单录入
+  'clmanage/clbxgls/checkRequestEntry': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestEntry.vue'),
+  //不锈钢螺栓请检单审核
+  'clmanage/clbxgls/checkRequestReview': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestReview.vue'),
+
 }
 
 // 动态导入组件函数 - 使用预定义的映射
