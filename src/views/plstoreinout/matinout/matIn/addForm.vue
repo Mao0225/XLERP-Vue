@@ -94,7 +94,7 @@ import { ElMessage } from 'element-plus';
 import { createPlMatInout } from '@/api/plstoreinout/matinout.js';
 import { useTermStore } from '@/store/term.js';
 import { useUserStore } from '@/store/user.js';
-import supplierSelector from '../components/supplierSelector.vue';
+import supplierSelector from '../../components/supplierSelector.vue';
 
 
 
@@ -138,8 +138,8 @@ const form = reactive({
   transactionDate: new Date().toISOString().split('T')[0], // 默认当前日期
   deliveryOrg: '',
   receiveOrg: '', // 保留但不展示
-  handler: userStore.realName || '', // 默认当前用户
-  storekeeper: '',
+  handler: '', 
+  storekeeper: userStore.realName ||'',// 默认当前用户
   manager: '', // 保留但不展示
   status: 10, // 固定为录入状态
   requester: '',
@@ -210,7 +210,7 @@ const resetForm = () => {
     deliveryOrg: '',
     receiveOrg: '',
     handler: '',
-    storekeeper: '',
+    storekeeper: userStore.realName ||'',
     manager: '',
     status: 10,
     requester: '',

@@ -1,6 +1,6 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="编辑明细" width="900px" :close-on-click-modal="false" @closed="handleClose">
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="90px" class="edit-form">
+  <el-dialog v-model="dialogVisible" title="新增明细" width="900px" :close-on-click-modal="false" @closed="handleClose">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="90px" class="add-form">
       <!-- 物料信息 -->
       <div class="section">
         <div class="section-title">基础信息</div>
@@ -210,22 +210,22 @@
       v-model="itemSelectorVisible"
       @select="selectItem"
     />
-
-    <contractSelector v-model:visible="contractSelectorVisible" @select="selectContract" />
+     <contractSelector v-model:visible="contractSelectorVisible" @select="selectContract" />
       <supplierSelector
       v-model="showSupplierSelector"
       @select="selectSupplier"
     />
+
   </el-dialog>
 </template>
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { updatePlMatInoutItem } from '@/api/plstoreinout/matinout.js';
-import itemSelector from '../../components/itemSelector.vue';
-import contractSelector from '../../components/contractSelector.vue';
-import supplierSelector from '../../components/supplierSelector.vue';
+import { createPlMatInoutItem } from '@/api/plstoreinout/matinout.js';
+import itemSelector from '../../../components/itemSelector.vue';
+import contractSelector from '../../../components/contractSelector.vue';
+import supplierSelector from '../../../components/supplierSelector.vue';
 
 
 const props = defineProps({
@@ -240,10 +240,6 @@ const props = defineProps({
   inOutType: {
     type: Number,
     default: 1 // 1=入库，2=出库
-  },
-  initialData: {
-    type: Object,
-    default: () => ({})
   }
 });
 
@@ -255,15 +251,8 @@ const dialogVisible = computed({
   set: (value) => emit('update:visible', value)
 });
 
+const itemSelectorVisible = ref(false);
 const contractSelectorVisible = ref(false);
-
-const selectContract = (contract) => {  
-  form.contractNo = contract.no;
-  form.contractName = contract.name;
-  contractSelectorVisible.value = false;
-};
-
-
 
 const showSupplierSelector = ref(false);
 
@@ -271,20 +260,25 @@ const selectSupplier = (supplier) => {
   form.supplierName = supplier.descr;
   showSupplierSelector.value = false;
 };
+
 const openDialog = () => { 
   itemSelectorVisible.value = true;
   console.log('打开物料选择器');
 };
 
-const itemSelectorVisible = ref(false);
+const selectContract = (contract) => { 
+    form.contractNo = contract.no;
+    form.contractName = contract.name;
+    contractSelectorVisible.value = false;
+};
 const selectItem = (item) => {
-  form.materialCode = item.no;
-  form.materialName = item.name;
-  form.materialSpec = item.spec;
-  form.materialUnit = item.unit;
-  form.salesPrice = item.planned_price;
-  form.unitWeight = item.weight;
-  itemSelectorVisible.value = false; 
+    form.materialCode = item.no;
+    form.materialName = item.name;
+    form.materialSpec = item.spec;
+    form.materialUnit = item.unit;
+    form.salesPrice = item.planned_price;
+    form.unitWeight = item.weight;
+    itemSelectorVisible.value = false; 
 };
 
 // 是否显示出库相关字段
@@ -295,7 +289,6 @@ const loading = ref(false);
 
 // 表单数据
 const form = reactive({
-  id: null,
   docNo: '',
   materialCode: '',
   materialName: '',
@@ -303,6 +296,7 @@ const form = reactive({
   materialUnit: '',
   planSpec: '',
   planMaterial: '',
+  material: '',
   supplierName: '',
   planQuantity: null,
   planWeight: null,
@@ -361,39 +355,6 @@ const rules = {
   ]
 };
 
-// 初始化表单数据
-watch(() => props.initialData, (newData) => {
-  if (newData && Object.keys(newData).length > 0) {
-    Object.assign(form, {
-      id: newData.id || null,
-      docNo: props.docNo || newData.docNo || '',
-      materialCode: newData.materialCode || '',
-      materialName: newData.materialName || '',
-      materialSpec: newData.materialSpec || '',
-      materialUnit: newData.materialUnit || '',
-      planSpec: newData.planSpec || '',
-      planMaterial: newData.planMaterial || '',
-      supplierName: newData.supplierName || '',
-      planQuantity: newData.planQuantity || null,
-      planWeight: newData.planWeight || null,
-      quantity: newData.quantity || null,
-      unitWeight: newData.unitWeight || null,
-      totalWeight: newData.totalWeight || null,
-      salesPrice: newData.salesPrice || null,
-      salesTotalAmount: newData.salesTotalAmount || null,
-      category: newData.category || '',
-      contractNo: newData.contractNo || '',
-      contractName: newData.contractName || '',
-      requestQuantity: newData.requestQuantity || null,
-      batchNo: newData.batchNo || '',
-      warehouse: newData.warehouse || '',
-      memo: newData.memo || '',
-      status: newData.status || '正常',
-      material:newData.material || null
-    });
-  }
-}, { immediate: true });
-
 // 监听docNo变化
 watch(() => props.docNo, (newDocNo) => {
   form.docNo = newDocNo;
@@ -405,7 +366,6 @@ const resetForm = () => {
     formRef.value.resetFields();
   }
   Object.assign(form, {
-    id: null,
     docNo: props.docNo || '',
     materialCode: '',
     materialName: '',
@@ -413,7 +373,6 @@ const resetForm = () => {
     materialUnit: '',
     planSpec: '',
     planMaterial: '',
-    material:'',
     supplierName: '',
     planQuantity: null,
     planWeight: null,
@@ -444,14 +403,14 @@ const handleSave = async () => {
       operateTime: new Date().toISOString()
     };
     
-    await updatePlMatInoutItem(submitData);
+    await createPlMatInoutItem(submitData);
     emit('success');
-    ElMessage.success('更新明细成功');
+    ElMessage.success('添加明细成功');
     handleClose();
   } catch (error) {
-    console.error('更新失败', error);
+    console.error('保存失败', error);
     if (error.message && error.message !== 'Validation failed') {
-      ElMessage.error('更新失败：' + error.message);
+      ElMessage.error('保存失败：' + error.message);
     }
   } finally {
     loading.value = false;
@@ -480,7 +439,7 @@ watch([() => form.quantity, () => form.unitWeight], () => {
 </script>
 
 <style scoped>
-.edit-form {
+.add-form {
   max-height: 70vh;
   overflow-y: auto;
   padding: 0 10px;
@@ -518,7 +477,7 @@ watch([() => form.quantity, () => form.unitWeight], () => {
     gap: 6px;
   }
   
-  .edit-form {
+  .add-form {
     max-height: 65vh;
     padding: 0 8px;
   }

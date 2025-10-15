@@ -94,7 +94,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { updatePlMatInout } from '@/api/plstoreinout/matinout.js'; // 假设存在 update API，替换为实际导入
 import { useTermStore } from '@/store/term.js';
-import supplierSelector from '../components/supplierSelector.vue';
+import supplierSelector from '../../components/supplierSelector.vue';
 
 const props = defineProps({
   visible: {

@@ -75,11 +75,11 @@ const viewComponents = {
 
 
     //原材料入库单据列表
-  'kucun/matInList': () => import('@/views/plstoreinout/matinout/matInList.vue'),
+  'kucun/matInList': () => import('@/views/plstoreinout/matinout/matIn/matInList.vue'),
   //原材料入库审核
-  'kucun/matInListReview': () => import('@/views/plstoreinout/matinout/matInListReview.vue'),
+  'kucun/matInListReview': () => import('@/views/plstoreinout/matinout/matIn/matInListReview.vue'),
   //原材料出库明细
-  'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItem/matItemInoutPage.vue'),
+  'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItemPage/matItemInoutPage.vue'),
 
 
 
