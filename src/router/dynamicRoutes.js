@@ -20,6 +20,8 @@ const viewComponents = {
   'system/basorg': () => import('@/views/system/basorg.vue'),//组织管理
   'system/basno': () => import('@/views/system/basno.vue'),//编号管理
 
+  'system/uploadList': () => import('@/views/system/uploadList.vue'),
+
   'system/basorgType1': () => import('@/views/system/basorgType1.vue'),//type=1表示供应商管理
 
 
@@ -243,6 +245,7 @@ const viewComponents = {
   'clmanage/clbxgls/checkRequestEntry': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestEntry.vue'),
   //不锈钢螺栓请检单审核
   'clmanage/clbxgls/checkRequestReview': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestReview.vue'),
+
 
 }
 
