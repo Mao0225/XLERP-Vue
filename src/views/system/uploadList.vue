@@ -18,6 +18,7 @@
       <el-table-column prop="task_id" label="任务ID" width="150" />
       <el-table-column prop="description" label="描述" width="200" />
       <el-table-column prop="interval" label="间隔(秒)" width="120" />
+      <el-table-column prop="upload_url" label="上传接口" width="260" show-overflow-tooltip />
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
           <el-tag :type="row.status === 'running' ? 'success' : 'info'">
