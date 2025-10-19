@@ -115,20 +115,14 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="appearanceSize" label="外观尺寸" width="100">
+      <el-table-column prop="appearanceSize" label="外形" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.appearanceSize" placement="top">
             <span class="truncate">{{ row.appearanceSize }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="surfacequality" label="表面处理" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.surfacequality" placement="top">
-            <span class="truncate">{{ row.surfacequality }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      
       
       <el-table-column prop="sampleQuantity" label="样品数量" width="90">
         <template #default="{ row }">
@@ -137,20 +131,14 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="specs" label="规格(mm)" width="90">
+      <el-table-column prop="specs" label="规格" width="90">
         <template #default="{ row }">
           <el-tooltip :content="row.specs" placement="top">
-            <span class="truncate">{{ row.specs }} mm</span>
+            <span class="truncate">{{ row.specs }} </span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="weight" label="重量" width="90">
-        <template #default="{ row }">
-          <el-tooltip :content="row.weight" placement="top">
-            <span class="truncate">{{ row.weight }} mm</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      
       <el-table-column prop="checkWriter" label="检验人" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.checkWriter" placement="top">
@@ -168,28 +156,38 @@
       <el-table-column prop="chemC" label="C(%)" width="90" />
       <el-table-column prop="chemSi" label="Si(%)" width="90" />
       <el-table-column prop="chemMn" label="Mn(%)" width="90" />
-      <el-table-column prop="chemP" label="P(%)" width="90" />
-      <el-table-column prop="chemS" label="S(%)" width="90" />
-      <el-table-column prop="chemNi" label="S(%)" width="90" />
-      <el-table-column prop="chemCr" label="S(%)" width="90" />
-      <el-table-column prop="mechtensileStrength" label="抗拉强度" width="90" />
-      <el-table-column prop="mechyieldStrength" label="屈服强度" width="90" />
-      <el-table-column prop="mechelongation" label="断后伸长率" width="90" />
-      <el-table-column prop="ultrasoundtest" label="无损探伤" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.ultrasoundtest" placement="top">
-            <span class="truncate">{{ row.ultrasoundtest }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="crystalcorrosion" label="晶间腐蚀" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.crystalcorrosion" placement="top">
-            <span class="truncate">{{ row.crystalcorrosion }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      
+      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
+      <el-table-column prop="chemCr" label="Cr(%)" width="90" />
+
+      <el-table-column prop="sizeS" label="S" width="90">
+  <template #default="{ row }">
+    <el-tooltip :content="getSizeValues(row, 'sizeS')" placement="top">
+      <span class="truncate">{{ getSizeDisplay(row, 'sizeS') }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="sizeD" label="d" width="90">
+  <template #default="{ row }">
+    <el-tooltip :content="getSizeValues(row, 'sizeD')" placement="top">
+      <span class="truncate">{{ getSizeDisplay(row, 'sizeD') }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="sizeBigD" label="D" width="90">
+  <template #default="{ row }">
+    <el-tooltip :content="getSizeValues(row, 'sizeBigD')" placement="top">
+      <span class="truncate">{{ getSizeDisplay(row, 'sizeBigD') }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+<el-table-column prop="sizeL2" label="L2" width="90">
+  <template #default="{ row }">
+    <el-tooltip :content="getSizeValues(row, 'sizeL2')" placement="top">
+      <span class="truncate">{{ getSizeDisplay(row, 'sizeL2') }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+     
       <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">
@@ -278,6 +276,29 @@ import { useUserStore } from '@/store/user'
 const userStore = useUserStore()
 
 const previewDialogVisible = ref(false)
+
+// 用于显示尺寸数据的方法
+const getSizeDisplay = (row, prefix) => {
+  // 获取前两个实测值用于表格显示
+  const values = []
+  for (let i = 1; i <= 2; i++) {
+    if (row[`${prefix}${i}`]) {
+      values.push(row[`${prefix}${i}`])
+    }
+  }
+  return values.length > 0 ? values.join(',') + (values.length < 6 ? '...' : '') : '-'
+}
+
+// 用于tooltip显示全部实测值
+const getSizeValues = (row, prefix) => {
+  const values = []
+  for (let i = 1; i <= 6; i++) {
+    if (row[`${prefix}${i}`]) {
+      values.push(`实测${i}: ${row[`${prefix}${i}`]}`)
+    }
+  }
+  return values.length > 0 ? values.join('; ') : '无数据'
+}
 
 const handlePreview = async (id) => {
   const res = await getBkxById({ id: id })

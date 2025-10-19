@@ -131,20 +131,8 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="size" label="尺寸(厚宽长mm)" width="90">
-        <template #default="{ row }">
-          <el-tooltip :content="row.size" placement="top">
-            <span class="truncate">{{ row.size }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="weight" label="重量" width="90">
-        <template #default="{ row }">
-          <el-tooltip :content="row.weight" placement="top">
-            <span class="truncate">{{ row.weight }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      
+      
       <el-table-column prop="checkWriter" label="检验人" width="100">
         <template #default="{ row }">
           <el-tooltip :content="row.checkWriter" placement="top">
@@ -164,30 +152,26 @@
       <el-table-column prop="chemMn" label="Mn(%)" width="90" />
       <el-table-column prop="chemP" label="P(%)" width="90" />
       <el-table-column prop="chemS" label="S(%)" width="90" />
-      <el-table-column prop="chemNb" label="Nb(%)" width="90" />
-      <el-table-column prop="chemV" label="V(%)" width="90" />
-      <el-table-column prop="chemTi" label="Ti(%)" width="90" />
-      <el-table-column prop="chemCu" label="Cu(%)" width="90" />
-      <el-table-column prop="chemCr" label="Cr(%)" width="90" />
-      <el-table-column prop="chemNi" label="Ni(%)" width="90" />
-      <el-table-column prop="chemMo" label="Mo(%)" width="90" />
-      <el-table-column prop="mechtensileStrength" label="抗拉强度" width="90" />
-      <el-table-column prop="mechyieldStrength" label="屈服强度" width="90" />
-      <el-table-column prop="mechelongation" label="断后伸长率" width="90" />
-      <el-table-column prop="bending" label="弯曲性能" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.bending" placement="top">
-            <span class="truncate">{{ row.bending }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="impactexp" label="冲击实验" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.impactexp" placement="top">
-            <span class="truncate">{{ row.impactexp }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      
+      <el-table-column prop="mechtensileStrength1" label="抗拉强度1#" width="90" />
+      <el-table-column prop="mechtensileStrength2" label="抗拉强度2#" width="90" />
+      <el-table-column prop="mechtensileStrength3" label="抗拉强度3#" width="90" />
+      <el-table-column prop="mechyieldStrength1" label="屈服强度1#" width="90" />
+      <el-table-column prop="mechyieldStrength2" label="屈服强度2#" width="90" />
+      <el-table-column prop="mechyieldStrength3" label="屈服强度3#" width="90" />
+      <el-table-column prop="mechelongation1" label="延伸率1##" width="90" />
+      <el-table-column prop="mechelongation2" label="延伸率2#" width="90" />
+      <el-table-column prop="mechelongation3" label="延伸率3#" width="90" />
+      
+      <el-table-column label="冲击实验" width="200">
+  <template #default="{ row }">
+    <el-tooltip :content="`1#: ${row.impactexp1 || '-'} 2#: ${row.impactexp2 || '-'} 3#: ${row.impactexp3 || '-'}`" placement="top">
+      <span class="truncate">
+        {{ row.impactexp1 || '-' }}, {{ row.impactexp2 || '-' }}, {{ row.impactexp3 || '-' }}
+      </span>
+    </el-tooltip>
+  </template>
+</el-table-column>
      <el-table-column prop="memo" label="请检单备注" width="140">
         <template #default="{ row }">
           <el-tooltip :content="row.memo" placement="top">

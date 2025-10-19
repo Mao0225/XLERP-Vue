@@ -49,15 +49,11 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="外观尺寸">
+          <el-form-item label="外形">
             <span>{{ initialData.appearanceSize || '-' }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="外观尺寸">
-            <span>{{ initialData.surfacequality || '-' }}</span>
-          </el-form-item>
-        </el-col>
+        
         <el-col :span="12">
           <el-form-item label="炉批号">
             <span>{{ initialData.batchNo || '-' }}</span>
@@ -79,26 +75,117 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="规格(mm)">
+          <el-form-item label="规格">
             <span>{{ initialData.specs || '-' }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="重量">
-            <span>{{ initialData.weight || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="无损探伤">
-            <span>{{ initialData.ultrasoundtest || '-' }}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="晶间腐蚀">
-            <span>{{ initialData.crystalcorrosion || '-' }}</span>
-          </el-form-item>
-        </el-col>
+
         
+        
+        <!-- 尺寸信息标题 -->
+<el-col :span="24">
+  <el-divider content-position="left">尺寸信息</el-divider>
+</el-col>
+
+<!-- 尺寸 S -->
+<el-col :span="24">
+  <el-row :gutter="16">
+    <el-col :span="2">
+      <el-form-item label="S">
+        <span>实测值</span>
+      </el-form-item>
+    </el-col>
+    <el-col :span="18">
+      <el-row :gutter="8">
+        <el-col :span="4" v-for="i in 6" :key="`s-${i}`">
+          <el-form-item :label="`${i}`">
+            <span>{{ initialData[`sizeS${i}`] || '-' }}</span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <el-col :span="4">
+      <el-form-item label="要求值">
+        <span>{{ initialData.sizeSRequired || '-' }}</span>
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
+
+<!-- 尺寸 d -->
+<el-col :span="24">
+  <el-row :gutter="16">
+    <el-col :span="2">
+      <el-form-item label="d">
+        <span>实测值</span>
+      </el-form-item>
+    </el-col>
+    <el-col :span="18">
+      <el-row :gutter="8">
+        <el-col :span="4" v-for="i in 6" :key="`d-${i}`">
+          <el-form-item :label="`${i}`">
+            <span>{{ initialData[`sizeD${i}`] || '-' }}</span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <el-col :span="4">
+      <el-form-item label="要求值">
+        <span>{{ initialData.sizeDRequired || '-' }}</span>
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
+
+<!-- 尺寸 D -->
+<el-col :span="24">
+  <el-row :gutter="16">
+    <el-col :span="2">
+      <el-form-item label="D">
+        <span>实测值</span>
+      </el-form-item>
+    </el-col>
+    <el-col :span="18">
+      <el-row :gutter="8">
+        <el-col :span="4" v-for="i in 6" :key="`bigd-${i}`">
+          <el-form-item :label="`${i}`">
+            <span>{{ initialData[`sizeBigD${i}`] || '-' }}</span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <el-col :span="4">
+      <el-form-item label="要求值">
+        <span>{{ initialData.sizeBigDRequired || '-' }}</span>
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
+
+<!-- 尺寸 L2 -->
+<el-col :span="24">
+  <el-row :gutter="16">
+    <el-col :span="2">
+      <el-form-item label="L2">
+        <span>实测值</span>
+      </el-form-item>
+    </el-col>
+    <el-col :span="18">
+      <el-row :gutter="8">
+        <el-col :span="4" v-for="i in 6" :key="`l2-${i}`">
+          <el-form-item :label="`${i}`">
+            <span>{{ initialData[`sizeL2${i}`] || '-' }}</span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <el-col :span="4">
+      <el-form-item label="要求值">
+        <span>{{ initialData.sizeL2Required || '-' }}</span>
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
         
 
 
@@ -131,35 +218,6 @@
           </el-row>
         </el-col>
 
-        <!-- 力学性能 -->
-<el-col :span="24">
-  <el-divider content-position="left">力学性能</el-divider>
-</el-col>
-<el-col :span="24">
-  <el-row :gutter="16">
-    <el-col
-      :span="8"
-      v-for="mech in Object.keys(initialData).filter(key => key.startsWith('mech') && !key.endsWith('Required'))"
-      :key="mech"
-    >
-      <!-- 使用getMechLabel方法转换标签 -->
-      <el-form-item :label="getMechLabel(mech)">
-        <el-row :gutter="8">
-          <el-col :span="12">
-            <el-form-item :label="getMechLabel(mech) + '实测值'">
-              <span>{{ initialData[mech] || '-' }}</span>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="getMechLabel(mech) + '要求值'">
-              <span>{{ initialData[mech + 'Required'] || '-' }}</span>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form-item>
-    </el-col>
-  </el-row>
-</el-col>
 
 
         <!-- 过程信息 -->

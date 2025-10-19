@@ -82,19 +82,19 @@
         </template>
       </el-table-column>
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+  <template #default="{ row }">
+    <el-tooltip :content="row.deliveryQuantity" placement="top">
+      <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || '' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
       <el-table-column prop="acceptQuantity" label="验收数量" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.acceptQuantity" placement="top">
-            <span class="truncate">{{ row.acceptQuantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+  <template #default="{ row }">
+    <el-tooltip :content="row.acceptQuantity" placement="top">
+      <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || '' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
       
       <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">

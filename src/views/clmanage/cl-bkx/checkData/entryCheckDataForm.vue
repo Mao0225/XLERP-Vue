@@ -56,21 +56,14 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="外观尺寸" prop="appearanceSize">
+          <el-form-item label="外形" prop="appearanceSize">
             <el-select v-model="form.appearanceSize" placeholder="请选择检验结果" clearable size="small">
               <el-option label="合格" value="合格"></el-option>
               <el-option label="不合格" value="不合格"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="表面处理" prop="surfacequality">
-            <el-select v-model="form.surfacequality" placeholder="请选择检验结果" clearable size="small">
-              <el-option label="合格" value="合格"></el-option>
-              <el-option label="不合格" value="不合格"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
+        
         <el-col :span="12">
           <el-form-item label="炉批号" prop="batchNo">
             <el-input v-model="form.batchNo" placeholder="请输入炉批号" readonly clearable size="small" />
@@ -97,25 +90,13 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="规格(mm)" prop="specs">
-              <el-input v-model.number="form.specs" placeholder="请输入规格(mm)" type="number" clearable size="small" step="0.01" />
+          <el-form-item label="规格" prop="specs">
+              <el-input v-model.number="form.specs" placeholder="请输入规格"  clearable size="small"  />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="重量" prop="weight">
-              <el-input v-model.number="form.weight" placeholder="请输入重量" type="number" clearable size="small" step="0.01" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="无损探伤" prop="ultrasoundtest">
-            <el-input v-model="form.ultrasoundtest" placeholder="请输入结果" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="晶间腐蚀" prop="crystalcorrosion">
-            <el-input v-model="form.crystalcorrosion" placeholder="请输入结果" clearable size="small" />
-          </el-form-item>
-        </el-col>
+        
+        
+        
 
         <!-- 化学成分 -->
         <el-col :span="24">
@@ -142,31 +123,158 @@
           </el-row>
         </el-col>
 
-        <!-- 力学性能 -->
-         <el-col :span="24">
-          <el-divider content-position="left">力学性能 </el-divider>
-        </el-col>
-        <el-col :span="24">
-          <el-row :gutter="16">
-            <el-col :span="8" v-for="mech in mechanics" :key="mech.key">
-              <el-form-item :label="mech.label">
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item :prop="mech.actualProp" :rules="rules[mech.actualProp]">
-                      <el-input v-model.number="form[mech.actualProp]" :placeholder="mech.label + '实测值'" clearable size="small" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item :prop="mech.requiredProp" :rules="rules[mech.requiredProp]">
-                      <el-input v-model.number="form[mech.requiredProp]" :placeholder="mech.label + '要求值'" clearable size="small" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-col>
+       <!-- 尺寸信息 -->
+<el-col :span="24">
+  <el-divider content-position="left">尺寸信息</el-divider>
+</el-col>
 
+<!-- 尺寸S -->
+<el-col :span="24" style="margin-bottom: 12px;">
+  <el-row :gutter="16" align="middle">
+    <el-col :span="2">
+      <div class="size-label">S</div>
+    </el-col>
+    <!-- 实测值输入框组 -->
+    <el-col :span="16">
+      <el-row :gutter="8">
+        <el-col :span="8" v-for="i in 6" :key="i">
+          <el-form-item :prop="`sizeS${i}`" :rules="rules.sizeS">
+            <el-input 
+              v-model.number="form[`sizeS${i}`]" 
+              :placeholder="`实测${i}`" 
+              clearable 
+              size="small" 
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <!-- 要求值输入框 -->
+    <el-col :span="6">
+      <el-form-item prop="sizeSRequired" :rules="rules.sizeSRequired">
+        <el-input 
+          v-model.number="form.sizeSRequired" 
+          placeholder="要求值" 
+          clearable 
+          size="small" 
+          style="width: 100%"
+        />
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
+
+<!-- 尺寸d -->
+<el-col :span="24" style="margin-bottom: 12px;">
+  <el-row :gutter="16" align="middle">
+    <el-col :span="2">
+      <div class="size-label">d</div>
+    </el-col>
+    <!-- 实测值输入框组 -->
+    <el-col :span="16">
+      <el-row :gutter="8">
+        <el-col :span="8" v-for="i in 6" :key="i">
+          <el-form-item :prop="`sizeD${i}`" :rules="rules.sizeD">
+            <el-input 
+              v-model.number="form[`sizeD${i}`]" 
+              :placeholder="`实测${i}`" 
+              clearable 
+              size="small" 
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <!-- 要求值输入框 -->
+    <el-col :span="6">
+      <el-form-item prop="sizeDRequired" :rules="rules.sizeDRequired">
+        <el-input 
+          v-model.number="form.sizeDRequired" 
+          placeholder="要求值" 
+          clearable 
+          size="small" 
+          style="width: 100%"
+        />
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
+
+<!-- 尺寸D -->
+<el-col :span="24" style="margin-bottom: 12px;">
+  <el-row :gutter="16" align="middle">
+    <el-col :span="2">
+      <div class="size-label">D</div>
+    </el-col>
+    <!-- 实测值输入框组 -->
+    <el-col :span="16">
+      <el-row :gutter="8">
+        <el-col :span="8" v-for="i in 6" :key="i">
+          <el-form-item :prop="`sizeBigD${i}`" :rules="rules.sizeBigD">
+            <el-input 
+              v-model.number="form[`sizeBigD${i}`]" 
+              :placeholder="`实测${i}`" 
+              clearable 
+              size="small" 
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <!-- 要求值输入框 -->
+    <el-col :span="6">
+      <el-form-item prop="sizeBigDRequired" :rules="rules.sizeBigDRequired">
+        <el-input 
+          v-model.number="form.sizeBigDRequired" 
+          placeholder="要求值" 
+          clearable 
+          size="small" 
+          style="width: 100%"
+        />
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
+
+<!-- 尺寸l2 -->
+<el-col :span="24" style="margin-bottom: 12px;">
+  <el-row :gutter="16" align="middle">
+    <el-col :span="2">
+      <div class="size-label">L2</div>
+    </el-col>
+    <!-- 实测值输入框组 -->
+    <el-col :span="16">
+      <el-row :gutter="8">
+        <el-col :span="8" v-for="i in 6" :key="i">
+          <el-form-item :prop="`sizeL2${i}`" :rules="rules.sizeL2">
+            <el-input 
+              v-model.number="form[`sizeL2${i}`]" 
+              :placeholder="`实测${i}`" 
+              clearable 
+              size="small" 
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-col>
+    <!-- 要求值输入框 -->
+    <el-col :span="6">
+      <el-form-item prop="sizeL2Required" :rules="rules.sizeL2Required">
+        <el-input 
+          v-model.number="form.sizeL2Required" 
+          placeholder="要求值" 
+          clearable 
+          size="small" 
+          style="width: 100%"
+        />
+      </el-form-item>
+    </el-col>
+  </el-row>
+</el-col>
 
         <!-- 过程信息 -->
         <el-col :span="24">
@@ -259,16 +367,15 @@ const chemicals = [
   { key: 'C', label: 'C', actualProp: 'chemC', requiredProp: 'chemCRequired' },
   { key: 'Si', label: 'Si', actualProp: 'chemSi', requiredProp: 'chemSiRequired' },
   { key: 'Mn', label: 'Mn', actualProp: 'chemMn', requiredProp: 'chemMnRequired' },
-  { key: 'P', label: 'P', actualProp: 'chemP', requiredProp: 'chemPRequired' },
-  { key: 'S', label: 'S', actualProp: 'chemS', requiredProp: 'chemSRequired' },
   { key: 'Ni', label: 'Ni', actualProp: 'chemNi', requiredProp: 'chemNiRequired' },
   { key: 'Cr', label: 'Cr', actualProp: 'chemCr', requiredProp: 'chemCrRequired' }
 ]
 
-const mechanics = [
-  { key: 'tensileStrength', label: '抗拉强度', actualProp: 'mechtensileStrength', requiredProp: 'mechtensileStrengthRequired' },
-  { key: 'yieldStrength', label: '屈服强度', actualProp: 'mechyieldStrength', requiredProp: 'mechyieldStrengthRequired' },
-  { key: 'elongation', label: '断后伸长率', actualProp: 'mechelongation', requiredProp: 'mechelongationRequired' }
+const sizes = [
+  { key: 's', label: 'S', actualProp: 'sizeS', requiredProp: 'sizeSRequired' },
+  { key: 'd', label: 'd', actualProp: 'sizeD', requiredProp: 'sizeDRequired' },
+  { key: 'D', label: 'D', actualProp: 'sizeBigD', requiredProp: 'sizeBigDRequired' },
+  { key: 'l2', label: 'L2', actualProp: 'sizeL2', requiredProp: 'sizeL2Required' }
 ]
 
 const emit = defineEmits(['update:visible', 'success'])
@@ -284,23 +391,43 @@ const form = reactive({
   chemC: '',
   chemSi: '',
   chemMn: '',
-  chemP: '',
-  chemS: '',
   chemNi: '',
   chemCr: '',
   chemCRequired: '',
   chemSiRequired: '',
   chemMnRequired: '',
-  chemPRequired: '',
-  chemSRequired: '',
   chemNiRequired: '',
   chemCrRequired: '',
-  mechtensileStrength: '',
-  mechyieldStrength: '',
-  mechelongation: '',
-  mechtensileStrengthRequired: '',
-  mechyieldStrengthRequired: '',
-  mechelongationRequired: '',
+
+   sizeS1: '',
+  sizeS2: '',
+  sizeS3: '',
+  sizeS4: '',
+  sizeS5: '',
+  sizeS6: '',
+  sizeSRequired: '',
+   sizeD1: '',
+  sizeD2: '',
+  sizeD3: '',
+  sizeD4: '',
+  sizeD5: '',
+  sizeD6: '',
+  sizeDRequired: '',
+   sizeBigD1: '',
+  sizeBigD2: '',
+  sizeBigD3: '',
+  sizeBigD4: '',
+  sizeBigD5: '',
+  sizeBigD6: '',
+  sizeBigDRequired: '',
+   sizeL21: '',
+  sizeL22: '',
+  sizeL23: '',
+  sizeL24: '',
+  sizeL25: '',
+  sizeL26: '',
+  sizeL2Required: '',
+  
   ultrasoundtest: '',
   crystalcorrosion: '',
   leaveFactoryDate: '',
@@ -313,7 +440,7 @@ const form = reactive({
   batchNum: '',
   quantity: '',
   specs: '',
-  weight: '',
+ 
   sampleQuantity: 1,
   compInspQty: 1,
   meInspQty: 0,
@@ -321,7 +448,7 @@ const form = reactive({
   type: '',
   standard: '',
   appearanceSize: '合格',
-  surfacequality: '合格',
+
   auditor: '',
   checker: '',
   checkFinishTime: '',
@@ -357,14 +484,7 @@ const rules = reactive({
     { required: true, message: '请输入Mn含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemP: [
-    { required: true, message: '请输入P含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemS: [
-    { required: true, message: '请输入S含量', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
+  
   chemNi: [
     { required: true, message: '请输入Ni含量', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
@@ -382,39 +502,14 @@ const rules = reactive({
   chemMnRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  chemPRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  chemSRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
+  
   chemNiRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   chemCrRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  mechtensileStrength: [
-    { required: true, message: '请输入 抗拉强度', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  mechyieldStrength: [
-    { required: true, message: '请输入 屈服强度', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  mechelongation: [
-    { required: true, message: '请输入 断后伸长率', trigger: 'blur' },
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  mechtensileStrengthRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  mechyieldStrengthRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
-  mechelongationRequired: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
-  ],
+
   ultrasoundtest: [
     { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
   ],
@@ -462,13 +557,10 @@ const rules = reactive({
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
   appearanceSize: [
-    { required: true, message: '请选择外观是否合格', trigger: 'change' },
+    { required: true, message: '请选择外形是否合格', trigger: 'change' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
-  surfacequality: [
-    { required: true, message: '请选择表面是否合格', trigger: 'change' },
-    { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
-  ],
+
   auditor: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
   ],
@@ -480,6 +572,34 @@ const rules = reactive({
   ],
   finalConclusion: [
     { required: true, message: '请选择最终检验结论', trigger: 'change' }
+  ],
+   // 尺寸S验证规则
+  sizeS: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  sizeSRequired: [
+    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  // 尺寸d验证规则
+  sizeD: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  sizeDRequired: [
+    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  // 尺寸D验证规则
+  sizeBigD: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  sizeBigDRequired: [
+    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  // 尺寸L2验证规则
+  sizeL2: [
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  sizeL2Required: [
+    { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
   ]
 })
 
@@ -493,23 +613,14 @@ watch(() => props.initialData, (newData) => {
       chemC: newData.chemC || '',
       chemSi: newData.chemSi || '',
       chemMn: newData.chemMn || '',
-      chemP: newData.chemP || '',
-      chemS: newData.chemS || '',
       chemNi: newData.chemNi || '',
       chemCr: newData.chemCr || '',
       chemCRequired: newData.chemCRequired || '',
       chemSiRequired: newData.chemSiRequired || '',
       chemMnRequired: newData.chemMnRequired || '',
-      chemPRequired: newData.chemPRequired || '',
-      chemSRequired: newData.chemSRequired || '',
       chemNiRequired: newData.chemNiRequired || '',
       chemCrRequired: newData.chemCrRequired || '',
-      mechtensileStrengthRequired: newData.mechtensileStrengthRequired || '',
-      mechyieldStrengthRequired: newData.mechyieldStrengthRequired || '',
-      mechelongationRequired: newData.mechelongationRequired || '',
-      mechtensileStrength: newData.mechtensileStrength || '',
-      mechyieldStrength: newData.mechyieldStrength || '',
-      mechelongation: newData.mechelongation || '',
+     
       leaveFactoryDate: newData.leaveFactoryDate || '',
       detectionTime: newData.detectionTime || '',
       status: newData.status || '40',
@@ -522,7 +633,7 @@ watch(() => props.initialData, (newData) => {
       batchNum: newData.batchNum || '',
       quantity: newData.quantity || '',
       specs: newData.specs || '',
-      weight: newData.weight || '',
+     
       sampleQuantity: newData.sampleQuantity || '',
       compInspQty: newData.compInspQty || 1,
       meInspQty: newData.meInspQty || 0,
@@ -530,7 +641,7 @@ watch(() => props.initialData, (newData) => {
       type: newData.type || '',
       standard: newData.standard || '',
       appearanceSize: newData.appearanceSize || '',
-      surfacequality: newData.surfacequality || '',
+     
       auditor: newData.auditor || '',
       checker: newData.checker || '',
       checkFinishTime: newData.checkFinishTime || '',
@@ -539,6 +650,28 @@ watch(() => props.initialData, (newData) => {
       acceptQuantity: newData.acceptQuantity || '',
       finalConclusion: newData.finalConclusion || ''
     })
+
+    // 尺寸S相关
+    for (let i = 1; i <= 6; i++) {
+      form[`sizeS${i}`] = newData[`sizeS${i}`] || ''
+    }
+    form.sizeSRequired = newData.sizeSRequired || ''
+    // 尺寸d相关
+    for (let i = 1; i <= 6; i++) {
+      form[`sizeD${i}`] = newData[`sizeD${i}`] || ''
+    }
+    form.sizeDRequired = newData.sizeDRequired || ''
+    // 尺寸D相关
+    for (let i = 1; i <= 6; i++) {
+      form[`sizeBigD${i}`] = newData[`sizeBigD${i}`] || ''
+    }
+    form.sizeBigDRequired = newData.sizeBigDRequired || ''
+    // 尺寸L2相关
+    for (let i = 1; i <= 6; i++) {
+      form[`sizeL2${i}`] = newData[`sizeL2${i}`] || ''
+    }
+    form.sizeL2Required = newData.sizeL2Required || ''
+
   }
 }, { immediate: true })
 
@@ -563,23 +696,14 @@ const resetForm = () => {
     chemC: '',
     chemSi: '',
     chemMn: '',
-    chemP: '',
-    chemS: '',
     chemNi: '',
     chemCr: '',
     chemCRequired: '',
     chemSiRequired: '',
     chemMnRequired: '',
-    chemPRequired: '',
-    chemSRequired: '',
     chemNiRequired: '',
     chemCrRequired: '',
-    mechtensileStrengthRequired: '',
-    mechyieldStrengthRequired: '',
-    mechelongationRequired: '',
-    mechtensileStrength: '',
-    mechyieldStrength: '',
-    mechelongation: '',
+   
     leaveFactoryDate: '',
     detectionTime: '',
     status: '40',
@@ -591,7 +715,6 @@ const resetForm = () => {
     batchNo: '',
     batchNum: '',
     specs: '',
-    weight: '',
     sampleQuantity: 1,
     compInspQty: 1,
     meInspQty: 0,
@@ -599,7 +722,7 @@ const resetForm = () => {
     type: '',
     standard: '',
     appearanceSize: '',
-    surfacequality: '',
+    
     auditor: '',
     checker: '',
     checkFinishTime: '',
@@ -776,5 +899,14 @@ const submitForm = async () => {
   .el-col:nth-child(n) {
     margin-bottom: 0;
   }
+}
+
+.size-label {
+  color: #606266;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 30px;
+  text-align: right;
+  padding-right: 10px;
 }
 </style>

@@ -77,19 +77,19 @@
         </template>
       </el-table-column>
       <el-table-column prop="deliveryQuantity" label="送货数量" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.deliveryQuantity" placement="top">
-            <span class="truncate">{{ row.deliveryQuantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column prop="acceptQuantity" label="验收数量" width="100">
-        <template #default="{ row }">
-          <el-tooltip :content="row.acceptQuantity" placement="top">
-            <span class="truncate">{{ row.acceptQuantity }} t</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+  <template #default="{ row }">
+    <el-tooltip :content="row.deliveryQuantity" placement="top">
+      <span class="truncate">{{ row.deliveryQuantity }} {{ row.unit || '' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+     <el-table-column prop="acceptQuantity" label="验收数量" width="100">
+  <template #default="{ row }">
+    <el-tooltip :content="row.acceptQuantity" placement="top">
+      <span class="truncate">{{ row.acceptQuantity }} {{ row.unit || '' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
   
       <el-table-column prop="requestWriter" label="录入人" width="120">
         <template #default="{ row }">
@@ -215,7 +215,8 @@ const STATUS_ACTION_MAP = {
     { action: "confirm", text: "确认录入", icon: "CircleCheck", type: "success", targetStatus: "20" }
   ],
   "20": [ // 确认状态可执行操作
-    { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" }
+    { action: "cancelConfirm", text: "反确认", icon: "CircleCloseFilled", type: "info", targetStatus: "10" },
+    { action: "preview", text: "查看信息", icon: "Document", type: "primary" }
   ],
   "30": [
     { action: "preview", text: "查看信息", icon: "Document", type: "primary" }

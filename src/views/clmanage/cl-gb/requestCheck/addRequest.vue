@@ -193,8 +193,8 @@ const typeOptions = [
 ]
 
 const standardOptions = [
-{ value: 'GB/T7:32-2023' },
-{ value: 'GB/T3274-2017' }
+{ value: 'GB/T713.2-2023' },
+{ value: 'GB700-2006' }
 ]
 
 const queryMaterialSuggestions = (queryString, cb) => {

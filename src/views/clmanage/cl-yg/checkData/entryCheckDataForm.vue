@@ -88,26 +88,10 @@
             <el-input v-model.number="form.sampleQuantity" placeholder="总抽检数量" type="number" clearable size="small" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="规格(mm)" prop="specs">
-              <el-input v-model.number="form.specs" placeholder="请输入规格(mm)" type="number" clearable size="small" step="0.01" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="长度(mm)" prop="length">
-              <el-input v-model.number="form.length" placeholder="请输入长度(mm)" type="number" clearable size="small" step="0.01" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="弯曲性能" prop="bending">
-            <el-input v-model="form.bending" placeholder="请输入弯曲性能" clearable size="small" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="冲击实验" prop="impactexp">
-            <el-input v-model="form.impactexp" placeholder="请输入结果" clearable size="small" />
-          </el-form-item>
-        </el-col>
+        
+        
+        
+        
 
         <!-- 化学成分 -->
         <el-col :span="24">
@@ -134,30 +118,45 @@
           </el-row>
         </el-col>
 
-        <!-- 力学性能 -->
-         <el-col :span="24">
-          <el-divider content-position="left">力学性能 </el-divider>
-        </el-col>
-        <el-col :span="24">
-          <el-row :gutter="16">
-            <el-col :span="8" v-for="mech in mechanics" :key="mech.key">
-              <el-form-item :label="mech.label">
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item :prop="mech.actualProp" :rules="rules[mech.actualProp]">
-                      <el-input v-model.number="form[mech.actualProp]" :placeholder="mech.label + '实测值'" clearable size="small" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item :prop="mech.requiredProp" :rules="rules[mech.requiredProp]">
-                      <el-input v-model.number="form[mech.requiredProp]" :placeholder="mech.label + '要求值'" clearable size="small" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
+         <!-- 力学性能 -->
+  <el-col :span="24">
+    <el-divider content-position="left">力学性能</el-divider>
+  </el-col>
+  <el-col :span="24">
+    <!-- 每个力学性能指标单独占一行 -->
+    <el-row :gutter="16" v-for="mech in mechanics" :key="mech.key" style="margin-bottom: 12px;">
+      <!-- 左侧：实测值列（包含三个实测值输入框） -->
+      <el-col :span="12">
+        <el-form-item :label="mech.label + ' 实测值'" class="measured-values-column">
+          <el-row :gutter="8">
+            <el-col :span="8" v-for="(prop, index) in mech.actualProps" :key="index">
+              <el-form-item :prop="prop" :rules="rules[prop]" label-width="0">
+                <el-input 
+                  v-model.number="form[prop]" 
+                  :placeholder="`实测值${index + 1}`" 
+                  clearable 
+                  size="small" 
+                  style="width: 100%;"
+                />
               </el-form-item>
             </el-col>
           </el-row>
-        </el-col>
+        </el-form-item>
+      </el-col>
+      
+      <!-- 右侧：要求值列 -->
+      <el-col :span="12">
+        <el-form-item :label="mech.label + ' 要求值'" :prop="mech.requiredProp" :rules="rules[mech.requiredProp]">
+          <el-input 
+            v-model.number="form[mech.requiredProp]" 
+            placeholder="请输入要求值" 
+            clearable 
+            size="small" 
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </el-col>
 
 
         <!-- 过程信息 -->
@@ -256,9 +255,18 @@ const chemicals = [
 ]
 
 const mechanics = [
-  { key: 'tensileStrength', label: '抗拉强度', actualProp: 'mechtensileStrength', requiredProp: 'mechtensileStrengthRequired' },
-  { key: 'yieldStrength', label: '屈服强度', actualProp: 'mechyieldStrength', requiredProp: 'mechyieldStrengthRequired' },
-  { key: 'elongation', label: '断后伸长率', actualProp: 'mechelongation', requiredProp: 'mechelongationRequired' }
+  { key: 'tensileStrength', 
+  label: '抗拉强度', 
+  actualProps: ['mechtensileStrength1', 'mechtensileStrength2', 'mechtensileStrength3'],
+  requiredProp: 'mechtensileStrengthRequired' },
+  { key: 'yieldStrength', 
+  label: '屈服强度',
+   actualProps: ['mechyieldStrength1', 'mechyieldStrength2', 'mechyieldStrength3'],
+   requiredProp: 'mechyieldStrengthRequired' },
+  { key: 'elongation', 
+  label: '断后伸长率', 
+  actualProps: ['mechelongation1', 'mechelongation2', 'mechelongation3'], 
+  requiredProp: 'mechelongationRequired' }
 ]
 
 const emit = defineEmits(['update:visible', 'success'])
@@ -281,14 +289,19 @@ const form = reactive({
   chemMnRequired: '',
   chemPRequired: '',
   chemSRequired: '',
-  mechtensileStrength: '',
-  mechyieldStrength: '',
-  mechelongation: '',
+  mechtensileStrength1: '',
+  mechtensileStrength2: '',
+  mechtensileStrength3: '',
+  mechyieldStrength1: '',
+  mechyieldStrength2: '',
+  mechyieldStrength3: '',
+  mechelongation1: '',
+  mechelongation2: '',
+  mechelongation3: '',
   mechtensileStrengthRequired: '',
   mechyieldStrengthRequired: '',
   mechelongationRequired: '',
-  bending: '',
-  impactexp: '',
+  
   leaveFactoryDate: '',
   detectionTime: '',
   status: '40',
@@ -298,11 +311,10 @@ const form = reactive({
   batchNo: '',
   batchNum: '',
   quantity: '',
-  specs: '',
-  length: '',
-  sampleQuantity: 1,
+  
+  sampleQuantity: 4,
   compInspQty: 1,
-  meInspQty: 0,
+  meInspQty: 3,
   material: '',
   type: '',
   standard: '',
@@ -365,15 +377,39 @@ const rules = reactive({
   chemSRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  mechtensileStrength: [
+  mechtensileStrength1: [
     { required: true, message: '请输入 抗拉强度', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  mechyieldStrength: [
+  mechtensileStrength2: [
+    { required: true, message: '请输入 抗拉强度', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechtensileStrength3: [
+    { required: true, message: '请输入 抗拉强度', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechyieldStrength1: [
     { required: true, message: '请输入 屈服强度', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  mechelongation: [
+  mechyieldStrength2: [
+    { required: true, message: '请输入 屈服强度', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechyieldStrength3: [
+    { required: true, message: '请输入 屈服强度', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechelongation1: [
+    { required: true, message: '请输入 断后伸长率', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechelongation2: [
+    { required: true, message: '请输入 断后伸长率', trigger: 'blur' },
+    { type: 'number', message: '必须为数字', trigger: 'blur' }
+  ],
+  mechelongation3: [
     { required: true, message: '请输入 断后伸长率', trigger: 'blur' },
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
@@ -386,12 +422,7 @@ const rules = reactive({
   mechelongationRequired: [
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
-  bending: [
-    { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
-  ],
-  impactexp: [
-    { max: 200, message: '长度不能超过200个字符', trigger: 'blur' }
-  ],
+  
   detectionTime: [
     { required: true, message: '请选择入厂检测日期', trigger: 'change' }
   ],
@@ -414,13 +445,13 @@ const rules = reactive({
     { type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   sampleQuantity: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { required: true,type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   compInspQty: [
     { required: true, type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   meInspQty: [
-    { type: 'number', message: '必须为数字', trigger: 'blur' }
+    { required: true,type: 'number', message: '必须为数字', trigger: 'blur' }
   ],
   material: [
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
@@ -470,25 +501,29 @@ watch(() => props.initialData, (newData) => {
       mechtensileStrengthRequired: newData.mechtensileStrengthRequired || '',
       mechyieldStrengthRequired: newData.mechyieldStrengthRequired || '',
       mechelongationRequired: newData.mechelongationRequired || '',
-      mechtensileStrength: newData.mechtensileStrength || '',
-      mechyieldStrength: newData.mechyieldStrength || '',
-      mechelongation: newData.mechelongation || '',
+      mechtensileStrength1: newData.mechtensileStrength1 || '',
+      mechtensileStrength2: newData.mechtensileStrength2 || '',
+      mechtensileStrength3: newData.mechtensileStrength3 || '',
+      mechyieldStrength1: newData.mechyieldStrength1 || '',
+      mechyieldStrength2: newData.mechyieldStrength2 || '',
+      mechyieldStrength3: newData.mechyieldStrength3 || '',
+      mechelongation1: newData.mechelongation1 || '',
+      mechelongation2: newData.mechelongation2 || '',
+      mechelongation3: newData.mechelongation3 || '',
       leaveFactoryDate: newData.leaveFactoryDate || '',
       detectionTime: newData.detectionTime || '',
       status: newData.status || '40',
-      bending: newData.bending || '',
-      impactexp: newData.impactexp || '',
+      
       memo: newData.memo || '',
       checkMemo: newData.checkMemo || '',
       basno: newData.basno || '',
       batchNo: newData.batchNo || '',
       batchNum: newData.batchNum || '',
       quantity: newData.quantity || '',
-      specs: newData.specs || '',
-      length: newData.length || '',
-      sampleQuantity: newData.sampleQuantity || '',
+      
+      sampleQuantity: newData.sampleQuantity || 4,
       compInspQty: newData.compInspQty || 1,
-      meInspQty: newData.meInspQty || 0,
+      meInspQty: newData.meInspQty || 3,
       material: newData.material || '',
       type: newData.type || '',
       standard: newData.standard || '',
@@ -535,24 +570,28 @@ const resetForm = () => {
     mechtensileStrengthRequired: '',
     mechyieldStrengthRequired: '',
     mechelongationRequired: '',
-    mechtensileStrength: '',
-    mechyieldStrength: '',
-    mechelongation: '',
+    mechtensileStrength1: '',
+    mechtensileStrength2: '',
+    mechtensileStrength3: '',
+    mechyieldStrength1: '',
+    mechyieldStrength2: '',
+    mechyieldStrength3: '', 
+    mechelongation1: '',
+    mechelongation2: '',
+    mechelongation3: '',
     leaveFactoryDate: '',
     detectionTime: '',
     status: '40',
-    bending: '',
-    impactexp: '',
+    
     memo: '',
     checkMemo: '',
     basno: '',
     batchNo: '',
     batchNum: '',
-    specs: '',
-    length: '',
-    sampleQuantity: 1,
+    
+    sampleQuantity: 4,
     compInspQty: 1,
-    meInspQty: 0,
+    meInspQty: 3,
     material: '',
     type: '',
     standard: '',
@@ -733,5 +772,16 @@ const submitForm = async () => {
   .el-col:nth-child(n) {
     margin-bottom: 0;
   }
+}
+
+/* 增加实测值列样式，确保输入框排列整齐 */
+.measured-values-column {
+  display: flex;
+  align-items: center;
+}
+
+/* 确保实测值输入框在一行内均匀分布 */
+:deep(.measured-values-column .el-row) {
+  width: 100%;
 }
 </style>

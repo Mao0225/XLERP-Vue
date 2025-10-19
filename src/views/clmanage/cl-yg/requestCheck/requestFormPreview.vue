@@ -82,17 +82,18 @@
             <span class="value">{{ initialData.type || '无' }}</span>
           </div>
         </el-col>
-        <el-col :span="12">
+       <el-col :span="12">
           <div class="form-item">
-            <span class="label">送货数量:</span>
-            <span class="value">{{ initialData.deliveryQuantity || '无' }}</span>
-          </div>
+  <span class="label">送货数量:</span>
+  <span class="value">{{ initialData.deliveryQuantity || '无' }} {{ initialData.unit || '' }}</span>
+</div>
         </el-col>
         <el-col :span="12">
           <div class="form-item">
-            <span class="label">验收数量:</span>
-            <span class="value">{{ initialData.acceptQuantity || '无' }}</span>
-          </div>
+  <span class="label">验收数量:</span>
+  <span class="value">{{ initialData.acceptQuantity || '无' }} {{ initialData.unit || '' }}</span>
+</div>
+
         </el-col>
         <el-col :span="12">
           <div class="form-item">
