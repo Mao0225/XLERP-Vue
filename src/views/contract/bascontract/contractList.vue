@@ -89,12 +89,12 @@
                     </el-icon>
                     删除
                   </el-button>
-                  <el-button type="primary" size="small" @click="openItemListDialog(row)">
+                  <!-- <el-button type="primary" size="small" @click="openItemListDialog(row)">
                     <el-icon>
                       <Document />
                     </el-icon>
                     产品列表
-                  </el-button>
+                  </el-button> -->
                   <el-button type="success" size="small" @click="handleConfirm(row)">
                     <el-icon>
                       <CircleCheckFilled />
@@ -111,12 +111,19 @@
                   </el-button>
                 </template>
                 <template v-if="row.status >= 20">
-                  <el-button type="primary" size="small" @click="openItemListReadonlyDialog(row)">
+                  <!-- <el-button type="primary" size="small" @click="openItemListReadonlyDialog(row)">
                     <el-icon>
                       <Document />
                     </el-icon>
                     产品列表
+                  </el-button> -->
+                  <el-button type="primary" size="small" @click="openContractInfoDialog(row.no)">
+                    <el-icon>
+                      <Document />
+                    </el-icon>
+                    查看合同信息
                   </el-button>
+                  
                 </template>
               </template>
             </el-table-column>
@@ -135,6 +142,8 @@
     <AddForm :visible="showAddDialog" @update:visible="showAddDialog = $event" @success="handleSuccessAdd" />
     <EditForm :visible="showEditDialog" :initial-data="selectedContract" @update:visible="showEditDialog = $event"
       @success="handleSuccessEdit" />
+
+    <ContractInfoReadonlyForm :visible="showContractInfoDialog" :initial-data="selectedContract" @update:visible="showContractInfoDialog = $event" />
     <itemListForm :visible="showItemListDialog" :contract-info="selectedContract" @update:visible="showItemListDialog = $event" />
     <itemListReadonly :visible="showItemListReadonlyDialog" :contract-info="selectedContract" @update:visible="showItemListReadonlyDialog = $event" />
   </div>
@@ -150,6 +159,7 @@ import AddForm from './addFormAll.vue';
 import EditForm from './editFormAll.vue';
 import itemListForm from './itemListForm.vue';
 import itemListReadonly from './itemListReadonly.vue';
+import ContractInfoReadonlyForm from './contractInfoReadonlyForm.vue';
 
 const termStore = useTermStore();
 const currentTerm = computed(() => termStore.currentTerm);
@@ -158,6 +168,7 @@ const currentTerm = computed(() => termStore.currentTerm);
 const loading = ref(false);
 const showAddDialog = ref(false);
 const showEditDialog = ref(false);
+const showContractInfoDialog = ref(false);
 const showItemListDialog = ref(false);
 const showItemListReadonlyDialog = ref(false);
 const selectedContract = ref(null);
@@ -305,6 +316,18 @@ const openEditDialog = async (contractNo) => {
     const res = await getContractByNo({ contractNo });
     selectedContract.value = res.data.contractInfo;
     showEditDialog.value = true;
+  } catch (error) {
+    console.error('获取合同详情失败', error);
+    ElMessage.error('获取合同详情失败');
+  }
+};
+
+
+const openContractInfoDialog = async (contractNo) => {
+  try {
+    const res = await getContractByNo({ contractNo });
+    selectedContract.value = res.data.contractInfo;
+    showContractInfoDialog.value = true;
   } catch (error) {
     console.error('获取合同详情失败', error);
     ElMessage.error('获取合同详情失败');
