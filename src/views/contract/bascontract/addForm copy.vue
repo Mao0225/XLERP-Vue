@@ -1,11 +1,12 @@
 <template>
-  <CustomDialog 
-    :visible="dialogVisible"
+  <el-dialog
+    v-model="dialogVisible"
     title="新增合同"
-    :is-full-screen="isFullscreen"
-    :header-height="60"
-    @update:visible="dialogVisible = $event"
-    @update:is-full-screen="isFullscreen = $event"
+    width="95%"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    destroy-on-close
+    @closed="handleDialogClosed"
   >
     <div class="contract-form">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="140px" size="default">
@@ -144,6 +145,37 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
+              <el-form-item label="邮政编码" prop="postalcode">
+                <el-input v-model="form.postalcode" placeholder="请输入邮政编码" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-card>
+
+        <!-- 交货与运输信息 -->
+        <el-card class="form-card" shadow="never">
+          <template #header>
+            <span class="card-title">交货与运输信息</span>
+          </template>
+          
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item label="交货时间" prop="itemsenddate">
+                <el-date-picker 
+                  v-model="form.itemsenddate" 
+                  type="date" 
+                  placeholder="请选择交货时间" 
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%" 
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="到货地点" prop="destination">
+                <el-input v-model="form.destination" placeholder="请输入到货地点" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-form-item label="接货人" prop="receiver">
                 <el-input v-model="form.receiver" placeholder="请输入接货人" />
               </el-form-item>
@@ -171,8 +203,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="接货地点" prop="destination">
-                <el-input v-model="form.destination" placeholder="请输入接货地点" />
+              <el-form-item label="验收方式" prop="checktype">
+                <el-input v-model="form.checktype" placeholder="请输入验收方式" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -184,7 +216,7 @@
                   <el-option label="供方" :value="1" />
                   <el-option label="需方" :value="2" />
                   <el-option label="各半" :value="3" />
-                  <el-option label="其他" :value="4" />
+                  <el-option label="其他" :value="400" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -194,7 +226,7 @@
                   <el-option label="供方" :value="1" />
                   <el-option label="需方" :value="2" />
                   <el-option label="各半" :value="3" />
-                  <el-option label="其他" :value="4" />
+                  <el-option label="其他" :value="400" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -274,7 +306,7 @@
         <el-button type="primary" @click="submitForm" :loading="submitLoading">保存合同</el-button>
       </div>
     </template>
-  </CustomDialog>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -283,7 +315,6 @@ import { ElMessage } from 'element-plus';
 import { createBasContract } from '@/api/contract/bascontract.js';
 import SalesmanSelector from './components/SalesmanSelector.vue';
 import CustomerSelector from './components/CustomerSelector.vue';
-import CustomDialog from '@/components/common/CustomDialog.vue';
 
 // 获取当前的期数term
 import { useTermStore } from '@/store/term.js';
@@ -319,7 +350,6 @@ const formRef = ref(null);
 const submitLoading = ref(false);
 const salesmanSelectorVisible = ref(false);
 const customerSelectorVisible = ref(false);
-const isFullscreen = ref(false);  // 新增全屏状态
 
 // 初始表单数据
 const getInitialFormData = () => ({
@@ -468,8 +498,6 @@ const handleDialogClosed = () => {
 watch(dialogVisible, (newVal) => {
   if (newVal) {
     resetForm();
-  } else {
-    handleDialogClosed();  // 当 visible 变为 false 时调用 closed 逻辑
   }
 });
 </script>

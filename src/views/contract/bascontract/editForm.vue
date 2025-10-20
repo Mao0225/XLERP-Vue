@@ -1,12 +1,12 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
+  <CustomDialog
+    :visible="dialogVisible"
     title="编辑合同"
-    width="95%"
     :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    destroy-on-close
-    @closed="handleDialogClosed"
+    :header-height="60"
+    :is-full-screen="isFullscreen"
+    @update:visible="dialogVisible = $event"
+    @update:is-full-screen="isFullscreen = $event"
   >
     <div class="contract-form">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="140px" size="default">
@@ -305,7 +305,7 @@
         <el-button type="primary" @click="submitForm" :loading="submitLoading">更新合同</el-button>
       </div>
     </template>
-  </el-dialog>
+  </CustomDialog>
 </template>
 
 <script setup>
@@ -314,6 +314,7 @@ import { ElMessage } from 'element-plus';
 import { updateBasContract } from '@/api/contract/bascontract.js';
 import SalesmanSelector from './components/SalesmanSelector.vue';
 import CustomerSelector from './components/CustomerSelector.vue';
+import CustomDialog from '@/components/common/CustomDialog.vue'; // 添加导入
 
 // 获取当前的期数term
 import { useTermStore } from '@/store/term.js';
@@ -353,6 +354,7 @@ const formRef = ref(null);
 const submitLoading = ref(false);
 const salesmanSelectorVisible = ref(false);
 const customerSelectorVisible = ref(false);
+const isFullscreen = ref(false); // 添加全屏状态
 
 // 初始表单数据
 const getInitialFormData = () => ({
@@ -573,11 +575,11 @@ watch(dialogVisible, (newVal) => {
   font-size: 15px;
 }
 
-:deep(.el-dialog__body) {
+:deep(.custom-dialog-body) { /* 更新为 custom-dialog-body */
   padding: 10px 15px 0;
 }
 
-:deep(.el-dialog__footer) {
+:deep(.custom-dialog-footer) { /* 更新为 custom-dialog-footer */
   padding: 0 15px 15px;
   border-top: 1px solid #ebeef5;
   margin-top: 10px;
@@ -601,7 +603,7 @@ watch(dialogVisible, (newVal) => {
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
-  :deep(.el-dialog) {
+  :deep(.custom-dialog) { /* 更新为 custom-dialog */
     width: 98% !important;
   }
   :deep(.el-form-item__label) {

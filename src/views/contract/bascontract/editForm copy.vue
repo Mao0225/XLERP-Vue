@@ -1,11 +1,12 @@
 <template>
-  <CustomDialog 
-    :visible="dialogVisible"
-    title="新增合同"
-    :is-full-screen="isFullscreen"
-    :header-height="60"
-    @update:visible="dialogVisible = $event"
-    @update:is-full-screen="isFullscreen = $event"
+  <el-dialog
+    v-model="dialogVisible"
+    title="编辑合同"
+    width="95%"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    destroy-on-close
+    @closed="handleDialogClosed"
   >
     <div class="contract-form">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="140px" size="default">
@@ -62,12 +63,12 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="供应商编码" prop="supplierCode">
-                <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" readonly />
+                <el-input v-model="form.supplierCode" placeholder="请输入供应商编码" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="供应商名称" prop="supplierName">
-                <el-input v-model="form.supplierName" placeholder="请输入供应商名称" readonly/>
+                <el-input v-model="form.supplierName" placeholder="请输入供应商名称" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -144,6 +145,37 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
+              <el-form-item label="邮政编码" prop="postalcode">
+                <el-input v-model="form.postalcode" placeholder="请输入邮政编码" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-card>
+
+        <!-- 交货与运输信息 -->
+        <el-card class="form-card" shadow="never">
+          <template #header>
+            <span class="card-title">交货与运输信息</span>
+          </template>
+          
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-form-item label="交货时间" prop="itemsenddate">
+                <el-date-picker 
+                  v-model="form.itemsenddate" 
+                  type="date" 
+                  placeholder="请选择交货时间" 
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%" 
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="到货地点" prop="destination">
+                <el-input v-model="form.destination" placeholder="请输入到货地点" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-form-item label="接货人" prop="receiver">
                 <el-input v-model="form.receiver" placeholder="请输入接货人" />
               </el-form-item>
@@ -171,8 +203,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="接货地点" prop="destination">
-                <el-input v-model="form.destination" placeholder="请输入接货地点" />
+              <el-form-item label="验收方式" prop="checktype">
+                <el-input v-model="form.checktype" placeholder="请输入验收方式" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -184,7 +216,7 @@
                   <el-option label="供方" :value="1" />
                   <el-option label="需方" :value="2" />
                   <el-option label="各半" :value="3" />
-                  <el-option label="其他" :value="4" />
+                  <el-option label="其他" :value="400" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -194,7 +226,7 @@
                   <el-option label="供方" :value="1" />
                   <el-option label="需方" :value="2" />
                   <el-option label="各半" :value="3" />
-                  <el-option label="其他" :value="4" />
+                  <el-option label="其他" :value="400" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -270,20 +302,18 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleCancel">取消</el-button>
-        <el-button @click="resetForm">重置</el-button>
-        <el-button type="primary" @click="submitForm" :loading="submitLoading">保存合同</el-button>
+        <el-button type="primary" @click="submitForm" :loading="submitLoading">更新合同</el-button>
       </div>
     </template>
-  </CustomDialog>
+  </el-dialog>
 </template>
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { createBasContract } from '@/api/contract/bascontract.js';
+import { updateBasContract } from '@/api/contract/bascontract.js';
 import SalesmanSelector from './components/SalesmanSelector.vue';
 import CustomerSelector from './components/CustomerSelector.vue';
-import CustomDialog from '@/components/common/CustomDialog.vue';
 
 // 获取当前的期数term
 import { useTermStore } from '@/store/term.js';
@@ -301,6 +331,10 @@ const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  initialData: {
+    type: Object,
+    default: () => ({})
   }
 });
 
@@ -319,7 +353,6 @@ const formRef = ref(null);
 const submitLoading = ref(false);
 const salesmanSelectorVisible = ref(false);
 const customerSelectorVisible = ref(false);
-const isFullscreen = ref(false);  // 新增全屏状态
 
 // 初始表单数据
 const getInitialFormData = () => ({
@@ -363,7 +396,8 @@ const getInitialFormData = () => ({
   signdate: '',
   status: 10,
   memo: '',
-  gridno: ''
+  gridno: '',
+  ...props.initialData // Merge initialData to populate form
 });
 
 // 表单数据
@@ -425,13 +459,13 @@ const submitForm = () => {
           return;
         }
 
-        await createBasContract(submitData);
-        ElMessage.success('合同创建成功');
+        await updateBasContract(submitData);
+        ElMessage.success('合同更新成功');
         emit('success', submitData);
         dialogVisible.value = false;
       } catch (error) {
-        console.error('保存合同失败:', error);
-        ElMessage.error('保存合同失败，请稍后重试');
+        console.error('更新合同失败:', error);
+        ElMessage.error('更新合同失败，请稍后重试');
       } finally {
         submitLoading.value = false;
       }
@@ -468,38 +502,36 @@ const handleDialogClosed = () => {
 watch(dialogVisible, (newVal) => {
   if (newVal) {
     resetForm();
-  } else {
-    handleDialogClosed();  // 当 visible 变为 false 时调用 closed 逻辑
   }
 });
 </script>
 
 <style scoped>
 .contract-form {
-  max-height: 80vh; /* Increased to allow more content in view */
+  max-height: 80vh;
   overflow-y: auto;
   padding: 0 10px;
 }
 
 .form-card {
-  margin-bottom: 8px; /* Reduced margin */
+  margin-bottom: 8px;
   border-radius: 4px;
 }
 
 .form-card :deep(.el-card__header) {
-  padding: 8px 12px; /* Reduced padding */
+  padding: 8px 12px;
   background-color: #f8f9fa;
   border-bottom: 1px solid #ebeef5;
 }
 
 .form-card :deep(.el-card__body) {
-  padding: 10px; /* Reduced padding */
+  padding: 10px;
 }
 
 .card-title {
   font-weight: 600;
   color: #303133;
-  font-size: 16px; /* Increased font size */
+  font-size: 16px;
 }
 
 .dialog-footer {
@@ -509,21 +541,21 @@ watch(dialogVisible, (newVal) => {
 }
 
 :deep(.el-form-item) {
-  margin-bottom: 10px; /* Reduced margin */
+  margin-bottom: 10px;
 }
 
 :deep(.el-form-item__label) {
   font-weight: 500;
   color: #606266;
-  font-size: 15px; /* Increased font size */
-  line-height: 32px; /* Adjusted for alignment */
+  font-size: 15px;
+  line-height: 32px;
 }
 
 :deep(.el-input__inner),
 :deep(.el-textarea__inner),
 :deep(.el-select .el-input__inner) {
-  font-size: 15px; /* Increased font size */
-  height: 32px; /* Adjusted input height */
+  font-size: 15px;
+  height: 32px;
   line-height: 32px;
 }
 
@@ -538,42 +570,42 @@ watch(dialogVisible, (newVal) => {
 
 :deep(.el-textarea__inner) {
   border-radius: 4px;
-  font-size: 15px; /* Increased font size */
+  font-size: 15px;
 }
 
 :deep(.el-dialog__body) {
-  padding: 10px 15px 0; /* Reduced padding */
+  padding: 10px 15px 0;
 }
 
 :deep(.el-dialog__footer) {
   padding: 0 15px 15px;
   border-top: 1px solid #ebeef5;
-  margin-top: 10px; /* Reduced margin */
+  margin-top: 10px;
   padding-top: 10px;
 }
 
 :deep(.el-button) {
-  font-size: 15px; /* Increased font size */
-  padding: 8px 16px; /* Adjusted button size */
+  font-size: 15px;
+  padding: 8px 16px;
 }
 
 /* 移除滚动条 */
 .contract-form::-webkit-scrollbar {
-  display: none; /* Hide scrollbar */
+  display: none;
 }
 
 .contract-form {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
   :deep(.el-dialog) {
-    width: 98% !important; /* Increased width */
+    width: 98% !important;
   }
   :deep(.el-form-item__label) {
-    font-size: 14px; /* Slightly smaller for smaller screens */
+    font-size: 14px;
   }
   :deep(.el-input__inner),
   :deep(.el-textarea__inner),
@@ -592,7 +624,7 @@ watch(dialogVisible, (newVal) => {
   }
   
   :deep(.el-col) {
-    margin-bottom: 6px; /* Reduced margin */
+    margin-bottom: 6px;
   }
 
   :deep(.el-form-item__label) {

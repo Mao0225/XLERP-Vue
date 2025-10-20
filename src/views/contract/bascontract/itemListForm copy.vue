@@ -1,7 +1,5 @@
 <template>
-  <CustomDialog  :visible="dialogVisible" title="物料列表" width="80%"  :is-full-screen="isFullscreen" :close-on-click-modal="false" @update:visible="dialogVisible = $event"
-  @update:is-full-screen="isFullscreen = $event"
->
+  <el-dialog v-model="dialogVisible" title="物料列表" width="80%" :close-on-click-modal="false">
     <!-- 合同信息 -->
     <el-card shadow="never" class="contract-info-card">
       <el-row :gutter="12">
@@ -82,9 +80,7 @@
       </el-table-column>
     </el-table>
 
-
-    <template #footer> 
-          <!-- 分页 -->
+    <!-- 分页 -->
     <el-pagination
       v-model:current-page="materialPagination.currentPage"
       v-model:page-size="materialPagination.pageSize"
@@ -95,8 +91,6 @@
       @current-change="loadMaterialList"
       class="pagination"
     />
-  </template>
-
 
     <!-- 产品添加/编辑弹窗 -->
     <el-dialog v-model="productDialogVisible" :title="isProductEdit ? '编辑产品' : '添加产品'" width="800px" :close-on-click-modal="false">
@@ -202,7 +196,7 @@
 
     <!-- 导入结果弹窗 -->
     <ImportResultDialog v-model="importResultVisible" :import-data="importResultData" @confirm="handleImportResultConfirm" />
-  </CustomDialog>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -212,7 +206,7 @@ import { getContractItemPage, importContractItem, createBasContractItem, updateB
 import ProductSelector from './components/ProductSelector.vue';
 import ImportResultDialog from './components/ImportResultDialog.vue';
 import { baseURL } from '@/utils/request';
-import CustomDialog from '@/components/common/CustomDialog.vue';
+
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -229,7 +223,7 @@ const props = defineProps({
     })
   }
 });
-const isFullscreen = ref(false);
+
 const emit = defineEmits(['update:visible']);
 
 const dialogVisible = ref(false);

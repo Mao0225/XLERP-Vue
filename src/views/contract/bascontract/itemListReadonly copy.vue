@@ -1,12 +1,45 @@
 <template>
-  <CustomDialog 
-    :visible="dialogVisible"
-    title="物料列表"
-    :is-full-screen="isFullscreen"
-    :header-height="60"
-    @update:visible="dialogVisible = $event"
-    @update:is-full-screen="isFullscreen = $event"
+  <el-dialog
+    v-model="dialogVisible" 
+    title="物料列表" 
+    :width="isFullscreen ? '100vw' : '80%'" 
+    :height="`calc(100% - 40px)`"
+    :fullscreen="isFullscreen"
+    :close-on-click-modal="!isFullscreen"
+    :show-close="false"
+    :top="isFullscreen ? '1000px' : '50px'" 
   >
+    <!-- 标题自定义插槽：添加全屏按钮和自定义关闭按钮，都在右上角 -->
+    <template #header="{ close, titleId, titleClass }">
+      <div class="header-container">
+        <span :id="titleId" :class="titleClass">物料列表</span>
+        <div class="dialog-header-actions">
+          <el-button
+            circle
+            size="small"
+            @click="toggleFullscreen"
+            title="切换全屏"
+          >
+            <el-icon>
+              <Maximize2 v-if="!isFullscreen" />
+              <Minimize2 v-else />
+            </el-icon>
+          </el-button>
+          <!-- 新增：自定义关闭按钮 -->
+          <el-button
+            circle
+            size="small"
+            @click="close" 
+            title="关闭"
+          >
+            <el-icon>
+              <X />  <!-- Lucide 的 X 图标作为关闭符号 -->
+            </el-icon>
+          </el-button>
+        </div>
+      </div>
+    </template>
+
     <!-- 合同信息 -->
     <el-card shadow="never" class="contract-info-card">
       <el-row :gutter="12">
@@ -79,9 +112,7 @@
     </el-table>
 
     <!-- 分页 -->
-
-    <template #footer>
-          <el-pagination
+    <el-pagination
       v-model:current-page="materialPagination.currentPage"
       v-model:page-size="materialPagination.pageSize"
       :page-sizes="[10, 20, 50, 100]"
@@ -91,22 +122,14 @@
       @current-change="loadMaterialList"
       class="pagination"
     />
-      <!-- <div class="dialog-footer">
-        <el-button @click="handleCancel">取消</el-button>
-        <el-button @click="resetForm">重置</el-button>
-        <el-button type="primary" @click="submitForm" :loading="submitLoading">保存合同</el-button>
-      </div> -->
-    </template>
-
-  </CustomDialog>
+  </el-dialog>
 </template>
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
 import { ElMessage } from 'element-plus';
+import { Maximize2, Minimize2, X } from 'lucide-vue-next'; 
 import { getContractItemPage, getContractItemTotal } from '@/api/contract/bascontract';
-import CustomDialog from '@/components/common/CustomDialog.vue';
-
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -153,6 +176,11 @@ watch(
 watch(dialogVisible, (newVal) => {
   emit('update:visible', newVal);
 });
+
+// 切换全屏
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value;
+};
 
 // 加载物料列表
 const loadMaterialList = async () => {
@@ -246,7 +274,7 @@ const getContractTotal = async () => {
 
 .pagination {
   margin-top: 12px;
-  text-align: left;
+  text-align: right;
 }
 
 /* 标题栏容器：使标题左对齐，按钮右对齐 */
@@ -262,4 +290,5 @@ const getContractTotal = async () => {
   align-items: center;
   gap: 4px; /* 按钮间距 */
 }
+
 </style>

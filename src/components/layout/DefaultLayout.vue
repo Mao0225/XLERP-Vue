@@ -42,8 +42,10 @@ const isCollapse = computed(() => store.isCollapse)
   height: 100vh;
   
   .layout-header {
-    padding: 0;
-  }
+  z-index: 9999 !important;
+  position: relative;
+  padding: 0;
+}
   
   .layout-content {
     height: calc(100vh - 60px);

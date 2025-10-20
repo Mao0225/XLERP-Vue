@@ -16,21 +16,6 @@
             @clear="getContractListData" @keyup.enter="getContractListData" />
         </div>
       </div>
-      <!-- 状态筛选（使用RadioGroup）
-      <div class="filter-row">
-        <div class="status-filter">
-          <span class="filter-label">合同状态：</span>
-          <el-radio-group v-model="filters.status">
-            <el-radio-button v-for="item in statusOptions" :key="item.value" :label="item.value"
-              :class="getStatusClass(item.value)">
-              <el-icon>
-                <component :is="item.icon" />
-              </el-icon>
-              {{ item.label }}
-            </el-radio-button>
-          </el-radio-group>
-        </div>
-      </div> -->
       <!-- 筛选操作 -->
       <div class="filter-actions">
         <el-button type="primary" @click="getContractListData">
@@ -46,7 +31,7 @@
       </div>
     </el-card>
 
-    <!-- 主要内容区：左侧列表 + 右侧详情 -->
+    <!-- 主要内容区：合同列表 -->
     <div class="main-content">
       <!-- 左侧合同列表 -->
       <div class="contract-list">
@@ -57,7 +42,7 @@
               <el-button type="primary" @click="showAddDialog = true">新增合同</el-button>
             </div>
           </template>
-          <el-table :data="contractList" :highlight-current-row="true" @current-change="selectContractRow" v-loading="loading"
+          <el-table :data="contractList" :highlight-current-row="true" v-loading="loading"
             height="600" border>
             <el-table-column type="index" label="序号" width="80" />
             <!-- 状态列 -->
@@ -76,7 +61,7 @@
                 <el-link type="primary" @click="selectContractRow(row)">{{ row.no }}</el-link>
               </template>
             </el-table-column>
-                        <el-table-column prop="name" label="合同名称" width="120" show-overflow-tooltip />
+            <el-table-column prop="name" label="合同名称" width="120" show-overflow-tooltip />
             <el-table-column prop="customerName" label="客户名称" width="120" show-overflow-tooltip />
             <el-table-column prop="contractSum" label="合同金额" width="120">
               <template #default="{ row }">
@@ -86,8 +71,6 @@
             <el-table-column prop="gridno" label="电网编号" width="120" show-overflow-tooltip />
             <el-table-column prop="ecpno" label="国网经法合同号" width="130" show-overflow-tooltip />
             <el-table-column prop="equipno" label="器材合同号" width="120" show-overflow-tooltip />
-            <!-- <el-table-column prop="salesmanName" label="销售员" width="100" show-overflow-tooltip /> -->
-
             <el-table-column prop="signDate" label="签订时间" width="120" show-overflow-tooltip />
             <el-table-column prop="term" label="期间" width="120" show-overflow-tooltip />
             <!-- 操作列 -->
@@ -135,7 +118,6 @@
                     产品列表
                   </el-button>
                 </template>
-
               </template>
             </el-table-column>
           </el-table>
@@ -147,184 +129,6 @@
           </div>
         </el-card>
       </div>
-
-      <!-- 右侧合同详情 -->
-      <!-- 右侧合同详情 -->
-  <div class="contract-detail">
-    <el-card shadow="never" class="detail-card">
-      <template #header>
-        <div class="card-header">
-          <span>合同详情</span>
-          <el-button v-if="selectedContract" size="small" @click="selectedContract = null">
-            <el-icon>
-              <Close />
-            </el-icon>
-          </el-button>
-        </div>
-      </template>
-      <div v-if="selectedContract" class="detail-content">
-        <div class="detail-section">
-          <h4>基本信息</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">厂内合同号：</span>
-              <span class="value">{{ selectedContract.no || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">器材合同号：</span>
-              <span class="value">{{ selectedContract.equipno || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">国网经法合同号：</span>
-              <span class="value">{{ selectedContract.ecpno || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">工程名称：</span>
-              <span class="value">{{ selectedContract.name || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">电网编号：</span>
-              <span class="value">{{ selectedContract.gridno || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">电压等级(KV)：</span>
-              <span class="value">{{ selectedContract.pressurestage || '无' }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <h4>供应商信息</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">采购方总部编码：</span>
-              <span class="value">{{ selectedContract.purchaserHqCode || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">供应商编码：</span>
-              <span class="value">{{ selectedContract.supplierCode || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">供应商名称：</span>
-              <span class="value">{{ selectedContract.supplierName || '无' }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <h4>销售与客户信息</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">销售员名称：</span>
-              <span class="value">{{ selectedContract.salesmanName || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">客户名称：</span>
-              <span class="value">{{ selectedContract.customerName || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">客户代理人：</span>
-              <span class="value">{{ selectedContract.agent || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">法定代表人：</span>
-              <span class="value">{{ selectedContract.legalrepresent || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">税务号：</span>
-              <span class="value">{{ selectedContract.taxnum || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">客户电话：</span>
-              <span class="value">{{ selectedContract.telephone || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">客户传真：</span>
-              <span class="value">{{ selectedContract.fax || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">邮政编码：</span>
-              <span class="value">{{ selectedContract.postalcode || '无' }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <h4>交付信息</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">交货时间：</span>
-              <span class="value">{{ selectedContract.itemsenddate || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">到货地点：</span>
-              <span class="value">{{ selectedContract.destination || '无' }}</span>
-            </div>
-
-            <div class="info-item">
-              <span class="label">包装费承担：</span>
-              <span class="value">{{ selectedContract.casingcost || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">运费承担：</span>
-              <span class="value">{{ selectedContract.transcost || '无' }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <h4>财务信息</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">合同金额：</span>
-              <span class="value">¥{{ (selectedContract.contractSum?.toFixed(2)) ?? '0.00' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">开户银行：</span>
-              <span class="value">{{ selectedContract.bank || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">银行账号：</span>
-              <span class="value">{{ selectedContract.bankcode || '无' }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <h4>其他信息</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">所属期间：</span>
-              <span class="value">{{ selectedContract.term || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">签订时间：</span>
-              <span class="value">{{ selectedContract.signDate || selectedContract.signdate || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">其他条款：</span>
-              <span class="value">{{ selectedContract.other || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">备注：</span>
-              <span class="value">{{ selectedContract.memo || '无' }}</span>
-            </div>
-            <!-- <div class="info-item">
-              <span class="label">用户ID（创建人）：</span>
-              <span class="value">{{ selectedContract.userid || '无' }}</span>
-            </div> -->
-          </div>
-        </div>
-        <div class="detail-section">
-          <h4>状态信息</h4>
-          <div class="status-info">
-            <el-tag :type="getStatusTagType(selectedContract.status)">
-              <el-icon>
-                <component :is="getStatusIcon(selectedContract.status)" />
-              </el-icon>
-              {{ getStatusText(selectedContract.status) }}
-            </el-tag>
-          </div>
-        </div>
-      </div>
-      <el-empty v-else description="请选择列表中的合同查看详情" />
-    </el-card>
-  </div>
     </div>
 
     <!-- 弹窗 -->
@@ -332,21 +136,20 @@
     <EditForm :visible="showEditDialog" :initial-data="selectedContract" @update:visible="showEditDialog = $event"
       @success="handleSuccessEdit" />
     <itemListForm :visible="showItemListDialog" :contract-info="selectedContract" @update:visible="showItemListDialog = $event" />
-    <itemListReadonly :visible="showItemListReadonlyDialog" :contract-info="selectedContract"@update:visible="showItemListReadonlyDialog = $event" />
+    <itemListReadonly :visible="showItemListReadonlyDialog" :contract-info="selectedContract" @update:visible="showItemListReadonlyDialog = $event" />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, Refresh, Close, Edit, Delete, CircleCheckFilled, CircleCloseFilled, Clock, Document } from '@element-plus/icons-vue';
+import { Search, Refresh, Edit, Delete, CircleCheckFilled, CircleCloseFilled, Clock, Document } from '@element-plus/icons-vue';
 import { getContractList, deleteBasContract, updateBasContractStatus, getContractByNo } from '@/api/contract/bascontract.js';
 import { useTermStore } from '@/store/term.js';
-import AddForm from './addForm.vue';
-import EditForm from './editForm.vue';
+import AddForm from './addFormAll.vue';
+import EditForm from './editFormAll.vue';
 import itemListForm from './itemListForm.vue';
 import itemListReadonly from './itemListReadonly.vue';
-import { getPlMatInoutList,deletePlMatInout,getPlMatInoutById} from '@/api/plstoreinout/matinout.js';
 
 const termStore = useTermStore();
 const currentTerm = computed(() => termStore.currentTerm);
@@ -361,7 +164,7 @@ const selectedContract = ref(null);
 const contractList = ref([]);
 const total = ref(0);
 
-// 筛选条件（与模板一致）
+// 筛选条件
 const filters = reactive({
   pageNumber: 1,
   pageSize: 10,
@@ -372,16 +175,6 @@ const filters = reactive({
 });
 
 // 状态选项
-// const statusOptions = ref([
-//   { value: '', label: '全部', icon: 'Refresh' },
-//   { value: '10', label: '录入', icon: 'Clock' },
-//   { value: '20', label: '确认', icon: 'CircleCheckFilled' },
-//   { value: '30', label: '下计划', icon: 'Clock' },
-//   { value: '40', label: '生产中', icon: 'Clock' },
-//   { value: '50', label: '发货', icon: 'Clock' },
-//   { value: '60', label: '完成', icon: 'CircleCheckFilled' },
-// ]);
-
 const statusOptions = ref([
   { value: '', label: '全部', icon: 'Refresh' },
   { value: '10', label: '录入', icon: 'Clock' },
@@ -546,23 +339,10 @@ const selectContractRow = (row) => {
 };
 
 // 状态样式映射
-const getStatusClass = (status) => {
-  return status === '10' ? 'status-entered' :
-    status === '20' ? 'status-confirmed' :
-    status === '30' ? 'status-planned' :
-    status === '40' ? 'status-producing' :
-    status === '50' ? 'status-shipped' :
-    status === '60' ? 'status-completed' : '';
-};
-
 const getStatusTagType = (status) => {
   const statusMap = {
     10: 'info',
     20: 'success',
-    30: 'warning',
-    40: 'danger',
-    50: 'danger',
-    60: 'primary',
   };
   return statusMap[status] || 'info';
 };
@@ -571,10 +351,6 @@ const getStatusIcon = (status) => {
   const iconMap = {
     10: 'Clock',
     20: 'CircleCheckFilled',
-    30: 'Clock',
-    40: 'Clock',
-    50: 'Clock',
-    60: 'CircleCheckFilled',
   };
   return iconMap[status] || 'Clock';
 };
@@ -583,10 +359,6 @@ const getStatusText = (status) => {
   const statusMap = {
     10: '录入',
     20: '确认',
-    30: '下计划',
-    40: '生产中',
-    50: '发货',
-    60: '完成',
   };
   return statusMap[status] || '未知';
 };
@@ -601,7 +373,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 样式与模板一致 */
 .contract-management {
   padding: 20px;
   background-color: #f5f5f5;
@@ -638,18 +409,6 @@ onMounted(() => {
   margin-bottom: 0;
 }
 
-.status-filter {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.status-filter .filter-label {
-  min-width: auto;
-}
-
 .filter-actions {
   display: flex;
   gap: 12px;
@@ -660,13 +419,12 @@ onMounted(() => {
 
 .main-content {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr;
   gap: 20px;
   min-height: 600px;
 }
 
-.contract-list,
-.contract-detail {
+.contract-list {
   min-height: 600px;
   overflow: auto;
 }
@@ -682,90 +440,6 @@ onMounted(() => {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
-}
-
-.detail-card {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-}
-
-.detail-content {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.detail-section {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.detail-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.detail-section h4 {
-  color: #303133;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 12px 0;
-}
-
-.info-grid {
-  display: grid;
-  gap: 8px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 4px 0;
-}
-
-.info-item .label {
-  color: #909399;
-  font-size: 13px;
-  min-width: 100px;
-  flex-shrink: 0;
-}
-
-.info-item .value {
-  color: #303133;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: right;
-  word-break: break-word;
-}
-
-.status-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-}
-
-:deep(.el-radio-button__inner) {
-  border-radius: 4px;
-  padding: 6px 16px;
-}
-
-:deep(.el-radio-button.is-checked .el-radio-button__inner) {
-  background-color: var(--el-color-primary);
-  border-color: var(--el-color-primary);
-}
-
-@media (max-width: 1200px) {
-  .main-content {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .detail-card {
-    position: static;
-  }
 }
 
 @media (max-width: 768px) {
@@ -790,11 +464,6 @@ onMounted(() => {
 
   .filter-item .el-input {
     width: 100% !important;
-  }
-
-  .status-filter {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="app-header">
     <div class="logo-container">
-      <img src="@/assets/logopower.jpg" class="logo" alt="企业标识" />
+      <img src="@/assets/logopower.png" class="logo" alt="企业标识" />
       <!-- <h1 class="company-name">四平器材公司ERP</h1> -->
     </div>
     <!-- <div class="menu-toggle" @click="toggleCollapse">
@@ -31,6 +31,17 @@
       </el-tooltip>
     </div>
     <div class="header-right">
+      <el-button
+        size="small"
+        @click="toggleFullscreen"
+        plain
+      >
+        <el-icon style="margin-right: 4px;">
+          <Fullscreen v-if="!isFullscreen" size="20" stroke-width="2" />
+          <Minimize2 v-else size="20" stroke-width="2" />
+        </el-icon>
+        {{ isFullscreen ? '退出全屏' : '全屏显示' }}
+      </el-button>
       <el-dropdown trigger="click">
         <div class="user-info">
           <span class="username">{{ userInfo.username || '未登录' }}</span>
@@ -49,10 +60,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+// import { FullScreen, CloseBold } from '@element-plus/icons-vue'
 import { useAppStore } from '@/store'
 import { useUserStore } from '@/store/user'
 import { useTermStore } from '@/store/term'
+import { Fullscreen, Minimize2 } from 'lucide-vue-next'  // 导入具体图标
+
 import { Expand, Fold, Warning } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import UserProfileDialog from '../common/UserProfileDialog.vue'
@@ -81,6 +95,43 @@ const currentTerm = computed({
   },
 })
 const terms = computed(() => termStore.terms)
+
+// 使用 ref 来存储全屏状态，并通过事件监听器更新它
+const fullscreenRef = ref(false)
+const isFullscreen = computed(() => fullscreenRef.value)
+
+const toggleFullscreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.error('无法进入全屏模式:', err)
+    })
+  } else {
+    document.exitFullscreen().catch(err => {
+      console.error('无法退出全屏模式:', err)
+    })
+  }
+}
+
+// 全屏变化事件处理函数
+const handleFullscreenChange = () => {
+  fullscreenRef.value = !!document.fullscreenElement
+  console.log('全屏状态更新:', fullscreenRef.value) // 调试日志
+}
+
+// 挂载和卸载事件监听器
+onMounted(() => {
+  document.addEventListener('fullscreenchange', handleFullscreenChange)
+  document.addEventListener('webkitfullscreenchange', handleFullscreenChange) // Safari 支持
+  if (!termStore.terms.length) {
+    termStore.fetchTerms()
+  }
+  console.log('onMounted: terms', termStore.terms, 'currentTerm', termStore.currentTerm) // 调试日志
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
+})
 
 const toggleCollapse = () => {
   appStore.toggleCollapse()
@@ -116,13 +167,6 @@ const handleTermChange = (termValue) => {
   console.log('handleTermChange:', termValue) // 调试日志
   termStore.setCurrentTerm(termValue)
 }
-
-onMounted(() => {
-  if (!termStore.terms.length) {
-    termStore.fetchTerms()
-  }
-  console.log('onMounted: terms', termStore.terms, 'currentTerm', termStore.currentTerm) // 调试日志
-})
 </script>
 
 <style lang="scss" scoped>
@@ -140,7 +184,7 @@ onMounted(() => {
     align-items: center;
 
     .logo {
-      height: 90px;
+      height: 80px;
       margin-right: 10px;
     }
 
@@ -167,6 +211,9 @@ onMounted(() => {
 
   .header-right {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 
     .user-info {
       display: flex;
