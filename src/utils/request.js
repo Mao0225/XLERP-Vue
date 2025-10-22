@@ -7,7 +7,7 @@ import { useUserStore } from '@/store/user'
 // 基础 URL 配置
 // ========================
 export const baseURL = 'http://127.0.0.1:8099' // 本地 API
-// export const baseURL = 'http://39.98.221.201:8099' // 线上打包时使用
+// export const baseURL = 'http://39.98.221.201:8102' // 线上打包时使用
 export const uploadBaseUrl = 'http://127.0.0.1:8000' // 上传接口程序状态查看
 
 

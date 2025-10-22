@@ -58,7 +58,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+    // 关键修改：添加 '/erp/' 作为基础路径
+  history: createWebHistory('/erp/'),  // 原来这里是 createWebHistory()
   routes
 })
 

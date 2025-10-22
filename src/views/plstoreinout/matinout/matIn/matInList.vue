@@ -145,7 +145,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Refresh, Edit, Delete, Document, Plus, Clock, CircleCheckFilled, CircleCloseFilled, CircleCheck } from '@element-plus/icons-vue';
 import { getPlMatInoutList, deletePlMatInout, getPlMatInoutById,updatePlMatInoutStatus} from '@/api/plstoreinout/matinout.js';
 import { useTermStore } from '@/store/term.js';
-import AddForm from './addForm.vue';
+import AddForm from './addFormAll.vue';
 import EditForm from './editForm.vue';
 import DetailForm from './matItem/matItemList.vue';
 import DetailReadonlyForm from './matItem/matItemListReadonly.vue';

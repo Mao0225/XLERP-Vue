@@ -13,15 +13,15 @@
           <div class="custom-dialog-header">
             <span class="title">{{ title }}</span>
             <div class="actions">
-              <el-button circle size="small" @click="toggleFullScreen" title="切换全屏">
+              <button class="icon-btn" @click="toggleFullScreen" :title="isFullScreen ? '退出全屏' : '全屏'">
                 <el-icon>
                   <Maximize2 v-if="!isFullScreen" />
                   <Minimize2 v-else />
                 </el-icon>
-              </el-button>
-              <el-button circle size="small" @click="close" title="关闭">
+              </button>
+              <button class="icon-btn close-btn" @click="close" title="关闭">
                 <el-icon><X /></el-icon>
-              </el-button>
+              </button>
             </div>
           </div>
 
@@ -31,7 +31,7 @@
           </div>
 
           <!-- 底部插槽 -->
-          <div class="custom-dialog-footer">
+          <div class="custom-dialog-footer" v-if="$slots.footer">
             <slot name="footer"></slot>
           </div>
         </div>
@@ -53,7 +53,10 @@ const props = defineProps({
   title: String,
   isFullScreen: { type: Boolean, default: false },
   closeOnClickModal: { type: Boolean, default: true },
-  headerHeight: { type: Number, default: 60 }
+  headerHeight: { type: Number, default: 60 },
+  height: { type: String, default: '' }, // 自定义高度，如 '500px' 或 '60vh'
+  width: { type: String, default: '80%' }, // 自定义宽度
+  maxWidth: { type: String, default: '1200px' } // 最大宽度
 });
 
 const emit = defineEmits(['update:visible', 'update:isFullScreen']);
@@ -71,37 +74,58 @@ const dialogStyle = computed(() => {
       width: '100vw',
       position: 'fixed',
       left: '0',
+      transform: 'none',
       margin: '0',
       borderRadius: '0',
       zIndex: 2000
     };
   } else {
-    return {
-      width: '80%',
+    const style = {
+      width: props.width,
+      maxWidth: props.maxWidth,
       top: '8vh',
       left: '50%',
       transform: 'translateX(-50%)',
       position: 'fixed',
-      zIndex: 2000,
-      maxHeight: '90vh'
+      zIndex: 2000
     };
+    
+    // 如果传入了自定义高度，使用自定义高度，否则使用 maxHeight
+    if (props.height) {
+      style.height = props.height;
+    } else {
+      style.maxHeight = '90vh';
+    }
+    
+    return style;
   }
 });
 
 const bodyStyle = computed(() => {
-  const footerHeight = 50; // 固定footer高度
+  const footerHeight = 70;
+  const headerHeightVal = 70; // 实际header高度
+  
   if (props.isFullScreen) {
     return {
-      flex: '1', // 使用flex让body自动填充剩余空间
+      flex: '1',
       overflowY: 'auto',
-      padding: '20px'
+      padding: '24px 32px'
     };
   } else {
-    return {
-      maxHeight: `calc(80vh - ${props.headerHeight + footerHeight}px)`, // 动态计算body最大高度
-      overflowY: 'auto',
-      padding: '20px'
-    };
+    // 如果设置了固定高度，body需要自适应
+    if (props.height) {
+      return {
+        flex: '1',
+        overflowY: 'auto',
+        padding: '24px 32px'
+      };
+    } else {
+      return {
+        maxHeight: `calc(82vh - ${headerHeightVal + footerHeight}px)`,
+        overflowY: 'auto',
+        padding: '24px 32px'
+      };
+    }
   }
 });
 
@@ -127,7 +151,8 @@ const handleOverlayClick = () => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
   z-index: 1999;
   display: flex;
   justify-content: center;
@@ -135,27 +160,40 @@ const handleOverlayClick = () => {
 }
 
 .custom-dialog {
-  background-color: white;
+  background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  height: 100%; /* 确保在全屏模式下填充高度 */
+  overflow: hidden;
+  transition: all 0.25s ease-out;
+  will-change: width, height, top, left, border-radius;
+}
+
+.custom-dialog.full-screen {
+  border-radius: 0;
+  left: 0 !important;
+  transform: none !important;
 }
 
 .custom-dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #dcdfe6;
-  height: 60px;
-  flex-shrink: 0; /* 防止header收缩 */
+  padding: 20px 32px;
+  background: #f8f9fa;
+  height: 70px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .title {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.2px;
 }
 
 .actions {
@@ -163,26 +201,176 @@ const handleOverlayClick = () => {
   gap: 8px;
 }
 
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+}
+
+.icon-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.icon-btn.close-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
 .custom-dialog-body {
   overflow-y: auto;
-  flex: 1; /* 让body填充剩余空间 */
+  flex: 1;
+  background: #ffffff;
+}
+
+/* 自定义滚动条 */
+.custom-dialog-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-dialog-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-dialog-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.custom-dialog-body::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 .custom-dialog-footer {
-  padding: 10px 20px;
-  border-top: 1px solid #dcdfe6;
-  height: 50px;
+  padding: 16px 32px;
+  background: #fafbfc;
+  border-top: 1px solid #e9ecef;
+  min-height: 70px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  flex-shrink: 0; /* 防止footer收缩 */
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-/* 动画 */
-.dialog-fade-enter-active, .dialog-fade-leave-active {
-  transition: opacity 0.3s;
+/* 动画优化 */
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: opacity 0.25s ease;
 }
-.dialog-fade-enter-from, .dialog-fade-leave-to {
+
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
   opacity: 0;
+}
+
+/* 普通弹窗的动画 */
+.dialog-fade-enter-active .custom-dialog:not(.full-screen) {
+  animation: dialog-enter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dialog-fade-leave-active .custom-dialog:not(.full-screen) {
+  animation: dialog-leave 0.25s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* 全屏弹窗的动画 */
+.dialog-fade-enter-active .custom-dialog.full-screen {
+  animation: dialog-fullscreen-enter 0.25s ease-out;
+}
+
+.dialog-fade-leave-active .custom-dialog.full-screen {
+  animation: dialog-fullscreen-leave 0.25s ease-in;
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes dialog-leave {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-15px) scale(0.97);
+  }
+}
+
+@keyframes dialog-fullscreen-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dialog-fullscreen-leave {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .custom-dialog {
+    width: 95% !important;
+    max-width: 95% !important;
+  }
+  
+  .custom-dialog-header {
+    padding: 16px 20px;
+    height: 60px;
+  }
+  
+  .title {
+    font-size: 16px;
+  }
+  
+  .custom-dialog-body {
+    padding: 20px !important;
+  }
+  
+  .custom-dialog-footer {
+    padding: 12px 20px;
+    min-height: 60px;
+  }
+  
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
 }
 </style>

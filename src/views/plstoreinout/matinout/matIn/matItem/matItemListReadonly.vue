@@ -1,9 +1,15 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="入库单明细列表" width="1200px" :close-on-click-modal="false" @closed="handleClose">
+  <CustomDialog
+    :visible="dialogVisible"
+    title="入库单明细列表"
+    :close-on-click-modal="false"
+    :is-full-screen="isFullscreen"
+    @update:visible="dialogVisible = $event"
+    @update:is-full-screen="isFullscreen = $event"
+  >
     <!-- 单据信息 -->
     <div class="doc-info">
       <el-tag type="primary" size="large">单据编号：{{ inboundInfo?.docNo }}</el-tag>
-      <!-- <el-tag type="info" size="large">发货单位：{{ inboundInfo?.deliveryOrg }}</el-tag> -->
       <el-tag type="warning" size="large">经手人：{{ inboundInfo?.handler }}</el-tag>
       <el-tag type="warning" size="large">库管员：{{ inboundInfo?.storekeeper }}</el-tag>
       <el-tag type="info" size="large">入库时间：{{ inboundInfo?.transactionDate }}</el-tag>
@@ -14,13 +20,25 @@
       <div class="filter-row">
         <div class="filter-item">
           <span class="filter-label">物料名称：</span>
-          <el-input v-model="filters.materialName" placeholder="请输入物料名称" clearable style="width: 200px;"
-            @clear="getDetailListData" @keyup.enter="getDetailListData" />
+          <el-input
+            v-model="filters.materialName"
+            placeholder="请输入物料名称"
+            clearable
+            style="width: 200px;"
+            @clear="getDetailListData"
+            @keyup.enter="getDetailListData"
+          />
         </div>
         <div class="filter-item">
           <span class="filter-label">规格型号：</span>
-          <el-input v-model="filters.materialSpec" placeholder="请输入规格型号" clearable style="width: 200px;"
-            @clear="getDetailListData" @keyup.enter="getDetailListData" />
+          <el-input
+            v-model="filters.materialSpec"
+            placeholder="请输入规格型号"
+            clearable
+            style="width: 200px;"
+            @clear="getDetailListData"
+            @keyup.enter="getDetailListData"
+          />
         </div>
         <div class="filter-actions">
           <el-button type="primary" @click="getDetailListData">
@@ -35,7 +53,7 @@
 
     <!-- 明细列表 -->
     <el-table :data="detailList" v-loading="loading" border max-height="500">
-        <el-table-column type="index" label="序号" width="60" />
+      <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="materialCode" label="物料编号" width="120" show-overflow-tooltip />
       <el-table-column prop="materialName" label="物料名称" width="150" show-overflow-tooltip />
       <el-table-column prop="materialSpec" label="规格型号" width="120" show-overflow-tooltip />
@@ -49,7 +67,6 @@
         </template>
       </el-table-column>
       <el-table-column prop="materialUnit" label="计量单位" width="100" />
-
       <el-table-column prop="planQuantity" label="计划数量" width="100" />
       <el-table-column prop="unitWeight" label="单重" width="80" />
       <el-table-column prop="planWeight" label="计划重量" width="100" />
@@ -61,34 +78,28 @@
       <el-table-column prop="operateTime" label="录入时间" width="140" show-overflow-tooltip />
     </el-table>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination 
-        v-model:current-page="filters.pageNumber" 
+    <template #footer>
+         <div class="pagination-container">
+      <el-pagination
+        v-model:current-page="filters.pageNumber"
         v-model:page-size="filters.pageSize"
-        :page-sizes="[10, 20, 50, 100]" 
-        layout="total, sizes, prev, pager, next" 
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next"
         :total="total"
-        @size-change="handleSizeChange" 
-        @current-change="handleCurrentChange" 
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
-
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="handleClose">关闭</el-button>
-      </div>
     </template>
-
-   
-  </el-dialog>
+  </CustomDialog>
 </template>
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue';
-import { getPlMatInoutItemList} from '@/api/plstoreinout/matinout.js';
+import { getPlMatInoutItemList, deletePlMatInoutItem, getPlMatInoutItemById } from '@/api/plstoreinout/matinout.js';
+import CustomDialog from '@/components/common/CustomDialog.vue';
 
 const props = defineProps({
   visible: {
@@ -103,14 +114,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible']);
 
-// 计算属性处理弹窗显示状态
-const dialogVisible = computed({
-  get: () => props.visible,
-  set: (value) => emit('update:visible', value)
-});
-
-// 状态管理
+const isFullscreen = ref(false);
 const loading = ref(false);
+const selectedItem = ref(null);
 const detailList = ref([]);
 const total = ref(0);
 
@@ -121,6 +127,12 @@ const filters = reactive({
   docNo: '',
   materialName: '',
   materialSpec: ''
+});
+
+// 计算属性处理弹窗显示状态
+const dialogVisible = computed({
+  get: () => props.visible,
+  set: (value) => emit('update:visible', value)
 });
 
 // 监听入库单信息变化，更新docNo
@@ -142,20 +154,22 @@ watch(() => props.visible, (visible) => {
 
 // 获取明细列表
 const getDetailListData = async () => {
-  if (!props.inboundInfo?.docNo) {
+  if (!filters.docNo) {
+    detailList.value = [];
+    total.value = 0;
     return;
   }
-  
+
   loading.value = true;
   try {
     const params = {
       pageNumber: filters.pageNumber,
       pageSize: filters.pageSize,
-      docNo: props.inboundInfo.docNo,
+      docNo: filters.docNo,
       materialName: filters.materialName || undefined,
       materialSpec: filters.materialSpec || undefined
     };
-    
+
     const res = await getPlMatInoutItemList(params);
     detailList.value = res.data.page.list;
     total.value = res.data.page.totalRow;
@@ -188,31 +202,21 @@ const handleReset = () => {
   ElMessage.success('筛选条件已重置');
 };
 
-
-
-// 关闭弹窗
-const handleClose = () => {
-  // 重置筛选条件
-  filters.materialName = '';
-  filters.materialSpec = '';
-  filters.pageNumber = 1;
-  emit('update:visible', false);
-};
-
 </script>
 
 <style scoped>
+.doc-info, .filter-card, .el-table, .pagination-container {
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .doc-info {
   display: flex;
   gap: 16px;
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #f5f7fa;
-  border-radius: 8px;
-}
-
-.filter-card {
-  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .filter-row {
@@ -229,7 +233,7 @@ const handleClose = () => {
 }
 
 .filter-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: #606266;
   white-space: nowrap;
@@ -243,7 +247,6 @@ const handleClose = () => {
 }
 
 .pagination-container {
-  margin-top: 16px;
   display: flex;
   justify-content: flex-end;
 }
@@ -251,33 +254,54 @@ const handleClose = () => {
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
+}
+
+:deep(.custom-dialog-body) {
+  padding: 16px;
+  background-color: #f5f7fa;
+}
+
+:deep(.custom-dialog-footer) {
+  padding: 12px 16px;
+  border-top: 1px solid #ebeef5;
+  background-color: #ffffff;
 }
 
 .positive-qty {
   color: #67c23a;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .negative-qty {
   color: #f56c6c;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {
+  .doc-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .filter-row {
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
   }
-  
+
   .filter-actions {
     margin-left: 0;
     width: 100%;
     justify-content: flex-start;
   }
-  
-  .doc-info {
-    flex-direction: column;
-    gap: 8px;
+
+  .doc-info, .filter-card, .el-table, .pagination-container {
+    padding: 12px;
+  }
+
+  :deep(.custom-dialog-body) {
+    padding: 12px;
   }
 }
 </style>
