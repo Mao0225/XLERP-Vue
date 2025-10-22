@@ -177,19 +177,20 @@ watch(() => filteredMenuList.value, (newVal) => {
 <style lang="scss" scoped>
 .sidebar-container {
   height: 100%;
+  width: 230px;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
-  border-right: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
 }
 
 // 顶部容器
 .header-container {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 16px 12px;
   background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f3f4f6;
   gap: 8px;
 }
 
@@ -199,63 +200,72 @@ watch(() => filteredMenuList.value, (newVal) => {
   
   .menu-search {
     :deep(.el-input__wrapper) {
-      background: #f8fafc;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: none;
       transition: all 0.2s ease;
+      padding: 0 12px;
       
       &:hover {
-        background: #f1f5f9;
-        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+        background: #f3f4f6;
+        border-color: #d1d5db;
       }
       
       &.is-focus {
         background: #ffffff;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
     }
     
     :deep(.el-input__inner) {
-      color: #1e293b;
-      font-size: 14px;
+      color: #111827;
+      font-size: 13px;
+      height: 36px;
+      line-height: 36px;
       
       &::placeholder {
-        color: #94a3b8;
+        color: #9ca3af;
       }
     }
     
     :deep(.el-input__prefix) {
-      color: #64748b;
+      color: #6b7280;
     }
   }
 }
 
 // 折叠按钮
 .menu-toggle {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
   
   &:hover {
-    background: #3b82f6;
-    border-color: #3b82f6;
+    background: #f9fafb;
+    border-color: #d1d5db;
     
     .toggle-icon {
-      color: #ffffff;
+      color: #111827;
     }
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
   
   .toggle-icon {
     font-size: 16px;
-    color: #64748b;
+    color: #6b7280;
     transition: all 0.2s ease;
   }
 }
@@ -264,113 +274,153 @@ watch(() => filteredMenuList.value, (newVal) => {
   flex: 1;
   border-right: none;
   overflow-y: auto;
+  padding: 8px 0;
   
   &:not(.el-menu--collapse) {
-    width: 250px;
+    width: 230px;
   }
   
   &.el-menu--collapse {
     width: 64px;
   }
   
-  // 滚动条样式
+  // 滚动条样式 - 更细更现代
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   
   &::-webkit-scrollbar-track {
-    background: #e2e8f0;
-    border-radius: 3px;
+    background: transparent;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #64748b 0%, #475569 100%);
-    border-radius: 3px;
+    background: #d1d5db;
+    border-radius: 2px;
     
     &:hover {
-      background: linear-gradient(180deg, #475569 0%, #334155 100%);
+      background: #9ca3af;
     }
   }
   
-  // 主菜单项样式
+  // 主菜单项样式 - 扁平化设计
   :deep(.el-menu-item) {
-    height: 48px;
-    line-height: 48px;
-    padding: 0 20px;
-    margin: 2px 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    height: 44px;
+    line-height: 44px;
+    padding: 0 16px;
+    margin: 2px 12px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    background: transparent;
     
     &:hover {
-      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
-      color: #1e40af !important;
-      transform: translateX(2px);
-      box-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+      background: #f3f4f6 !important;
+      color: #111827 !important;
       
       .menu-icon {
-        color: #1e40af !important;
+        color: #111827 !important;
       }
     }
     
     &.is-active {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-      color: #ffffff !important;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      background: #eff6ff !important;
+      color: #2563eb !important;
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 24px;
+        background: #2563eb;
+        border-radius: 0 2px 2px 0;
+      }
       
       .menu-icon {
-        color: #ffffff !important;
+        color: #2563eb !important;
       }
     }
   }
   
-  // 子菜单样式
+  // 子菜单样式 - 简洁设计
   :deep(.el-sub-menu) {
-    margin: 2px 8px;
-    border-radius: 6px;
+    margin: 2px 12px;
     
     .el-sub-menu__title {
-      height: 48px;
-      line-height: 48px;
-      padding: 0 20px;
-      border-radius: 6px;
-      transition: all 0.2s ease;
+      height: 44px;
+      line-height: 44px;
+      padding: 0 16px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
       
       &:hover {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
-        color: #1e40af !important;
-        transform: translateX(2px);
+        background: #f3f4f6 !important;
+        color: #111827 !important;
         
         .menu-icon {
-          color: #1e40af !important;
+          color: #111827 !important;
+        }
+      }
+    }
+    
+    // 展开时的图标旋转
+    &.is-opened {
+      > .el-sub-menu__title {
+        .el-sub-menu__icon-arrow {
+          transform: rotateZ(180deg);
         }
       }
     }
     
     .el-menu {
-      background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
-      margin: 4px 0;
-      border-radius: 6px;
+      background: transparent;
+      margin: 0;
       padding: 4px 0;
       
       .el-menu-item {
-        height: 42px;
-        line-height: 42px;
-        padding-left: 52px;
-        font-size: 14px;
-        margin: 1px 4px;
-        border-radius: 4px;
+        height: 40px;
+        line-height: 40px;
+        padding-left: 48px;
+        font-size: 13px;
+        margin: 1px 0;
+        border-radius: 8px;
+        position: relative;
+        
+        // 子菜单项的圆点指示器
+        &::before {
+          content: '';
+          position: absolute;
+          left: 32px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 4px;
+          background: #d1d5db;
+          border-radius: 50%;
+          transition: all 0.2s ease;
+        }
         
         &:hover {
-          background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%) !important;
-          color: #1e40af !important;
-          transform: translateX(4px);
+          background: #f3f4f6 !important;
+          color: #111827 !important;
+          
+          &::before {
+            background: #6b7280;
+            transform: translateY(-50%) scale(1.2);
+          }
         }
         
         &.is-active {
-          background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
-          color: #ffffff !important;
-          box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+          background: #eff6ff !important;
+          color: #2563eb !important;
+          font-weight: 500;
+          
+          &::before {
+            background: #2563eb;
+            transform: translateY(-50%) scale(1.5);
+          }
         }
       }
     }
@@ -379,30 +429,30 @@ watch(() => filteredMenuList.value, (newVal) => {
 
 .menu-icon {
   font-size: 18px;
-  margin-right: 12px;
-  transition: all 0.2s ease;
-  color: #64748b;
+  margin-right: 10px;
+  transition: all 0.15s ease;
+  color: #6b7280;
 }
 
 .menu-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: inherit;
-}
-
-.sub-menu-title {
   font-size: 14px;
   font-weight: 400;
   color: inherit;
 }
 
-// 高亮样式
+.sub-menu-title {
+  font-size: 13px;
+  font-weight: 400;
+  color: inherit;
+}
+
+// 高亮样式 - 更醒目
 :deep(.highlight) {
-  color: #f59e0b;
+  color: #dc2626;
   font-weight: 600;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  padding: 2px 4px;
-  border-radius: 3px;
+  background: #fef2f2;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 // 无结果提示
@@ -411,18 +461,19 @@ watch(() => filteredMenuList.value, (newVal) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  color: #94a3b8;
+  padding: 60px 20px;
+  color: #9ca3af;
   
   .no-result-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    opacity: 0.5;
+    font-size: 56px;
+    margin-bottom: 16px;
+    opacity: 0.3;
   }
   
   p {
     font-size: 14px;
     margin: 0;
+    color: #6b7280;
   }
 }
 
@@ -435,6 +486,10 @@ watch(() => filteredMenuList.value, (newVal) => {
     .menu-icon {
       margin-right: 0;
       font-size: 20px;
+    }
+    
+    &.is-active::before {
+      left: 0;
     }
   }
   
@@ -457,7 +512,7 @@ watch(() => filteredMenuList.value, (newVal) => {
     top: 0;
     z-index: 1000;
     height: 100vh;
-    box-shadow: 4px 0 20px rgba(30, 64, 175, 0.15);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   }
 }
 </style>

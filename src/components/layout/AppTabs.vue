@@ -58,38 +58,30 @@ const addTab = (route) => {
       title: route.meta.title,
       path: route.path
     })
-    store.refreshKeys[route.path] = Date.now() // 更新刷新key
+    store.refreshKeys[route.path] = Date.now()
   }
 }
 
 const handleTabClick = (tab) => {
   router.push(tab.props.name)
-  store.refreshKeys[tab.props.name] = Date.now() // 切换时更新刷新key
+  store.refreshKeys[tab.props.name] = Date.now()
 }
 
 const removeTab = (targetPath) => {
-  // 防止删除首页
   if (targetPath === '/dashboard') {
     return
   }
   
-  // 如果要删除的是当前激活的标签
   if (activeTab.value === targetPath) {
     const currentIndex = tabsList.value.findIndex(tab => tab.path === targetPath)
-    
-    // 寻找下一个要激活的标签
     let nextTab = null
     
-    // 先尝试激活右边的标签
     if (currentIndex < tabsList.value.length - 1) {
       nextTab = tabsList.value[currentIndex + 1]
-    } 
-    // 再尝试激活左边的标签
-    else if (currentIndex > 0) {
+    } else if (currentIndex > 0) {
       nextTab = tabsList.value[currentIndex - 1]
     }
     
-    // 如果有下一个标签，跳转到它；否则跳转到首页
     if (nextTab && nextTab.path !== targetPath) {
       activeTab.value = nextTab.path
       router.push(nextTab.path)
@@ -99,10 +91,8 @@ const removeTab = (targetPath) => {
     }
   }
   
-  // 删除标签
   store.delTab(targetPath)
   
-  // 如果删除完其他标签后只剩首页，确保跳转到首页
   if (tabsList.value.length === 1 && tabsList.value[0].path === '/dashboard') {
     activeTab.value = '/dashboard'
     router.push('/dashboard')
@@ -112,92 +102,162 @@ const removeTab = (targetPath) => {
 
 <style lang="scss" scoped>
 .app-tabs {
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-bottom: 1px solid #dee2e6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 4px 8px 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
 
   :deep(.el-tabs) {
     .el-tabs__header {
       margin: 0;
+      border-bottom: none;
 
       .el-tabs__nav {
         border: none;
+        display: flex;
+        gap: 2px;
 
         .el-tabs__item {
           position: relative;
-          border: 1px solid #d0d7de;
-          border-radius: 8px 8px 0 0;
-          margin-right: 4px;
-          padding: 0 16px;
+          border: none;
+          border-radius: 6px 6px 0 0;
+          margin: 0;
+          padding: 0 12px;
           height: 32px;
-          line-height: 30px;
-          background: #ffffff;
-          color: #57606a;
-          transition: all 0.3s ease;
-          font-weight: 500;
+          line-height: 32px;
+          background: transparent;
+          color: #6b7280;
+          transition: all 0.2s ease;
+          font-size: 13px;
+          font-weight: 400;
+          min-width: auto;
 
+          // 悬停效果
           &:hover {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            color: #1976d2;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #f3f4f6;
+            color: #111827;
           }
 
+          // 激活状态
           &.is-active {
-            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-            color: #ffffff;
-            border-color: #1976d2;
-            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
-
-            &::before {
+            background: #ffffff;
+            color: #2563eb;
+            font-weight: 500;
+            
+            // 底部指示线
+            &::after {
               content: '';
               position: absolute;
-              bottom: -1px;
-              left: 0;
-              right: 0;
+              bottom: 0;
+              left: 8px;
+              right: 8px;
               height: 2px;
-              background: #ffffff;
-              border-radius: 2px;
+              background: #2563eb;
+              border-radius: 2px 2px 0 0;
             }
           }
 
+          // 关闭按钮样式
           .el-icon.is-icon-close {
+            width: 14px;
+            height: 14px;
+            font-size: 12px;
             color: inherit;
+            opacity: 0;
+            transition: all 0.2s ease;
+            margin-left: 4px;
+            border-radius: 3px;
+
+            &:hover {
+              background-color: rgba(239, 68, 68, 0.1);
+              color: #ef4444;
+            }
+          }
+
+          // 悬停时显示关闭按钮
+          &:hover .el-icon.is-icon-close {
             opacity: 0.6;
-            transition: all 0.3s ease;
+          }
+
+          &:hover .el-icon.is-icon-close:hover {
+            opacity: 1;
+          }
+
+          // 激活标签的关闭按钮
+          &.is-active .el-icon.is-icon-close {
+            opacity: 0.5;
+            color: #2563eb;
 
             &:hover {
               opacity: 1;
-              background-color: rgba(255, 255, 255, 0.2);
-              border-radius: 50%;
+              background-color: rgba(37, 99, 235, 0.1);
+              color: #1d4ed8;
             }
           }
 
-          &.is-active .el-icon.is-icon-close {
-            color: #ffffff;
-
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.2);
-            }
-          }
-
-          // 首页标签特殊样式
+          // 首页标签样式
           &[aria-controls*="dashboard"] {
             .el-icon.is-icon-close {
               display: none !important;
             }
             
-            // 首页标签添加特殊标识
-            &::after {
-              content: '🏠';
-              margin-left: 4px;
-              font-size: 12px;
-              opacity: 0.8;
-            }
+            padding-left: 10px;
+            padding-right: 10px;
           }
         }
+
+        // 标签之间的分隔线
+        .el-tabs__item:not(:last-child):not(.is-active) {
+          &::before {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 14px;
+            background: #e5e7eb;
+            opacity: 0.5;
+          }
+        }
+
+        .el-tabs__item.is-active + .el-tabs__item::before,
+        .el-tabs__item:has(+ .el-tabs__item.is-active)::before {
+          opacity: 0;
+        }
       }
+
+      .el-tabs__nav-wrap {
+        &::after {
+          display: none;
+        }
+      }
+    }
+
+    .el-tabs__content {
+      display: none;
+    }
+  }
+}
+
+// 标签数量较多时的滚动优化
+:deep(.el-tabs__nav-wrap) {
+  overflow-x: auto;
+  
+  &::-webkit-scrollbar {
+    height: 0;
+  }
+}
+
+// 紧凑模式 - 当标签过多时
+@media (max-width: 1200px) {
+  .app-tabs {
+    :deep(.el-tabs__item) {
+      padding: 0 10px !important;
+      font-size: 12px !important;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }

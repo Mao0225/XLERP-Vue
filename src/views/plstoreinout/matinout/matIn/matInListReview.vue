@@ -44,12 +44,6 @@
           <template #header>
             <div class="card-header">
               <span>入库单列表</span>
-              <el-button type="primary" @click="showAddForm">
-                <el-icon>
-                  <Plus />
-                </el-icon>
-                新增入库
-              </el-button>
             </div>
           </template>
           <el-table :data="inboundList" v-loading="loading" height="600" border>

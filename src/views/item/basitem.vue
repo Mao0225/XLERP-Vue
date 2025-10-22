@@ -34,18 +34,18 @@
       <el-table-column prop="name" label="物料名称" />
       <el-table-column prop="unit" label="计量单位" />
       <el-table-column prop="planned_price" label="计划价格" />
-      <el-table-column prop="grade" label="等级" />
+      <!-- <el-table-column prop="grade" label="等级" />
       <el-table-column prop="drawing_standard_no" label="图号/标准号" />
       <el-table-column prop="material_version" label="物料版本" />
       <el-table-column prop="auxiliary_attribute" label="辅助属性" />
-      <el-table-column prop="material_attribute" label="物料属性" />
+      <el-table-column prop="material_attribute" label="物料属性" /> -->
       <el-table-column prop="type" label="物料类型" width="120" >
         <template #default="{ row }">
           {{ getFlagLabel(row.type) }}
         </template>
       </el-table-column>
       <el-table-column prop="inclass" label="所属分类" />
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="300" fixed="right">
         <template #default="{ row }">
           <el-button type="success" size="small" @click="handleMaterialManage(row)">材料管理</el-button>
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>

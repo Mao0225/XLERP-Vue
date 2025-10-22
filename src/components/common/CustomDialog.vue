@@ -184,7 +184,7 @@ const handleOverlayClick = () => {
   align-items: center;
   padding: 20px 32px;
   background: #f8f9fa;
-  height: 70px;
+  height: 30px;
   flex-shrink: 0;
   border-bottom: 1px solid #e9ecef;
 }
