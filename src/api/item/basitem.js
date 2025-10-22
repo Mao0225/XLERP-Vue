@@ -129,3 +129,54 @@ export function removeMaterialRelation(params) {
 export function getAllMaterialsPage(params) {
   return get('/basitem/getpage', params)
 }
+
+/**
+ * 获取原材料分页列表
+ * @param {Object} params - 分页和搜索参数
+ * @param {number} params.pageNumber - 页码
+ * @param {number} params.pageSize - 每页大小
+ * @param {string} params.itemno - 物料编号搜索关键字
+ * @param {string} params.name - 物料名称搜索关键字
+ * @returns {Promise} - 返回原材料列表Promise
+ */
+export function getYuancailiaoPage(params) {
+  return get('/basitem/getyuancailiaopage', params)
+}
+
+/**
+ * 更新子物料关系（发送JSON格式数据）
+ * @param {Object} data - 包含relationId及需要更新的字段（如quantity, memo等）的对象
+ * @param {number} data.relationId - 关系ID（必填）
+ * @param {number} [data.quantity] - 子物料数量（可选，如需更新）
+ * @param {string} [data.memo] - 备注信息（可选，如需更新）
+ * @returns {Promise}
+ */
+export function updateMaterialRelation(data) {
+  console.log('准备更新的子物料关系参数:', data)
+  if (!data.relationId) { 
+    console.error('参数缺失！relationId:', data.relationId)
+    return Promise.reject(new Error('关系ID不能为空'))
+  }
+
+  // 统一参数名
+  const requestData = {
+    relationId: data.relationId,
+    quantity: data.quantity || data.relation_quantity, // 兼容两种参数名
+    memo: data.memo || ''
+  }
+
+  return put('/basitem/material/updateRelation', requestData)
+    .then(response => {
+      console.log('更新API完整响应:', response)
+      
+      // 统一响应检查逻辑
+      if (response.code === 200 || response.success) {
+        return response
+      } else {
+        return Promise.reject(new Error(response.msg || response.message || '更新失败'))
+      }
+    }).catch(error => {
+      console.error('更新子物料关系接口调用失败:', error)
+      return Promise.reject(error)
+    })
+}
