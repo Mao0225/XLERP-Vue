@@ -21,14 +21,13 @@
         <!-- 主体内容 -->
         <el-main class="layout-main-content">
           <router-view v-slot="{ Component, route }">
-            <transition name="fade-slide" mode="out-in">
-              <keep-alive :include="cachedViews">
-                <component 
-                  :is="Component" 
-                  :key="getRouteKey(route)" 
-                />
-              </keep-alive>
-            </transition>
+            <keep-alive :include="cachedViews">
+              <component 
+                :is="Component" 
+                :key="getRouteKey(route)"
+                v-if="isRouterAlive"
+              />
+            </keep-alive>
           </router-view>
         </el-main>
       </el-container>
@@ -37,7 +36,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/store'
 import AppHeader from './AppHeader.vue'
@@ -46,6 +45,9 @@ import AppTabs from './AppTabs.vue'
 
 const route = useRoute()
 const store = useAppStore()
+
+// 路由存活状态，用于解决切换卡住问题
+const isRouterAlive = ref(true)
 
 // 侧边栏宽度
 const asideWidth = computed(() => store.isCollapse ? '64px' : '230px')
@@ -57,6 +59,42 @@ const cachedViews = computed(() => store.cachedViews || [])
 const getRouteKey = (route) => {
   return store.refreshKeys?.[route.path] || route.path
 }
+
+// 监听路由变化，防止切换卡住
+let routeChangeTimer = null
+watch(
+  () => route.path,
+  () => {
+    // 清除之前的定时器
+    if (routeChangeTimer) {
+      clearTimeout(routeChangeTimer)
+    }
+    
+    // 确保路由组件正常渲染
+    isRouterAlive.value = true
+    
+    // 设置超时保护，如果5秒内没有成功渲染，强制重置
+    routeChangeTimer = setTimeout(() => {
+      if (!isRouterAlive.value) {
+        console.warn('路由渲染超时，强制重置')
+        isRouterAlive.value = true
+      }
+    }, 5000)
+  },
+  { immediate: true }
+)
+
+// 提供刷新方法给子组件
+const reload = async () => {
+  isRouterAlive.value = false
+  await nextTick()
+  isRouterAlive.value = true
+}
+
+// 暴露刷新方法
+defineExpose({
+  reload
+})
 </script>
 
 <style lang="scss" scoped>
@@ -73,7 +111,7 @@ const getRouteKey = (route) => {
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  z-index: 9999!important;
+  z-index: 9999 !important;
   position: relative;
 }
 
@@ -88,9 +126,10 @@ const getRouteKey = (route) => {
   height: 100%;
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   z-index: 999;
+  will-change: width;
   
   // 防止内容溢出
   :deep(*) {
@@ -123,6 +162,7 @@ const getRouteKey = (route) => {
   background: #f5f5f5;
   overflow-x: hidden;
   overflow-y: auto;
+  position: relative;
   
   // 优化滚动条样式
   &::-webkit-scrollbar {
@@ -150,20 +190,19 @@ const getRouteKey = (route) => {
   scrollbar-color: #c1c1c1 #f1f1f1;
 }
 
-// 页面切换动画
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.2s ease;
+// 移除可能导致卡住的过渡动画
+// 使用更简单的淡入效果，避免 transform 导致的卡顿
+:deep(.router-view) {
+  animation: fadeIn 0.2s ease-in-out;
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-10px);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // 响应式布局
@@ -209,35 +248,35 @@ const getRouteKey = (route) => {
   }
 }
 
-// 性能优化 - 减少重绘
-.layout-container,
-.layout-content,
-.layout-main {
-  will-change: auto;
+// 性能优化 - 使用 GPU 加速
+.layout-aside,
+.layout-main-content {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
-// 加载占位
+// 加载占位 - 优化加载状态显示
 .layout-main-content:empty::before {
   content: '';
   display: block;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes loading {
+@keyframes spin {
   0% {
-    background-position: 200% 0;
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   100% {
-    background-position: -200% 0;
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 </style>

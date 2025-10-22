@@ -80,7 +80,12 @@ const viewComponents = {
   'kucun/matInList': () => import('@/views/plstoreinout/matinout/matIn/matInList.vue'),
   //原材料入库审核
   'kucun/matInListReview': () => import('@/views/plstoreinout/matinout/matIn/matInListReview.vue'),
-  //原材料出库明细
+
+      //原材料入库单据列表
+  'kucun/matOutList': () => import('@/views/plstoreinout/matinout/matOut/matOutList.vue'),
+  //原材料入库审核
+  'kucun/matOutListReview': () => import('@/views/plstoreinout/matinout/matOut/matOutListReview.vue'),
+  //原材料出入库明细
   'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItemPage/matItemInoutPage.vue'),
 
 

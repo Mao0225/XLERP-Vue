@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-container">
+  <div class="sidebar-container" :class="{ 'collapsed': isCollapse }">
     <!-- 搜索框和折叠按钮 -->
     <div class="header-container">
       <div v-if="!isCollapse" class="search-wrapper">
@@ -27,8 +27,9 @@
       :default-openeds="defaultOpeneds"
       :collapse="isCollapse"
       :collapse-transition="false"
+      :unique-opened="false"
       class="app-menu"
-      background-color="#f8fafc"
+      background-color="transparent"
       text-color="#475569"
       active-text-color="#1e40af"
       router
@@ -43,7 +44,9 @@
           <el-icon v-if="menu.icon" class="menu-icon">
             <component :is="menu.icon"></component>
           </el-icon>
-          <span class="menu-title" v-html="highlightText(menu.title)"></span>
+          <template #title>
+            <span class="menu-title" v-html="highlightText(menu.title)"></span>
+          </template>
         </el-menu-item>
              
         <!-- 有子菜单的情况 -->
@@ -58,7 +61,9 @@
           <!-- 渲染子菜单 -->
           <template v-for="child in menu.children" :key="child.id">
             <el-menu-item :index="child.path" class="sub-menu-item">
-              <span class="sub-menu-title" v-html="highlightText(child.title)"></span>
+              <template #title>
+                <span class="sub-menu-title" v-html="highlightText(child.title)"></span>
+              </template>
             </el-menu-item>
           </template>
         </el-sub-menu>
@@ -182,6 +187,12 @@ watch(() => filteredMenuList.value, (newVal) => {
   flex-direction: column;
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+  
+  &.collapsed {
+    width: 64px;
+  }
 }
 
 // 顶部容器
@@ -192,11 +203,13 @@ watch(() => filteredMenuList.value, (newVal) => {
   background: #ffffff;
   border-bottom: 1px solid #f3f4f6;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 // 搜索框容器
 .search-wrapper {
   flex: 1;
+  overflow: hidden;
   
   .menu-search {
     :deep(.el-input__wrapper) {
@@ -204,7 +217,7 @@ watch(() => filteredMenuList.value, (newVal) => {
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       box-shadow: none;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       padding: 0 12px;
       
       &:hover {
@@ -247,7 +260,7 @@ watch(() => filteredMenuList.value, (newVal) => {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
   
   &:hover {
@@ -266,7 +279,7 @@ watch(() => filteredMenuList.value, (newVal) => {
   .toggle-icon {
     font-size: 16px;
     color: #6b7280;
-    transition: all 0.2s ease;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -274,7 +287,9 @@ watch(() => filteredMenuList.value, (newVal) => {
   flex: 1;
   border-right: none;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 8px 0;
+  background: transparent;
   
   &:not(.el-menu--collapse) {
     width: 230px;
@@ -284,7 +299,7 @@ watch(() => filteredMenuList.value, (newVal) => {
     width: 64px;
   }
   
-  // 滚动条样式 - 更细更现代
+  // 滚动条样式
   &::-webkit-scrollbar {
     width: 4px;
   }
@@ -302,14 +317,27 @@ watch(() => filteredMenuList.value, (newVal) => {
     }
   }
   
-  // 主菜单项样式 - 扁平化设计
+  // 关键优化：禁用所有默认过渡动画
+  * {
+    transition-property: background-color, color, transform, opacity !important;
+    transition-duration: 0.2s !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  // 强制禁用高度过渡
+  :deep(.el-menu),
+  :deep(.el-menu--inline),
+  :deep(.el-sub-menu__wrap) {
+    transition: none !important;
+  }
+  
+  // 主菜单项样式
   :deep(.el-menu-item) {
     height: 44px;
     line-height: 44px;
-    padding: 0 16px;
+    padding: 0 16px !important;
     margin: 2px 12px;
     border-radius: 8px;
-    transition: all 0.15s ease;
     background: transparent;
     
     &:hover {
@@ -344,16 +372,15 @@ watch(() => filteredMenuList.value, (newVal) => {
     }
   }
   
-  // 子菜单样式 - 简洁设计
+  // 子菜单样式
   :deep(.el-sub-menu) {
     margin: 2px 12px;
     
     .el-sub-menu__title {
       height: 44px;
       line-height: 44px;
-      padding: 0 16px;
+      padding: 0 16px !important;
       border-radius: 8px;
-      transition: all 0.15s ease;
       
       &:hover {
         background: #f3f4f6 !important;
@@ -363,9 +390,15 @@ watch(() => filteredMenuList.value, (newVal) => {
           color: #111827 !important;
         }
       }
+      
+      // 箭头图标
+      .el-sub-menu__icon-arrow {
+        right: 16px;
+        margin-top: -4px;
+      }
     }
     
-    // 展开时的图标旋转
+    // 展开动画优化
     &.is-opened {
       > .el-sub-menu__title {
         .el-sub-menu__icon-arrow {
@@ -374,17 +407,23 @@ watch(() => filteredMenuList.value, (newVal) => {
       }
     }
     
+    // 子菜单容器 - 关键优化
     .el-menu {
       background: transparent;
       margin: 0;
-      padding: 4px 0;
+      padding: 0;
+      
+      // 关键：使用 max-height 而不是 height 来实现平滑展开
+      &.el-menu--inline {
+        overflow: hidden;
+      }
       
       .el-menu-item {
         height: 40px;
         line-height: 40px;
-        padding-left: 48px;
+        padding-left: 48px !important;
         font-size: 13px;
-        margin: 1px 0;
+        margin: 1px 12px 1px 0;
         border-radius: 8px;
         position: relative;
         
@@ -399,7 +438,6 @@ watch(() => filteredMenuList.value, (newVal) => {
           height: 4px;
           background: #d1d5db;
           border-radius: 50%;
-          transition: all 0.2s ease;
         }
         
         &:hover {
@@ -430,23 +468,29 @@ watch(() => filteredMenuList.value, (newVal) => {
 .menu-icon {
   font-size: 18px;
   margin-right: 10px;
-  transition: all 0.15s ease;
   color: #6b7280;
+  flex-shrink: 0;
 }
 
 .menu-title {
   font-size: 14px;
   font-weight: 400;
   color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sub-menu-title {
   font-size: 13px;
   font-weight: 400;
   color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-// 高亮样式 - 更醒目
+// 高亮样式
 :deep(.highlight) {
   color: #dc2626;
   font-weight: 600;
@@ -480,7 +524,7 @@ watch(() => filteredMenuList.value, (newVal) => {
 // 折叠状态样式
 .app-menu.el-menu--collapse {
   :deep(.el-menu-item) {
-    padding: 0;
+    padding: 0 !important;
     justify-content: center;
     
     .menu-icon {
@@ -493,13 +537,19 @@ watch(() => filteredMenuList.value, (newVal) => {
     }
   }
   
-  :deep(.el-sub-menu__title) {
-    padding: 0;
-    justify-content: center;
-    
-    .menu-icon {
-      margin-right: 0;
-      font-size: 20px;
+  :deep(.el-sub-menu) {
+    .el-sub-menu__title {
+      padding: 0 !important;
+      justify-content: center;
+      
+      .menu-icon {
+        margin-right: 0;
+        font-size: 20px;
+      }
+      
+      .el-sub-menu__icon-arrow {
+        display: none;
+      }
     }
   }
 }
@@ -514,5 +564,14 @@ watch(() => filteredMenuList.value, (newVal) => {
     height: 100vh;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   }
+}
+
+// 性能优化：使用 GPU 加速
+.sidebar-container,
+.app-menu,
+:deep(.el-menu-item),
+:deep(.el-sub-menu__title) {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 </style>
