@@ -101,6 +101,7 @@ defineExpose({
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    z-index: 9999!important;
   }
   
   .layout-content {
