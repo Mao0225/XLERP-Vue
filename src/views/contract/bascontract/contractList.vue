@@ -58,7 +58,7 @@
             </el-table-column>
             <el-table-column prop="no" label="厂内合同号" width="120" show-overflow-tooltip>
               <template #default="{ row }">
-                <el-link type="primary" @click="selectContractRow(row)">{{ row.no }}</el-link>
+                <el-link type="primary" @click="openContractInfoDialog(row.no)">{{ row.no }}</el-link>
               </template>
             </el-table-column>
             <el-table-column prop="name" label="合同名称" width="120" show-overflow-tooltip />

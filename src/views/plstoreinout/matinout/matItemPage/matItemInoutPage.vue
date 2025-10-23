@@ -90,7 +90,7 @@
             <el-table-column prop="totalWeight" label="总重(kg)" width="100" show-overflow-tooltip />
             <el-table-column prop="salesPrice" label="单价(元)" width="120" show-overflow-tooltip />
             <el-table-column prop="salesTotalAmount" label="总金额(元)" width="120" show-overflow-tooltip />
-            <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip />
+            <!-- <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip /> -->
             <el-table-column prop="handler" label="经手人" width="100" show-overflow-tooltip />
             <el-table-column prop="warehouse" label="存放位置" width="120" show-overflow-tooltip />
             <el-table-column prop="supplierName" label="供应商名称" width="150" show-overflow-tooltip />

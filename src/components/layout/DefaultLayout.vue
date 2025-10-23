@@ -1,25 +1,19 @@
 <template>
   <el-container class="layout-container">
-    <!-- 顶部导航栏 -->
-    <el-header class="layout-header">
+    <el-header class="layout-header" height="60px">
       <app-header />
     </el-header>
     
     <el-container class="layout-content">
-      <!-- 侧边栏 -->
       <el-aside :width="asideWidth" class="layout-aside">
         <app-menu />
       </el-aside>
       
-      <!-- 主内容区域 -->
       <el-container class="layout-main">
-        <!-- 标签栏 -->
         <div class="layout-tabs">
           <app-tabs />
         </div>
-        
-        <!-- 主体内容 -->
-        <el-main class="layout-main-content">
+        <el-main>
           <router-view v-slot="{ Component, route }">
             <keep-alive :include="cachedViews">
               <component 
@@ -50,7 +44,7 @@ const store = useAppStore()
 const isRouterAlive = ref(true)
 
 // 侧边栏宽度
-const asideWidth = computed(() => store.isCollapse ? '64px' : '230px')
+const asideWidth = computed(() => store.isCollapse ? '60px' : '230px')
 
 // 缓存的视图组件名称列表
 const cachedViews = computed(() => store.cachedViews || [])
@@ -99,138 +93,179 @@ defineExpose({
 
 <style lang="scss" scoped>
 .layout-container {
-  width: 100%;
   height: 100vh;
   overflow: hidden;
-}
-
-// 顶部导航栏
-.layout-header {
-  height: 60px;
-  padding: 0;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  z-index: 9999 !important;
-  position: relative;
-}
-
-// 内容区域容器
-.layout-content {
-  height: calc(100vh - 60px);
-  position: relative;
-}
-
-// 侧边栏
-.layout-aside {
-  height: 100%;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  z-index: 999;
-  will-change: width;
   
-  // 防止内容溢出
-  :deep(*) {
-    transition: opacity 0.2s ease;
-  }
-}
-
-// 主内容区域
-.layout-main {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #f5f5f5;
-  overflow: hidden;
-}
-
-// 标签栏
-.layout-tabs {
-  flex-shrink: 0;
-  height: 40px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  z-index: 998;
-}
-
-// 主体内容
-.layout-main-content {
-  flex: 1;
-  padding: 10px;
-  background: #f5f5f5;
-  overflow-x: hidden;
-  overflow-y: auto;
-  position: relative;
-  
-  // 优化滚动条样式
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  .layout-header {
+    padding: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   }
   
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-    transition: background 0.2s ease;
+  .layout-content {
+    height: calc(100vh - 60px);
     
-    &:hover {
-      background: #a8a8a8;
+    .layout-aside {
+      background-color: #001529;
+      transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      
+      // 优化侧边栏内容过渡
+      :deep(.el-menu) {
+        border-right: none;
+      }
+      
+      :deep(.el-menu-item),
+      :deep(.el-sub-menu__title) {
+        transition: all 0.2s ease;
+      }
+    }
+    
+    .layout-main {
+      display: flex;
+      flex-direction: column;
+      background: #f0f2f5;
+      
+      .layout-tabs {
+        flex-shrink: 0;
+        height: 40px;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .el-main {
+        flex: 1;
+        padding: 10px;
+        background-color: #f0f2f5;
+        height: calc(100% - 40px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        
+        // 优化滚动条样式
+        &::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        &::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 4px;
+          transition: background 0.2s ease;
+          
+          &:hover {
+            background: #a8a8a8;
+          }
+        }
+        
+        // Firefox滚动条
+        scrollbar-width: thin;
+        scrollbar-color: #c1c1c1 #f1f1f1;
+        
+        // 加载占位动画
+        &:empty::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 40px;
+          height: 40px;
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #409eff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+      }
     }
   }
-  
-  // Firefox滚动条
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 #f1f1f1;
 }
 
-// 移除可能导致卡住的过渡动画
-// 使用更简单的淡入效果，避免 transform 导致的卡顿
+// 路由切换淡入动画
 :deep(.router-view) {
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
 // 响应式布局
 @media (max-width: 768px) {
-  .layout-header {
-    height: 56px;
-  }
-  
-  .layout-content {
-    height: calc(100vh - 56px);
-  }
-  
-  .layout-aside {
-    position: fixed;
-    left: 0;
-    top: 56px;
-    height: calc(100vh - 56px);
-    z-index: 1001;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  .layout-container {
+    .layout-header {
+      height: 56px;
+    }
     
-    // 折叠时隐藏
-    &:not(:hover) {
-      transform: translateX(calc(-100% + 64px));
+    .layout-content {
+      height: calc(100vh - 56px);
+      
+      .layout-aside {
+        position: fixed;
+        left: 0;
+        top: 56px;
+        height: calc(100vh - 56px);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        
+        // 折叠时部分隐藏
+        &:not(:hover) {
+          transform: translateX(calc(-100% + 60px));
+        }
+      }
+      
+      .layout-main {
+        .el-main {
+          padding: 8px;
+        }
+      }
     }
   }
-  
-  .layout-main-content {
-    padding: 8px;
+}
+
+// 平板设备优化
+@media (min-width: 769px) and (max-width: 1024px) {
+  .layout-container {
+    .layout-content {
+      .el-main {
+        padding: 12px;
+      }
+    }
+  }
+}
+
+// 大屏幕优化
+@media (min-width: 1920px) {
+  .layout-container {
+    .layout-content {
+      .el-main {
+        padding: 16px;
+        max-width: 1800px;
+        margin: 0 auto;
+      }
+    }
   }
 }
 
@@ -242,41 +277,84 @@ defineExpose({
     display: none !important;
   }
   
-  .layout-main-content {
-    padding: 0;
-    overflow: visible;
+  .layout-main {
+    .el-main {
+      padding: 0;
+      overflow: visible;
+      height: auto !important;
+    }
+  }
+  
+  // 隐藏滚动条
+  ::-webkit-scrollbar {
+    display: none;
   }
 }
 
-// 性能优化 - 使用 GPU 加速
-.layout-aside,
-.layout-main-content {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-// 加载占位 - 优化加载状态显示
-.layout-main-content:empty::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
+// 暗黑模式支持（可选）
+@media (prefers-color-scheme: dark) {
+  .layout-container {
+    .layout-header {
+      background: #1f1f1f;
+      border-bottom-color: #333;
+    }
+    
+    .layout-content {
+      .layout-main {
+        background: #141414;
+        
+        .layout-tabs {
+          background: #1f1f1f;
+          border-bottom-color: #333;
+        }
+        
+        .el-main {
+          background-color: #141414;
+          
+          &::-webkit-scrollbar-track {
+            background: #2a2a2a;
+          }
+          
+          &::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            
+            &:hover {
+              background: #5a5a5a;
+            }
+          }
+        }
+      }
+    }
   }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
+}
+
+// 减少动画（尊重用户偏好）
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// 高对比度模式
+@media (prefers-contrast: high) {
+  .layout-container {
+    .layout-header {
+      border-bottom: 2px solid #000;
+    }
+    
+    .layout-content {
+      .layout-aside {
+        border-right: 2px solid #000;
+      }
+      
+      .layout-main {
+        .layout-tabs {
+          border-bottom: 2px solid #000;
+        }
+      }
+    }
   }
 }
 </style>

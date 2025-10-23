@@ -472,6 +472,7 @@ watch(() => filteredMenuList.value, (newVal) => {
   flex-shrink: 0;
 }
 
+
 .menu-title {
   font-size: 14px;
   font-weight: 400;
@@ -525,10 +526,29 @@ watch(() => filteredMenuList.value, (newVal) => {
 .app-menu.el-menu--collapse {
   :deep(.el-menu-item) {
     padding: 0 !important;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    text-align: center;
+    
+    // 重置 tooltip 容器的样式
+    > * {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .el-icon {
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+    }
     
     .menu-icon {
-      margin-right: 0;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
       font-size: 20px;
     }
     
@@ -540,10 +560,28 @@ watch(() => filteredMenuList.value, (newVal) => {
   :deep(.el-sub-menu) {
     .el-sub-menu__title {
       padding: 0 !important;
+      display: flex;
+      align-items: center;
       justify-content: center;
+      text-align: center;
+      
+      // 重置所有子元素
+      > * {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      .el-icon {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+      }
       
       .menu-icon {
-        margin-right: 0;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
         font-size: 20px;
       }
       
@@ -560,7 +598,6 @@ watch(() => filteredMenuList.value, (newVal) => {
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 1000;
     height: 100vh;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   }

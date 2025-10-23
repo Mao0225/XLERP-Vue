@@ -2,7 +2,7 @@
   <el-dialog
     v-model="dialogVisible"
     title="选择生产工单进行报工"
-    width="1100px"
+    width="70%"
     :before-close="handleClose"
     destroy-on-close
   >

@@ -237,9 +237,9 @@
             <el-table-column prop="itemNo" label="产品编号" width="100" />
             <el-table-column prop="itemName" label="产品名称" min-width="80" />
             <el-table-column prop="itemSpec" label="规格型号" min-width="80" />
-            <el-table-column prop="poItemNo" label="采购行项目号" width="100" />
+            <!-- <el-table-column prop="poItemNo" label="采购行项目号" width="100" />
             <el-table-column prop="poItemId" label="采购行项目ID" min-width="80" />
-            <el-table-column prop="poItemCode" label="国网物料编码" min-width="80" />
+            <el-table-column prop="poItemCode" label="国网物料编码" min-width="80" /> -->
             <el-table-column prop="itemnum" label="数量" min-width="80" />
             <el-table-column prop="itemunit" label="单位" min-width="80" />
             <el-table-column prop="itemRealPrice" label="销售单价" min-width="80" />

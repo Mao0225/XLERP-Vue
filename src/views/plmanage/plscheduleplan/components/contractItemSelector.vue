@@ -358,6 +358,7 @@ const resetData = () => {
 </script>
 
 <style scoped>
+
 .contract-material-selector {
   padding: 20px;
 }
