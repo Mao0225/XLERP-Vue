@@ -168,8 +168,6 @@ const handleOverlayClick = () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.25s ease-out;
-  will-change: width, height, top, left, border-radius;
 }
 
 .custom-dialog.full-screen {
@@ -270,77 +268,21 @@ const handleOverlayClick = () => {
   flex-shrink: 0;
 }
 
-/* 动画优化 */
-.dialog-fade-enter-active,
-.dialog-fade-leave-active {
-  transition: opacity 0.25s ease;
+/* 简化动画 */
+.dialog-fade-enter-active {
+  transition: opacity 0.2s ease;
 }
 
-.dialog-fade-enter-from,
-.dialog-fade-leave-to {
+.dialog-fade-enter-from {
   opacity: 0;
 }
 
-/* 普通弹窗的动画 */
-.dialog-fade-enter-active .custom-dialog:not(.full-screen) {
-  animation: dialog-enter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+.dialog-fade-leave-active {
+  transition: none;
 }
 
-.dialog-fade-leave-active .custom-dialog:not(.full-screen) {
-  animation: dialog-leave 0.25s cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* 全屏弹窗的动画 */
-.dialog-fade-enter-active .custom-dialog.full-screen {
-  animation: dialog-fullscreen-enter 0.25s ease-out;
-}
-
-.dialog-fade-leave-active .custom-dialog.full-screen {
-  animation: dialog-fullscreen-leave 0.25s ease-in;
-}
-
-@keyframes dialog-enter {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(30px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-}
-
-@keyframes dialog-leave {
-  from {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-15px) scale(0.97);
-  }
-}
-
-@keyframes dialog-fullscreen-enter {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes dialog-fullscreen-leave {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.98);
-  }
+.dialog-fade-leave-to {
+  opacity: 0;
 }
 
 /* 响应式设计 */

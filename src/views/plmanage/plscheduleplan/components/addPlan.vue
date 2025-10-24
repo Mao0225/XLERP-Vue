@@ -21,30 +21,36 @@
 
     <!-- 合同信息 -->
     <el-card v-if="contractInfo" class="contract-card" shadow="never">
-      <template #header>
-        <div class="card-header">
-          <span class="card-title">合同信息</span>
-        </div>
-      </template>
-      <el-descriptions :column="3" border size="small">
-        <el-descriptions-item
-          v-for="item in contractFields"
-          :key="item.field"
-          :label="item.label"
-          :span="1"
-        >
-          <el-tooltip
-            :content="contractInfo[item.field] ?? '—'"
-            placement="top"
-            effect="dark"
-          >
-            <span class="readonly-text ellipsis">
-              {{ contractInfo[item.field] ?? '—' }}
-            </span>
-          </el-tooltip>
-        </el-descriptions-item>
-      </el-descriptions>
-    </el-card>
+  <template #header>
+    <div class="card-header">
+      <span class="card-title">合同信息</span>
+    </div>
+  </template>
+
+  <el-descriptions
+    :column="3"
+    border
+    size="small"
+    class="contract-descriptions"
+  >
+    <el-descriptions-item
+      v-for="item in contractFields"
+      :key="item.field"
+      :label="item.label"
+      :span="1"
+    >
+      <el-tooltip
+        v-if="contractInfo[item.field]"
+        :content="contractInfo[item.field]"
+        placement="top"
+        effect="dark"
+      >
+        <span class="readonly-text ellipsis">{{ contractInfo[item.field] }}</span>
+      </el-tooltip>
+      <span v-else class="readonly-text">—</span>
+    </el-descriptions-item>
+  </el-descriptions>
+</el-card>
 
     <!-- 排产计划表格 -->
     <el-card class="material-card" shadow="never">
@@ -97,7 +103,7 @@
         :data="materialList"
         border
         style="width: 100%"
-        max-height="500"
+        max-height="700px"
         :row-class-name="tableRowClassName"
         @selection-change="handleSelectionChange"
         ref="tableRef"
@@ -656,6 +662,36 @@ const unconfirmRow = async (row) => {
 <style scoped>
 .editable-row .cell { color: #f56c6c !important; }
 .confirmed-text { color: #67c23a !important; }
+
+
+.contract-card {
+  margin-bottom: 10px;
+}
+
+/* 控制 el-descriptions 内的布局 */
+.contract-descriptions ::v-deep(.el-descriptions__label) {
+  width: 120px; /* 固定 label 宽度，保证一排对齐 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+/* 控制内容的显示省略 */
+.readonly-text {
+  display: inline-block;
+  max-width: 220px; /* 控制内容列宽度，可按需求调整 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+/* 增加细微对齐感 */
+.ellipsis {
+  cursor: pointer;
+  color: #333;
+}
 
 .loading-overlay {
   position: absolute;

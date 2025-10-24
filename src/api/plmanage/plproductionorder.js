@@ -84,3 +84,21 @@ return get ('/pl_production_order/updateStatus', data)
 export function getOrderListByScheduleCode (params) {
 return get ('/pl_production_order/getListByScheduleCode', params)
 }
+
+
+/**
+ * 获取生产订单ipoBatchNo批次号分组列表
+ * @param {Object} params - 查询参数
+ */
+export function getBatchNoList (params) {
+return get ('/pl_production_order/getBatchNoList', params)
+}
+
+
+/**
+ * 获取生产订单的物料列表通过合同号或者批次号或者排产计划号筛选
+ * @param {Object} params - 获取参数
+ */
+export function getListAll (params) {
+return get ('/pl_production_order/getListAll', params)
+}
