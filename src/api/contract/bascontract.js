@@ -107,10 +107,18 @@ export function getConfirmContract(params) {
 }
 
 /**
- * 获取合同物料列表分页查询根据合同编号，分页查询
+ * 获取合同物料列表<分页查询>根据合同编号，分页查询
  */
 export function getContractItemPage(params) {
   return get('/bascontract/getContractItemPage',params)
+}
+
+
+/**
+ * 获取合同<完整>物料列表查询根据合同编号
+ */
+export function getContractItemList(params) {
+  return get('/bascontract/getContractItemList',params)
 }
 
 

@@ -11,15 +11,15 @@
     class="schedule-plan-dialog"
   >
 
-    <!-- 加载转圈动画 -->
-    <div v-if="isLoading" class="loading-overlay">
-      <div class="loading-content">
-        <el-spinner type="line" size="48" />
-        <p class="loading-text">正在加载排产数据...</p>
-      </div>
+    <!-- 新增：加载转圈动画（加载时显示，覆盖所有内容） -->
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-content">
+      <!-- Element Plus 自带的加载组件 -->
+      <el-spinner type="line" size="48" />
+      <p class="loading-text">正在加载排产数据...</p>
     </div>
-
-    <!-- 合同信息 -->
+  </div>
+    <!-- ==================== 合同信息 ==================== -->
     <el-card v-if="contractInfo" class="contract-card" shadow="never">
       <template #header>
         <div class="card-header">
@@ -46,51 +46,34 @@
       </el-descriptions>
     </el-card>
 
-    <!-- 排产计划表格 -->
+    <!-- ==================== 排产计划表格 ==================== -->
     <el-card class="material-card" shadow="never">
       <template #header>
-        <div class="card-header">
-          <span class="card-title">
-            排产计划明细 ({{ materialList.length }} 项)
-          </span>
-         <span class="header-button">
-  <!-- 新增：选中未录入 + 选中录入 -->
-  <el-button
-    type="info"
-    size="small"
-    :disabled="!unenteredCount"
-    @click="selectUnentered"
-  >
-    选中未录入 ({{ unenteredCount }})
-  </el-button>
-  <el-button
-    type="warning"
-    size="small"
-    :disabled="!enteredCount"
-    @click="selectEntered"
-  >
-    选中录入 ({{ enteredCount }})
-  </el-button>
-
-  <!-- 原有按钮 -->
-  <el-button
-    type="primary"
-    size="small"
-    :disabled="!selectedRows.length"
-    @click="batchDateDialogVisible = true"
-  >
-    批量设置日期 ({{ selectedRows.length }})
-  </el-button>
-  <el-button
-    type="success"
-    size="small"
-    :disabled="!editableSelectedCount"
-    @click="batchConfirm"
-  >
-    批量确认 ({{ editableSelectedCount }})
-  </el-button>
-</span>
-        </div>
+          <div class="card-header">
+            <!-- 标题区域 -->
+            <span class="card-title">
+              排产计划明细 ({{ materialList.length }} 项)
+            </span>
+            <!-- 按钮区域 -->
+            <span class="header-button">
+              <el-button
+                type="primary"
+                size="small"
+                :disabled="!selectedRows.length"
+                @click="batchDateDialogVisible = true"
+              >
+                批量设置日期 ({{ selectedRows.length }})
+              </el-button>
+              <el-button
+                type="success"
+                size="small"
+                :disabled="!selectedRows.length"
+                @click="batchConfirm"
+              >
+                批量确认 ({{ selectedRows.length }})
+              </el-button>
+            </span>
+          </div>
       </template>
 
       <el-table
@@ -252,7 +235,7 @@
       </el-form>
       <template #footer>
         <el-button @click="batchDateDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="applyAndAutoSave" :loading="isBatchSaving">应用并保存</el-button>
+        <el-button type="primary" @click="applyAndAutoSave">应用并保存</el-button>
       </template>
     </el-dialog>
 
@@ -329,7 +312,7 @@ const defaultFields = {
 }
 
 // 状态
-const isFullscreen = ref(true)
+const isFullscreen = ref(false)
 const dialogVisible = computed({
   get: () => props.visible,
   set: (val) => emit('update:visible', val)
@@ -339,9 +322,9 @@ const batchDateDialogVisible = ref(false)
 const editDialogVisible = ref(false)
 const editRow = ref(null)
 const editIndex = ref(-1)
-const selectedRows = ref([]) // 当前勾选的行（仅 status !== '20'）
-const tableRef = ref(null)
-const isLoading = ref(false)
+const selectedRows = ref([]) // 当前勾选的行（仅 status === '10'）
+const tableRef = ref(null)   // 表格引用
+const isLoading = ref(false);
 
 const batchDates = reactive({
   dueDate: '',
@@ -391,11 +374,6 @@ const contractFields = [
   { field: 'memo', label: '备注' }
 ]
 
-// ==================== 计算属性：可确认的选中行数 ====================
-const editableSelectedCount = computed(() => {
-  return selectedRows.value.filter(row => row.status === '10').length
-})
-
 // 加载数据
 watch(dialogVisible, async (val) => {
   if (val && props.contractInfo?.no) {
@@ -407,7 +385,7 @@ watch(dialogVisible, async (val) => {
 }, { immediate: true })
 
 const loadPlanItems = async () => {
-  isLoading.value = true
+  isLoading.value = true; // 新增：开始加载，显示转圈
   try {
     const res = await getPlSchedulePlanItemList({ contractNo: props.contractInfo.no })
     if (res.code === 200 && Array.isArray(res.data?.itemList)) {
@@ -441,15 +419,15 @@ const loadPlanItems = async () => {
     } else {
       materialList.value = []
     }
-    selectedRows.value = []
+    selectedRows.value = [] // 重置勾选
     await nextTick()
     tableRef.value?.clearSelection()
   } catch (err) {
     console.error(err)
     ElMessage.error('加载排产计划失败')
     materialList.value = []
-  } finally {
-    isLoading.value = false
+  }finally {
+    isLoading.value = false; // 新增：无论成功/失败，结束加载，隐藏转圈
   }
 }
 
@@ -459,12 +437,13 @@ const isRowSelectable = (row) => {
 }
 
 const handleSelectionChange = (val) => {
-  selectedRows.value = val
+  selectedRows.value = val // 由 :selectable 保证只选 status !== '20'
 }
 
 // 状态判断
 const isConfirmed = (row) => row && row.status === '20'
 
+// 状态标签
 const getStatusText = (status) => {
   if (status == null) return '未录入'
   if (status === '10') return '录入'
@@ -531,19 +510,11 @@ const saveEditRow = async () => {
     ElMessage.error('保存失败')
   }
 }
-// 状态（新增如下代码）
-const isBatchSaving = ref(false); // 批量保存的加载状态
-// 批量设置日期
+
+// 批量设置日期：只对 selectedRows 操作
 const applyAndAutoSave = async () => {
   if (!selectedRows.value.length) return
 
-  // 安全校验：不能修改已确认的
-  const confirmedRows = selectedRows.value.filter(row => row.status === '20')
-  if (confirmedRows.length > 0) {
-    ElMessage.warning('已确认的排产计划无法修改')
-    return
-  }
-  isBatchSaving.value = true
   const promises = selectedRows.value.map(async (row) => {
     const data = { ...row }
     if (batchDates.dueDate) data.dueDate = batchDates.dueDate
@@ -569,8 +540,6 @@ const applyAndAutoSave = async () => {
     await loadPlanItems()
   } catch (err) {
     ElMessage.error('自动保存失败')
-  }finally {
-    isBatchSaving.value = false;
   }
 }
 
@@ -580,16 +549,10 @@ const resetBatchDates = () => {
 
 // 批量确认
 const batchConfirm = async () => {
-  if (!editableSelectedCount.value) return
-
-  ElMessageBox.confirm(
-    `确认后不可编辑，是否继续确认 ${editableSelectedCount.value} 条？`,
-    '批量确认',
-    { type: 'warning' }
-  )
+  if (!selectedRows.value.length) return
+  ElMessageBox.confirm(`确认后不可编辑，是否继续确认 ${selectedRows.value.length} 条？`, '批量确认', { type: 'warning' })
     .then(async () => {
-      const confirmableRows = selectedRows.value.filter(row => row.status === '10')
-      const promises = confirmableRows.map(row => 
+      const promises = selectedRows.value.map(row => 
         updatePlanStatus({ id: row.id, status: '20' })
       )
       await Promise.all(promises)
@@ -610,40 +573,6 @@ const confirmRow = async (row) => {
     })
 }
 
-
-// ==================== 新增：统计未录入、已录入数量 ====================
-const unenteredCount = computed(() => {
-  return materialList.value.filter(row => row.status == null).length
-})
-
-const enteredCount = computed(() => {
-  return materialList.value.filter(row => row.status === '10').length
-})
-
-// ==================== 新增：选中未录入行 ====================
-// 在 script setup 中替换这两个方法
-const selectUnentered = async () => {
-  await nextTick()
-  const rowsToSelect = materialList.value.filter(row => row.status == null)
-  setTableSelection(rowsToSelect)
-}
-
-const selectEntered = async () => {
-  await nextTick()
-  const rowsToSelect = materialList.value.filter(row => row.status === '10')
-  setTableSelection(rowsToSelect)
-}
-
-// 辅助函数
-const setTableSelection = (rows) => {
-  selectedRows.value.forEach(row => {
-    tableRef.value.toggleRowSelection(row, false)
-  })
-  rows.forEach(row => {
-    tableRef.value.toggleRowSelection(row, true)
-  })
-}
-
 // 反确认
 const unconfirmRow = async (row) => {
   if (!row?.id) return
@@ -651,29 +580,36 @@ const unconfirmRow = async (row) => {
   ElMessage.success('已回退到录入')
   await loadPlanItems()
 }
+
+const handleClose = () => {
+  emit('update:visible', false)
+  resetBatchDates()
+}
 </script>
 
 <style scoped>
+/* 原有样式（保留） */
 .editable-row .cell { color: #f56c6c !important; }
 .confirmed-text { color: #67c23a !important; }
 
+/* 新增：加载动画样式 */
 .loading-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
-  pointer-events: auto;
+  z-index: 10; /* 确保在内容上方 */
+  pointer-events: auto; /* 阻止加载时点击内容 */
 }
 .loading-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 16px; /* 图标和文字间距 */
   align-items: center;
 }
 .loading-text {
@@ -681,15 +617,18 @@ const unconfirmRow = async (row) => {
   color: #666;
 }
 
+
+/* 新增：卡片头部布局 */
 .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+  display: flex; /* 启用Flex布局 */
+  justify-content: space-between; /* 左右两端对齐 */
+  align-items: center; /* 垂直居中对齐 */
+  width: 100%; /* 占满父容器宽度 */
 }
 
+/* 可选：调整按钮间距 */
 .header-button {
   display: flex;
-  gap: 8px;
+  gap: 8px; /* 按钮之间的间距 */
 }
 </style>

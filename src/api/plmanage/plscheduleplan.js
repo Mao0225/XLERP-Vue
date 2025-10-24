@@ -72,8 +72,8 @@ return get('/pl_schedule_plan/updateStatus', data)
 
 
 /**
- * 获取确认后的排产计划
+ * 更具合同号获取排产计划物料列表
  */
-export function getConfirmPlSchedulePlan (params) {
-return get('/pl_schedule_plan/getConfirmedList', params)
+export function getPlSchedulePlanItemList (params) {
+return get('/pl_schedule_plan/getContractItemList', params)
 }

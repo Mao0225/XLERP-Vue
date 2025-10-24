@@ -189,7 +189,7 @@
 import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
-import { getConfirmPlSchedulePlan } from '@/api/plmanage/plscheduleplan'
+import { getPlSchedulePlanList } from '@/api/plmanage/plscheduleplan'
 import { getNewNoNyName } from '@/api/system/basno';
 import addOrder from './addOrder.vue'
 // Props定义
@@ -272,6 +272,7 @@ const fetchData = async () => {
       scheduleCode: filters.scheduleCode,
       contractNo: filters.contractNo,
       contractName: filters.contractName,
+      status: 20//20:已确认状态
     }
 
     // 过滤空值参数
@@ -279,7 +280,7 @@ const fetchData = async () => {
       Object.entries(params).filter(([_, value]) => value !== '' && value !== null && value !== undefined)
     )
 
-    const res = await getConfirmPlSchedulePlan(filteredParams)
+    const res = await getPlSchedulePlanList(filteredParams)
 
     if (res.code === 200 && res.success) {
       tableData.value = res.data.page.list.map(item => ({
