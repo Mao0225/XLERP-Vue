@@ -175,16 +175,8 @@ const open = async () => {
 }
 
 const handleClose = () => {
-  ElMessageBox.confirm('确定要关闭吗？未保存的更改将丢失', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
     dialogVisible.value = false
     resetForm()
-  }).catch(() => {
-    // 用户取消关闭
-  })
 }
 
 const resetForm = () => {

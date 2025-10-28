@@ -266,6 +266,12 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="loadMaterialList">搜索</el-button>
+              <!-- 新增：批量删除 -->
+              <el-button
+                type="danger"
+                :disabled="selectedRows.length === 0 || isConfirmed"
+                @click="batchDelete"
+              >批量删除</el-button>
               <el-button type="warning" @click="importProduct" :disabled="isConfirmed">导入产品</el-button>
               <el-button type="primary" @click="downloadExsl">下载模板</el-button>
               <el-button type="primary" @click="addProduct" :disabled="isConfirmed">添加产品</el-button>
@@ -284,7 +290,9 @@
             style="width: 100%"
             :row-key="row => row.id"
             v-loading="materialLoading"
+            @selection-change="handleSelectionChange"
           >
+          <el-table-column type="selection" width="55" fixed="left" />
             <el-table-column label="序号" width="60">
               <template #default="{ $index }">
                 {{ (materialPagination.currentPage - 1) * materialPagination.pageSize + $index + 1 }}
@@ -460,6 +468,12 @@ const terms = termStore.terms;
 const userStore = useUserStore();
 const userId = computed(() => userStore.userId);
 
+// 选中的行（id 数组）
+const selectedRows = ref([]);
+// 表格多选变化
+const handleSelectionChange = (selection) => {
+  selectedRows.value = selection;   // selection 为完整的行对象数组
+};
 // Props 和 Emits
 const props = defineProps({
   visible: {
@@ -481,6 +495,7 @@ const dialogVisible = computed({
     emit('update:visible', value);
   }
 });
+
 
 // 组件状态
 const formRef = ref(null);
@@ -717,6 +732,40 @@ const loadMaterialList = async () => {
     materialLoading.value = false;
   }
 };
+
+
+
+// 批量删除
+const batchDelete = async () => {
+  if (selectedRows.value.length === 0) return;
+
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除这 ${selectedRows.value.length} 条产品吗？此操作不可撤销。`,
+      '批量删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    );
+
+    // 依次调用后端删除接口（可自行改为批量接口）
+    const deletePromises = selectedRows.value.map(row =>
+      deleteBasContractItem({ itemId: row.id })
+    );
+    await Promise.all(deletePromises);
+
+    ElMessage.success('批量删除成功');
+    selectedRows.value = [];          // 清空选中
+    await loadMaterialList();         // 刷新列表
+  } catch (err) {
+    if (err !== 'cancel') {
+      ElMessage.error('批量删除失败');
+    }
+  }
+};
+
 
 // 导入产品
 const importProduct = () => {

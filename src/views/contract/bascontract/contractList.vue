@@ -144,8 +144,6 @@
       @success="handleSuccessEdit" />
 
     <ContractInfoReadonlyForm :visible="showContractInfoDialog" :initial-data="selectedContract" @update:visible="showContractInfoDialog = $event" />
-    <itemListForm :visible="showItemListDialog" :contract-info="selectedContract" @update:visible="showItemListDialog = $event" />
-    <itemListReadonly :visible="showItemListReadonlyDialog" :contract-info="selectedContract" @update:visible="showItemListReadonlyDialog = $event" />
   </div>
 </template>
 
@@ -157,8 +155,6 @@ import { getContractList, deleteBasContract, updateBasContractStatus, getContrac
 import { useTermStore } from '@/store/term.js';
 import AddForm from './addFormAll.vue';
 import EditForm from './editFormAll.vue';
-import itemListForm from './itemListForm.vue';
-import itemListReadonly from './itemListReadonly.vue';
 import ContractInfoReadonlyForm from './contractInfoReadonlyForm.vue';
 
 const termStore = useTermStore();
@@ -169,8 +165,6 @@ const loading = ref(false);
 const showAddDialog = ref(false);
 const showEditDialog = ref(false);
 const showContractInfoDialog = ref(false);
-const showItemListDialog = ref(false);
-const showItemListReadonlyDialog = ref(false);
 const selectedContract = ref(null);
 const contractList = ref([]);
 const total = ref(0);
@@ -334,16 +328,6 @@ const openContractInfoDialog = async (contractNo) => {
   }
 };
 
-// 打开产品列表弹窗
-const openItemListDialog = (row) => {
-  selectedContract.value = row;
-  showItemListDialog.value = true;
-};
-
-const openItemListReadonlyDialog = (row) => {
-  selectedContract.value = row;
-  showItemListReadonlyDialog.value = true;
-};
 
 // 新增/编辑成功回调
 const handleSuccessAdd = () => {

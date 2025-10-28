@@ -2,28 +2,26 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <!-- <h1>四平器材公司ERP管理系统</h1> -->
         <div class="logo-container">
           <img src="@/assets/sipinglogo.jpg" alt="系统Logo" class="system-logo">
         </div>
       </div>
       <div class="login-form">
-        <!-- <h2>用户登录</h2> -->
         <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" @keyup.enter="handleLogin">
           <el-form-item prop="username">
-            <el-input 
-              v-model="loginForm.username" 
-              placeholder="用户名" 
+            <el-input
+              v-model="loginForm.username"
+              placeholder="用户名"
               prefix-icon="user"
               clearable
               autocomplete="off">
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input 
-              v-model="loginForm.password" 
-              placeholder="密码" 
-              prefix-icon="lock" 
+            <el-input
+              v-model="loginForm.password"
+              placeholder="密码"
+              prefix-icon="lock"
               show-password
               clearable
               type="password"
@@ -33,7 +31,6 @@
           <el-form-item>
             <div class="login-options">
               <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-              <!-- <span class="forget-password">忘记密码?</span> -->
             </div>
           </el-form-item>
           <el-form-item>
@@ -48,12 +45,11 @@
 </template>
 
 <script>
-// import { defineComponent, reactive, ref, toRefs } from 'vue'
+import { defineComponent, reactive, ref, toRefs, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
-// 修改导入语句
-import { defineComponent, reactive, ref, toRefs, nextTick } from 'vue'
+
 export default defineComponent({
   name: 'Login',
   setup() {
@@ -63,8 +59,6 @@ export default defineComponent({
 
     const state = reactive({
       loginForm: {
-        //username: 'liuguoqi',
-        //password: '123456'
         username: '',
         password: ''
       },
@@ -82,34 +76,55 @@ export default defineComponent({
       rememberMe: false
     })
 
- const handleLogin = () => {
-    loginFormRef.value.validate(async (valid) => {
-        if (valid) {
+    // 页面挂载时：加载本地保存的用户名
+    const loadSavedUsername = () => {
+      const savedUsername = localStorage.getItem('rememberedUsername')
+      if (savedUsername) {
+        state.loginForm.username = savedUsername
+        state.rememberMe = true
+      }
+    }
+
+    // 登录成功后：根据 rememberMe 保存或清除用户名
+    const saveUsernameIfNeeded = () => {
+      if (state.rememberMe && state.loginForm.username) {
+        localStorage.setItem('rememberedUsername', state.loginForm.username)
+      } else {
+        localStorage.removeItem('rememberedUsername')
+      }
+    }
+
+    const handleLogin = () => {
+      loginFormRef.value.validate(async (valid) => {
+        if (!valid) return
+
         state.loading = true
         try {
-            // 登录和路由初始化都在 store 中完成
-            await userStore.login({
+          await userStore.login({
             username: state.loginForm.username,
             password: state.loginForm.password
-            })
-            
-            ElMessage.success('登录成功')
-            
-            // 获取重定向路径
-            const redirectPath = router.currentRoute.value.query.redirect || '/dashboard'
-            
-            // 直接跳转，路由已经在 store 中初始化完成
-            await router.push(redirectPath)
-            
+          })
+
+          // 保存用户名（仅用户名，不保存密码）
+          saveUsernameIfNeeded()
+
+          ElMessage.success('登录成功')
+
+          const redirectPath = router.currentRoute.value.query.redirect || '/dashboard'
+          await router.push(redirectPath)
         } catch (error) {
-            console.error('登录失败:', error)
-            ElMessage.error(error.message || '登录失败，请检查用户名和密码')
+          console.error('登录失败:', error)
+          ElMessage.error(error.message || '登录失败，请检查用户名和密码')
         } finally {
-            state.loading = false
+          state.loading = false
         }
-        }
+      })
+    }
+
+    // 组件挂载后加载保存的用户名
+    onMounted(() => {
+      loadSavedUsername()
     })
-}
 
     return {
       loginFormRef,
@@ -127,7 +142,6 @@ export default defineComponent({
   align-items: center;
   height: 100vh;
   width: 100vw;
-  // background: linear-gradient(135deg, #3a8ee6, #c8e0e0);
   background-image: url(@/assets/backgroundimg2.png);
   background-size: cover;
   overflow: hidden;
@@ -144,48 +158,25 @@ export default defineComponent({
 .login-header {
   text-align: center;
   margin-bottom: 30px;
-  
-  h1 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-  }
 }
 
 .logo-container {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
-  
-  .system-logo {
-    height: 80px;
-  }
+}
+
+.system-logo {
+  height: 80px;
 }
 
 .login-form {
-  h2 {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
   .login-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
-    .forget-password {
-      color: #409EFF;
-      cursor: pointer;
-      font-size: 14px;
-      
-      &:hover {
-        text-decoration: underline;
-      }
-    }
   }
-  
+
   .login-button {
     width: 100%;
     padding: 12px 0;
