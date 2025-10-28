@@ -69,11 +69,11 @@
           </el-table-column>
           <el-table-column prop="name" label="合同名称" min-width="120" show-overflow-tooltip />
           <el-table-column prop="customerName" label="客户名称" width="120" show-overflow-tooltip />
-          <el-table-column prop="contractSum" label="合同金额" width="120">
+          <!-- <el-table-column prop="contractSum" label="合同金额" width="120">
             <template #default="{ row }">
               ¥{{ (row.contractSum?.toFixed(2)) ?? '0.00' }}
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column prop="gridno" label="电网编号" width="120" show-overflow-tooltip />
           <el-table-column prop="ecpno" label="国网经法合同号" width="130" show-overflow-tooltip />
           <el-table-column prop="equipno" label="器材合同号" width="120" show-overflow-tooltip />

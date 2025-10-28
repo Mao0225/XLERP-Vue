@@ -269,9 +269,9 @@
       width="500px"
     >
       <el-form :model="editForm" label-width="110px">
-        <el-form-item label="排产计划编码">
+        <!-- <el-form-item label="排产计划编码">
           <el-input v-model="editForm.scheduleCode" placeholder="请输入" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="最晚交付">
           <el-date-picker v-model="editForm.dueDate" type="date" value-format="YYYY-MM-DD" style="width: 100%" />
         </el-form-item>
