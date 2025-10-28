@@ -65,7 +65,7 @@
                   <el-icon>
                     <component :is="getStatusIcon(row.docStatus)" />
                   </el-icon>
-                  {{ getStatusText(row.docStatus) }}
+                  {{ getStatusText(row.docStatus, row.inOutType) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -77,25 +77,21 @@
               </template>
             </el-table-column>
             <el-table-column prop="docNo" label="单据编号" width="140" show-overflow-tooltip />
+            <el-table-column prop="contractNo" label="合同编号" width="140" show-overflow-tooltip />
+            <el-table-column prop="contractName" label="合同名称" width="200" show-overflow-tooltip />
             <el-table-column prop="materialCode" label="物料编号" width="180" show-overflow-tooltip />
             <el-table-column prop="materialName" label="物料名称" width="150" show-overflow-tooltip />
             <el-table-column prop="materialSpec" label="规格型号" width="180" show-overflow-tooltip />
             <el-table-column prop="materialUnit" label="单位" width="80" show-overflow-tooltip />
-            <el-table-column prop="planSpec" label="计划规格" width="120" show-overflow-tooltip />
-            <el-table-column prop="planMaterial" label="计划材质" width="150" show-overflow-tooltip />
             <el-table-column prop="quantity" label="数量" width="100" show-overflow-tooltip />
             <el-table-column prop="planQuantity" label="计划数量" width="100" show-overflow-tooltip />
             <el-table-column prop="unitWeight" label="单重(kg)" width="100" show-overflow-tooltip />
-            <el-table-column prop="planWeight" label="计划重量(kg)" width="120" show-overflow-tooltip />
             <el-table-column prop="totalWeight" label="总重(kg)" width="100" show-overflow-tooltip />
             <el-table-column prop="salesPrice" label="单价(元)" width="120" show-overflow-tooltip />
             <el-table-column prop="salesTotalAmount" label="总金额(元)" width="120" show-overflow-tooltip />
-            <!-- <el-table-column prop="deliveryOrg" label="发货单位" width="180" show-overflow-tooltip /> -->
             <el-table-column prop="handler" label="经手人" width="100" show-overflow-tooltip />
             <el-table-column prop="warehouse" label="存放位置" width="120" show-overflow-tooltip />
             <el-table-column prop="supplierName" label="供应商名称" width="150" show-overflow-tooltip />
-            <el-table-column prop="contractNo" label="合同编号" width="140" show-overflow-tooltip />
-            <el-table-column prop="contractName" label="合同名称" width="200" show-overflow-tooltip />
             <el-table-column prop="memo" label="备注" width="150" show-overflow-tooltip />
             <el-table-column prop="operateTime" label="录入时间" width="140" show-overflow-tooltip />
           </el-table>
@@ -147,7 +143,7 @@ const getMaterialListData = async () => {
       materialCode: filters.materialCode || undefined,
       materialSpec: filters.materialSpec || undefined,
       materialName: filters.materialName || undefined,
-      inOutType: filters.inOutType || undefined, // Send undefined for "all"
+      inOutType: filters.inOutType || undefined,
     };
     const res = await getPlMatInoutItemList(params);
     if (res.code === 200) {
@@ -193,12 +189,12 @@ const handleReset = () => {
   ElMessage.success('筛选条件已重置');
 };
 
-// 状态相关方法
+// ==================== 状态相关方法（核心修改）====================
 const getStatusTagType = (docStatus) => {
   const statusMap = {
-    '10': 'info', // 录入
-    '20': 'warning', // 待审核
-    '30': 'success', // 已入库
+    '10': 'info',     // 录入
+    '20': 'warning',  // 待审核
+    '30': 'success',  // 已完成（入库/出库）
   };
   return statusMap[docStatus] || 'info';
 };
@@ -212,11 +208,11 @@ const getStatusIcon = (docStatus) => {
   return iconMap[docStatus] || 'Clock';
 };
 
-const getStatusText = (docStatus) => {
+const getStatusText = (docStatus, inOutType) => {
   const statusMap = {
     '10': '录入',
     '20': '待审核',
-    '30': '已入库',
+    '30': inOutType == 1 ? '已入库' : '已出库',  // 关键：根据 inOutType 区分
   };
   return statusMap[docStatus] || '未知';
 };

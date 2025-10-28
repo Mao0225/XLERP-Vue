@@ -312,7 +312,7 @@ const dialogVisible = computed({
 });
 
 // 组件状态
-const isFullscreen = ref(false);
+const isFullscreen = ref(true);
 const materialLoading = ref(false);
 const totalAmount = ref(0);
 const totalWeight = ref(0);

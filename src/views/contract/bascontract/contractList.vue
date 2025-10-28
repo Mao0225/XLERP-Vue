@@ -74,7 +74,7 @@
             <el-table-column prop="signDate" label="签订时间" width="120" show-overflow-tooltip />
             <el-table-column prop="term" label="期间" width="120" show-overflow-tooltip />
             <!-- 操作列 -->
-            <el-table-column label="操作" width="350" fixed="right">
+            <el-table-column label="操作" width="250" fixed="right">
               <template #default="{ row }">
                 <template v-if="row.status === 10">
                   <el-button type="primary" size="small" @click="openEditDialog(row.no)">

@@ -188,7 +188,7 @@ const props = defineProps({
 });
 
 const showSupplierSelector = ref(false);
-const isFullscreen = ref(false);
+const isFullscreen = ref(true);
 const showAddItemDialog = ref(false);
 const showEditItemDialog = ref(false);
 const selectedItem = ref(null);

@@ -64,7 +64,7 @@
           </el-table-column>
           <el-table-column prop="no" label="厂内合同号" width="120" show-overflow-tooltip>
             <template #default="{ row }">
-              <el-link type="primary" @click="openContractInfoDialog(row.no)">{{ row.no }}</el-link>
+              <el-link type="primary" @click="openAddDialog(row.no)">{{ row.no }}</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="name" label="合同名称" min-width="120" show-overflow-tooltip />
@@ -182,11 +182,6 @@ const openAddDialog = async (contractNo) => {
   const res = await getContractByNo({ contractNo });
   selectedContract.value = res.data.contractInfo;
   addDialogVisible.value = true;
-};
-
-const openContractInfoDialog = (contractNo) => {
-  // 这里保留原来的打开详情逻辑（如果有的话），或自行实现
-  ElMessage.info(`查看合同详情：${contractNo}`);
 };
 
 // ==================== 合同分页 ====================

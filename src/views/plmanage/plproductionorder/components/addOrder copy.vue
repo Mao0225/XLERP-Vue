@@ -20,171 +20,242 @@
 
     <!-- 合同信息 -->
     <el-card v-if="contractInfo" class="contract-card" shadow="never">
-  <template #header>
-    <div class="card-header">
-      <span class="card-title">合同信息</span>
-    </div>
-  </template>
-
-  <el-descriptions
-    :column="3"
-    border
-    size="small"
-    class="contract-descriptions"
-  >
-    <el-descriptions-item
-      v-for="item in contractFields"
-      :key="item.field"
-      :label="item.label"
-      :span="1"
-    >
-      <el-tooltip
-        v-if="contractInfo[item.field]"
-        :content="contractInfo[item.field]"
-        placement="top"
-        effect="dark"
-      >
-        <span class="readonly-text ellipsis">{{ contractInfo[item.field] }}</span>
-      </el-tooltip>
-      <span v-else class="readonly-text">—</span>
-    </el-descriptions-item>
-  </el-descriptions>
-</el-card>
-
-    <!-- 排产计划表格 -->
-    <el-card class="material-card" shadow="never">
       <template #header>
         <div class="card-header">
-          <span class="card-title">
-            排产计划明细 ({{ materialList.length }} 项)
-          </span>
-          <span class="header-button">
-  <!-- 新增：选中未录入 + 选中录入 -->
-        <el-button
-            type="primary"
-            size="small"
-            :disabled="selectedRows.length === 0"
-            @click="openBatchDialog"
-          >
-            批量制定生产订单
-          </el-button>
-</span>
+          <span class="card-title">合同信息</span>
         </div>
       </template>
 
-     <el-table
-  :data="materialList"
-  border
-  style="width: 100%"
-  max-height="700px"
-  :row-class-name="tableRowClassName"
-  ref="tableRef"
-  @selection-change="handleSelectionChange"
->
-      <!-- 单选框列 -->
-    <el-table-column
-    type="selection"
-    width="55"
-    align="center"
-    :selectable="isRowSelectable"
-  />
-        <!-- 状态 -->
-        <el-table-column label="状态" width="100" align="center">
-      <template #default="{ row }">
-        <el-tag :type="getStatusType(row.status)" size="small" effect="dark">
-          {{ getStatusText(row.status) }}
-        </el-tag>
-      </template>
-    </el-table-column>
-
-        <!-- 排产计划编码 -->
-        <el-table-column label="排产计划编码" width="160">
-          <template #default="{ row }">
-            <span :class="{ 'confirmed-text': isConfirmed(row) }">
-              {{ row.scheduleCode || '-' }}
-            </span>
-          </template>
-        </el-table-column>
-
-        <!-- 计划开始 -->
-        <el-table-column label="计划开始" width="120">
-          <template #default="{ row }">
-            <span :class="{ 'confirmed-text': isConfirmed(row) }">
-              {{ row.planStartDate || '-' }}
-            </span>
-          </template>
-        </el-table-column>
-
-        <!-- 计划完成 -->
-        <el-table-column label="计划完成" width="120">
-          <template #default="{ row }">
-            <span :class="{ 'confirmed-text': isConfirmed(row) }">
-              {{ row.planFinishDate || '-' }}
-            </span>
-          </template>
-        </el-table-column>
-
-        <!-- 最晚交付 -->
-        <el-table-column label="最晚交付" width="120">
-          <template #default="{ row }">
-            <span :class="{ 'confirmed-text': isConfirmed(row) }">
-              {{ row.dueDate || '-' }}
-            </span>
-          </template>
-        </el-table-column>
-
-        <!-- 计划工期 -->
-        <el-table-column label="计划工期(天)" width="100" align="center">
-          <template #default="{ row }">
-            {{ row.planPeriod ?? '-' }}
-          </template>
-        </el-table-column>
-
-        <!-- 物料信息 -->
-        <el-table-column prop="itemNo" label="物料编号" show-overflow-tooltip />
-        <el-table-column prop="itemName" label="物料名称" show-overflow-tooltip />
-        <el-table-column prop="itemSpec" label="规格型号" show-overflow-tooltip />
-        <el-table-column prop="itemnum" label="数量" width="80" align="center" />
-       <el-table-column 
-        label="已分配数量" 
-        width="100" 
-        align="right"
+      <el-descriptions
+        :column="3"
+        border
+        size="small"
+        class="contract-descriptions"
       >
-        <template #default="{ row }">
-          <span 
-            :class="{ 
-              'warning-text': row.allocatedAmount < row.itemnum,
-              'normal-text': row.allocatedAmount >= row.itemnum 
-            }"
+        <el-descriptions-item
+          v-for="item in contractFields"
+          :key="item.field"
+          :label="item.label"
+          :span="1"
+        >
+          <el-tooltip
+            v-if="contractInfo[item.field]"
+            :content="contractInfo[item.field]"
+            placement="top"
+            effect="dark"
           >
-            {{ row.allocatedAmount || 0 }}
-          </span>
-        </template>
-      </el-table-column>
-        <el-table-column prop="itemunit" label="单位" width="70" align="center" />
-        <el-table-column prop="itemweight" label="单重(kg)" width="90" align="right" />
-        <el-table-column label="总重(kg)" width="100" align="right">
-          <template #default="{ row }">
-            {{ row.itemweight && row.itemnum ? (row.itemweight * row.itemnum).toFixed(2) : '-' }}
-          </template>
-        </el-table-column>
-
-        <!-- 操作 -->
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
-            <template v-if="row.status === '20'">
-              <el-button type="primary" size="small" @click="createProductionOrder(row.scheduleCode)">
-                制定生产订单
-              </el-button>
-            </template>
-            <template v-else>
-              <span class="unready-text">排产计划未制定完成</span>
-            </template>
-          </template>
-        </el-table-column>
-      </el-table>
+            <span class="readonly-text ellipsis">{{ contractInfo[item.field] }}</span>
+          </el-tooltip>
+          <span v-else class="readonly-text">—</span>
+        </el-descriptions-item>
+      </el-descriptions>
     </el-card>
 
+    <!-- ==================== Tab 栏：排产计划 + 生产订单批次 ==================== -->
+    <el-tabs v-model="activeTab" class="plan-tabs" @tab-change="handleTabChange">
+      <!-- ---------- 排产计划 ---------- -->
+      <el-tab-pane label="排产计划明细" name="plan">
+        <el-card class="material-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span class="card-title">
+                排产计划明细 ({{ materialList.length }} 项)
+              </span>
+              <span class="header-button">
+                <el-button
+                  type="primary"
+                  size="small"
+                  :disabled="selectedRows.length === 0"
+                  @click="openBatchDialog"
+                >
+                  批量制定生产订单
+                </el-button>
+              </span>
+            </div>
+          </template>
+
+          <el-table
+            :data="materialList"
+            border
+            style="width: 100%"
+            max-height="700px"
+            :row-class-name="tableRowClassName"
+            ref="tableRef"
+            @selection-change="handleSelectionChange"
+          >
+            <!-- 单选框列 -->
+            <el-table-column
+              type="selection"
+              width="55"
+              align="center"
+              :selectable="isRowSelectable"
+            />
+            <!-- 状态 -->
+            <el-table-column label="状态" width="100" align="center">
+              <template #default="{ row }">
+                <el-tag :type="getStatusType(row.status)" size="small" effect="dark">
+                  {{ getStatusText(row.status) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+
+            <!-- 排产计划编码 -->
+            <el-table-column label="排产计划编码" width="160">
+              <template #default="{ row }">
+                <span :class="{ 'confirmed-text': isConfirmed(row) }">
+                  {{ row.scheduleCode || '-' }}
+                </span>
+              </template>
+            </el-table-column>
+
+            <!-- 计划开始 -->
+            <el-table-column label="计划开始" width="120">
+              <template #default="{ row }">
+                <span :class="{ 'confirmed-text': isConfirmed(row) }">
+                  {{ row.planStartDate || '-' }}
+                </span>
+              </template>
+            </el-table-column>
+
+            <!-- 计划完成 -->
+            <el-table-column label="计划完成" width="120">
+              <template #default="{ row }">
+                <span :class="{ 'confirmed-text': isConfirmed(row) }">
+                  {{ row.planFinishDate || '-' }}
+                </span>
+              </template>
+            </el-table-column>
+
+            <!-- 最晚交付 -->
+            <el-table-column label="最晚交付" width="120">
+              <template #default="{ row }">
+                <span :class="{ 'confirmed-text': isConfirmed(row) }">
+                  {{ row.dueDate || '-' }}
+                </span>
+              </template>
+            </el-table-column>
+
+            <!-- 计划工期 -->
+            <el-table-column label="计划工期(天)" width="100" align="center">
+              <template #default="{ row }">
+                {{ row.planPeriod ?? '-' }}
+              </template>
+            </el-table-column>
+
+            <!-- 物料信息 -->
+            <el-table-column prop="itemNo" label="物料编号" show-overflow-tooltip />
+            <el-table-column prop="itemName" label="物料名称" show-overflow-tooltip />
+            <el-table-column prop="itemSpec" label="规格型号" show-overflow-tooltip />
+            <el-table-column prop="itemnum" label="数量" width="80" align="center" />
+            <el-table-column label="已分配数量" width="100" align="right">
+              <template #default="{ row }">
+                <span
+                  :class="{
+                    'warning-text': row.allocatedAmount < row.itemnum,
+                    'normal-text': row.allocatedAmount >= row.itemnum
+                  }"
+                >
+                  {{ row.allocatedAmount || 0 }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="itemunit" label="单位" width="70" align="center" />
+            <el-table-column prop="itemweight" label="单重(kg)" width="90" align="right" />
+            <el-table-column label="总重(kg)" width="100" align="right">
+              <template #default="{ row }">
+                {{ row.itemweight && row.itemnum ? (row.itemweight * row.itemnum).toFixed(2) : '-' }}
+              </template>
+            </el-table-column>
+
+            <!-- 操作 -->
+            <el-table-column label="操作" width="180" fixed="right">
+              <template #default="{ row }">
+                <template v-if="row.status === '20'">
+                  <el-button type="primary" size="small" @click="createProductionOrder(row)">
+                    编辑生产订单
+                  </el-button>
+                </template>
+                <template v-else>
+                  <span class="unready-text">排产计划未制定完成</span>
+                </template>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-tab-pane>
+
+      <!-- ---------- 生产订单批次列表 ---------- -->
+      <el-tab-pane label="生产订单批次列表" name="batch">
+        <el-card class="material-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span class="card-title">生产订单批次列表</span>
+              <div class="filter-actions">
+                <el-input
+                  v-model="batchFilters.batchNo"
+                  placeholder="批次号"
+                  clearable
+                  style="width: 180px; margin-right: 8px;"
+                  @clear="getBatchList"
+                  @keyup.enter="getBatchList"
+                />
+                <el-button type="primary" @click="getBatchList">
+                  <el-icon><Search /></el-icon> 查询
+                </el-button>
+                <el-button @click="resetBatchFilter">
+                  <el-icon><Refresh /></el-icon> 重置
+                </el-button>
+              </div>
+            </div>
+          </template>
+
+          <el-table
+            :data="batchList"
+            v-loading="batchLoading"
+            border
+            style="width: 100%"
+            height="560"
+          >
+            <el-table-column type="index" label="序号" width="80" />
+            <el-table-column prop="ipoBatchNo" label="批次号" width="180" show-overflow-tooltip />
+            <el-table-column prop="contractNo" label="合同号" width="120" show-overflow-tooltip />
+            <el-table-column prop="contractName" label="合同名称" min-width="220" show-overflow-tooltip />
+            <el-table-column prop="materialsNames" label="物料名称列表" min-width="180" show-overflow-tooltip />
+            <el-table-column label="状态统计" width="220">
+              <template #default="{ row }">
+                <el-tag type="warning" size="small" class="mr-5">录入中 {{ row.status10Count }}</el-tag>
+                <el-tag type="info" size="small" class="mr-5">已确认 {{ row.status20Count }}</el-tag>
+                <el-tag type="success" size="small">已完成 {{ row.status30Count }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="writer" label="创建人" width="100" />
+            <el-table-column prop="createdTime" label="创建时间" width="160" />
+            <el-table-column label="操作" width="180" fixed="right">
+              <template #default="{ row }">
+                  <el-button type="primary" size="small" @click="editProductionOrder(row.ipoBatchNo)">
+                    编辑生产订单
+                  </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <!-- 批次分页 -->
+          <div class="pagination-container">
+            <el-pagination
+              v-model:current-page="batchFilters.pageNumber"
+              v-model:page-size="batchFilters.pageSize"
+              :page-sizes="[10, 20, 50, 100]"
+              layout="total, sizes, prev, pager, next"
+              :total="batchTotal"
+              @size-change="handleBatchSizeChange"
+              @current-change="handleBatchCurrentChange"
+            />
+          </div>
+        </el-card>
+      </el-tab-pane>
+    </el-tabs>
+
+    <!-- 批量制定生产订单弹窗 -->
     <BatchCreateOrderDialog
       :visible="batchDialogVisible"
       :selected-rows="batchSelectedRows"
@@ -193,102 +264,58 @@
       @success="loadPlanItems"
     />
 
+    <!-- 单行编辑弹窗 -->
     <editOrderList
       :visible="editDialogVisible"
       :schedule-code="selectedScheduleCode"
+      :ipo-batch-no="selectedBatchNo"
       @update:visible="handleEditDialogClose"
+    />
+
+    <!-- 单行编辑弹窗 -->
+     <editOrderListByPlan
+      :visible="editDialogPlanVisible"
+      :schedule-code="selectedScheduleCode"
+      @update:visible="handleEditPlanDialogClose"
     />
 
   </CustomDialog>
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed, nextTick } from 'vue'
+import { ref, reactive, watch, computed, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getPlSchedulePlanItemList } from '@/api/plmanage/plscheduleplan'
+import { Search, Refresh } from '@element-plus/icons-vue'
+import {
+  getPlSchedulePlanItemList
+} from '@/api/plmanage/plscheduleplan'
+import {
+  getBatchNoList
+} from '@/api/plmanage/plproductionorder'
+import { getNewNoNyName } from '@/api/system/basno'
 import { useUserStore } from '@/store/user'
 import CustomDialog from '@/components/common/CustomDialog.vue'
 import BatchCreateOrderDialog from './BatchCreateOrderDialog.vue'
-import { getNewNoNyName } from '@/api/system/basno'
-import  editOrderList from './editOrderList.vue'
+import editOrderList from './editOrderList.vue'
+import editOrderListByPlan from './editOrderListByPlan.vue'
 
-
-
-
-const editDialogVisible = ref(false)
-const selectedScheduleCode = ref('')
-
-	// 生成批量添加的批次号
-	const generateScheduleCode = async () => {
-	  try {
-	    const res = await getNewNoNyName('scdd-batch');
-	    
-	    if (res?.code === 200) {
-	      console.log("获取编码成功", res.data.fullNoNyName);
-	      return res.data.fullNoNyName;
-	    }
-	    
-	    ElMessage.error(res?.msg || '获取编码失败');
-	    return '';
-	    
-	  } catch (error) {
-	    console.error('生成批次号出错:', error);
-	    ElMessage.error('请求编码服务时发生错误');
-	    return '';
-	  }
-	};
-
-
-const newCode = ref('')
 const userStore = useUserStore()
 const emit = defineEmits(['update:visible', 'success'])
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  contractInfo: { type: Object, default: null }
+  contractInfo: { type: Object, default: null },
+  newCode: { type: String, default: '' }
 })
 
-
-const handleEditDialogClose = (val) => {
-  editDialogVisible.value = val
-  if (!val) {
-    nextTick(() => {
-      loadPlanItems() // 确保 DOM 稳定后再刷新
-    })
-  }
-}
-
-
-/* ==================== 基础字段 ==================== */
-const defaultFields = {
-  purchaserHqCode: '',
-  supplierCode: '1000014491',
-  supplierName: '中国电建集团四平线路器材有限公司',
-  provCoCode: '',
-  provCoName: '',
-  categoryCode: '60',
-  subclassCode: '60004',
-  dataSource: '供应商侧',
-  dataSourceCreateTime: new Date().toISOString(),
-  ownerId: '',
-  openId: '',
-  writer: userStore.realName,
-  actualPeriod: null,
-  remark: ''
-}
-
-/* ==================== 状态 ==================== */
-const isFullscreen = ref(true)
-const batchDialogVisible = ref(false)
-const batchSelectedRows = ref([])
+/* ==================== 基础 ==================== */
 const dialogVisible = computed({
   get: () => props.visible,
   set: (val) => emit('update:visible', val)
 })
-const materialList = ref([])
-const tableRef = ref(null)
+const isFullscreen = ref(true)
 const isLoading = ref(false)
-
+/* ==================== 合同信息 ==================== */
 /* ==================== 合同字段 ==================== */
 const contractFields = [
   { field: 'no', label: '厂内合同号' },
@@ -320,8 +347,72 @@ const contractFields = [
   { field: 'other', label: '其他条款' },
   { field: 'memo', label: '备注' }
 ]
+/* ==================== Tab 控制 ==================== */
+const activeTab = ref('plan') // 默认显示排产计划
 
-/* ==================== 数据加载 ==================== */
+const handleTabChange = (tabName) => {
+  if (tabName === 'batch') {
+    getBatchList()
+  }
+}
+
+/* ==================== 排产计划 ==================== */
+const materialList = ref([])
+const tableRef = ref(null)
+const selectedRows = ref([])
+const batchDialogVisible = ref(false)
+const batchSelectedRows = ref([])
+const editDialogVisible = ref(false)
+const editDialogPlanVisible = ref(false)
+const selectedScheduleCode = ref('')
+const selectedBatchNo = ref('')
+/* 判断行是否可选中（仅 status=20） */
+const isRowSelectable = (row) => row.status === '20'
+
+const handleSelectionChange = (selection) => {
+  selectedRows.value = selection
+}
+
+/* 批量打开弹窗 */
+const openBatchDialog = async () => {
+  batchSelectedRows.value = [...selectedRows.value]
+  newCode.value = await generateScheduleCode()
+  batchDialogVisible.value = true
+}
+
+
+/* 生成批次号 */
+const generateScheduleCode = async () => {
+  try {
+    const res = await getNewNoNyName('scdd-batch')
+    if (res?.code === 200) return res.data.fullNoNyName
+    ElMessage.error(res?.msg || '获取编码失败')
+    return ''
+  } catch (error) {
+    console.error('生成批次号出错:', error)
+    ElMessage.error('请求编码服务时发生错误')
+    return ''
+  }
+}
+const newCode = ref('')
+
+/* 状态映射 */
+const isConfirmed = (row) => row?.status === '20'
+const getStatusText = (status) => {
+  if (status == null) return '未录入'
+  if (status === '10') return '录入'
+  if (status === '20') return '确认'
+  return '未知'
+}
+const getStatusType = (status) => {
+  if (status == null) return 'danger'
+  if (status === '10') return 'primary'
+  if (status === '20') return 'success'
+  return 'info'
+}
+const tableRowClassName = ({ row }) => row?.status !== '20' ? 'editable-row' : ''
+
+/* 加载排产计划 */
 watch(dialogVisible, async (val) => {
   if (val && props.contractInfo?.no) {
     await loadPlanItems()
@@ -329,6 +420,25 @@ watch(dialogVisible, async (val) => {
     materialList.value = []
   }
 }, { immediate: true })
+
+
+/* ==================== 基础字段 ==================== */
+const defaultFields = {
+  purchaserHqCode: '',
+  supplierCode: '1000014491',
+  supplierName: '中国电建集团四平线路器材有限公司',
+  provCoCode: '',
+  provCoName: '',
+  categoryCode: '60',
+  subclassCode: '60004',
+  dataSource: '供应商侧',
+  dataSourceCreateTime: new Date().toISOString(),
+  ownerId: '',
+  openId: '',
+  writer: userStore.realName,
+  actualPeriod: null,
+  remark: ''
+}
 
 const loadPlanItems = async () => {
   isLoading.value = true
@@ -344,7 +454,7 @@ const loadPlanItems = async () => {
           itemNo: item.itemNo || '',
           itemSpec: item.itemSpec || '',
           itemnum: item.itemnum || 0,
-          allocatedAmount:item.allocatedAmount || 0,
+          allocatedAmount: item.allocatedAmount || 0,
           itemunit: item.itemunit || '',
           itemweight: item.itemweight || 0,
           itemgrossweight: item.itemgrossweight || 0,
@@ -375,136 +485,138 @@ const loadPlanItems = async () => {
   }
 }
 
-
-/* ==================== 批量选择 ==================== */
-const selectedRows = ref([])
-
-/* 判断行是否可被选中：只有 status === '20'（确认）才允许 */
-const isRowSelectable = (row, index) => {
-  return row.status === '20'
+/* 排产计划单行制定生产订单 */
+const createProductionOrder = (schedule) => {
+  selectedScheduleCode.value = schedule.scheduleCode
+  console.log("选中的排产计划信息:",schedule)
+  editDialogPlanVisible.value = true
 }
 
-const handleSelectionChange = (selection) => {
-  selectedRows.value = selection
-}
-
-/* ==================== 批量制定生产订单 ==================== */
-const openBatchDialog = async () => {
-  batchSelectedRows.value = [...selectedRows.value] // 深拷贝避免污染原数据
-  newCode.value =  await generateScheduleCode()
-  batchDialogVisible.value = true
-}
-
-/* ==================== 状态相关 ==================== */
-const isConfirmed = (row) => row && row.status === '20'
-
-const getStatusText = (status) => {
-  if (status == null) return '未录入'
-  if (status === '10') return '录入'
-  if (status === '20') return '确认'
-  return '未知'
-}
-
-const getStatusType = (status) => {
-  if (status == null) return 'danger'
-  if (status === '10') return 'primary'
-  if (status === '20') return 'success'
-  return 'info'
-}
-
-const tableRowClassName = ({ row }) => {
-  return row && row.status !== '20' ? 'editable-row' : ''
-}
-
-/* ==================== 制定生产订单 ==================== */
-const createProductionOrder = (scheduleCode) => {
-  selectedScheduleCode.value = scheduleCode
+/* 编辑统一批次号的生产订单 */
+const editProductionOrder = (ipoBatchNo) => { 
+  selectedBatchNo.value = ipoBatchNo
   editDialogVisible.value = true
 }
+const handleEditDialogClose = (val) => {
+  editDialogVisible.value = val
+  if (!val) {
+    nextTick(() => getBatchList())
+  }
+}
+
+//处理排产计划关联的生产订单列表关闭
+const handleEditPlanDialogClose = (val) => {
+  editDialogPlanVisible.value = val
+  if (!val) {
+    nextTick(() => loadPlanItems())
+  }
+}
+
+
+
+/* ==================== 生产订单批次列表 ==================== */
+const batchLoading = ref(false)
+const batchList = ref([])
+const batchTotal = ref(0)
+
+const batchFilters = reactive({
+  pageNumber: 1,
+  pageSize: 10,
+  batchNo: '',
+  contractNo: computed(() => props.contractInfo?.no || '')
+})
+
+const getBatchList = async () => {
+  batchLoading.value = true
+  try {
+    const params = {
+      pageNumber: batchFilters.pageNumber,
+      pageSize: batchFilters.pageSize,
+      ipoBatchNo: batchFilters.batchNo || undefined,
+      contractNo: batchFilters.contractNo || undefined
+    }
+    const res = await getBatchNoList(params)
+    batchList.value = res.data.page.list
+    batchTotal.value = res.data.page.totalRow
+  } catch (error) {
+    console.error('获取批次列表失败', error)
+    ElMessage.error('获取批次列表失败')
+  } finally {
+    batchLoading.value = false
+  }
+}
+
+/* 批次分页 */
+const handleBatchSizeChange = (size) => {
+  batchFilters.pageSize = size
+  batchFilters.pageNumber = 1
+  getBatchList()
+}
+const handleBatchCurrentChange = (page) => {
+  batchFilters.pageNumber = page
+  getBatchList()
+}
+
+/* 重置批次搜索 */
+const resetBatchFilter = () => {
+  batchFilters.batchNo = ''
+  batchFilters.pageNumber = 1
+  getBatchList()
+}
+
+/* 打开弹窗时默认加载排产计划，切换到 batch 时再加载批次 */
+onMounted(() => {
+  if (dialogVisible.value) loadPlanItems()
+})
 </script>
 
 <style scoped>
+/* ---------- 公共 ---------- */
 .editable-row .cell { color: #f56c6c !important; }
 .confirmed-text { color: #67c23a !important; }
 .unready-text { color: #909399; font-size: 13px; }
 
+.contract-card { margin-bottom: 10px; }
 
-.contract-card {
-  margin-bottom: 10px;
-}
-
-/* 控制 el-descriptions 内的布局 */
 .contract-descriptions ::v-deep(.el-descriptions__label) {
-  width: 120px; /* 固定 label 宽度，保证一排对齐 */
+  width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
 }
+.readonly-text { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ellipsis { cursor: pointer; color: #333; }
 
-/* 控制内容的显示省略 */
-.readonly-text {
-  display: inline-block;
-  max-width: 220px; /* 控制内容列宽度，可按需求调整 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
+.loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,.8); display: flex; justify-content: center; align-items: center; z-index: 10; }
+.loading-content { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.loading-text { font-size: 14px; color: #666; }
+
+.card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.header-button { display: flex; gap: 8px; }
+
+.warning-text { color: #f56c6c !important; font-weight: 600; }
+.normal-text { color: inherit; }
+
+/* ---------- Tab 样式 ---------- */
+.plan-tabs {
+  margin-top: 12px;
 }
 
-/* 增加细微对齐感 */
-.ellipsis {
-  cursor: pointer;
-  color: #333;
-}
-
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
+/* 批次列表搜索栏 */
+.filter-actions {
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 10;
-  pointer-events: auto;
-}
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: center;
-}
-.loading-text {
-  font-size: 14px;
-  color: #666;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-.header-button {
-  display: flex;
   gap: 8px;
 }
 
-/* 可选：视觉上提示不可选行 */
-.editable-row .el-checkbox__input.is-disabled {
-  opacity: 0.5;
+/* 分页 */
+.pagination-container {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px 16px;
 }
 
-.warning-text {
-  color: #f56c6c !important;
-  font-weight: 600;
-}
-
-.normal-text {
-  color: inherit;
-}
-
+.mr-5 { margin-right: 5px; }
 </style>

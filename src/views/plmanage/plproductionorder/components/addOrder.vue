@@ -172,7 +172,7 @@
               <template #default="{ row }">
                 <template v-if="row.status === '20'">
                   <el-button type="primary" size="small" @click="createProductionOrder(row)">
-                    制定生产订单
+                    编辑生产订单
                   </el-button>
                 </template>
                 <template v-else>
@@ -233,7 +233,7 @@
             <el-table-column label="操作" width="180" fixed="right">
               <template #default="{ row }">
                   <el-button type="primary" size="small" @click="editProductionOrder(row.ipoBatchNo)">
-                    制定生产订单
+                    编辑生产订单
                   </el-button>
               </template>
             </el-table-column>
@@ -251,6 +251,27 @@
               @current-change="handleBatchCurrentChange"
             />
           </div>
+        </el-card>
+      </el-tab-pane>
+
+
+      <!-- 新增：生产订单总览 -->
+      <el-tab-pane label="生产订单总览" name="overview">
+        <el-card class="material-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span class="card-title">生产订单总览</span>
+            </div>
+          </template>
+
+          <!-- 复用 editOrderListByPlan 的表格结构（只读/编辑） -->
+          <OrderOverviewTable
+            ref="overviewTableRef"
+            :data="overviewData"
+            :loading="overviewLoading"
+            :schedule-plan-info="contractInfo"
+            @refresh="loadOverviewData"
+          />
         </el-card>
       </el-tab-pane>
     </el-tabs>
@@ -290,6 +311,7 @@ import {
   getPlSchedulePlanItemList
 } from '@/api/plmanage/plscheduleplan'
 import {
+    getListAll,
   getBatchNoList
 } from '@/api/plmanage/plproductionorder'
 import { getNewNoNyName } from '@/api/system/basno'
@@ -350,12 +372,6 @@ const contractFields = [
 /* ==================== Tab 控制 ==================== */
 const activeTab = ref('plan') // 默认显示排产计划
 
-const handleTabChange = (tabName) => {
-  if (tabName === 'batch') {
-    getBatchList()
-  }
-}
-
 /* ==================== 排产计划 ==================== */
 const materialList = ref([])
 const tableRef = ref(null)
@@ -412,12 +428,17 @@ const getStatusType = (status) => {
 }
 const tableRowClassName = ({ row }) => row?.status !== '20' ? 'editable-row' : ''
 
-/* 加载排产计划 */
 watch(dialogVisible, async (val) => {
-  if (val && props.contractInfo?.no) {
-    await loadPlanItems()
+  if (val) {
+    // 每次打开弹窗，重置为排产计划明细
+    activeTab.value = 'plan'
+    
+    if (props.contractInfo?.no) {
+      await loadPlanItems()
+    }
   } else {
     materialList.value = []
+    overviewData.value = []
   }
 }, { immediate: true })
 
@@ -513,6 +534,65 @@ const handleEditPlanDialogClose = (val) => {
 }
 
 
+/* ==================== 生产订单总览 ==================== */
+import OrderOverviewTable from './OrderOverviewTable.vue'   // 新建的文件，稍后给出
+
+const overviewData = ref([])          // 表格数据
+const overviewLoading = ref(false)   // 加载状态
+const overviewTableRef = ref(null)   // 子组件实例
+
+// 切换 Tab 时加载概览数据
+const handleTabChange = (tabName) => {
+  if (tabName === 'batch') {
+    getBatchList()
+  } else if (tabName === 'overview') {
+    loadOverviewData()
+  }
+}
+
+// 加载概览数据（只传 contractNo）
+const loadOverviewData = async () => {
+  if (!props.contractInfo?.no) return
+  overviewLoading.value = true
+  try {
+    const res = await getListAll({ contractNo: props.contractInfo.no })
+    if (res.code === 200 && Array.isArray(res.data?.page)) {
+      overviewData.value = res.data.page.map(item => ({
+        ...item,
+        // 与 editOrderListByPlan 保持字段一致
+        itemNo: item.materialsCode || item.itemNo,
+        itemName: item.materialsName || item.itemName,
+        itemSpec: item.productModel || item.itemSpec,
+        amount: item.amount,
+        workshopName: item.workshopName,
+        planStartDate: item.planStartDate?.split(' ')[0],
+        planFinishDate: item.planFinishDate?.split(' ')[0],
+        status: item.status ?? '10',
+        _editing: false,
+        _isNew: false,
+        _saving: false,
+        _confirming: false,
+        _unconfirming: false,
+        _completing: false
+      }))
+    } else {
+      overviewData.value = []
+    }
+  } catch (e) {
+    console.error(e)
+    ElMessage.error('加载生产订单总览失败')
+  } finally {
+    overviewLoading.value = false
+  }
+}
+
+// “添加” 按钮 → 交给子组件处理（子组件内部会生成 ipoBatchNo）
+const handleAddOverviewRow = () => {
+  overviewTableRef.value?.handleAddRow()
+}
+
+
+
 
 /* ==================== 生产订单批次列表 ==================== */
 const batchLoading = ref(false)
@@ -564,10 +644,8 @@ const resetBatchFilter = () => {
   getBatchList()
 }
 
-/* 打开弹窗时默认加载排产计划，切换到 batch 时再加载批次 */
-onMounted(() => {
-  if (dialogVisible.value) loadPlanItems()
-})
+
+
 </script>
 
 <style scoped>

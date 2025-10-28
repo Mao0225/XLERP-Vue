@@ -154,7 +154,7 @@ import { getNewNoNyName } from '@/api/system/basno'
 	
 	const getNewdocNo = async () => {
 	  try {
-	    const res = await getNewNoNyName('clrk');
+	    const res = await getNewNoNyName('cl-rk');
 	    
 	    if (res?.code === 200) {
 	      console.log("获取编码成功", res.data.fullNoNyName);

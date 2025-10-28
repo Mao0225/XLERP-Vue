@@ -147,7 +147,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible']);
 
-const isFullscreen = ref(false);
+const isFullscreen = ref(true);
 const loading = ref(false);
 const showAddItemDialog = ref(false);
 const showEditItemDialog = ref(false);
