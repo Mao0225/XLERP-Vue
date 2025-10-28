@@ -93,6 +93,7 @@
                 v-if="row._editing || row._isNew"
                 v-model="row.amount"
                 :min="1"
+                :max="remainingAmount"
                 size="small"
                 controls-position="right"
                 style="width:100%"
@@ -215,16 +216,16 @@ import {
   updateOrderStatus
 } from '@/api/plmanage/plproductionorder'
 import { getNewNoNyName } from '@/api/system/basno'
-import { getSinglePlanInfo } from '@/api/plmanage/plscheduleplan'
+import { getPlSchedulePlanById } from '@/api/plmanage/plscheduleplan'
 
 const userStore = useUserStore()
 
 // ---------- Props ----------
 const props = defineProps({
   visible: Boolean,
-  scheduleCode: {
-    type: String,
-    required: true
+  schedulePlanInfo: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -235,32 +236,12 @@ const visible = computed({
   get: () => props.visible,
   set: val => emit('update:visible', val)
 })
-
 const isFullscreen = ref(true)
 const loading = ref(false)
 const tableData = ref([])
 const tableRef = ref(null)
 const selectedRows = ref([])
 const editingBackup = ref({})
-
-// 本地排产计划信息（从接口加载）
-const schedulePlanInfo = ref({
-  scheduleCode: '',
-  itemNo: '',
-  itemName: '',
-  itemSpec: '',
-  itemnum: 0,
-  allocatedAmount: 0,
-  planStartDate: '',
-  planFinishDate: '',
-  purchaserHqCode: '',
-  supplierCode: '',
-  supplierName: '',
-  categoryCode: '',
-  subclassCode: '',
-  poItemId: '',
-  itemunit: ''
-})
 
 // 状态映射
 const statusMap = {
@@ -270,30 +251,52 @@ const statusMap = {
 }
 const statusTagMap = computed(() => statusMap)
 
+// 剩余可分配数量
+const remainingAmount = computed(() => {
+  const total = props.schedulePlanInfo.itemnum || 0
+  const allocated = tableData.value.reduce((sum, r) => sum + (r.amount || 0), 0)
+  return total - allocated
+})
+
+
+/* 生成批次号 */
+const generateScheduleCode = async () => {
+  try {
+    const res = await getNewNoNyName('scdd-batch')
+    if (res?.code === 200) return res.data.fullNoNyName
+    ElMessage.error(res?.msg || '获取编码失败')
+    return ''
+  } catch (error) {
+    console.error('生成批次号出错:', error)
+    ElMessage.error('请求编码服务时发生错误')
+    return ''
+  }
+}
+
 // 当前时间
 const now = new Date().toISOString()
 
-// 默认字段
+// 默认字段（来自你的要求）
 const defaultFields = computed(() => ({
-  purchaserHqCode: schedulePlanInfo.value.purchaserHqCode || '',
+  purchaserHqCode: props.schedulePlanInfo.purchaserHqCode || '',
   ipoType: '默认',
-  supplierCode: schedulePlanInfo.value.supplierCode || '',
-  supplierName: schedulePlanInfo.value.supplierName || '',
+  supplierCode: props.schedulePlanInfo.supplierCode || '',
+  supplierName: props.schedulePlanInfo.supplierName || '',
   ipoNo: '',
-  categoryCode: schedulePlanInfo.value.categoryCode || '',
-  subclassCode: schedulePlanInfo.value.subclassCode || '',
-  scheduleCode: schedulePlanInfo.value.scheduleCode || '',
-  poItemId: schedulePlanInfo.value.contractItemId || '',
+  categoryCode: props.schedulePlanInfo.categoryCode || '',
+  subclassCode: props.schedulePlanInfo.subclassCode || '',
+  scheduleCode: props.schedulePlanInfo.scheduleCode || '',
+  poItemId: props.schedulePlanInfo.poItemId || '',
   dataType: '',
   soItemNo: '',
-  materialsCode: schedulePlanInfo.value.itemNo || '',
-  materialsName: schedulePlanInfo.value.itemName || '',
-  materialsUnit: schedulePlanInfo.value.itemunit || '',
+  materialsCode: props.schedulePlanInfo.itemNo || '',
+  materialsName: props.schedulePlanInfo.itemName || '',
+  materialsUnit: props.schedulePlanInfo.itemunit || '',
   materialsDesc: '无',
-  unit: schedulePlanInfo.value.itemunit || '',
+  unit: props.schedulePlanInfo.itemunit || '',
   productIdGrpNo: '',
   productIdType: '',
-  productModel: schedulePlanInfo.value.itemSpec || '',
+  productModel: props.schedulePlanInfo.itemSpec || '',
   actualStartDate: '',
   actualFinishDate: '',
   plantName: '',
@@ -311,38 +314,23 @@ const defaultFields = computed(() => ({
   actualPeriod: null
 }))
 
-// ---------- 加载排产计划信息 ----------
-const loadPlanData = async () => {
-  if (!props.scheduleCode) return
-  try {
-    const res = await getSinglePlanInfo({scheduleCode:props.scheduleCode})
-    if (res.code === 200 && res.data) {
-      Object.assign(schedulePlanInfo.value, res.data.record)
-      schedulePlanInfo.value.itemnum = Number(res.data.record.itemnum) || 0
-      schedulePlanInfo.value.allocatedAmount = Number(res.data.record.allocatedAmount) || 0
-    } else {
-      ElMessage.error(res.msg || '获取排产计划信息失败')
-    }
-  } catch (e) {
-    console.error(e)
-    ElMessage.error('加载排产计划异常')
-  }
-}
+// ---------- 加载数据 ----------
 
-// ---------- 加载表格数据 ----------
+
+
 async function loadTableData() {
   loading.value = true
   tableData.value = []
   try {
-    const res = await getListAll({ scheduleCode: props.scheduleCode })
+    const res = await getListAll({ scheduleCode: props.schedulePlanInfo.scheduleCode })
     if (res.code === 200 && res.data?.page) {
       tableData.value = res.data.page.map(item => ({
         ...item,
         itemNo: item.materialsCode || item.itemNo,
         itemName: item.materialsName || item.itemName,
         itemSpec: item.productModel || item.itemSpec,
-        amount: item.amount,
-        workOrderallocatedAmount: item.workOrderAllocatedAmount,
+        amount: item.amount,//该订单分配数量
+        workOrderallocatedAmount:item.workOrderAllocatedAmount,//该订单关联工单已分配数量
         workshopName: item.workshopName,
         planStartDate: item.planStartDate?.split(' ')[0],
         planFinishDate: item.planFinishDate?.split(' ')[0],
@@ -360,15 +348,15 @@ async function loadTableData() {
   } finally {
     loading.value = false
   }
+  return tableData.value
 }
 
-// 打开弹窗时加载数据
+// 原来的 watch 改成调用方法
 watch(
   () => props.visible,
-  async val => {
+  val => {
     if (val) {
-      await loadPlanData()
-      await loadTableData()
+      loadTableData()
     }
   },
   { immediate: false }
@@ -383,35 +371,25 @@ const canBatchComplete = computed(() => selectedRows.value.some(r => r.status ==
 const batchConfirmCount = computed(() => selectedRows.value.filter(r => r.status === '10').length)
 const batchCompleteCount = computed(() => selectedRows.value.filter(r => r.status === '20').length)
 
-// ---------- 生成批次号 ----------
-const generateScheduleCode = async () => {
-  try {
-    const res = await getNewNoNyName('scdd-batch')
-    if (res?.code === 200) return res.data.fullNoNyName
-    ElMessage.error(res?.msg || '获取编码失败')
-    return ''
-  } catch (error) {
-    console.error('生成批次号出错:', error)
-    ElMessage.error('请求编码服务时发生错误')
-    return ''
-  }
-}
-
 // ---------- 添加新行 ----------
 const handleAddRow = () => {
+  if (remainingAmount.value <= 0) {
+    ElMessage.warning('已无剩余可分配数量')
+    return
+  }
 
   const newRow = {
     id: `temp_${Date.now()}`,
-    poItemId: schedulePlanInfo.value.contractItemId,//目前没有poItemId，全是用的contractitemId合同物料Id
-    itemNo: schedulePlanInfo.value.itemNo,
-    itemName: schedulePlanInfo.value.itemName,
-    itemSpec: schedulePlanInfo.value.itemSpec,
+    poItemId: props.schedulePlanInfo.poItemId,
+    itemNo: props.schedulePlanInfo.itemNo,
+    itemName: props.schedulePlanInfo.itemName,
+    itemSpec: props.schedulePlanInfo.itemSpec,
     amount: 1,
     workshopName: '',
-    planStartDate: schedulePlanInfo.value.planStartDate,
-    planFinishDate: schedulePlanInfo.value.planFinishDate,
+    planStartDate: props.schedulePlanInfo.planStartDate,
+    planFinishDate: props.schedulePlanInfo.planFinishDate,
     status: '10',
-    scheduleCode: schedulePlanInfo.value.scheduleCode,
+    scheduleCode: props.schedulePlanInfo.scheduleCode,
     _isNew: true,
     _saving: false
   }
@@ -421,36 +399,41 @@ const handleAddRow = () => {
   })
 }
 
-// 保存新行
+// 保存新行（完整字段）
 const saveNewRow = async row => {
   if (!row.amount || !row.workshopName || !row.planStartDate || !row.planFinishDate || row.planStartDate > row.planFinishDate) {
     ElMessage.warning('请填写完整数量、车间、日期，且开始日期 ≤ 结束日期')
     return
   }
-  const newCode = await generateScheduleCode()
-  if (!newCode) return
+  if (row.amount > remainingAmount.value) {
+    ElMessage.warning(`本次分配数量不能超过剩余可分配数量：${remainingAmount.value}`)
+    return
+  }
 
-  row._saving = true
+  const newCode = await generateScheduleCode()
+
+
+  row._savingaving = true
   try {
     const payload = {
       ...defaultFields.value,
       amount: Number(row.amount),
       workshopName: row.workshopName,
-      planStartDate: row.planStartDate,
-      planFinishDate: row.planFinishDate ,
+      planStartDate: row.planStartDate + ' 00:00:00',
+      planFinishDate: row.planFinishDate + ' 00:00:00',
       poItemId: row.poItemId,
       ipoBatchNo: newCode,
       scheduleCode: row.scheduleCode,
       materialsCode: row.itemNo,
       materialsName: row.itemName,
       productModel: row.itemSpec,
-      unit: schedulePlanInfo.value.itemunit || ''
+      unit: props.schedulePlanInfo.itemunit || ''
     }
 
     const res = await createPlProductionOrder(payload)
-    if (res.code === 200) {
+    if (res.code == 200) {
       ElMessage.success('添加成功')
-      await loadTableData()
+      loadTableData()
     } else {
       ElMessage.error(res.msg || '添加失败')
     }
@@ -495,15 +478,14 @@ const saveRow = async row => {
       id: row.id,
       amount: Number(row.amount),
       workshopName: row.workshopName,
-      planStartDate: row.planStartDate ,
-      planFinishDate: row.planFinishDate
+      planStartDate: row.planStartDate + ' 00:00:00',
+      planFinishDate: row.planFinishDate + ' 00:00:00'
     }
     const res = await updatePlProductionOrder(payload)
     if (res.code === 200) {
+      ElMessage.success('保存成功')
       row._editing = false
       delete editingBackup.value[row.id]
-      loadPlanData()
-      ElMessage.success('保存成功')
     } else {
       ElMessage.error(res.msg || '保存失败')
     }
@@ -524,7 +506,7 @@ const changeStatus = async (row, targetStatus, loadingKey, successMsg) => {
       ElMessage.error(res.msg || '操作失败')
     }
   } catch (e) {
-    ElMessage.error('操作异常')
+    ElMessage.error(' 操作异常')
   } finally {
     row[loadingKey] = false
   }

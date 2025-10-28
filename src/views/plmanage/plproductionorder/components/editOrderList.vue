@@ -249,9 +249,10 @@ watch(
           itemName: item.materialsName,
           itemSpec: item.productModel,
           itemunit: item.materialsUnit,
-          contractAmount: item.contractAmount,
-          allocatedAmount: item.amount,
-          orderQty: item.amount,
+          contractAmount: item.contractAmount,//合同/计划要求数量
+          allocatedAmount: item.amount,//已分配数量
+          orderQty: item.amount,//本订单分配数量
+          workOrderallocatedAmount:item.workOrderAllocatedAmount,//该订单关联工单已分配数量
           workshopName: item.workshopName,
           planStartDate: item.planStartDate?.split(' ')[0],
           planFinishDate: item.planFinishDate?.split(' ')[0],

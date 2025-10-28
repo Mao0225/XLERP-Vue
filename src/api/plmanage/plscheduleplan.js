@@ -77,3 +77,13 @@ return get('/pl_schedule_plan/updateStatus', data)
 export function getPlSchedulePlanItemList (params) {
 return get('/pl_schedule_plan/getContractItemList', params)
 }
+
+
+/**
+ * 获取单个排产计划信息，连接上合同物料信息
+ * @param {Object} params - 查询参数
+ * @param {number} params.scheduleCode - 排产计划编号
+ */
+export function getSinglePlanInfo (params) {
+return get('/pl_schedule_plan/getSinglePlanInfo', params)
+}

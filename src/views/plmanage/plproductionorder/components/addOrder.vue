@@ -275,7 +275,7 @@
     <!-- 单行编辑弹窗 -->
      <editOrderListByPlan
       :visible="editDialogPlanVisible"
-      :schedule-plan-info="selectedSchedulePlanInfo"
+      :schedule-code="selectedScheduleCode"
       @update:visible="handleEditPlanDialogClose"
     />
 
@@ -315,7 +315,6 @@ const dialogVisible = computed({
 })
 const isFullscreen = ref(true)
 const isLoading = ref(false)
-const selectedSchedulePlanInfo = ref(null)
 /* ==================== 合同信息 ==================== */
 /* ==================== 合同字段 ==================== */
 const contractFields = [
@@ -488,7 +487,7 @@ const loadPlanItems = async () => {
 
 /* 排产计划单行制定生产订单 */
 const createProductionOrder = (schedule) => {
-  selectedSchedulePlanInfo.value = schedule
+  selectedScheduleCode.value = schedule.scheduleCode
   console.log("选中的排产计划信息:",schedule)
   editDialogPlanVisible.value = true
 }
