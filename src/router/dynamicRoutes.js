@@ -27,6 +27,8 @@ const viewComponents = {
 
   //物料管理
   'item/basitem': () => import('@/views/item/basitem.vue'),
+    //物料分类管理
+  'item/basitemclass': () => import('@/views/item/basitemclass.vue'),
   //合同管理
   'contract/list': () => import('@/views/contract/bascontract/contractList.vue'),
   'contract/baspurchase': () => import('@/views/contract/baspurchaseorder/index.vue'),
@@ -250,6 +252,11 @@ const viewComponents = {
   'clmanage/clbxgls/checkRequestEntry': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestEntry.vue'),
   //不锈钢螺栓请检单审核
   'clmanage/clbxgls/checkRequestReview': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestReview.vue'),
+
+  //检验项目维护
+  'inspection/item': () => import('@/views/plinspection/inspItem/List.vue'),
+  //检验标准维护
+  'inspection/standard': () => import('@/views/plinspection/inspStd/List.vue'),
 
 
 }
