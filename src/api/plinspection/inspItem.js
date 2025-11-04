@@ -12,6 +12,17 @@ export function getInspItemPage(params) {
   return get('/insp_item/getpage', params)
 }
 
+
+
+/**
+ * 获取所有检验项列表
+ * @returns {Promise} - 获取所有检验项列表Promise
+
+ */
+export function getInspItemList() {
+  return get('/insp_item/getList')
+}
+
 /**
  * 根据ID获取检验项详情
  * @param {Object} params - 查询参数
