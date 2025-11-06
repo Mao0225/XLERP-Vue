@@ -257,6 +257,23 @@ const viewComponents = {
   'inspection/item': () => import('@/views/plinspection/inspItem/List.vue'),
   //检验标准维护
   'inspection/standard': () => import('@/views/plinspection/inspStd/List.vue'),
+  //检验单维护
+  'inspection/order': () => import('@/views/plinspection/inspOrder/List.vue'),
+
+    // 检验单 - 录入人（所有状态）
+  'inspection/order-entry': () => import('@/views/plinspection/inspOrder/InspOrderEntryList.vue'),
+
+  // 检验单 - 报检审核（>=10）
+  'inspection/order-audit': () => import('@/views/plinspection/inspOrder/InspOrderAuditList.vue'),
+
+  // 检验单 - 检验员（>=20）
+  'inspection/order-inspect': () => import('@/views/plinspection/inspOrder/InspDataEntryList.vue'),
+
+  // 检验单 - 检验审核（>=21）
+  'inspection/order-review': () => import('@/views/plinspection/inspOrder/InspDataReviewList.vue'),
+
+  // 检验单 - 入库审核（>=30）
+  'inspection/order-stock': () => import('@/views/plinspection/inspOrder/InspOrderStockList.vue'),
 
 
 }

@@ -22,8 +22,8 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="材料牌号">
-              <el-input v-model="form.std.matNo" placeholder="多个用逗号分隔" />
+            <el-form-item label="牌号" prop="std.matNo">
+              <el-input v-model="form.std.matNo" placeholder="牌号" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -51,26 +51,44 @@
           <el-table-column label="名称" prop="inspItemName" min-width="120" />
           <el-table-column label="类别" prop="category" width="100" />
           <el-table-column label="单位" prop="unit" width="80" />
+          
+          <!-- 最小值：实时更新标准值 -->
           <el-table-column label="最小值" width="120">
             <template #default="{ row }">
-              <el-input v-model.number="row.minValue" size="small" placeholder="≥" />
+              <el-input
+                v-model.number="row.minValue"
+                size="small"
+                placeholder=">="
+                @input="onMinMaxChange(row)"
+              />
             </template>
           </el-table-column>
+          
+          <!-- 最大值：实时更新标准值 -->
           <el-table-column label="最大值" width="120">
             <template #default="{ row }">
-              <el-input v-model.number="row.maxValue" size="small" placeholder="≤" />
+              <el-input
+                v-model.number="row.maxValue"
+                size="small"
+                placeholder="<="
+                @input="onMinMaxChange(row)"
+              />
             </template>
           </el-table-column>
+          
+          <!-- 标准值：自动生成，可手动修改（会被覆盖） -->
           <el-table-column label="标准值" width="150">
             <template #default="{ row }">
               <el-input v-model="row.standardValue" size="small" />
             </template>
           </el-table-column>
+          
           <el-table-column label="备注" min-width="120">
             <template #default="{ row }">
               <el-input v-model="row.memo" size="small" />
             </template>
           </el-table-column>
+          
           <el-table-column label="操作" width="80">
             <template #default="{ $index }">
               <el-button type="danger" size="small" @click="form.items.splice($index, 1)">删除</el-button>
@@ -122,7 +140,34 @@ const form = reactive({
 
 const rules = {
   'std.standardNo': [{ required: true, message: '请输入标准编号', trigger: 'blur' }],
-  'std.materials': [{ required: true, message: '请输入适用材料', trigger: 'blur' }]
+  'std.materials': [{ required: true, message: '请输入适用材料', trigger: 'blur' }],
+  'std.matNo': [{ required: true, message: '请输入牌号', trigger: 'blur' }]
+}
+
+/**
+ * 生成标准值（自动模式）
+ * 规则：只有最小值 → ≥1%，只有最大值 → ≤2%，都有 → 1%~2%
+ */
+const generateStandardValue = (row) => {
+  const min = row.minValue
+  const max = row.maxValue
+  const unit = row.unit || ''
+
+  const hasMin = min !== null && min !== undefined && min !== ''
+  const hasMax = max !== null && max !== undefined && max !== ''
+
+  if (!hasMin && !hasMax) return ''
+  if (hasMin && !hasMax) return `>= ${min}${unit}`
+  if (!hasMin && hasMax) return `<= ${max}${unit}`
+  if (hasMin && hasMax) return `${min}${unit} ~ ${max}${unit}`
+  return ''
+}
+
+/**
+ * min/max 变化时触发（自动模式下更新标准值）
+ */
+const onMinMaxChange = (row) => {
+  row.standardValue = generateStandardValue(row)
 }
 
 const handleItemsSelected = (selected) => {

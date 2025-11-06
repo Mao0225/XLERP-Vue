@@ -355,9 +355,9 @@ const handleRefresh = () => {
   getAluminumIngotList()
 }
 
-const openFileInNewWindow = (url) => {
-  window.open(baseURL + url, '_blank')
-}
+  const openFileInNewWindow = (url) => {
+    window.open(baseURL + url, '_blank')
+  }
 
 onMounted(() => {
   getAluminumIngotList()

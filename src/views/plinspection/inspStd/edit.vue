@@ -1,4 +1,3 @@
-<!-- src/views/plinspection/inspStandard/EditDialog.vue -->
 <template>
   <el-dialog
     title="编辑检验标准"
@@ -93,7 +92,7 @@
                 v-else
                 v-model="row.standardValue"
                 size="small"
-                :placeholder="generatePlaceholder(row)"
+                :placeholder="请输入标准值"
               />
             </template>
           </el-table-column>
@@ -162,12 +161,11 @@ import {
   updateInspStandard
 } from '@/api/plinspection/inspStd'
 import {
-  saveInspStandardItem,
+  saveInspStandardItem, // 导入新增接口
   updateInspStandardItem,
   deleteInspStandardItem
 } from '@/api/plinspection/inspStdItem'
 import ItemSelectorDialog from '../components/ItemSelectorDialog.vue'
-
 const props = defineProps({
   modelValue: Boolean,
   row: Object
@@ -211,10 +209,6 @@ const generateStandardValue = (row) => {
   return ''
 }
 
-const generatePlaceholder = (row) => {
-  return generateStandardValue(row) || '自动生成'
-}
-
 /**
  * min/max 变化时触发（自动模式下更新标准值）
  */
@@ -247,36 +241,63 @@ const cancelEdit = (row, index) => {
   hasUnsavedChanges.value = form.items.some(r => r._editing)
 }
 
-
 /**
- * 保存单项
+ * 保存单项（核心修改：区分新增/更新）
  */
 const saveItem = async (row) => {
   try {
-    if (!hasChanged(row)) {
-      ElMessage.info('数据无变化，无需保存')
-      cleanupEditState(row)
+    // 验证核心数据（根据实际需求调整）
+    // if (!row.standardValue && (!row.minValue && !row.maxValue)) {
+    //   ElMessage.warning('请填写标准值或最小/最大值')
+    //   return
+    // }
+
+        if (!row.standardValue ) {
+      ElMessage.warning('请填写标准值')
       return
     }
 
-    const saveData = { ...row }
-    delete saveData._origin
+    // 准备提交数据
+    const saveData = {
+      ...row,
+      standardId: props.row.id, // 关联标准ID（必传）
+      inspItemId: row.inspItemId, // 检验项目基础ID
+      inspItemCode: row.inspItemCode,
+      inspItemName: row.inspItemName,
+      category: row.category,
+      unit: row.unit,
+      dataType: row.dataType,
+      minValue: row.minValue ?? null, // 空值处理为null
+      maxValue: row.maxValue ?? null,
+      standardValue: row.standardValue || '',
+      memo: row.memo || ''
+    }
+
+    // 删除临时属性
     delete saveData._editing
     delete saveData._backup
-    delete saveData._backupStd
+    delete saveData._isNew
+    delete saveData._origin
 
-    const response = await updateInspStandardItem(saveData)
+    let response
+    // 区分新增和更新：无id则新增，有id则更新
+    if (!row.id) {
+      // 新增项目：调用保存接口，删掉id字段
+      delete saveData.id
+      response = await saveInspStandardItem(saveData)
+    } else {
+      // 已有项目：调用更新接口（需携带id）
+      response = await updateInspStandardItem({ ...saveData, id: row.id })
+    }
 
     if (response.success && response.code === 200) {
-
-      const msg = response.msg || '检验项保存成功'
-            ElMessage.success(response.msg || '保存成功')
-
-      // 更新原始数据
-      row._origin = { ...row }
-
+      // 保存成功后更新行数据（关键：保存新增项目的id）
+      row.id = response.data || row.id // 新增项目接收返回的id
+      row._origin = { ...row } // 更新原始数据备份
+      row._isNew = false // 标记为非新增项目
       cleanupEditState(row)
-
+      ElMessage.success(row.id ? '更新成功' : '新增成功')
+      hasUnsavedChanges.value = true // 标记有未保存的标准变更
     } else {
       ElMessage.error(response.msg || '保存失败')
     }
@@ -298,7 +319,6 @@ const cleanupEditState = (row) => {
 /**
  * 判断数据是否变化
  */
-// 检查行数据核心字段是否变更（对比当前值与原始备份 _origin）
 const hasChanged = (row) => {
   const o = row._origin; // 原始数据备份
   // 检查最小值、最大值、标准值、备注是否有变动
@@ -317,7 +337,8 @@ const loadData = async () => {
     form.items = items.map(i => ({
       ...i,
       _origin: { ...i },
-      _editing: false
+      _editing: false,
+      _isNew: false // 加载的项目标记为非新增
     }))
     hasUnsavedChanges.value = false
   } catch (err) {
@@ -343,9 +364,10 @@ const handleItemsSelected = (selected) => {
         standardValue: '',
         memo: '',
         standardId: props.row.id,
-        _isNew: true,
+        _isNew: true, // 标记为新增项目
         _editing: true,
-        _backup: {}
+        _backup: {},
+        id: '' // 新增项目初始id为空
       }
       form.items.push(newItem)
     }
@@ -375,6 +397,7 @@ const deleteItem = async (row, index) => {
     await deleteInspStandardItem({ id: row.id })
     form.items.splice(index, 1)
     ElMessage.success('删除成功')
+    hasUnsavedChanges.value = true
   } catch (err) {
     if (err !== 'cancel') {
       ElMessage.error('删除失败')

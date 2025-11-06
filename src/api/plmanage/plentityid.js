@@ -3,21 +3,7 @@ import { post, get, put, del } from '@/utils/request'
 /**
  * 获取分页实物列表
  * @param {Object} params - 查询参数
- * @param {number} params.pageNumber - 页码
- * @param {number} params.pageSize - 每页大小
- * @param {string} params.purchaserHqCode - 采购商总部编码
- * @param {string} params.supplierCode - 供应商编码
- * @param {string} params.supplierName - 供应商名称
- * @param {string} params.entityCode - 实物编码
- * @param {string} params.poItemId - PO项ID
- * @param {string} params.entityStatus - 实物状态
- * @param {string} params.dataSource - 数据来源
- * @param {string} params.dataSourceCreateTime - 数据源创建时间
- * @param {string} params.remark - 备注
- * @param {string} params.ownerId - 所有者ID
- * @param {string} params.openId - 开放ID
- * @param {string} params.status - 状态
- * @param {string} params.flag - 标志
+
  * @returns {Promise} - 返回分页数据Promise
  */
 export function getPlentityIds(params) {
