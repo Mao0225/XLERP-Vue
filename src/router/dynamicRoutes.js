@@ -26,7 +26,7 @@ const viewComponents = {
 
 
   //物料管理
-  'item/basitem': () => import('@/views/item/basitem.vue'),
+  'item/basitem': () => import('@/views/item/itemList/basitem.vue'),
     //物料分类管理
   'item/basitemclass': () => import('@/views/item/itemClass/basitemclass.vue'),
   //合同管理

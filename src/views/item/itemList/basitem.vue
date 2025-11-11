@@ -1,19 +1,42 @@
 <!-- basitem.vue -->
 <template>
   <div class="basitem-management">
-    <!-- 操作栏 -->
+    <!-- 操作栏（联动版分类筛选） -->
     <div class="action-bar">
+      <el-select 
+        v-model="queryParams.firstClassId" 
+        placeholder="请选择一级分类" 
+        style="width: 180px; margin-right: 10px;"
+        clearable
+        @change="handleFirstClassChange" 
+        @clear="handleFirstClassClear"
+      >
+        <el-option 
+          v-for="item in firstClassOptions" 
+          :key="item.id" 
+          :label="item.classname" 
+          :value="item.id"
+        />
+      </el-select>
+      <el-select 
+        v-model="queryParams.secondClassId" 
+        placeholder="请选择二级分类" 
+        style="width: 180px; margin-right: 10px;"
+        clearable
+        @change="getBasItemList"
+        :disabled="!queryParams.firstClassId"
+      >
+        <el-option 
+          v-for="item in filteredSecondClassOptions"
+          :key="item.id" 
+          :label="item.classname" 
+          :value="item.id"
+        />
+      </el-select>
       <el-input v-model="queryParams.itemNo" placeholder="请输入物料编号查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
       <el-input v-model="queryParams.itemName" placeholder="请输入物料名称查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
-      <el-select v-model="queryParams.inclass" placeholder="选择物料所属分类" style="width: 200px; margin-right: 10px;">
-        <el-option v-for="item in filteredInclassOptions" :key="item" :label="item" :value="item" />
-      </el-select>
-      <el-select v-model="queryParams.type" placeholder="选择物料类型" style="width: 200px; margin-right: 10px;" @change="handleTypeChange">
-        <el-option v-for="item in typeLabelOptions" :key="item.id" :label="item.value" :value="item.id" />
-      </el-select>
-
       <el-button type="primary" @click="getBasItemList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
         <el-icon>
@@ -26,7 +49,7 @@
       <el-button type="info" @click="downloadExsl">下载模板</el-button>
     </div>
 
-    <!-- 物料列表 -->
+    <!-- 物料列表（不变） -->
     <el-table :data="basItemList" border v-loading="loading" style="width: 100%">
       <el-table-column label="序号" width="60">
         <template #default="scope">
@@ -37,18 +60,11 @@
       <el-table-column prop="spec" label="规格型号" />
       <el-table-column prop="name" label="物料名称" />
       <el-table-column prop="unit" label="计量单位" />
-      <el-table-column prop="planned_price" label="计划价格" />
-      <!-- <el-table-column prop="grade" label="等级" />
-      <el-table-column prop="drawing_standard_no" label="图号/标准号" />
-      <el-table-column prop="material_version" label="物料版本" />
-      <el-table-column prop="auxiliary_attribute" label="辅助属性" />
-      <el-table-column prop="material_attribute" label="物料属性" /> -->
-      <el-table-column prop="type" label="物料类型" width="120" >
-        <template #default="{ row }">
-          {{ getFlagLabel(row.type) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="inclass" label="所属分类" />
+      <el-table-column prop="inclass" width="200" label="所属分类" />
+      <el-table-column label="技术备注" width="200" prop="tech_memo" show-overflow-tooltip />
+      <el-table-column label="物料描述" width="200" prop="description" show-overflow-tooltip />
+      <el-table-column label="备注" width="100" prop="memo" show-overflow-tooltip />
+
       <el-table-column label="操作" width="300" fixed="right">
         <template #default="{ row }">
           <el-button type="success" size="small" @click="handleMaterialManage(row)">材料管理</el-button>
@@ -58,7 +74,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 分页 -->
+    <!-- 分页（不变） -->
     <div class="pagination-container">
       <el-pagination
         v-model:current-page="queryParams.pageNumber"
@@ -71,30 +87,29 @@
       />
     </div>
 
-    <!-- 导入结果弹窗 -->
+    <!-- 原有弹窗组件（不变） -->
     <ImportResultDialog 
       v-model="importResultVisible" 
       :import-data="importResultData"
       @confirm="handleImportResultConfirm"
     />
-
-    <!-- 物料表单组件 -->
-    <BasItemForm
-      v-model:visible="formDialogVisible"
-      :dialog-type="dialogType"
-      :edit-item-id="editItemId"
-      :type-label-options="typeLabelOptions"
+    <AddForm
+      v-model="addFormVisible"
       :unit-options="unitOptions"
-      :raw-material-inclass-options="rawMaterialInclassOptions"
-      @refresh="getBasItemList"
+      @success="handleSuccess"
+    />
+    <EditForm
+      v-model="editFormVisible"
+      :unit-options="unitOptions"
+      :initial-data="selectedRows"
+      @success="handleSuccess"
     />
 
-    <!-- 材料管理组件 -->
-    <MaterialManagement
-      v-model:visible="materialDialogVisible"
-      :current-item="currentMaterialItem"
-      :type-label-options="typeLabelOptions"
-      @refresh="getBasItemList"
+     <!-- 物料分解弹窗组件 -->
+    <MaterialDecomposeDialog
+      v-model:visible="DecomposeDialogVisible"
+      :itemId="currentItemId"
+      @close="DecomposeDialogVisible=false"
     />
   </div>
 </template>
@@ -103,36 +118,25 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBasItems, deleteBasItem, importItemList } from '@/api/item/basitem'
-import ImportResultDialog from './components/ImportResultDialog.vue'
+import { getBasItemClassTreeList } from '@/api/item/basitemclass'
+import ImportResultDialog from '../components/ImportResultDialog.vue'
 import { baseURL } from '@/utils/request'
+import AddForm from './add.vue'
+import EditForm  from './edit.vue'
+import MaterialDecomposeDialog from './MaterialDecomposeDialog.vue'
+import { Refresh } from '@element-plus/icons-vue'
 
-// 导入组件
-import BasItemForm from './basitemform.vue'
-import MaterialManagement from './materialmanagement.vue'
-
-// 常量定义
+// 常量定义（不变）
 const unitOptions = [
   '件', '套', '个', '块', '根', '袋', '箱', '捆', '托', '纸箱'
-]
-
-const typeLabelOptions = [
-  { id: 10, value: '原材料' },
-  { id: 20, value: '成品' },
-  { id: 30, value:'半成品'},
-  { id: 40, value: '低值易耗品' },
-  { id: 50, value: '其他' },
-]
-
-const rawMaterialInclassOptions = [
-  '钢材', '铝锭', '铝型材', '其它有色金属', '导线'
 ]
 
 // 响应式数据
 const queryParams = reactive({
   itemNo: '',
   itemName: '',
-  type: '',
-  inclass: '',
+  firstClassId: '', // 一级分类ID
+  secondClassId: '', // 二级分类ID
   pageNumber: 1,
   pageSize: 10
 })
@@ -140,35 +144,80 @@ const queryParams = reactive({
 const basItemList = ref([])
 const total = ref(0)
 const loading = ref(false)
+const firstClassOptions = ref([]) // 所有一级分类
+const allSecondClassOptions = ref([]) // 所有二级分类（含父级ID）
 
-// 表单相关
-const formDialogVisible = ref(false)
-const dialogType = ref('add')
-const editItemId = ref(null)
-
-// 材料管理相关
-const materialDialogVisible = ref(false)
-const currentMaterialItem = ref({})
-
-// 导入相关
-const importResultVisible = ref(false)
-const importResultData = ref({})
-
-// 计算属性
-const filteredInclassOptions = computed(() => {
-  const selectedType = typeLabelOptions.find(option => option.id === queryParams.type)
-  if (selectedType && selectedType.id === 10) {
-    return rawMaterialInclassOptions
-  }
-  return selectedType ? [selectedType.value] : []
+// 计算属性：根据选中的一级分类，过滤对应的二级分类
+const filteredSecondClassOptions = computed(() => {
+  if (!queryParams.firstClassId) return []
+  // 只返回父级ID等于当前一级分类ID的二级分类
+  return allSecondClassOptions.value.filter(item => item.parentId === queryParams.firstClassId)
 })
 
-// 方法
-const getFlagLabel = (type) => {
-  const item = typeLabelOptions.find(option => option.id === type)
-  return item ? item.value : '未知'
+// 表单相关（不变）
+const addFormVisible = ref(false)
+const editFormVisible = ref(false)
+const selectedRows = ref([])
+const importResultVisible = ref(false)
+const importResultData = ref({})
+const DecomposeDialogVisible = ref(false)
+const currentItemId = ref(null)
+// 加载分类树：保存一级分类和「带父级ID的二级分类」
+const loadClassOptions = async () => {
+  try {
+    const res = await getBasItemClassTreeList('')
+    const classTree = res.data.list || []
+    const firstClass = []
+    const secondClass = []
+
+    // 递归遍历，保存一级分类和带父级ID的二级分类
+    const traverseTree = (tree, parentId = 0) => {
+      tree.forEach(node => {
+        const { itemClass } = node
+        if (itemClass.type === 1) {
+          // 一级分类（父级ID为0）
+          firstClass.push({ id: itemClass.id, classname: itemClass.classname })
+          // 递归处理该一级分类的子节点（找二级分类）
+          if (node.children && node.children.length) {
+            traverseTree(node.children, itemClass.id)
+          }
+        } else if (itemClass.type === 2) {
+          // 二级分类（保存父级ID，即所属一级分类ID）
+          secondClass.push({ 
+            id: itemClass.id, 
+            classname: itemClass.classname,
+            parentId: parentId // 关键：关联父级一级分类ID
+          })
+          // 递归处理子节点（不影响，二级分类的子节点是三级）
+          if (node.children && node.children.length) {
+            traverseTree(node.children, itemClass.id)
+          }
+        }
+      })
+    }
+
+    traverseTree(classTree)
+    firstClassOptions.value = firstClass
+    allSecondClassOptions.value = secondClass
+  } catch (error) {
+    console.error('加载分类选项失败', error)
+    ElMessage.error('加载分类筛选选项失败')
+  }
 }
 
+// 一级分类变化时的处理：清空二级分类并刷新列表
+const handleFirstClassChange = () => {
+  queryParams.secondClassId = '' // 清空之前选中的二级分类
+  getBasItemList() // 刷新列表（仅按一级分类筛选）
+}
+
+// 清空一级分类时的处理：清空二级分类并刷新列表
+const handleFirstClassClear = () => {
+  queryParams.secondClassId = ''
+  getBasItemList()
+}
+
+// 获取物料列表（不变，携带联动后的筛选参数）
 const getBasItemList = async () => {
   loading.value = true
   try {
@@ -183,46 +232,30 @@ const getBasItemList = async () => {
   }
 }
 
+// 原有方法（不变）
 const handleSizeChange = (size) => {
   queryParams.pageSize = size
   getBasItemList()
 }
-
 const handleCurrentChange = (page) => {
   queryParams.pageNumber = page
   getBasItemList()
 }
-
-const handleTypeChange = () => {
-  const selectedType = typeLabelOptions.find(option => option.id === queryParams.type)
-  if (selectedType && selectedType.id !== 10) {
-    queryParams.inclass = selectedType.value
-  } else {
-    queryParams.inclass = ''
-  }
-}
-
 const handleRefresh = () => {
   queryParams.itemNo = ''
   queryParams.itemName = ''
-  queryParams.type = ''
-  queryParams.inclass = ''
+  queryParams.firstClassId = ''
+  queryParams.secondClassId = ''
   queryParams.pageNumber = 1
   getBasItemList()
 }
-
 const handleAdd = () => {
-  dialogType.value = 'add'
-  editItemId.value = null
-  formDialogVisible.value = true
+  addFormVisible.value = true
 }
-
 const handleEdit = (row) => {
-  dialogType.value = 'edit'
-  editItemId.value = row.id
-  formDialogVisible.value = true
+  selectedRows.value = row
+  editFormVisible.value = true
 }
-
 const handleDelete = (row) => {
   ElMessageBox.confirm(`确认删除物料"${row.no}"吗？`, '提示', {
     confirmButtonText: '确定',
@@ -239,26 +272,30 @@ const handleDelete = (row) => {
     }
   }).catch(() => {})
 }
-
 const handleMaterialManage = (row) => {
-  currentMaterialItem.value = row
-  materialDialogVisible.value = true
+  currentItemId.value = row.id
+  DecomposeDialogVisible.value = true
+}
+const handleSuccess = () => {
+  ElMessage.success('操作成功')
+  addFormVisible.value = false
+  editFormVisible.value = false
+  DecomposeDialogVisible.value = false
+  getBasItemList()
 }
 
-// 导入相关方法
+// 导入相关方法（不变）
 const importItem = () => {
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = '.xls,.xlsx'
   input.style.display = 'none'
-
   input.addEventListener('change', async (event) => {
     const file = event.target.files[0]
     if (!file) {
       ElMessage.error('未选择文件')
       return
     }
-
     const validTypes = [
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -267,10 +304,8 @@ const importItem = () => {
       ElMessage.error('请选择 Excel 文件 (.xls 或 .xlsx)')
       return
     }
-
     const formData = new FormData()
     formData.append('itemListFile', file)
-
     try {
       const res = await importItemList(formData)
       if (res.code === 200 && res.data) {
@@ -286,20 +321,16 @@ const importItem = () => {
       document.body.removeChild(input)
     }
   })
-
   document.body.appendChild(input)
   input.click()
 }
-
 const showImportResultDialog = (data) => {
   importResultData.value = data
   importResultVisible.value = true
 }
-
 const handleImportResultConfirm = () => {
   getBasItemList()
 }
-
 const downloadExsl = () => {
   try {
     const url = `${baseURL}/xlsxTemplates/基础物料信息导入示例.xlsx`
@@ -314,8 +345,9 @@ const downloadExsl = () => {
   }
 }
 
-// 生命周期
+// 生命周期（不变）
 onMounted(() => {
+  loadClassOptions()
   getBasItemList()
 })
 </script>
@@ -327,10 +359,18 @@ onMounted(() => {
 .action-bar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .pagination-container {
   margin-top: 20px;
   text-align: right;
+}
+@media (max-width: 1200px) {
+  .action-bar > * {
+    margin-right: 0 !important;
+  }
 }
 </style>
