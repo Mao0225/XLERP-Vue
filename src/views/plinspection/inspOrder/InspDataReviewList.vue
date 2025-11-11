@@ -7,6 +7,11 @@
 
     <el-table :data="list" border v-loading="loading">
       <el-table-column type="index" label="序号" width="70" />
+            <el-table-column label="状态" width="120">
+        <template #default="{ row }">
+          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="orderNo" label="检验单号" width="160" />
       <el-table-column prop="itemName" label="物料名称" width="100" />
       <el-table-column prop="itemCode" label="物料编码" width="100" />
@@ -19,20 +24,15 @@
       <el-table-column prop="actualSpec" label="到货型号" width="120" />
       <el-table-column prop="inspector" label="检验人" width="100" />
       <el-table-column prop="inspectReviewer" label="审核人" width="100" />
-      <el-table-column label="状态" width="120">
-        <template #default="{ row }">
-          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
 
-      <el-table-column label="操作" width="280" fixed="right">
+
+      <el-table-column label="操作" width="230" fixed="right">
         <template #default="{ row }">
           <!-- 状态21（待审核）显示审核操作按钮 -->
-          <el-button v-if="row.status == 21" size="small" type="success" @click="updateStatus(row, 22)">审核通过</el-button>
-          <el-button v-if="row.status == 21" size="small" type="danger" @click="updateStatus(row, 23, true)">审核不通过</el-button>
+          <el-button v-if="row.status == 21" size="small" type="success" @click="updateStatus(row, 22)">通过</el-button>
+          <el-button v-if="row.status == 21" size="small" type="danger" @click="updateStatus(row, 23, true)">不通过</el-button>
           
-          <!-- 其他状态（22=审核通过、23=审核不通过、及未定义状态）显示查看按钮 -->
-          <el-button v-else size="small" type="info" @click="getInspectionResult(row)">查看检验结果</el-button>
+          <el-button  size="small" type="primary" @click="getInspectionResult(row)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>

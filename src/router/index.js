@@ -54,7 +54,13 @@ const routes = [
       title: '404',
       layout: 'none'
     }
-  }
+  },
+  {
+  path: '/print-inspection',
+  name: 'PrintInspection',
+  component: () => import('@/views/plinspection/components/printModel.vue'), // 你的打印页面
+  meta: { title: '打印检验单' }
+}
 ]
 
 const router = createRouter({

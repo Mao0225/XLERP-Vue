@@ -10,24 +10,38 @@
 
     <el-table :data="list" border v-loading="loading">
       <el-table-column type="index" label="序号" width="70" />
+            <el-table-column label="状态" width="150" fixed ="left"> 
+
+        <template #default="{ row }">
+          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="orderNo" label="检验单号" width="160" />
-      <el-table-column prop="itemName" label="物料名称" width="100" />
-      <el-table-column prop="itemCode" label="物料编码" width="100" />
-      <el-table-column prop="itemSpec" label="物料型号" width="120" />
+      <el-table-column prop="itemName" label="物料名称" width="200" />
+      <el-table-column prop="itemCode" label="物料编码" width="250" />
+      <el-table-column prop="itemSpec" label="物料型号" width="250" />
       <el-table-column prop="batchNo" label="炉批号" width="130" />
       <el-table-column prop="batchNumber" label="批次号" width="130" />
       <el-table-column prop="reporter" label="报检人" width="100" />
       
       <el-table-column prop="actualMaterial" label="到货材质" width="120" />
       <el-table-column prop="actualSpec" label="到货型号" width="120" />
-      <el-table-column label="状态" width="150">
-        <template #default="{ row }">
-          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column label="质量证明书" width="180">
+                <template #default="{ row }">
+                    <div v-if="row.certificate">
+                        <div v-for="(f, i) in parseCertificate(row.certificate)" :key="i" style="margin-bottom:4px">
+                            <el-tooltip :content="f.name">
+                                <span class="file-link" @click="openFileInNewWindow(f.url)">{{ f.name }}</span>
+                            </el-tooltip>
+                        </div>
+                    </div>
+                    <span v-else>-</span>
+                </template>
+            </el-table-column>
+
 
       <!-- 操作 -->
-      <el-table-column label="操作" width="300">
+      <el-table-column label="操作" width="320" fixed="right">
         <template #default="{ row }">
           <el-button v-if="row.status == 0" size="small" type="success" @click="updateStatus(row, 10)">提交报检</el-button>
           <el-button v-if="row.status == 11" size="small" type="success" @click="updateStatus(row, 20)">提交检验</el-button>
@@ -68,8 +82,7 @@ import AddOrderDialog from './addInspOrder.vue'
 import EditOrderDialog from './editInspOrder.vue'
 	import { getNewNoNyName } from '@/api/system/basno'
   import InspDataReadonly from './inspDataFormReadonly.vue'
-
-	
+import { baseURL } from '@/utils/request'	
 
 	// 生成检验单编码
 	const generateSInspNo = async () => {
@@ -115,6 +128,10 @@ const handleEdit = (row) => {
   selectId.value = row.id
 }
 
+const parseCertificate = s => s ? (Array.isArray(JSON.parse(s)) ? JSON.parse(s) : []) : []
+const openFileInNewWindow = url => url && window.open(url.startsWith('http') ? url : baseURL + url, '_blank')
+
+
 const statusOptions = [
   { label: '草稿', value: 0 }, { label: '报检确认，待审核', value: 10 }, { label: '报检通过', value: 11 },
   { label: '报检拒绝', value: 12 }, { label: '检验中', value: 20 }, { label: '检验完成，待审核', value: 21 },
@@ -136,4 +153,18 @@ onMounted(getList)
 .insp-list { padding: 20px; }
 .action-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
 .pagination { margin-top: 20px; text-align: right; }
+.file-link {
+    color: #409eff;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 150px;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
 </style>

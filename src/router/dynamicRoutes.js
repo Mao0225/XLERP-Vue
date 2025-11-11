@@ -28,7 +28,7 @@ const viewComponents = {
   //物料管理
   'item/basitem': () => import('@/views/item/basitem.vue'),
     //物料分类管理
-  'item/basitemclass': () => import('@/views/item/basitemclass.vue'),
+  'item/basitemclass': () => import('@/views/item/itemClass/basitemclass.vue'),
   //合同管理
   'contract/list': () => import('@/views/contract/bascontract/contractList.vue'),
   'contract/baspurchase': () => import('@/views/contract/baspurchaseorder/index.vue'),
@@ -90,168 +90,11 @@ const viewComponents = {
   //原材料出入库明细
   'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItemPage/matItemInoutPage.vue'),
 
-
-
   // 材料数据检验--学妹 芯
   'clmanage/clproductiondata': () => import('@/views/clmanage/clproductiondata/clproductiondata.vue'),
 
   //刘国奇，出厂抽检检验
   'plchuchangchoujian/chuchangchoujian': () => import('@/views/plchuchangchoujian/chuchanchoujian.vue'),
-
-  
-  //铝锭检验数据录入
-  'clmanage/clld/checkDataEntry': () => import('@/views/clmanage/cl-ld/checkData/checkDataEntry.vue'),
-  //铝锭检验数据审核
-  'clmanage/clld/checkDataReview': () => import('@/views/clmanage/cl-ld/checkData/checkDataReview.vue'),
-  //铝锭请检单录入
-  'clmanage/clld/checkRequestEntry': () => import('@/views/clmanage/cl-ld/requestCheck/checkRequestEntry.vue'),
-  //铝锭请检单审核
-  'clmanage/clld/checkRequestReview': () => import('@/views/clmanage/cl-ld/requestCheck/checkRequestReview.vue'),
-    //无缝钢管检验数据录入
-  'clmanage/clwfg/checkDataEntry': () => import('@/views/clmanage/cl-wfg/checkData/checkDataEntry.vue'),
-  //无缝钢管检验数据审核
-  'clmanage/clwfg/checkDataReview': () => import('@/views/clmanage/cl-wfg/checkData/checkDataReview.vue'),
-  //无缝钢管请检单录入
-  'clmanage/clwfg/checkRequestEntry': () => import('@/views/clmanage/cl-wfg/requestCheck/checkRequestEntry.vue'),
-  //无缝钢管请检单审核
-  'clmanage/clwfg/checkRequestReview': () => import('@/views/clmanage/cl-wfg/requestCheck/checkRequestReview.vue'),
-
-
- 
-  //   //圆钢检验
-  // 'clmanage/clyg': () => import('@/views/clmanage/cl-yg/list.vue'),
-  // //钢板检验
-  // 'clmanage/clgb': () => import('@/views/clmanage/cl-gb/list.vue'),
-  //无缝刚
-  // 'clmanage/clwfg': () => import('@/views/clmanage/cl-wfg/list.vue'),
-  
- 
-  //橡胶检验--刘国奇
-  //橡胶检验数据录入
-  'clmanage/clxj/checkRequestEntry': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestEntry.vue'),
-  //橡胶检验数据审核
-  'clmanage/clxj/checkRequestReview': () => import('@/views/clmanage/cl-xj/requestCheck/checkRequestReview.vue'),
-  //橡胶检验数据录入  clmanage/clxj/checkDataReview
-  'clmanage/clxj/checkDataEntry': () => import('@/views/clmanage/cl-xj/checkData/checkDataEntry.vue'),
-  //橡胶检验结果审核
-  'clmanage/clxj/checkDataReview': () => import('@/views/clmanage/cl-xj/checkData/checkDataReview.vue'),
-  //橡胶检验管理
-  'clmanage/clxj': () => import('@/views/clmanage/cl-xj/list.vue'),
-
-
-  
-  //圆钢检验数据录入--谭
-  'clmanage/clyg/checkDataEntry': () => import('@/views/clmanage/cl-yg/checkData/checkDataEntry.vue'),
-  //圆钢检验数据审核
-  'clmanage/clyg/checkDataReview': () => import('@/views/clmanage/cl-yg/checkData/checkDataReview.vue'),
-  //圆钢请检单录入
-  'clmanage/clyg/checkRequestEntry': () => import('@/views/clmanage/cl-yg/requestCheck/checkRequestEntry.vue'),
-  //圆钢请检单审核
-  'clmanage/clyg/checkRequestReview': () => import('@/views/clmanage/cl-yg/requestCheck/checkRequestReview.vue'),
-
-  //钢板检验数据录入--谭
-  'clmanage/clgb/checkDataEntry': () => import('@/views/clmanage/cl-gb/checkData/checkDataEntry.vue'),
-  //钢板检验数据审核
-  'clmanage/clgb/checkDataReview': () => import('@/views/clmanage/cl-gb/checkData/checkDataReview.vue'), 
-  //钢板请检单录入
-  'clmanage/clgb/checkRequestEntry': () => import('@/views/clmanage/cl-gb/requestCheck/checkRequestEntry.vue'),
-  //钢板请检单审核
-  'clmanage/clgb/checkRequestReview': () => import('@/views/clmanage/cl-gb/requestCheck/checkRequestReview.vue'),
-
-  //闭口销检验数据录入--谭
-  'clmanage/clbkx/checkDataEntry': () => import('@/views/clmanage/cl-bkx/checkData/checkDataEntry.vue'),
-  //闭口销检验数据审核
-  'clmanage/clbkx/checkDataReview': () => import('@/views/clmanage/cl-bkx/checkData/checkDataReview.vue'),
-  //闭口销请检单录入
-  'clmanage/clbkx/checkRequestEntry': () => import('@/views/clmanage/cl-bkx/requestCheck/checkRequestEntry.vue'),
-  //闭口销请检单审核
-  'clmanage/clbkx/checkRequestReview': () => import('@/views/clmanage/cl-bkx/requestCheck/checkRequestReview.vue'),
-
-
-  
-  //铜板检验数据录入
-  'clmanage/cltb/checkDataEntry': () => import('@/views/clmanage/cl-tb/checkData/checkDataEntry.vue'),
-  //铜板检验数据审核
-  'clmanage/cltb/checkDataReview': () => import('@/views/clmanage/cl-tb/checkData/checkDataReview.vue'),
-  //铜板请检单录入
-  'clmanage/cltb/checkRequestEntry': () => import('@/views/clmanage/cl-tb/requestCheck/checkRequestEntry.vue'),
-  //铜板请检单审核
-  'clmanage/cltb/checkRequestReview': () => import('@/views/clmanage/cl-tb/requestCheck/checkRequestReview.vue'),
-
-
-    //铝合金线检验数据录入
-  'clmanage/cllhjx/checkDataEntry': () => import('@/views/clmanage/cl-lhjx/checkData/checkDataEntry.vue'),
-  //铝合金线检验数据审核
-  'clmanage/cllhjx/checkDataReview': () => import('@/views/clmanage/cl-lhjx/checkData/checkDataReview.vue'),
-  //铝合金线请检单录入
-  'clmanage/cllhjx/checkRequestEntry': () => import('@/views/clmanage/cl-lhjx/requestCheck/checkRequestEntry.vue'),
-  //铝合金线请检单审核
-  'clmanage/cllhjx/checkRequestReview': () => import('@/views/clmanage/cl-lhjx/requestCheck/checkRequestReview.vue'),
-
-
-
-
-  
-  //镀锌钢绞线检验数据录入
-  'clmanage/cldxgjx/checkDataEntry': () => import('@/views/clmanage/cl-dxgjx/checkData/checkDataEntry.vue'),
-  //镀锌钢绞线检验数据审核
-  'clmanage/cldxgjx/checkDataReview': () => import('@/views/clmanage/cl-dxgjx/checkData/checkDataReview.vue'),
-  //镀锌钢绞线请检单录入
-  'clmanage/cldxgjx/checkRequestEntry': () => import('@/views/clmanage/cl-dxgjx/requestCheck/checkRequestEntry.vue'),
-  //镀锌钢绞线请检单审核
-  'clmanage/cldxgjx/checkRequestReview': () => import('@/views/clmanage/cl-dxgjx/requestCheck/checkRequestReview.vue'),
-
-
-  
-    //铝板检验数据录入
-  'clmanage/cllb/checkDataEntry': () => import('@/views/clmanage/cl-lb/checkData/checkDataEntry.vue'),
-  //铝板检验数据审核
-  'clmanage/cllb/checkDataReview': () => import('@/views/clmanage/cl-lb/checkData/checkDataReview.vue'),
-  //铝板请检单录入
-  'clmanage/cllb/checkRequestEntry': () => import('@/views/clmanage/cl-lb/requestCheck/checkRequestEntry.vue'),
-  //铝板请检单审核
-  'clmanage/cllb/checkRequestReview': () => import('@/views/clmanage/cl-lb/requestCheck/checkRequestReview.vue'),
-
-
-     //镀锌螺栓检验数据录入
-  'clmanage/cldxls/checkDataEntry': () => import('@/views/clmanage/cl-dxls/checkData/checkDataEntry.vue'),
-  //镀锌螺栓检验数据审核
-  'clmanage/cldxls/checkDataReview': () => import('@/views/clmanage/cl-dxls/checkData/checkDataReview.vue'),
-  //镀锌螺栓请检单录入
-  'clmanage/cldxls/checkRequestEntry': () => import('@/views/clmanage/cl-dxls/requestCheck/checkRequestEntry.vue'),
-  //镀锌螺栓请检单审核
-  'clmanage/cldxls/checkRequestReview': () => import('@/views/clmanage/cl-dxls/requestCheck/checkRequestReview.vue'),
-
-
-
-    //锤头检验数据录入
-  'clmanage/clct/checkDataEntry': () => import('@/views/clmanage/cl-ct/checkData/checkDataEntry.vue'),
-  //锤头检验数据审核
-  'clmanage/clct/checkDataReview': () => import('@/views/clmanage/cl-ct/checkData/checkDataReview.vue'),
-  //锤头请检单录入
-  'clmanage/clct/checkRequestEntry': () => import('@/views/clmanage/cl-ct/requestCheck/checkRequestEntry.vue'),
-  //锤头请检单审核
-  'clmanage/clct/checkRequestReview': () => import('@/views/clmanage/cl-ct/requestCheck/checkRequestReview.vue'),
-
-
-    //铝管检验数据录入
-  'clmanage/cllg/checkDataEntry': () => import('@/views/clmanage/cl-lg/checkData/checkDataEntry.vue'),
-  //铝管检验数据审核
-  'clmanage/cllg/checkDataReview': () => import('@/views/clmanage/cl-lg/checkData/checkDataReview.vue'),
-  //铝管请检单录入
-  'clmanage/cllg/checkRequestEntry': () => import('@/views/clmanage/cl-lg/requestCheck/checkRequestEntry.vue'),
-  //铝管请检单审核
-  'clmanage/cllg/checkRequestReview': () => import('@/views/clmanage/cl-lg/requestCheck/checkRequestReview.vue'),
-
-
-    //不锈钢螺栓检验数据录入
-  'clmanage/clbxgls/checkDataEntry': () => import('@/views/clmanage/cl-bxgls/checkData/checkDataEntry.vue'),
-  //不锈钢螺栓检验数据审核
-  'clmanage/clbxgls/checkDataReview': () => import('@/views/clmanage/cl-bxgls/checkData/checkDataReview.vue'),
-  //不锈钢螺栓请检单录入
-  'clmanage/clbxgls/checkRequestEntry': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestEntry.vue'),
-  //不锈钢螺栓请检单审核
-  'clmanage/clbxgls/checkRequestReview': () => import('@/views/clmanage/cl-bxgls/requestCheck/checkRequestReview.vue'),
 
   //检验项目维护
   'inspection/item': () => import('@/views/plinspection/inspItem/List.vue'),

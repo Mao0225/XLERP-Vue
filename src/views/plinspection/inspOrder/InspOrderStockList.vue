@@ -7,6 +7,11 @@
 
     <el-table :data="list" border v-loading="loading">
             <el-table-column type="index" label="序号" width="70" />
+                  <el-table-column label="状态" width="120">
+        <template #default="{ row }">
+          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="orderNo" label="检验单号" width="160" />
       <el-table-column prop="itemName" label="物料名称" width="100" />
       <el-table-column prop="itemCode" label="物料编码" width="100" />
@@ -18,11 +23,7 @@
       <el-table-column prop="actualMaterial" label="到货材质" width="120" />
       <el-table-column prop="actualSpec" label="到货型号" width="120" />
       <el-table-column prop="storageReviewer" label="审核人" width="100" />
-      <el-table-column label="状态" width="120">
-        <template #default="{ row }">
-          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
+
 
       <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">

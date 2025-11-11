@@ -7,6 +7,11 @@
 
     <el-table :data="list" border v-loading="loading">
       <el-table-column type="index" label="序号" width="70" />
+            <el-table-column label="状态" width="120">
+        <template #default="{ row }">
+          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="orderNo" label="检验单号" width="160" />
       <el-table-column prop="itemName" label="物料名称" width="100" />
       <el-table-column prop="itemCode" label="物料编码" width="100" />
@@ -19,18 +24,14 @@
       <el-table-column prop="actualSpec" label="到货型号" width="120" />
       <el-table-column prop="inspector" label="检验人" width="100" />
       <el-table-column prop="inspectReviewer" label="审核人" width="100" />
-      <el-table-column label="状态" width="120">
-        <template #default="{ row }">
-          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
+
 
       <el-table-column label="操作" width="280" fixed="right"> <!-- 加宽操作列以容纳三个按钮 -->
         <template #default="{ row }">
           <!-- 状态20（检验中）显示原有两个按钮 -->
           <el-button v-if="row.status == 20" size="small" type="success" @click="updateStatus(row, 21)">提交审核</el-button>          
           <!-- <el-button v-if="row.status == 20" size="small" type="warning" @click="editInspectionResult(row)">编辑检验结果</el-button> -->
-          <el-button  size="small" type="warning" @click="editInspectionResult(row)">编辑检验结果</el-button>
+          <el-button v-if="row.status == 20" size="small" type="warning" @click="editInspectionResult(row)">录入检验结果</el-button>
 
           <!-- 其他所有状态（包括默认的检验完成、及其他未定义状态）显示查看检验结果按钮 -->
           <el-button size="small" type="primary" @click="getInspectionResult(row)">查看检验结果</el-button>
@@ -64,7 +65,9 @@ const { query, list, total, loading, getList, updateStatus } = useInspOrder(20)
 
 // 明确状态配置（仅保留特殊状态）
 const baseStatusOptions = [
-  { label: '检验中', value: 20 } // 21及其他状态默认显示"检验完成"
+  { label: '检验中', value: 20 }, // 21及其他状态默认显示"检验完成"
+  { label: '检验不通过', value: 22 } // 21及其他状态默认显示"检验完成"
+
 ]
 // 状态标签映射：未匹配到的状态默认显示"检验完成"
 const statusMap = Object.fromEntries(baseStatusOptions.map(s => [s.value, s.label]))
@@ -76,7 +79,8 @@ const showDialog = ref(false)
 // 标签类型映射：未匹配到的状态默认使用"info"类型
 const getStatusTagType = s => {
   const typeMap = {
-    20: 'primary' // 检验中-primary类型
+    20: 'primary', // 检验中-primary类型
+    22: 'danger',
   }
   return typeMap[s] || 'success' // 其他状态默认info类型（与检验完成、查看按钮样式一致）
 }
