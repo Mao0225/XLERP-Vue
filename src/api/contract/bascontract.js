@@ -114,6 +114,8 @@ export function getContractItemPage(params) {
 }
 
 
+
+
 /**
  * 获取合同<完整>物料列表查询根据合同编号
  */
@@ -127,4 +129,12 @@ export function getContractItemList(params) {
  */
 export function getContractItemTotal(params) {
   return get('/bascontract/getContractItemSummary',params)
+}
+
+
+/**
+ * 获取合同<完整>产品树列表查询根据合同编号，就是把每个产品都分解后的树
+ */
+export function getContractMaterialList(params) {
+  return get('/bascontract/getContractMaterialList',params)
 }

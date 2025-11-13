@@ -48,7 +48,7 @@
           <el-table-column label="物料编号" prop="no" width="120" />
           <el-table-column label="物料名称" prop="name" width="120" />
           <el-table-column label="规格型号" prop="spec" width="150" />
-                    <el-table-column label="用量" width="50" >
+                    <el-table-column label="用量" width="150" >
             <template #default="{ row }">
               <el-input-number
                 v-model.number="row.relationQuantity"

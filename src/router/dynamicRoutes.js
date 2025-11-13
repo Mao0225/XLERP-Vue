@@ -90,6 +90,9 @@ const viewComponents = {
   //原材料出入库明细
   'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItemPage/matItemInoutPage.vue'),
 
+  //评库功能
+  'kucun/reviewStorage': () => import('@/views/plstoreinout/reviewStorage/List.vue'),
+
   // 材料数据检验--学妹 芯
   'clmanage/clproductiondata': () => import('@/views/clmanage/clproductiondata/clproductiondata.vue'),
 
@@ -117,6 +120,11 @@ const viewComponents = {
 
   // 检验单 - 入库审核（>=30）
   'inspection/order-stock': () => import('@/views/plinspection/inspOrder/InspOrderStockList.vue'),
+
+
+  //制定通知--毛文斌重写
+  'tongzhi/list': () => import('@/views/tongzhi/tongzhiList/list.vue'),
+
 
 
 }
