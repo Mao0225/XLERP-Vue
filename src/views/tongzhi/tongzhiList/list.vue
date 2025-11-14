@@ -98,7 +98,7 @@
     </div>
 
     <ContractInfoReadonlyForm :visible="showContractInfoDialog" :initial-data="selectedContract" @update:visible="showContractInfoDialog = $event" />
-    <ItemTreeList :visible="showMaterialListDialog" :contract-no="selectedContractNo" :contract-name="selectedContractName"  @update:visible="showMaterialListDialog = $event" />
+    <MaterialList :visible="showMaterialListDialog" :contract-no="selectedContractNo" :contract-name="selectedContractName"  @update:visible="showMaterialListDialog = $event" />
   </div>
 </template>
 
@@ -106,10 +106,10 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Refresh,Document } from '@element-plus/icons-vue';
-import { getContractList, deleteBasContract, updateBasContractStatus, getContractByNo } from '@/api/contract/bascontract.js';
+import { getContractList, getContractByNo } from '@/api/contract/bascontract.js';
 import { useTermStore } from '@/store/term.js';
 import ContractInfoReadonlyForm from './contractInfo.vue';
-import ItemTreeList from './ItemTreeList.vue';
+import MaterialList from './contractMaterial.vue';
 const termStore = useTermStore();
 const currentTerm = computed(() => termStore.currentTerm);
 

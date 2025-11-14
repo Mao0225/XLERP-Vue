@@ -125,6 +125,9 @@ const viewComponents = {
   //制定通知--毛文斌重写
   'tongzhi/list': () => import('@/views/tongzhi/tongzhiList/list.vue'),
 
+  //采购计划维护
+  'plmanage/purchaseOrderList': () => import('@/views/plmanage/plpurchaseorder/list.vue'),
+
 
 
 }
