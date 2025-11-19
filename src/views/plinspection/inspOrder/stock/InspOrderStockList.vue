@@ -14,7 +14,7 @@
       </el-table-column>
       <el-table-column prop="orderNo" label="检验单号" width="160" />
       <el-table-column prop="itemName" label="物料名称" width="100" />
-      <el-table-column prop="itemCode" label="物料编码" width="100" />
+      <el-table-column prop="itemCode" label="物料编码" width="150" show-overflow-tooltip />
       <el-table-column prop="itemSpec" label="物料型号" width="120" />
       <el-table-column prop="batchNo" label="炉批号" width="130" />
       <el-table-column prop="batchNumber" label="批次号" width="130" />
@@ -27,7 +27,7 @@
 
       <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status == 30" size="small" type="primary" @click="updateStatus(row, 31)">入库完成</el-button>
+          <el-button v-if="row.status == 30" size="small" type="success" @click="openInStockForm(row)">确认入库</el-button>
           <el-button v-if="row.status == 30" size="small" type="danger" @click="updateStatus(row, 32, true)">入库拒绝</el-button>
           <el-button  type="primary" size="small" @click="openInfoForm(row)">查看信息</el-button>
         </template>
@@ -43,12 +43,20 @@
   v-model="showReadDialog"
   :order-data="currentOrder"
   />
+  <InStockForm
+  v-model:visible="showInStockDialog"
+  :form-data="currentOrder"
+  @success="handleSuccess"
+  @close="showInStockDialog = false"
+  />
+
 </template>
 
 <script setup>
 import { onMounted,ref} from 'vue'
-import { useInspOrder } from './useInspOrder'
-import InspDataReadonly from './inspDataFormReadonly.vue'
+import { useInspOrder } from '../useInspOrder'
+import InspDataReadonly from '../inspDataFormReadonly.vue'
+import InStockForm from './inStockForm.vue'
 const { query, list, total, loading, getList, updateStatus } = useInspOrder(30)
 
 const statusOptions = [ { label: '入库中', value: 30 }, { label: '已入库', value: 31 }, { label: '入库拒绝', value: 32 } ]
@@ -57,7 +65,19 @@ const getStatusLabel = s => statusMap[s] || '-'
 const getStatusTagType = s => ({ 30: 'primary', 31: 'success', 32: 'danger' }[s] || 'info')
 
 const showReadDialog = ref(false)
+const showInStockDialog = ref(false)
 const currentOrder = ref(null)
+const handleSuccess = () => {
+
+  updateStatus(currentOrder.value, 31)
+  showInStockDialog.value = false
+  getList()
+}
+
+const openInStockForm = (row) => { 
+  currentOrder.value = row
+  showInStockDialog.value = true
+}
 const openInfoForm = (row) => {
     // 此处实现获取检验结果的逻辑，示例：
   showReadDialog.value = true

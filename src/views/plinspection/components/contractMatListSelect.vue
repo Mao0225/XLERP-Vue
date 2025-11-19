@@ -8,7 +8,7 @@
   @close="handleClose"
   class="material-selector-dialog"
 >
-    <!-- 搜索区域：新增关联状态筛选器 -->
+    <!-- 搜索区域：移除关联状态筛选，保留合同编号搜索 -->
     <div class="search-bar">
       <el-input
         v-model="searchForm.contractNo"
@@ -24,18 +24,7 @@
           </el-button>
         </template>
       </el-input>
-      <!-- 关联状态筛选：只显示未关联/显示全部 -->
-      <el-select
-        v-model="searchForm.relationStatus"
-        placeholder="关联状态筛选"
-        style="width: 180px; margin-left: 16px"
-        @change="handleSearch"
-      >
-        <el-option label="显示全部" value='0' />
-        <el-option label="只显示未关联（可选择）" value='1' />
-      </el-select>
-
-          <!-- 分页 -->
+<!-- 分页 -->
     <div class="pagination-bar">
       <el-pagination
         v-model:current-page="pageNumber"
@@ -49,9 +38,12 @@
         background
       />
     </div>
+
     </div>
 
-    <!-- 表格区域：新增关联状态列 + 选择列提示 -->
+    
+
+    <!-- 表格区域：新增操作列（选择按钮） -->
     <div class="table-container">
       <el-table
         ref="tableRef"
@@ -60,18 +52,11 @@
         border
         stripe
         style="width: 100%"
-        max-height="60vh"
-        @selection-change="handleSelectionChange"
+        max-height="80vh"
+        min-height="70vh"
         class="material-table"
       >
-        <!-- 选择列：添加表头提示，说明不可选原因 -->
-        <el-table-column 
-          type="selection" 
-          width="55" 
-          fixed="left" 
-          :selectable="isRowSelectable"
-          header-tooltip="已关联采购计划的备料不可选择"
-        />
+        <el-table-column type="index" width="55" fixed="left" label="#" />
         <el-table-column label="合同编号" prop="contractNo" width="130" />
         <el-table-column label="合同名称" prop="contractName" width="180" show-overflow-tooltip />
         <el-table-column label="物料编号" prop="itemNo" show-overflow-tooltip width="150" />
@@ -79,17 +64,9 @@
         <el-table-column label="规格型号" prop="itemSpec" width="150" show-overflow-tooltip />
         <el-table-column label="物料分类" prop="inclass" width="180" show-overflow-tooltip />
         <el-table-column label="采购计划编号" prop="purchaseOrderNo" width="140" />
-        <!-- 新增关联状态列：直观显示是否关联 -->
-        <el-table-column label="关联状态" width="120" align="center">
-          <template #default="scope">
-            <el-tag type="success" v-if="scope.row.purchaseOrderNo && scope.row.purchaseOrderNo.trim()">
-              已关联
-            </el-tag>
-            <el-tag type="info" v-else>
-              未关联
-            </el-tag>
-          </template>
-        </el-table-column>
+        <el-table-column label="采购计划名称" prop="orderName" width="180" show-overflow-tooltip />
+        <el-table-column label="采购计划备注" prop="orderFormMemo" width="200" show-overflow-tooltip />
+        <el-table-column label="制单人" prop="orderWriter" width="120" align="center" />
         <el-table-column label="单位" prop="unit" width="80" align="center" />
         <el-table-column label="计划数量" prop="planQuantity" width="100" align="center" />
         <el-table-column label="关联成品" min-width="150" show-overflow-tooltip>
@@ -100,22 +77,21 @@
             <span v-else class="text-muted">—</span>
           </template>
         </el-table-column>
+        <!-- 新增操作列：直接选择按钮 -->
+        <el-table-column label="操作" width="100" fixed="right" align="center">
+          <template #default="scope">
+            <el-button
+              type="primary"
+              @click="handleDirectSelect(scope.row)"
+            >
+              选择
+            </el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
 
-    <!-- 底部按钮 -->
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="isDialogOpen = false">取消</el-button>
-        <el-button
-          type="primary"
-          :disabled="selectedRows.length === 0"
-          @click="handleConfirm"
-        >
-          确认选择（{{ selectedRows.length }}）
-        </el-button>
-      </div>
-    </template>
+    <!-- 移除底部确认/取消按钮 -->
   </el-dialog>
 </template>
 
@@ -123,31 +99,28 @@
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
-import { getContractMaterialPage } from '@/api/contract/bascontractmaterial'
+import { getContractMaterialPageForInsp } from '@/api/contract/bascontractmaterial'
 
 // ==================== Props & Emits ====================
 const props = defineProps({
-  visible: { type: Boolean, default: false },
-  defaultContractNo: { type: String, default: '' }
+  modelValue: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['select', 'update:visible'])
+const emit = defineEmits(['select', 'update:modelValue'])
 
 // ==================== 状态 ====================
 const tableRef = ref(null)
 const loading = ref(false)
 const tableData = ref([])
-const selectedRows = ref([])
-const isDialogOpen = ref(props.visible)
+const isDialogOpen = ref(props.modelValue)
 
 const pageNumber = ref(1)
 const pageSz = ref(20)
 const totalRow = ref(0)
 
-// 搜索表单：新增关联状态筛选字段
+// 搜索表单：移除relationStatus字段
 const searchForm = ref({
-  contractNo: props.defaultContractNo,
-  relationStatus: '0' // '0'=显示全部，'1'=只显示未关联
+  contractNo: ''
 })
 
 // ==================== JSON 解析 ====================
@@ -170,12 +143,7 @@ const handleSearch = () => {
   }, 300)
 }
 
-// ==================== 数据加载（增强容错） ====================
-// 判断行是否可选择：purchaseOrderNo有值则禁用（已关联）
-const isRowSelectable = (row) => {
-  return !row.purchaseOrderNo || row.purchaseOrderNo.trim() === ''
-}
-
+// ==================== 数据加载 ====================
 const fetchData = async (currentPage = 1) => {
   try {
     loading.value = true
@@ -191,16 +159,11 @@ const fetchData = async (currentPage = 1) => {
       params.contractNo = searchForm.value.contractNo.trim()
     }
 
-    // 关联状态筛选：只显示未关联（purchaseOrderNo为空）
-    if (searchForm.value.relationStatus) {
-      params.relationStatus = searchForm.value.relationStatus // 后端需支持通过空值筛选未关联数据
-    }
-
     console.log('【备料查询】请求参数：', params)
-    const res = await getContractMaterialPage(params)
+    const res = await getContractMaterialPageForInsp(params)
     console.log('【备料查询】接口返回：', res)
 
-    if (res.success && res.code === 200) {
+    if (res.success && res.code == 200) {
       const page = res.data?.page || {}
       tableData.value = page.list || []
       totalRow.value = page.totalRow || 0
@@ -231,35 +194,32 @@ const handleCurrentChange = (current) => {
   fetchData(current)
 }
 
-// ==================== 选择处理 ====================
-const handleSelectionChange = (val) => {
-  selectedRows.value = val
-}
-
-const handleConfirm = () => {
-  if (selectedRows.value.length === 0) {
-    ElMessage.warning('请至少选择一条数据')
-    return
+// ==================== 直接选择（核心修改） ====================
+const handleDirectSelect = (row) => {
+  // 格式化返回数据（保留原有字段）
+  const formattedData = {
+    id: row.id,
+    contractNo: row.contractNo,
+    contractName: row.contractName,
+    itemId: row.itemId,
+    itemNo: row.itemNo,
+    itemName: row.itemName,
+    itemSpec: row.itemSpec,
+    inclass: row.inclass,
+    unit: row.unit,
+    planQuantity: row.planQuantity,
+    contractItemIds: row.contractItemIds ? parseJsonArray(row.contractItemIds) : [],
+    contractItemNames: row.contractItemNames ? parseJsonArray(row.contractItemNames) : [],
+    purchaseOrderNo: row.purchaseOrderNo,
+    orderName: row.orderName || '',
+    orderStatus: row.orderStatus || '',
+    orderFormMemo: row.orderFormMemo || '',
+    orderWriter: row.orderWriter || ''
   }
 
-  const formattedData = selectedRows.value.map(item => ({
-    id: item.id,
-    contractNo: item.contractNo,
-    contractName: item.contractName,
-    itemId: item.itemId,
-    itemNo: item.itemNo,
-    itemName: item.itemName,
-    itemSpec: item.itemSpec,
-    inclass: item.inclass,
-    unit: item.unit,
-    planQuantity: item.planQuantity,
-    contractItemIds: item.contractItemIds ? parseJsonArray(item.contractItemIds) : [],
-    contractItemNames: item.contractItemNames ? parseJsonArray(item.contractItemNames) : []
-  }))
-
   console.log('【备料选择】返回数据：', formattedData)
-  emit('select', formattedData)
-  isDialogOpen.value = false
+  emit('select', formattedData) // 直接触发选择事件
+  isDialogOpen.value = false // 选择后关闭弹窗
 }
 
 // ==================== 关闭 & 重置 ====================
@@ -269,19 +229,18 @@ const handleClose = () => {
 }
 
 const resetSelect = () => {
-  selectedRows.value = []
   nextTick(() => {
     tableRef.value?.clearSelection()
   })
 }
 
-// ==================== 监听：打开弹窗自动查询 ====================
+// ==================== 监听 ====================
 watch(
-  () => props.visible,
+  () => props.modelValue,
   (newVal) => {
     isDialogOpen.value = newVal
     if (newVal) {
-      searchForm.value.contractNo = props.defaultContractNo || ''
+      searchForm.value.contractNo = ''
       pageNumber.value = 1
       fetchData(1)
     }
@@ -289,14 +248,12 @@ watch(
   { immediate: true }
 )
 
-// 监听关闭：重置筛选条件
 watch(isDialogOpen, (newVal) => {
   if (!newVal) {
-    emit('update:visible', false)
-    // 重置搜索条件（包括关联状态筛选）
+    emit('update:modelValue', false)
+    // 重置搜索条件
     searchForm.value = {
-      contractNo: '',
-      relationStatus: '0'
+      contractNo: ''
     }
     pageNumber.value = 1
     pageSz.value = 20
@@ -305,10 +262,9 @@ watch(isDialogOpen, (newVal) => {
   }
 })
 
-// ==================== 挂载（备用）===================
+// ==================== 挂载 ====================
 onMounted(() => {
-  if (props.visible && props.defaultContractNo) {
-    searchForm.value.contractNo = props.defaultContractNo
+  if (props.modelValue ) {
     fetchData(1)
   }
 })
@@ -340,7 +296,7 @@ onMounted(() => {
   padding: 24px;
 }
 
-/* 搜索栏：适配筛选器布局 */
+/* 搜索栏 */
 .search-bar {
   margin-bottom: 20px;
   display: flex;
@@ -378,14 +334,9 @@ onMounted(() => {
   font-weight: 600;
 }
 
+/* 表格行hover样式 */
 .material-table :deep(.el-table__row:hover) {
   background: #f5f7fa;
-}
-
-/* 关联状态标签样式优化 */
-.material-table :deep(.el-tag) {
-  padding: 2px 8px;
-  font-size: 12px;
 }
 
 /* 关联成品文字 */
@@ -397,16 +348,6 @@ onMounted(() => {
 .text-muted {
   color: #c0c4cc;
   font-style: italic;
-}
-
-/* 不可选行样式提示 */
-.material-table :deep(.el-table__row.el-table__row--unselectable) {
-  opacity: 0.7;
-  background-color: #fafafa !important;
-}
-
-.material-table :deep(.el-table__row.el-table__row--unselectable:hover) {
-  background-color: #f5f5f5 !important;
 }
 
 /* 空状态 */
@@ -422,25 +363,14 @@ onMounted(() => {
   padding: 8px 0;
 }
 
-/* 底部按钮 */
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid #ebeef5;
-}
-
 /* 响应式：适配小屏幕 */
 @media (max-width: 768px) {
   .material-selector-dialog {
     width: 95% !important;
   }
   
-  .search-bar :deep(.el-input),
-  .search-bar :deep(.el-select) {
+  .search-bar :deep(.el-input) {
     width: 100% !important;
-    margin-left: 0 !important;
   }
   
   .material-table {

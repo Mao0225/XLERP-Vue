@@ -128,6 +128,12 @@
       </div>
     </el-form>
   </el-dialog>
+  
+    <TuzhiSelectDialog
+        v-model="tuzhiDialogVisible"
+        @select="onTuzhiSelected"
+        @close="tuzhiDialogVisible=false"
+      />
 </template>
 
 <script setup>
@@ -136,6 +142,7 @@ import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getBasItemClassTreeList } from '@/api/item/basitemclass'
 import { updateBasItem } from '@/api/item/basitem' // 仅引入编辑接口
+import TuzhiSelectDialog from '../components/tuzhiSelector.vue'
 
 // ---------- 外部参数（纯编辑必需） ----------
 const props = defineProps({
@@ -161,6 +168,16 @@ const isOpen = computed({
 const cascaderOptions = ref([])
 const cascaderValue = ref([]) // 级联回显值：[一级ID, 二级ID, 三级ID]
 
+const tuzhiDialogVisible = ref(false)
+// ---------- 图号选择（如需保留可留着，不影响核心事件） ----------
+const handleOpenDrawing = () => {
+  tuzhiDialogVisible.value = true
+}
+
+const onTuzhiSelected = (tuzhi) => {
+  form.drawing_standard_no = tuzhi.tuzhibianhao
+  tuzhiDialogVisible.value = false
+}
 // 级联选择器配置
 const cascaderProps = {
   children: 'children',

@@ -58,9 +58,9 @@
 
 <script setup>
 import { onMounted,ref} from 'vue'
-import { useInspOrder } from './useInspOrder'
+import { useInspOrder } from '../useInspOrder'
 import InspectionDialog from './inspDataForm.vue'
-import InspDataReadonly from './inspDataFormReadonly.vue'
+import InspDataReadonly from '../inspDataFormReadonly.vue'
 const { query, list, total, loading, getList, updateStatus } = useInspOrder(20)
 
 // 明确状态配置（仅保留特殊状态）

@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     title="检验单详情"
-    width="1100px"
+    width="1200px"
     class="inspection-dialog"
     :close-on-click-modal="false"
     :destroy-on-close="true"
@@ -17,50 +17,111 @@
           </div>
         </template>
 
+        <!-- ============ 物料选择展示区（必填） - 使用 el-descriptions ============ -->
+        <div class="mb-6">
+          <div class="text-lg font-semibold mb-3 text-gray-800">
+            采购计划信息
+          </div>
+
+          <el-descriptions
+            v-if="selectedMat"
+            :column="3"
+            border
+            size="small"
+            class="info-desc"
+          >
+            <el-descriptions-item label="合同编号">
+              {{ selectedMat.contractNo || '-' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="合同名称">
+              <el-tooltip :content="selectedMat.contractName" placement="top">
+                <span class="truncate-line">{{ selectedMat.contractName || '-' }}</span>
+              </el-tooltip>
+            </el-descriptions-item>
+            <el-descriptions-item label="物料编号">
+              {{ selectedMat.itemNo || '-' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="物料名称">
+              <el-tooltip :content="selectedMat.itemName" placement="top">
+                <span class="truncate-line">{{ selectedMat.itemName || '-' }}</span>
+              </el-tooltip>
+            </el-descriptions-item>
+            <el-descriptions-item label="规格型号">
+              <el-tooltip :content="selectedMat.itemSpec" placement="top">
+                <span class="truncate-line">{{ selectedMat.itemSpec || '-' }}</span>
+              </el-tooltip>
+            </el-descriptions-item>
+            <el-descriptions-item label="物料分类">
+              {{ selectedMat.inclass || '-' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="采购计划编号">
+              {{ selectedMat.purchaseOrderNo || '-' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="采购计划名称">
+              <el-tooltip :content="selectedMat.orderName" placement="top">
+                <span class="truncate-line">{{ selectedMat.orderName || '-' }}</span>
+              </el-tooltip>
+            </el-descriptions-item>
+            <el-descriptions-item label="采购计划备注" :span="2">
+              <el-tooltip :content="selectedMat.orderFormMemo" placement="top">
+                <span class="truncate-line">{{ selectedMat.orderFormMemo || '无' }}</span>
+              </el-tooltip>
+            </el-descriptions-item>
+            <el-descriptions-item label="制定人">
+              {{ selectedMat.orderWriter || '-' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="单位">
+              {{ selectedMat.unit || '-' }}
+            </el-descriptions-item>
+            <el-descriptions-item label="计划数量">
+              {{ selectedMat.planQuantity || '-' }}
+            </el-descriptions-item>
+          </el-descriptions>
+
+          <div v-else-if="props.orderData.purchaseId" class="text-gray-500 text-sm pl-4 mt-2">
+            采购物料信息加载中或暂无数据
+          </div>
+        </div>
+
+        <!-- ============ 原有检验单基本信息 ============ -->
+          <div class="text-lg font-semibold mb-3 text-gray-800">
+            检验单信息
+          </div>
         <el-descriptions :column="3" border size="small" class="info-desc">
           <el-descriptions-item label="检验单号">
             <strong>{{ orderData.orderNo || '-' }}</strong>
           </el-descriptions-item>
+          <!-- <el-descriptions-item label="状态">
+            <el-tag :type="statusInfo.type">{{ statusInfo.label }}</el-tag>
+          </el-descriptions-item> -->
+                    <el-descriptions-item label="牌号">{{ orderData.matNo || '-' }}</el-descriptions-item>
 
-          <!-- 状态：使用映射表 -->
-          <el-descriptions-item label="状态">
-            <el-tag :type="statusInfo.type">
-              {{ statusInfo.label }}
-            </el-tag>
-          </el-descriptions-item>
-                    <el-descriptions-item label="到货时间">{{ formatDate(orderData.deliveryTime) }}</el-descriptions-item>
-
+          <el-descriptions-item label="到货时间">{{ formatDate(orderData.deliveryTime) }}</el-descriptions-item>
           <el-descriptions-item label="物料名称">{{ orderData.itemName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料编码">{{ orderData.itemCode || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料型号">{{ orderData.itemSpec || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="标准ID">{{ orderData.standardId || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="检验标准">{{ orderData.inspStandard || '-' }}</el-descriptions-item>
           <el-descriptions-item label="炉批号">{{ orderData.batchNo || '-' }}</el-descriptions-item>
           <el-descriptions-item label="批次号">{{ orderData.batchNumber || '-' }}</el-descriptions-item>
           <el-descriptions-item label="到货型号">{{ orderData.actualSpec || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="检验数量">{{ orderData.quantity || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="实际到货数量">{{ orderData.actualQuantity || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="实际到货重量">{{ orderData.actualWeight || '-' }}</el-descriptions-item>
-
+          <el-descriptions-item label="实际到货数量">{{ orderData.actualQuantity || '-' }} </el-descriptions-item>
+          <el-descriptions-item label="实际到货重量">{{ orderData.actualWeight || '-' }}  {{orderData.unit}}</el-descriptions-item>
+          <el-descriptions-item label="检验数量">{{ orderData.inspQuantity || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验录入时间">{{ formatDate(orderData.inspectTime) }}</el-descriptions-item>
           <el-descriptions-item label="检验完成时间">{{ formatDate(orderData.inspectFinishTime) }}</el-descriptions-item>
           <el-descriptions-item label="报检人">{{ orderData.reporter || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验人">{{ orderData.inspector || '-' }}</el-descriptions-item>
-
           <el-descriptions-item label="入库审核人">{{ orderData.storageReviewer || '-' }}</el-descriptions-item>
           <el-descriptions-item label="报检审核人">{{ orderData.reportReviewer || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验审核人">{{ orderData.inspectReviewer || '-' }}</el-descriptions-item>
-
           <el-descriptions-item label="入库时间">{{ formatDate(orderData.inStockTime) }}</el-descriptions-item>
 
-
-          <!-- 质量证明书：可点击打开 -->
+          <!-- 质量证明书 -->
           <el-descriptions-item label="质量证明书" :span="3">
-          <template v-if="certificateFiles.length">
-              <!-- 保持 flex 布局：横向排列 + 换行 + 间距 -->
-              <div class="file-container" >
+            <template v-if="certificateFiles.length">
+              <div class="file-container">
                 <div v-for="(f, i) in certificateFiles" :key="i">
                   <el-tooltip :content="f.name">
-                    <!-- 关键：添加 inline-block 确保行内排列，同时保留链接样式 -->
                     <span class="file-link inline-block px-1" @click="openFileInNewWindow(f.url)">
                       {{ f.name }}
                     </span>
@@ -74,31 +135,23 @@
           <el-descriptions-item label="整单备注" :span="3">
             <span class="text-gray-700">{{ orderData.remark || '-' }}</span>
           </el-descriptions-item>
-                    <el-descriptions-item label="检验备注" :span="3">
+          <el-descriptions-item label="检验备注" :span="3">
             <span class="text-gray-700">{{ orderData.inspRemark || '-' }}</span>
           </el-descriptions-item>
-                    <el-descriptions-item label="入库备注" :span="3">
+          <el-descriptions-item label="入库备注" :span="3">
             <span class="text-gray-700">{{ orderData.stockRemark || '-' }}</span>
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
 
-      <!-- ========== 检验项目部分 ========== -->
+      <!-- ========== 检验项目部分（保持不变）========== -->
       <el-card shadow="never" class="section-card mt-4">
         <template #header>
           <div class="section-header">
             <span class="title">检验项目</span>
           </div>
         </template>
-
-        <el-table
-          :data="items"
-          border
-          stripe
-          size="small"
-          row-key="inspItemId"
-          class="insp-table"
-        >
+        <el-table :data="items" border stripe size="small" row-key="inspItemId" class="insp-table">
           <el-table-column type="index" label="#" width="50" align="center" />
           <el-table-column prop="inspItemName" label="项目名称" min-width="150" />
           <el-table-column prop="category" label="类别" width="100" />
@@ -111,8 +164,6 @@
               <span v-else>{{ row.standardValue || '-' }}</span>
             </template>
           </el-table-column>
-
-          <!-- 平行试验数据列 -->
           <el-table-column label="平行试验" min-width="300">
             <template #default="{ row }">
               <div class="test-records">
@@ -125,7 +176,6 @@
               </div>
             </template>
           </el-table-column>
-
           <el-table-column label="试验次数" width="100" align="center">
             <template #default="{ row }">
               <el-tag :type="row.tests.length > 0 ? 'primary' : 'warning'">
@@ -133,44 +183,25 @@
               </el-tag>
             </template>
           </el-table-column>
-
-          <!-- 如需在表格里也展示质量证明书，可取消下面注释 -->
-          <!--
-          <el-table-column label="质量证明书" width="180">
-            <template #default="{ row }">
-              <div v-if="row.certificate && parseCertificate(row.certificate).length">
-                <div v-for="(f, i) in parseCertificate(row.certificate)" :key="i" style="margin-bottom:4px">
-                  <el-tooltip :content="f.name">
-                    <span class="file-link" @click="openFileInNewWindow(f.url)">{{ f.name }}</span>
-                  </el-tooltip>
-                </div>
-              </div>
-              <span v-else>-</span>
-            </template>
-          </el-table-column>
-          -->
         </el-table>
       </el-card>
     </div>
 
-    <!-- 底部按钮 -->
     <template #footer>
       <div class="footer-bar">
         <el-button @click="visible = false">关闭</el-button>
         <el-button type="primary" @click="openPrint">打印检验单</el-button>
       </div>
     </template>
-
   </el-dialog>
 </template>
-
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getInspResultByOrderId } from '@/api/plinspection/inspResult'
-import { baseURL } from '@/utils/request'   // <-- 确保这里能导出 baseURL
-import PrintModel from '../components/printModel.vue' 
-/* ---------- Props & Emits ---------- */
+import { getContractMaterial } from '@/api/contract/bascontractmaterial'  // 确保路径正确
+import { baseURL } from '@/utils/request'
+
 const props = defineProps({
   modelValue: Boolean,
   orderData: { type: Object, required: true, default: () => ({}) }
@@ -182,45 +213,39 @@ const visible = computed({
 })
 
 /* ---------- 日期格式化 ---------- */
-const formatDate = date => date
-  ? new Date(date).toLocaleString('zh-CN', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit'
-    }).replace(/\//g, '-')
-  : '-'
+const formatDate = date =>
+  date
+    ? new Date(date).toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).replace(/\//g, '-')
+    : '-'
 
-
-  /*------------打印-----------------*/
-// 新增：新窗口打开打印页
-// 主页面 script setup 中的 openPrint 方法
+/* ---------- 打印 ---------- */
 const openPrint = () => {
   if (!items.value.length) {
     ElMessage.warning('请先加载检验项目数据')
     return
   }
-
-  // 1. 准备要传递的数据
   const printData = {
     orderData: props.orderData,
     items: items.value,
     statusLabel: statusInfo.value.label,
     statusType: statusInfo.value.type,
-    companyName: '四平器材',
+    companyName: '四平器材'
   }
-
-  // 2. 存入 localStorage（用唯一键名，避免和其他数据冲突）
   localStorage.setItem('temp_print_inspection_data', JSON.stringify(printData))
-
-  // 3. 打开打印页（直接用绝对路径，简单粗暴）
   const printUrl = `${window.location.origin}/erp/print-inspection`
   const printWin = window.open(printUrl, '_blank', 'width=1100,height=900')
-
   if (!printWin) {
     ElMessage.error('请允许弹出窗口')
-    // 打开失败时删除 localStorage 数据，避免残留
     localStorage.removeItem('temp_print_inspection_data')
   }
 }
+
 /* ---------- 状态映射 ---------- */
 const statusOptions = [
   { label: '草稿', value: 0 },
@@ -235,7 +260,6 @@ const statusOptions = [
   { label: '已入库', value: 31 },
   { label: '入库拒绝', value: 32 }
 ]
-
 const getStatusInfo = (val) => {
   const item = statusOptions.find(o => o.value == val)
   if (!item) return { label: '未知', type: 'info' }
@@ -247,43 +271,53 @@ const getStatusInfo = (val) => {
   }
   return { label: item.label, type: typeMap[val] || 'info' }
 }
-
 const statusInfo = computed(() => getStatusInfo(props.orderData.status))
 
-/* ---------- 质量证明书解析 & 打开 ---------- */
-const parseCertificate = (s) => {
+/* ---------- 质量证明书 ---------- */
+const parseCertificate = s => {
   if (!s) return []
   try {
     const arr = JSON.parse(s)
-    if (Array.isArray(arr) && arr.every(i => typeof i === 'string')) {
-      return arr.map(url => ({
-        name: url.split('/').pop() || '未知文件',
-        url
-      }))
-    }
-    return Array.isArray(arr) ? arr : []
-  } catch {
-    return []
-  }
+    return Array.isArray(arr) ? arr.map(url => ({
+      name: url.split('/').pop() || '未知文件',
+      url
+    })) : []
+  } catch { return [] }
 }
-
 const certificateFiles = computed(() => parseCertificate(props.orderData.certificate))
-
-const openFileInNewWindow = (url) => {
+const openFileInNewWindow = url => {
   if (!url) return
   const full = url.startsWith('http') ? url : `${baseURL.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
   window.open(full, '_blank')
 }
 
-/* ---------- 检验项目数据 ---------- */
-const items = ref([])
+/* ---------- 采购物料信息加载 ---------- */
+const selectedMat = ref(null)
+const loadPurchaseMaterial = async () => {
+  if (!props.orderData?.purchaseId) {
+    selectedMat.value = null
+    return
+  }
+  try {
+    const res = await getContractMaterial({ id: props.orderData.purchaseId })
+    if (res.success && res.data?.record) {
+      selectedMat.value = res.data.record
+    } else {
+      selectedMat.value = null
+    }
+  } catch (e) {
+    console.error('加载采购物料失败', e)
+    selectedMat.value = null
+  }
+}
 
+/* ---------- 检验项目加载 ---------- */
+const items = ref([])
 const loadInspectionResult = async () => {
   if (!props.orderData?.id) return
   try {
     const { data } = await getInspResultByOrderId({ orderId: props.orderData.id })
     const list = data?.list || []
-
     const groupMap = {}
     list.forEach(item => {
       const key = item.inspItemId
@@ -308,18 +342,10 @@ const loadInspectionResult = async () => {
         actualValue: item.actualValue || ''
       })
     })
-
-    Object.values(groupMap).forEach(g => {
-      g.tests.sort((a, b) => a.testIndex - b.testIndex)
-    })
-
+    Object.values(groupMap).forEach(g => g.tests.sort((a, b) => a.testIndex - b.testIndex))
     items.value = Object.values(groupMap)
-
-    // 若某项目没有试验记录，默认补一条空记录（保持 UI 一致）
     items.value.forEach(row => {
-      if (!row.tests.length) {
-        row.tests.push({ id: '', testIndex: 1, actualValue: '' })
-      }
+      if (!row.tests.length) row.tests.push({ id: '', testIndex: 1, actualValue: '' })
     })
   } catch (e) {
     console.error('加载检验结果失败', e)
@@ -327,12 +353,13 @@ const loadInspectionResult = async () => {
   }
 }
 
-/* ---------- 监听打开/切换 orderData ---------- */
+/* ---------- 监听打开与数据变化 ---------- */
 watch(
-  () => [props.orderData?.id, visible.value],
-  ([newId, isVisible]) => {
-    if (newId && isVisible) {
-      loadInspectionResult()
+  () => [props.orderData?.id, props.orderData?.purchaseId, visible.value],
+  ([newId, newPurchaseId, isVisible]) => {
+    if (isVisible) {
+      if (newId) loadInspectionResult()
+      if (newPurchaseId) loadPurchaseMaterial()
     }
   },
   { immediate: true }
@@ -340,59 +367,69 @@ watch(
 </script>
 
 <style scoped>
+
+/* 新增：长文本截断 + 鼠标悬停完整显示（配合 el-tooltip） */
+.truncate-line {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .inspection-dialog :deep(.el-dialog__body) {
   padding: 0;
   background: #f5f6fa;
-  max-height: 75vh;
+  max-height: 80vh;
   overflow-y: auto;
 }
-
 .dialog-body {
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
 .section-card {
   background: #fff;
   border-radius: 8px;
 }
-
-.section-header {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
 .section-header .title {
   font-weight: 600;
   font-size: 16px;
 }
 
-.info-desc {
-  background: #fafafa;
+/* ============ 新的物料信息卡片样式 ============ */
+.material-info-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
 }
-
-.insp-table {
-  border-radius: 6px;
-  overflow: hidden;
+.material-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
 }
-
-/* 平行试验样式 */
-.test-records { padding: 4px 0; }
-.test-items { align-items: flex-start; }
-.test-item {
-  padding: 4px;
-  background: #f8f9fa;
-  border-radius: 4px;
+.material-info-item {
+  display: flex;
   align-items: center;
+  font-size: 14px;
 }
-.test-label {
-  font-size: 13px;
-  color: #666;
-  white-space: nowrap;
+.material-info-item .label {
+  color: #646c7d;
+  width: 110px;
+  flex-shrink: 0;
 }
+.material-info-item .value {
+  color: #2d3748;
+  flex: 1;
+  word-break: break-all;
+}
+
+/* 原有样式保持不变 */
+.info-desc { background: #fafafa; }
+.insp-table { border-radius: 6px; overflow: hidden; }
+.test-item { padding: 4px; background: #f8f9fa; border-radius: 4px; }
 .test-value {
   font-size: 14px;
   color: #333;
@@ -403,31 +440,13 @@ watch(
   min-width: 150px;
   display: inline-block;
 }
-
-/* 文件链接 */
-/* .file-link {
-  color: #409eff;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.file-link:hover { color: #66b1ff; } */
-
-.file-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px; /* 等同于 gap-2（假设 1rem=16px） */
-}
+.file-container { display: flex; flex-wrap: wrap; gap: 8px; }
 .file-link {
-  display: inline-block;
-  padding: 0 4px;
-  color: var(--el-color-primary); /* 模仿 el-link 蓝色 */
+  color: var(--el-color-primary);
   text-decoration: underline;
   cursor: pointer;
 }
-.file-link:hover {
-  color: var(--el-color-primary-light-3); /* hover 效果，可选 */
-}
-
+.file-link:hover { color: var(--el-color-primary-light-3); }
 .footer-bar {
   display: flex;
   justify-content: flex-end;
@@ -438,15 +457,5 @@ watch(
   position: sticky;
   bottom: 0;
   z-index: 10;
-}
-
-/* 小屏幕适配 */
-@media (max-width: 1200px) {
-  .test-item {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 8px;
-  }
-  .test-value { width: 100%; box-sizing: border-box; }
 }
 </style>

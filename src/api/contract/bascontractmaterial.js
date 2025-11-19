@@ -4,11 +4,15 @@ import { get, post, put,del} from '@/utils/request'
 export function getContractMaterialList(params) {
   return get('/bas_contract_material/getMaterialList', params)
 }
-//分页查询
+//分页查询--用于采购计划选择关联
 export function getContractMaterialPage(params) {
   return get('/bas_contract_material/getpage', params)
 }
 
+//分页查询--用于检验单选择的时候应该是返回已经关联过采购计划的，也就是purchaseOrderNo不为空的
+export function getContractMaterialPageForInsp(params) {
+  return get('/bas_contract_material/getpageForInsp', params)
+}
 
 // 新增备料记录
 export function saveContractMaterial(data) {
@@ -36,4 +40,9 @@ export function deleteMaterialByContractNo(params) {
 //一键生成备料记录
 export function generateContractMaterialList(data) {
   return get('/bas_contract_material/generateMaterialList', data)
+}
+
+//获取单个备料记录通过id--用于检验单关联
+export function getContractMaterial(params) {
+  return get('/bas_contract_material/getById', params)
 }

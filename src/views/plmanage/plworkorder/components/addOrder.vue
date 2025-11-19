@@ -4,25 +4,8 @@
     <el-form :model="form" :rules="rules" ref="formRef" label-width="140px" class="production-work-order-form">
       <!-- 基本信息 -->
       <el-divider content-position="left">基本信息</el-divider>
-      <!-- <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="采购方总部编码" prop="purchaserHqCode">
-            <el-input v-model="form.purchaserHqCode" placeholder="选择生产订单后自动填充" readonly />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="供应商编码" prop="supplierCode">
-            <el-input v-model="form.supplierCode" placeholder="选择生产订单后自动填充" readonly />
-          </el-form-item>
-        </el-col>
-      </el-row> -->
 
       <el-row :gutter="20">
-        <!-- <el-col :span="12">
-          <el-form-item label="供应商名称" prop="supplierName">
-            <el-input v-model="form.supplierName" placeholder="选择生产订单后自动填充" readonly/>
-          </el-form-item>
-        </el-col> -->
 
         <el-col :span="12">
           <el-form-item label="生产工单号" prop="woNo">
@@ -37,32 +20,22 @@
         </el-col>
       </el-row>
 
-      <!-- 物料信息 -->
-      <!-- <el-divider content-position="left">物料信息</el-divider>
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="品类编码" prop="categoryCode">
-            <el-input v-model="form.categoryCode" placeholder="选择生产订单后自动填充" readonly />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="种类编码" prop="subclassCode">
-            <el-input v-model="form.subclassCode" placeholder="选择生产订单后自动填充" readonly />
-          </el-form-item>
-        </el-col>
-      </el-row> -->
-
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="厂家物料编码" prop="materialsCode">
             <el-input v-model="form.materialsCode" placeholder="选择生产订单后自动填充" readonly />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="厂家物料名称" prop="materialsDescription">
-            <el-input v-model="form.materialsDescription" placeholder="选择生产订单后自动填充" readonly />
+                <el-col :span="12">
+          <el-form-item label="厂家物料名称" prop="materialsName">
+            <el-input v-model="form.materialsName" placeholder="选择生产订单后自动填充" readonly />
           </el-form-item>
         </el-col>
+        <!-- <el-col :span="12">
+          <el-form-item label="厂家物料描述" prop="materialsDescription">
+            <el-input v-model="form.materialsDescription" placeholder="选择生产订单后自动填充" readonly />
+          </el-form-item>
+        </el-col> -->
       </el-row>
 
       <el-row :gutter="20">
@@ -144,53 +117,6 @@
           </el-form-item>
         </el-col>
       </el-row>
-
-      <!-- <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="来源数据创建时间" prop="dataSourceCreateTime">
-            <el-date-picker
-              v-model="form.dataSourceCreateTime"
-              type="datetime"
-              placeholder="请选择来源数据创建时间"
-              value-format="YYYY-MM-DD HH:mm:ss"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-                <el-col :span="12">
-          <el-form-item label="数据来源" prop="dataSource">
-            <el-input v-model="form.dataSource" placeholder="请输入数据来源" />
-          </el-form-item>
-        </el-col>
-      </el-row> -->
-
-
-      <!-- <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="工单状态" prop="woStatus">
-            <el-input v-model="form.woStatus" placeholder="请输入工单状态" />
-          </el-form-item>
-        </el-col>
-      </el-row> -->
-
-      <!-- 数据信息 -->
-      <!-- <el-divider content-position="left">数据信息</el-divider>
-      <el-row :gutter="20">
-
-        <el-col :span="12">
-          <el-form-item label="数据拥有方" prop="ownerId">
-            <el-input v-model="form.ownerId" placeholder="请输入数据拥有方" />
-          </el-form-item>
-        </el-col>
-      </el-row> -->
-
-      <!-- <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="数据可见方" prop="openId">
-            <el-input v-model="form.openId" placeholder="请输入数据可见方" />
-          </el-form-item>
-        </el-col>
-      </el-row> -->
 
       <!-- 其他信息 -->
       <el-divider content-position="left">其他信息</el-divider>

@@ -167,6 +167,16 @@
               </template>
             </el-table-column>
 
+                    <!-- 通知信息 -->
+            <el-table-column prop="tuzhiNo" label="图纸编号" width="100" />
+            <el-table-column prop="noticeid" label="通知编号" width="100" />
+            <el-table-column prop="noticename" label="通知名称" show-overflow-tooltip  width="150" />
+            <el-table-column prop="noticeinstead" label="通知替代型号" width="100" />
+            <el-table-column prop="noticecomment" label="通知备注" width="100" />
+            <el-table-column prop="noticeauther" label="通知作者" width="100" />
+
+            
+
             <!-- 操作 -->
             <el-table-column label="操作" width="180" fixed="right">
               <template #default="{ row }">
@@ -293,7 +303,7 @@
       @update:visible="handleEditDialogClose"
     />
 
-    <!-- 单行编辑弹窗 -->
+    <!-- 单行编辑弹窗按一个排产计划 -->
      <editOrderListByPlan
       :visible="editDialogPlanVisible"
       :schedule-code="selectedScheduleCode"
@@ -492,7 +502,15 @@ const loadPlanItems = async () => {
           actualFinishDate: item.actualFinishDate ? item.actualFinishDate.split(' ')[0] : '',
           remark: item.remark || '',
           id: item.id || null,
-          status: item.status ?? null
+          status: item.status ?? null,
+
+                    //通知信息
+          noticeid: item.noticeid || null,
+          noticeauther:item.noticeauther || null,
+          noticecomment: item.noticecomment || null,
+          noticeinstead: item.noticeinstead || null,
+          noticename:item.noticename || null,
+          tuzhiNo: item.tuzhiNo || null,
         }))
     } else {
       materialList.value = []
@@ -513,7 +531,7 @@ const createProductionOrder = (schedule) => {
   editDialogPlanVisible.value = true
 }
 
-/* 编辑统一批次号的生产订单 */
+/* 编辑统一批次号的生产订单--生产订单批次列表里面选择 */
 const editProductionOrder = (ipoBatchNo) => { 
   selectedBatchNo.value = ipoBatchNo
   editDialogVisible.value = true

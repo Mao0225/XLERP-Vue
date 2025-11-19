@@ -21,11 +21,11 @@
       <table class="info-table">
         <tbody>
           <tr>
-            <td class="label">状态</td>
+            <!-- <td class="label">状态</td>
             <td>
-              <!-- 新增：状态使用 el-tag 更醒目（打印时会保留颜色） -->
               <el-tag :type="statusInfo.type" size="small">{{ statusInfo.label }}</el-tag>
-            </td>
+            </td> -->
+            <td class="label">牌号</td><td>{{ orderData.matNo || '-' }}</td>
             <td class="label">到货时间</td><td>{{ formatDate(orderData.deliveryTime) }}</td>
           </tr>
           <tr>
@@ -37,16 +37,16 @@
             <td class="label">到货型号</td><td>{{ orderData.actualSpec || '-' }}</td>
           </tr>
           <tr>
-            <td class="label">标准ID</td><td>{{ orderData.standardId || '-' }}</td>
+            <td class="label">检验标准</td><td>{{ orderData.inspStandard || '-' }}</td>
             <td class="label">炉批号</td><td>{{ orderData.batchNo || '-' }}</td>
           </tr>
           <tr>
             <td class="label">批次号</td><td>{{ orderData.batchNumber || '-' }}</td>
-            <td class="label">检验数量</td><td>{{ orderData.quantity || '-' }}</td>
+            <td class="label">检验数量</td><td>{{ orderData.inspQuantity || '-' }}</td>
           </tr>
           <tr>
             <td class="label">实际到货数量</td><td>{{ orderData.actualQuantity || '-' }}</td>
-            <td class="label">实际到货重量</td><td>{{ orderData.actualWeight || '-' }}</td>
+            <td class="label">实际到货重量</td><td>{{ orderData.actualWeight || '-' }}   {{orderData.unit}}</td>
           </tr>
           <tr>
             <td class="label">检验录入时间</td><td>{{ formatDate(orderData.inspectTime) }}</td>

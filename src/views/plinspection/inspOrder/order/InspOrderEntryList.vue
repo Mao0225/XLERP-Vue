@@ -77,11 +77,11 @@
 <script setup>
 import { reactive, onMounted, ref} from 'vue'
 import { ElMessage } from 'element-plus'
-import { useInspOrder } from './useInspOrder'
+import { useInspOrder } from '../useInspOrder'
 import AddOrderDialog from './addInspOrder.vue'
 import EditOrderDialog from './editInspOrder.vue'
 	import { getNewNoNyName } from '@/api/system/basno'
-  import InspDataReadonly from './inspDataFormReadonly.vue'
+  import InspDataReadonly from '../inspDataFormReadonly.vue'
 import { baseURL } from '@/utils/request'	
 
 	// 生成检验单编码

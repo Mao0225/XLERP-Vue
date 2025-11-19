@@ -12,35 +12,32 @@
     class="batch-order-dialog"
   >
     <div class="dialog-body">
-            <div class="batch-info">
+      <div class="batch-info">
         <h3>批次号：</h3>
         <span class="batch-no">{{ batchNo }}</span>
       </div>
+
       <!-- 批量操作按钮 -->
       <div class="batch-actions" v-if="!loading">
-  <!-- 批量确认 -->
-  <el-button 
-    type="primary" 
-    @click="handleBatchConfirm" 
-    :disabled="!canBatchConfirm"
-  >
-    批量确认<span v-if="batchConfirmCount">({{ batchConfirmCount }})</span>
-  </el-button>
+        <el-button 
+          type="primary" 
+          @click="handleBatchConfirm" 
+          :disabled="!canBatchConfirm"
+        >
+          批量确认<span v-if="batchConfirmCount">({{ batchConfirmCount }})</span>
+        </el-button>
 
-  <!-- 批量完成 -->
-  <el-button 
-    type="success" 
-    @click="handleBatchComplete" 
-    :disabled="!canBatchComplete"
-  >
-    批量完成<span v-if="batchCompleteCount">({{ batchCompleteCount }})</span>
-  </el-button>
-</div>
+        <el-button 
+          type="success" 
+          @click="handleBatchComplete" 
+          :disabled="!canBatchComplete"
+        >
+          批量完成<span v-if="batchCompleteCount">({{ batchCompleteCount }})</span>
+        </el-button>
+      </div>
 
       <!-- 表格 -->
-      <el-skeleton :loading="loading" animated :count="5" style="width:100%;height:100%">
-
-
+      <el-skeleton :loading="loading" animated :count="5">
         <el-table
           v-if="!loading"
           ref="tableRef"
@@ -53,8 +50,6 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="50" align="center" />
-
-          <!-- 序号 -->
           <el-table-column type="index" label="#" width="50" align="center" />
 
           <!-- 物料信息 -->
@@ -69,14 +64,14 @@
             </template>
           </el-table-column>
 
-          <!-- 已分配数量（这里用 amount） -->
+          <!-- 已分配数量 -->
           <el-table-column label="已分配数量" min-width="90" align="center">
             <template #default="{ row }">
               <span class="actual-qty">{{ row.allocatedAmount ?? row.amount }}</span>
             </template>
           </el-table-column>
 
-          <!-- 本次分配数量（编辑时可改） -->
+          <!-- 本次分配数量 -->
           <el-table-column label="本次分配数量" min-width="120" align="center">
             <template #default="{ row }">
               <el-input-number
@@ -91,14 +86,44 @@
             </template>
           </el-table-column>
 
-          <!-- 生产车间 -->
-          <el-table-column label="生产车间" min-width="140">
+          <!-- 订单类型 -->
+          <el-table-column label="订单类型" width="110" align="center">
             <template #default="{ row }">
-              {{ row.workshopName }}
+              <el-select
+                v-if="row._editing"
+                v-model="row.ipotype"
+                placeholder="请选择"
+                size="small"
+                style="width:100%"
+              >
+                <el-option label="生产" :value="1" />
+                <el-option label="库存" :value="2" />
+              </el-select>
+              <span v-else>{{ row.ipotype === 1 ? '生产' : row.ipotype === 2 ? '库存' : '-' }}</span>
             </template>
           </el-table-column>
 
-          <!-- 计划开始 -->
+          <!-- 生产车间（多选） -->
+          <el-table-column label="生产车间">
+            <template #default="{ row }">
+              <el-select
+                v-if="row._editing"
+                v-model="row.workshopList"
+                multiple
+                placeholder="请选择车间"
+                size="small"
+                style="width:100%"
+                clearable
+              >
+                <el-option label="机锻分厂" value="机锻分厂" />
+                <el-option label="铝加工分厂" value="铝加工分厂" />
+                <el-option label="中心库" value="中心库" />
+              </el-select>
+              <span v-else>{{ row.workshopName || '-' }}</span>
+            </template>
+          </el-table-column>
+
+          <!-- 计划开始 / 完成 -->
           <el-table-column label="计划开始" min-width="130" align="center">
             <template #default="{ row }">
               <el-date-picker
@@ -110,11 +135,10 @@
                 value-format="YYYY-MM-DD"
                 :clearable="false"
               />
-              <span v-else>{{ row.planStartDate?.split(' ')[0] }}</span>
+              <span v-else>{{ row.planStartDate }}</span>
             </template>
           </el-table-column>
 
-          <!-- 计划完成 -->
           <el-table-column label="计划完成" min-width="130" align="center">
             <template #default="{ row }">
               <el-date-picker
@@ -126,7 +150,7 @@
                 value-format="YYYY-MM-DD"
                 :clearable="false"
               />
-              <span v-else>{{ row.planFinishDate?.split(' ')[0] }}</span>
+              <span v-else>{{ row.planFinishDate }}</span>
             </template>
           </el-table-column>
 
@@ -140,9 +164,8 @@
           </el-table-column>
 
           <!-- 操作列 -->
-          <el-table-column label="操作" width="260" align="center" fixed="right">
+          <el-table-column label="操作" width="280" align="center" fixed="right">
             <template #default="{ row, $index }">
-              <!-- 录入状态 -->
               <template v-if="row.status === '10'">
                 <el-button v-if="!row._editing" type="primary" size="small" @click="startEdit(row)">
                   编辑
@@ -155,11 +178,9 @@
                 <el-button type="warning" size="small" @click="handleConfirm(row)" :loading="row._confirming">
                   确认
                 </el-button>
-
-                <el-button type="danger" size="small"  @click="removeRow($index)">删除</el-button>
+                <el-button type="danger" size="small" @click="removeRow($index)">删除</el-button>
               </template>
 
-              <!-- 确认状态 -->
               <template v-else-if="row.status === '20'">
                 <el-button type="info" size="small" @click="handleUnConfirm(row)" :loading="row._unconfirming">
                   反确认
@@ -169,7 +190,6 @@
                 </el-button>
               </template>
 
-              <!-- 完成状态 -->
               <span v-else>—</span>
             </template>
           </el-table-column>
@@ -186,13 +206,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import CustomDialog from '@/components/common/CustomDialog.vue'
 import { useUserStore } from '@/store/user'
 import {
   getListAll,
-  createPlProductionOrder,
   updatePlProductionOrder,
   deletePlProductionOrder,
   updateOrderStatus
@@ -215,7 +234,6 @@ const visible = computed({
 })
 const isFullscreen = ref(true)
 const loading = ref(false)
-const submitting = ref(false)
 const batchNo = computed(() => props.ipoBatchNo)
 const tableData = ref([])
 const tableRef = ref(null)
@@ -229,6 +247,9 @@ const statusMap = {
   '30': { text: '完成', type: 'success' }
 }
 const statusTagMap = computed(() => statusMap)
+
+// 可选车间
+const workshopOptions = ['机锻分厂', '铝加工分厂', '中心库']
 
 // ---------- 加载数据 ----------
 watch(
@@ -245,18 +266,14 @@ watch(
       if (res.code === 200 && res.data?.page) {
         tableData.value = res.data.page.map(item => ({
           ...item,
-          itemNo: item.materialsCode,
-          itemName: item.materialsName,
-          itemSpec: item.productModel,
-          itemunit: item.materialsUnit,
-          contractAmount: item.contractAmount,//合同/计划要求数量
-          allocatedAmount: item.amount,//已分配数量
-          orderQty: item.amount,//本订单分配数量
-          workOrderallocatedAmount:item.workOrderAllocatedAmount,//该订单关联工单已分配数量
-          workshopName: item.workshopName,
+          amount: item.amount || 0,
+          ipotype: item.ipotype ?? item.ipoType ?? 1,               // 订单类型，默认生产
+          workshopName: item.workshopName || '',
+          workshopList: item.workshopName                          // 把逗号分隔的字符串转成数组
+            ? item.workshopName.split(',').map(s => s.trim()).filter(Boolean)
+            : [],
           planStartDate: item.planStartDate?.split(' ')[0],
           planFinishDate: item.planFinishDate?.split(' ')[0],
-          scheduleCode: item.scheduleCode,
           _editing: false,
           _confirming: false,
           _unconfirming: false,
@@ -274,16 +291,18 @@ watch(
 )
 
 // ---------- 表格多选 ----------
-const handleSelectionChange = val => {
-  selectedRows.value = val
-}
+const handleSelectionChange = val => { selectedRows.value = val }
 const canBatchConfirm = computed(() => selectedRows.value.some(r => r.status === '10'))
 const canBatchComplete = computed(() => selectedRows.value.some(r => r.status === '20'))
+const batchConfirmCount = computed(() => selectedRows.value.filter(r => r.status === '10').length)
+const batchCompleteCount = computed(() => selectedRows.value.filter(r => r.status === '20').length)
 
 // ---------- 行编辑 ----------
 const startEdit = row => {
   editingBackup.value[row.id] = {
     amount: row.amount,
+    ipotype: row.ipotype,
+    workshopList: [...row.workshopList],
     planStartDate: row.planStartDate,
     planFinishDate: row.planFinishDate
   }
@@ -294,6 +313,9 @@ const cancelEdit = (row, index) => {
   const backup = editingBackup.value[row.id]
   if (backup) {
     row.amount = backup.amount
+    row.ipotype = backup.ipotype
+    row.workshopList = backup.workshopList
+    row.workshopName = backup.workshopList.join(',')
     row.planStartDate = backup.planStartDate
     row.planFinishDate = backup.planFinishDate
   }
@@ -302,32 +324,64 @@ const cancelEdit = (row, index) => {
 }
 
 const saveRow = async row => {
-  if (!row.amount || !row.planStartDate || !row.planFinishDate || row.planStartDate > row.planFinishDate) {
-    ElMessage.warning('请检查数量、日期是否完整且开始≤结束')
-    return
-  }
+// 1. 校验数量
+if (!row.amount) {
+  ElMessage.warning('请输入数量');
+  return;
+}
+
+// 2. 校验订单类型
+if (!row.ipotype) {
+  ElMessage.warning('请选择订单类型');
+  return;
+}
+
+// 3. 校验计划开始日期
+if (!row.planStartDate) {
+  ElMessage.warning('请选择计划开始日期');
+  return;
+}
+
+// 4. 校验计划结束日期
+if (!row.planFinishDate) {
+  ElMessage.warning('请选择计划结束日期');
+  return;
+}
+
+// 5. 校验日期逻辑：开始日期不能晚于结束日期
+if (row.planStartDate > row.planFinishDate) {
+  ElMessage.warning('计划开始日期不能晚于结束日期');
+  return;
+}
+
+  // 把多选数组转成逗号分隔的字符串
+  const workshopName = row.workshopList.join(',')
+
   try {
     const payload = {
       id: row.id,
       amount: Number(row.amount),
+      ipotype: Number(row.ipotype),          // 保存订单类型
+      workshopName,                          // 逗号拼接的车间字符串
       planStartDate: row.planStartDate + ' 00:00:00',
       planFinishDate: row.planFinishDate + ' 00:00:00'
     }
     const res = await updatePlProductionOrder(payload)
     if (res.code === 200) {
-      ElMessage.success('保存成功')
+      row.workshopName = workshopName
       row._editing = false
       delete editingBackup.value[row.id]
-      
+      ElMessage.success('保存成功')
     } else {
       ElMessage.error(res.msg || '保存失败')
     }
   } catch (e) {
     ElMessage.error('保存异常')
+    console.error(e)
   }
 }
 
-// ---------- 状态变更通用函数 ----------
+// ---------- 状态变更 ----------
 const changeStatus = async (row, targetStatus, loadingKey, successMsg) => {
   row[loadingKey] = true
   try {
@@ -335,7 +389,6 @@ const changeStatus = async (row, targetStatus, loadingKey, successMsg) => {
     if (res.code === 200) {
       row.status = targetStatus
       ElMessage.success(successMsg)
-      
     } else {
       ElMessage.error(res.msg || '操作失败')
     }
@@ -346,12 +399,11 @@ const changeStatus = async (row, targetStatus, loadingKey, successMsg) => {
   }
 }
 
-// 单行操作
 const handleConfirm = row => changeStatus(row, '20', '_confirming', '确认成功')
 const handleUnConfirm = row => changeStatus(row, '10', '_unconfirming', '已反确认')
 const handleComplete = row => changeStatus(row, '30', '_completing', '已完成')
 
-// ---------- 批量确认 / 完成 ----------
+// ---------- 批量操作 ----------
 const batchChangeStatus = async (targetStatus, filterStatus, successMsg) => {
   const rows = selectedRows.value.filter(r => r.status === filterStatus)
   if (!rows.length) return
@@ -363,158 +415,73 @@ const batchChangeStatus = async (targetStatus, filterStatus, successMsg) => {
           .then(res => ({ id: r.id, success: res.code === 200 }))
       )
       const results = await Promise.all(promises)
-      const success = results.filter(r => r.success).length
+      const successCount = results.filter(r => r.success).length
       results.filter(r => r.success).forEach(r => {
         const row = tableData.value.find(t => t.id === r.id)
         if (row) row.status = targetStatus
       })
-      ElMessage.success(`${successMsg}，成功 ${success} 条`)
-      
+      ElMessage.success(`${successMsg}，成功 ${successCount} 条`)
     })
 }
 
 const handleBatchConfirm = () => batchChangeStatus('20', '10', '批量确认完成')
 const handleBatchComplete = () => batchChangeStatus('30', '20', '批量完成成功')
 
-
-// 选中且可批量确认的数量
-const batchConfirmCount = computed(() => 
-  selectedRows.value.filter(r => r.status === '10').length
-)
-
-// 选中且可批量完成的数量
-const batchCompleteCount = computed(() => 
-  selectedRows.value.filter(r => r.status === '20').length
-)
 // ---------- 删除 ----------
 const removeRow = async index => {
   const row = tableData.value[index]
   ElMessageBox.confirm('确定删除该行？删除后不可恢复', '提示', { type: 'warning' })
     .then(async () => {
-      try {
-        const res = await deletePlProductionOrder({ id: row.id })
-        if (res.code === 200) {
-          tableData.value.splice(index, 1)
-          ElMessage.success('删除成功')
-          
-        } else {
-          ElMessage.error(res.msg || '删除失败')
-        }
-      } catch (e) {
-        ElMessage.error('删除异常')
+      const res = await deletePlProductionOrder({ id: row.id })
+      if (res.code === 200) {
+        tableData.value.splice(index, 1)
+        ElMessage.success('删除成功')
+      } else {
+        ElMessage.error(res.msg || '删除失败')
       }
     })
+    .catch(() => {})
 }
 
 // ---------- 关闭 ----------
 const handleClose = () => {
   visible.value = false
 }
-
-// ---------- 提交 ----------
-const handleSubmit = async () => {
-  const editingRows = tableData.value.filter(r => r._editing)
-  if (editingRows.length) {
-    ElMessage.warning('请先保存或取消正在编辑的行')
-    return
-  }
-  ElMessage.success('所有操作已完成')
-  handleClose()
-}
 </script>
 
 <style scoped>
-/* 保持原有样式 */
-
 .batch-order-dialog :deep(.el-dialog__body) {
   padding: 16px !important;
   height: calc(100% - 60px) !important;
   display: flex;
   flex-direction: column;
 }
-
-.dialog-body {
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-}
-
+.dialog-body { flex: 1; overflow: hidden; height: 100%; }
 
 .batch-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   background: linear-gradient(90deg, #e0f7fa, #f0faff);
-  border: 1px solid #c6e2ff;
-  border-radius: 8px;
-  padding: 10px 16px;
-  margin-bottom: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #c6e2ff; border-radius: 8px; padding: 10px 16px;
+  margin-bottom: 12px; font-size: 16px; font-weight: 600; color: #333;
 }
+.batch-info h3 { margin: 0; font-size: 16px; color: #409eff; }
+.batch-no { margin-left: 6px; color: #67c23a; font-weight: 700; font-size: 18px; }
 
-.batch-info h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #409eff;
-}
-
-.batch-no {
-  margin-left: 6px;
-  color: #67c23a;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 1px;
-}
-.batch-table {
-  height: 100% !important;
-  width: 100% !important;
-}
-
-.batch-table-row {
-  height: 46px !important;
-}
+.batch-table { height: 100% !important; width: 100% !important; }
+.batch-table-row { height: 46px !important; }
 
 :deep(.el-input__inner),
 :deep(.el-input-number),
-:deep(.el-date-editor) {
-  height: 32px;
-  line-height: 32px;
-}
+:deep(.el-date-editor) { height: 32px; line-height: 32px; }
+:deep(.el-input-number .el-input__inner) { text-align: center; }
 
-:deep(.el-input-number .el-input__inner) {
-  text-align: center;
-}
-
-.plan-qty {
-  font-weight: 600;
-  color: #67c23a;
-}
-
-.actual-qty{
-    font-weight: 600;
-  color: #409eff;
-}
+.plan-qty { font-weight: 600; color: #67c23a; }
+.actual-qty { font-weight: 600; color: #409eff; }
 
 .dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #ebeef5;
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding-top: 12px; border-top: 1px solid #ebeef5;
 }
-
-.batch-actions {
-  margin-bottom: 12px;
-  display: flex;
-  gap: 12px;
-}
-
-.batch-actions .el-button span {
-  margin-left: 4px;
-  font-weight: 600;
-}
+.batch-actions { margin-bottom: 12px; display: flex; gap: 12px; }
+.batch-actions .el-button span { margin-left: 4px; font-weight: 600; }
 </style>

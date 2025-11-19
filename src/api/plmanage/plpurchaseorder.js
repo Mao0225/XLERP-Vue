@@ -29,3 +29,18 @@ export function getPurchaseOrderMaterialList(params) {
 export function setPurchaseOrderNo(data) {
   return post('/pl_purchase_order/setPurchaseOrderNo', data)
 }
+
+
+/**
+ * 删除采购计划根据采购单号，还有关联的备料单行数据也要清空
+ */
+export function deletePurchaseOrderByOrderNo(params) {
+  return del('/pl_purchase_order/deleteByOrderNo', params)
+}
+
+/**
+ * 更新采购计划状态
+ */
+export function updatePurchaseOrderStatus(data) {
+  return get('/pl_purchase_order/updateStatus', data)
+}

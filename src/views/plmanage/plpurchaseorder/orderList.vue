@@ -29,23 +29,33 @@
       style="width: 100%;"
     >
       <el-table-column type="index" label="序号" width="80" />
+            <el-table-column prop="status" label="状态" width="120">
+        <template #default="{ row }">
+          <el-tag 
+            :type="row.status === 10 ? 'info' : row.status === 20 ? 'warning' : 'success'"
+          >
+            {{ 
+              row.status === 10 ? '草稿' : 
+              row.status === 20 ? '确认' : '完成' 
+            }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="purchaseOrderNo" label="采购计划编号" width="180" show-overflow-tooltip />
       <el-table-column prop="orderName" label="采购计划名称" width="220" show-overflow-tooltip />
       <el-table-column prop="writer" label="制单人" width="120" />
-      <!-- <el-table-column prop="status" label="状态" width="120">
-        <template #default="{ row }">
-          <el-tag :type="row.status === 1 ? 'success' : 'danger'">
-            {{ row.status === 1 ? '启用' : '禁用' }}
-          </el-tag>
-        </template>
-      </el-table-column> -->
+
       <el-table-column prop="memo" label="备注" show-overflow-tooltip />
     <el-table-column prop="createTime" label="创建时间" width="200" />
 
-      <el-table-column label="操作" width="200" fixed="right">
+      <el-table-column label="操作" width="300" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="openEdit(row)" style="margin-right: 5px;">编辑</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-if="row.status == 10" type="primary" size="small" @click="openEdit(row)" style="margin-right: 5px;">编辑</el-button>
+          <el-button v-if="row.status == 10" type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-if="row.status == 10" type="success" size="small" @click="updateStatus(row,20)">确认</el-button>
+          <el-button v-if="row.status == 20" type="warning" size="small" @click="updateStatus(row,10)">撤回确认</el-button>
+          <el-button v-if="row.status == 20" type="success" size="small" @click="updateStatus(row,30)">制定完成</el-button>
+          <el-button v-if="row.status == 30 || row.status == 20" type="primary" size="small" @click="openReadonlyForm(row)">查看详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -71,16 +81,17 @@
     @success="getList"
     />
     <!-- 编辑采购计划弹窗 -->
-    <EditDialog v-model="showEdit" :order-info="editForm" @success="getList" @update:visible="showEdit = $event" />
+    <EditDialog v-model="showEdit" :order-info="selectedForm" @success="getList" @update:visible="showEdit = $event" />
+    <readonlyForm v-model="showReadonlyForm" :order-info="selectedForm" @update:visible="showReadonlyForm = $event" />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPurchaseOrderPage,deletePurchaseOrder } from '@/api/plmanage/plpurchaseorder'
+import { getPurchaseOrderPage,deletePurchaseOrderByOrderNo,updatePurchaseOrderStatus } from '@/api/plmanage/plpurchaseorder'
 import { Refresh } from '@element-plus/icons-vue'
-	
+import readonlyForm from './readonlyForm.vue'
 import { getNewNoNyName } from '@/api/system/basno'
 	
 
@@ -105,10 +116,15 @@ const loading = ref(false)
 // 弹窗相关
 const showAdd = ref(false)
 const showEdit = ref(false)
-const editForm = ref(null)
+const selectedForm = ref(null)
 const newCode = ref('')
+const showReadonlyForm = ref(false)
 
 
+const openReadonlyForm = (row) => {
+  selectedForm.value = row
+  showReadonlyForm.value = true
+}
 	
 	// 生成采购计划编码
 	const generateScheduleCode = async () => {
@@ -166,6 +182,36 @@ const getList = async () => {
 }
 
 /**
+ * 更新采购计划状态10是草稿，20是确认，30是制定完成不可更改
+ * 先询问是否更新状态
+ */
+const updateStatus = async (row,status) => {
+  try {
+    ElMessageBox.confirm(
+      `确认更新采购计划【${row.purchaseOrderNo}】的状态吗？`,
+      '更新确认',
+      {
+        type: 'warning',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showCancelButton: true,
+        showClose: false,
+      }
+    ).then(() => {
+      // 确定按钮点击事件
+      updatePurchaseOrderStatus({id:row.id,status}).then(() => {
+        ElMessage.success('更新成功')
+        getList()
+      }).catch(() => {
+        ElMessage.warning('更新失败')
+      })
+    })
+  } catch (err) {
+    console.error('更新采购计划状态失败：', err)
+  }
+}
+
+/**
  * 刷新列表
  */
 const handleRefresh = () => {
@@ -198,7 +244,7 @@ const handleCurrentChange = (val) => {
  */
 const handleDelete = (row) => {
   ElMessageBox.confirm(
-    `确认删除采购计划【${row.purchaseOrderNo} - ${row.orderName}】吗？`,
+    `确认删除采购计划【${row.purchaseOrderNo} - ${row.orderName}】吗？这会清空已关联的备料列表`,
     '删除确认',
     {
       type: 'warning',
@@ -208,7 +254,7 @@ const handleDelete = (row) => {
   ).then(async () => {
     try {
       // 这里需要替换为实际的删除接口（请根据项目接口调整）
-      await deletePurchaseOrder({ id: row.id })
+      await deletePurchaseOrderByOrderNo({ purchaseOrderNo: row.purchaseOrderNo })
       ElMessage.success('删除成功')
       getList() // 重新加载列表
     } catch (err) {
@@ -225,7 +271,7 @@ const handleDelete = (row) => {
  */
 const openEdit = (row) => {
   // 深拷贝行数据，避免修改原数据
-  editForm.value = row;
+  selectedForm.value = row;
   showEdit.value = true;
 }
 
@@ -240,7 +286,7 @@ const openAdd = async() => {
 // 监听弹窗关闭，重置编辑表单
 watch(showEdit, (val) => {
   if (!val) {
-    editForm.value = null
+    selectedForm.value = null
   }
 })
 

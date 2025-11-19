@@ -1,6 +1,6 @@
 <template>
   <el-skeleton :loading="loading" animated :count="5">
-    <!-- 批量操作按钮（移到表格上方） -->
+    <!-- 批量操作按钮（表格上方） -->
     <div class="batch-actions-top" style="margin-bottom: 12px;">
       <el-button 
         type="primary"
@@ -47,17 +47,42 @@
         </template>
       </el-table-column>
 
-      <!-- 生产车间 -->
-      <el-table-column label="生产车间" min-width="140">
+      <!-- 订单类型（新增） -->
+      <el-table-column label="订单类型" width="110" align="center">
         <template #default="{ row }">
-          <el-input
+          <el-select
             v-if="row._editing"
-            v-model="row.workshopName"
-            placeholder="输入车间名称"
+            v-model="row.ipotype"
+            placeholder="请选择"
             size="small"
             style="width:100%"
-          />
-          <span v-else>{{ row.workshopName }}</span>
+          >
+            <el-option label="生产" :value="1" />
+            <el-option label="库存" :value="2" />
+          </el-select>
+          <span v-else>{{ row.ipotype === 1 ? '生产' : row.ipotype === 2 ? '库存' : '-' }}</span>
+        </template>
+      </el-table-column>
+
+      <!-- 生产车间（多选） -->
+      <el-table-column label="生产车间" min-width="240">
+        <template #default="{ row }">
+          <el-select
+            v-if="row._editing"
+            v-model="row.workshopList"
+            multiple
+            :collapse-tags="false"          
+            collapse-tags-tooltip
+            placeholder="请选择车间"
+            size="small"
+            style="width:100%"
+            clearable
+          >
+            <el-option label="机锻分厂" value="机锻分厂" />
+            <el-option label="铝加工分厂" value="铝加工分厂" />
+            <el-option label="中心库" value="中心库" />
+          </el-select>
+          <span v-else>{{ row.workshopName || '-' }}</span>
         </template>
       </el-table-column>
 
@@ -105,7 +130,6 @@
       <!-- 操作列 -->
       <el-table-column label="操作" width="280" align="center" fixed="right">
         <template #default="{ row, $index }">
-          <!-- 编辑中 -->
           <template v-if="row._editing">
             <el-button type="success" size="small" @click="saveRow(row)" :loading="row._saving">
               保存
@@ -113,20 +137,23 @@
             <el-button size="small" @click="cancelRow(row)">取消</el-button>
           </template>
 
-          <!-- 录入状态 -->
           <template v-else-if="row.status === '10'">
             <el-button type="primary" size="small" @click="startEdit(row)">编辑</el-button>
-            <el-button type="warning" size="small" @click="handleConfirm(row)" :loading="row._confirming">确认</el-button>
+            <el-button type="warning" size="small" @click="handleConfirm(row)" :loading="row._confirming">
+              确认
+            </el-button>
             <el-button type="danger" size="small" @click="removeRow($index)">删除</el-button>
           </template>
 
-          <!-- 确认状态 -->
           <template v-else-if="row.status === '20'">
-            <el-button type="info" size="small" @click="handleUnConfirm(row)" :loading="row._unconfirming">反确认</el-button>
-            <el-button type="success" size="small" @click="handleComplete(row)" :loading="row._completing">完成</el-button>
+            <el-button type="info" size="small" @click="handleUnConfirm(row)" :loading="row._unconfirming">
+              反确认
+            </el-button>
+            <el-button type="success" size="small" @click="handleComplete(row)" :loading="row._completing">
+              完成
+            </el-button>
           </template>
 
-          <!-- 完成状态 -->
           <span v-else>—</span>
         </template>
       </el-table-column>
@@ -153,22 +180,30 @@ const props = defineProps({
 })
 const emit = defineEmits(['refresh'])
 
-// 响应式数据
 const tableData = ref([])
 const selectedRows = ref([])
 const editingBackup = ref({})
 
-// 监听父组件数据
-watch(() => props.data, (val) => {
-  tableData.value = val.map(item => ({
-    ...item,
-    _editing: false,
-    _saving: false,
-    _confirming: false,
-    _unconfirming: false,
-    _completing: false
-  }))
-}, { immediate: true })
+// 把后端字符串拆成数组 + 默认订单类型
+watch(
+  () => props.data,
+  (val) => {
+    tableData.value = val.map(item => ({
+      ...item,
+      ipotype: item.ipotype ?? item.ipoType ?? 1, // 默认生产
+      workshopName: item.workshopName || '',
+      workshopList: item.workshopName
+        ? item.workshopName.split(',').map(s => s.trim()).filter(Boolean)
+        : [],
+      _editing: false,
+      _saving: false,
+      _confirming: false,
+      _unconfirming: false,
+      _completing: false
+    }))
+  },
+  { immediate: true }
+)
 
 // 状态映射
 const statusMap = {
@@ -178,32 +213,33 @@ const statusMap = {
 }
 const statusTagMap = computed(() => statusMap)
 
-// 多选
-const handleSelectionChange = val => {
-  selectedRows.value = val
-}
+// 多选相关
+const handleSelectionChange = val => { selectedRows.value = val }
 const canBatchConfirm = computed(() => selectedRows.value.some(r => r.status === '10'))
 const canBatchComplete = computed(() => selectedRows.value.some(r => r.status === '20'))
 const batchConfirmCount = computed(() => selectedRows.value.filter(r => r.status === '10').length)
 const batchCompleteCount = computed(() => selectedRows.value.filter(r => r.status === '20').length)
 
-// 编辑开始
+// 开始编辑（备份数据）
 const startEdit = row => {
   editingBackup.value[row.id] = {
     amount: row.amount,
-    workshopName: row.workshopName,
+    ipotype: row.ipotype,
+    workshopList: [...row.workshopList],
     planStartDate: row.planStartDate,
     planFinishDate: row.planFinishDate
   }
   row._editing = true
 }
 
-// 取消编辑
+// 取消编辑（恢复数据）
 const cancelRow = row => {
   const backup = editingBackup.value[row.id]
   if (backup) {
     row.amount = backup.amount
-    row.workshopName = backup.workshopName
+    row.ipotype = backup.ipotype
+    row.workshopList = backup.workshopList
+    row.workshopName = backup.workshopList.join(',')
     row.planStartDate = backup.planStartDate
     row.planFinishDate = backup.planFinishDate
   }
@@ -211,10 +247,17 @@ const cancelRow = row => {
   delete editingBackup.value[row.id]
 }
 
-// 保存编辑
+// 保存
 const saveRow = async row => {
-  if (!row.amount || !row.workshopName || !row.planStartDate || !row.planFinishDate || row.planStartDate > row.planFinishDate) {
-    ElMessage.warning('请检查必填项及日期顺序')
+  if (
+    !row.amount ||
+    row.workshopList.length === 0 ||
+    !row.planStartDate ||
+    !row.planFinishDate ||
+    row.planStartDate > row.planFinishDate ||
+    !row.ipotype
+  ) {
+    ElMessage.warning('请填写完整数量、订单类型、生产车间、日期，且开始日期 ≤ 结束日期')
     return
   }
 
@@ -223,12 +266,15 @@ const saveRow = async row => {
     const payload = {
       id: row.id,
       amount: Number(row.amount),
-      workshopName: row.workshopName,
+      ipotype: Number(row.ipotype),                    // 新增
+      workshopName: row.workshopList.join(','),       // 数组转逗号字符串
       planStartDate: row.planStartDate,
       planFinishDate: row.planFinishDate
     }
+
     const res = await updatePlProductionOrder(payload)
     if (res.code === 200) {
+      row.workshopName = row.workshopList.join(',')   // 更新显示字段
       row._editing = false
       delete editingBackup.value[row.id]
       ElMessage.success('保存成功')
@@ -237,12 +283,13 @@ const saveRow = async row => {
     }
   } catch (e) {
     ElMessage.error('保存异常')
+    console.error(e)
   } finally {
     row._saving = false
   }
 }
 
-// 状态变更
+// 状态操作（保持不变）
 const changeStatus = async (row, target, loadingKey, msg) => {
   row[loadingKey] = true
   try {

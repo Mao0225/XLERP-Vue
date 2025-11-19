@@ -193,6 +193,13 @@
             {{ row.itemweight && row.itemnum ? (row.itemweight * row.itemnum).toFixed(2) : '-' }}
           </template>
         </el-table-column>
+        <!-- 通知信息 -->
+        <el-table-column prop="tuzhiNo" label="图纸编号" width="100" />
+        <el-table-column prop="noticeid" label="通知编号" width="100" />
+        <el-table-column prop="noticename" label="通知名称" show-overflow-tooltip  width="150" />
+        <el-table-column prop="noticeinstead" label="通知替代型号" width="100" />
+        <el-table-column prop="noticecomment" label="通知备注" width="100" />
+        <el-table-column prop="noticeauther" label="通知作者" width="100" />
 
         <!-- 操作 -->
         <el-table-column label="操作" width="150" fixed="right">
@@ -372,7 +379,7 @@ const contractFields = [
   { field: 'ecpno', label: '国网经法合同号' },
   { field: 'name', label: '工程名称' },
   { field: 'gridno', label: '电网编号' },
-  { field: 'pressurestage', label: '电压等级(KV)' },
+  { field: 'deliverTime', label: '交货时间' },
   { field: 'purchaserHqCode', label: '采购方总部编码' },
   { field: 'supplierCode', label: '供应商编码' },
   { field: 'supplierName', label: '供应商名称' },
@@ -395,6 +402,7 @@ const contractFields = [
   { field: 'bankcode', label: '银行账号' },
   { field: 'other', label: '其他条款' },
   { field: 'memo', label: '备注' }
+
 ]
 
 // ==================== 计算属性：可确认的选中行数 ====================
@@ -442,7 +450,19 @@ const loadPlanItems = async () => {
           actualFinishDate: item.actualFinishDate ? item.actualFinishDate.split(' ')[0] : '',
           remark: item.remark || '',
           id: item.id || null,
-          status: item.status ?? null
+          status: item.status ?? null,
+
+          //通知信息
+          noticeid: item.noticeid || null,
+          noticeauther:item.noticeauther || null,
+          noticecomment: item.noticecomment || null,
+          noticeinstead: item.noticeinstead || null,
+          noticename:item.noticename || null,
+          tuzhiNo: item.tuzhiNo || null,
+          
+
+
+
         }))
     } else {
       materialList.value = []

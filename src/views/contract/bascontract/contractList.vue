@@ -72,6 +72,7 @@
             <el-table-column prop="ecpno" label="国网经法合同号" width="130" show-overflow-tooltip />
             <el-table-column prop="equipno" label="器材合同号" width="120" show-overflow-tooltip />
             <el-table-column prop="signDate" label="签订时间" width="120" show-overflow-tooltip />
+            <el-table-column prop="deliverTime" label="交货时间" width="120" show-overflow-tooltip />
             <el-table-column prop="term" label="期间" width="120" show-overflow-tooltip />
             <!-- 操作列 -->
             <el-table-column label="操作" width="250" fixed="right">

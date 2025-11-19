@@ -100,20 +100,45 @@
               <span v-else>{{ row.amount }}</span>
             </template>
           </el-table-column>
-
-          <!-- 生产车间 -->
-          <el-table-column label="生产车间" min-width="140">
+          <!-- 订单类型 -->
+          <el-table-column label="订单类型" width="120" align="center">
             <template #default="{ row }">
-              <el-input
+              <el-select
                 v-if="row._editing || row._isNew"
-                v-model="row.workshopName"
-                placeholder="输入车间名称"
+                v-model="row.ipoType"
+                placeholder="请选择"
                 size="small"
                 style="width:100%"
-              />
-              <span v-else>{{ row.workshopName }}</span>
+                clearable
+              >
+                <el-option label="生产" :value="1" />
+                <el-option label="库存" :value="2" />
+              </el-select>
+              <span v-else>
+                {{ row.ipoType == 1 ? '生产' : row.ipoType == 2 ? '库存' : '-' }}
+              </span>
             </template>
           </el-table-column>
+          <!-- 生产车间 -->
+        <el-table-column label="生产车间" min-width="180">
+          <template #default="{ row }">
+            <el-select
+              v-if="row._editing || row._isNew"
+              v-model="row.workshopList"
+              multiple
+
+              placeholder="请选择生产车间"
+              size="small"
+              style="width:100%"
+              clearable
+            >
+              <el-option label="机锻分厂" value="机锻分厂" />
+              <el-option label="铝加工分厂" value="铝加工分厂" />
+              <el-option label="中心库" value="中心库" />
+            </el-select>
+            <span v-else>{{ row.workshopName || '-' }}</span>
+          </template>
+        </el-table-column>
 
           <!-- 计划开始 -->
           <el-table-column label="计划开始" min-width="130" align="center">
@@ -276,7 +301,7 @@ const now = new Date().toISOString()
 // 默认字段
 const defaultFields = computed(() => ({
   purchaserHqCode: schedulePlanInfo.value.purchaserHqCode || '',
-  ipoType: '默认',
+  ipoType: '1',
   supplierCode: schedulePlanInfo.value.supplierCode || '',
   supplierName: schedulePlanInfo.value.supplierName || '',
   ipoNo: '',
@@ -344,8 +369,10 @@ async function loadTableData() {
         amount: item.amount,
         workOrderallocatedAmount: item.workOrderAllocatedAmount,
         workshopName: item.workshopName,
+        workshopList: item.workshopName ? item.workshopName.split(',').map(s => s.trim()).filter(Boolean) : [],
         planStartDate: item.planStartDate?.split(' ')[0],
         planFinishDate: item.planFinishDate?.split(' ')[0],
+        ipoType: item.ipoType,
         _editing: false,
         _isNew: false,
         _saving: false,
@@ -407,7 +434,8 @@ const handleAddRow = () => {
     itemName: schedulePlanInfo.value.itemName,
     itemSpec: schedulePlanInfo.value.itemSpec,
     amount: 1,
-    workshopName: '',
+    workshopList: [],           // 多选用的数组
+    workshopName: '',           // 显示用的字符串（保存后会自动拼接）
     planStartDate: schedulePlanInfo.value.planStartDate,
     planFinishDate: schedulePlanInfo.value.planFinishDate,
     status: '10',
@@ -423,10 +451,35 @@ const handleAddRow = () => {
 
 // 保存新行
 const saveNewRow = async row => {
-  if (!row.amount || !row.workshopName || !row.planStartDate || !row.planFinishDate || row.planStartDate > row.planFinishDate) {
-    ElMessage.warning('请填写完整数量、车间、日期，且开始日期 ≤ 结束日期')
-    return
-  }
+  // 1. 校验数量
+if (!row.amount) {
+  ElMessage.warning('请输入数量');
+  return;
+}
+
+// 2. 校验订单类型
+if (!row.ipoType) {
+  ElMessage.warning('请选择订单类型');
+  return;
+}
+
+// 3. 校验计划开始日期
+if (!row.planStartDate) {
+  ElMessage.warning('请选择计划开始日期');
+  return;
+}
+
+// 4. 校验计划结束日期
+if (!row.planFinishDate) {
+  ElMessage.warning('请选择计划结束日期');
+  return;
+}
+
+// 5. 校验日期逻辑：开始日期不能晚于结束日期
+if (row.planStartDate > row.planFinishDate) {
+  ElMessage.warning('计划开始日期不能晚于结束日期');
+  return;
+}
   const newCode = await generateScheduleCode()
   if (!newCode) return
 
@@ -435,7 +488,7 @@ const saveNewRow = async row => {
     const payload = {
       ...defaultFields.value,
       amount: Number(row.amount),
-      workshopName: row.workshopName,
+      workshopName: row.workshopList.join(','),
       planStartDate: row.planStartDate,
       planFinishDate: row.planFinishDate ,
       poItemId: row.poItemId,
@@ -467,6 +520,7 @@ const startEdit = row => {
   editingBackup.value[row.id] = {
     amount: row.amount,
     workshopName: row.workshopName,
+    workshopList: [...row.workshopList],
     planStartDate: row.planStartDate,
     planFinishDate: row.planFinishDate
   }
@@ -478,7 +532,11 @@ const cancelRow = (row, index) => {
     tableData.value.splice(index, 1)
   } else {
     const backup = editingBackup.value[row.id]
-    if (backup) Object.assign(row, backup)
+    if (backup) {
+      Object.assign(row, backup)
+      // 重新计算显示的字符串
+      row.workshopName = row.workshopList.join(',')
+    }
     row._editing = false
     delete editingBackup.value[row.id]
   }

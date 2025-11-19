@@ -45,9 +45,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="备注" prop="orderMemo">
+          <el-form-item label="备注" prop="memo">
             <el-input
-              v-model="form.orderMemo"
+              v-model="form.memo"
               type="textarea"
               :rows="3"
               placeholder="请输入备注信息"
@@ -76,13 +76,13 @@
         v-if="materialList.length > 0"
         class="material-table"
       >
-        <el-table-column label="物料编号" prop="itemNo" width="110" />
-        <el-table-column label="物料名称" prop="itemName" width="160" />
-        <el-table-column label="规格型号" prop="itemSpec" width="140" />
-        <el-table-column label="物料分类" prop="inclass" width="160" />
-        <el-table-column label="单位" prop="unit" width="70" />
-        <el-table-column label="计划数量" prop="planQuantity" width="90" align="center" />
-        <el-table-column label="执行标准" width="130">
+        <el-table-column label="物料编号" prop="itemNo"  />
+        <el-table-column label="物料名称" prop="itemName"  />
+        <el-table-column label="规格型号" prop="itemSpec"  />
+        <el-table-column label="物料分类" prop="inclass"  />
+        <el-table-column label="单位" prop="unit" width="60" />
+        <el-table-column label="计划数量" prop="planQuantity" width="100" align="center" />
+        <el-table-column label="执行标准" >
           <template #default="scope">
             <el-input
               v-model="scope.row.standard"
@@ -204,8 +204,8 @@ const form = ref({
   orderName: '',
   writer: '',
   createTime: '',
-  status: 1,
-  orderMemo: ''
+  status: 10,//10录入草稿状态
+  memo: ''
 })
 
 const rules = {
@@ -233,8 +233,8 @@ watch(
           orderName: '',
           writer: userStore.realName || '',
           createTime: now,
-          status: 1,
-          orderMemo: ''
+          status: 10,
+          memo: ''
         }
         console.log('form', form.value)
         formRef.value?.resetFields()

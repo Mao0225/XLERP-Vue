@@ -23,23 +23,25 @@
           </el-descriptions-item>
 
           <!-- 状态：使用映射表 -->
-          <el-descriptions-item label="状态">
+          <!-- <el-descriptions-item label="状态">
             <el-tag :type="statusInfo.type">
               {{ statusInfo.label }}
             </el-tag>
-          </el-descriptions-item>
+          </el-descriptions-item> -->
+                    <el-descriptions-item label="牌号">{{ orderData.matNo || '-' }}</el-descriptions-item>
+
           <el-descriptions-item label="到货时间">{{ formatDate(orderData.deliveryTime) }}</el-descriptions-item>
 
           <el-descriptions-item label="物料名称">{{ orderData.itemName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料编码">{{ orderData.itemCode || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料型号">{{ orderData.itemSpec || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="标准ID">{{ orderData.standardId || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="检验标准">{{ orderData.inspStandard || '-' }}</el-descriptions-item>
           <el-descriptions-item label="炉批号">{{ orderData.batchNo || '-' }}</el-descriptions-item>
           <el-descriptions-item label="批次号">{{ orderData.batchNumber || '-' }}</el-descriptions-item>
           <el-descriptions-item label="到货型号">{{ orderData.actualSpec || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="检验数量">{{ orderData.quantity || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="检验数量">{{ orderData.inspQuantity || '-' }}</el-descriptions-item>
           <el-descriptions-item label="实际到货数量">{{ orderData.actualQuantity || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="实际到货重量">{{ orderData.actualWeight || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="实际到货重量">{{ orderData.actualWeight || '-' }}   {{orderData.unit}}</el-descriptions-item>
 
           <el-descriptions-item label="检验录入时间">{{ formatDate(orderData.inspectTime) }}</el-descriptions-item>
           <el-descriptions-item label="检验完成时间">{{ formatDate(orderData.inspectFinishTime) }}</el-descriptions-item>
@@ -80,6 +82,47 @@
         </el-descriptions>
       </el-card>
 
+      <!-- ========== 检验信息部分 ========== -->
+       <!-- 模板部分：修正嵌套和布局 -->
+        <el-card shadow="never" class="section-card mt-4">
+          <template #header>
+            <div class="section-header">
+              <span class="title">检验信息</span>
+            </div>
+          </template>
+
+          <el-form ref="orderRef" :model="orderForm" :rules="rules" label-width="140px">
+            <el-row :gutter="20">
+              <el-col :span="8">
+                <el-form-item label="检验标准" prop="inspStandard">
+                  <el-input v-model="orderForm.inspStandard" placeholder="请输入检验标准" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="牌号" prop="matNo">
+                  <el-input v-model="orderForm.matNo" placeholder="请输入牌号" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="检验数量" prop="inspQuantity">
+                  <el-input v-model.number="orderForm.inspQuantity" placeholder="请输入检验数量">
+                    <template #append>件</template>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="20">
+               <!--检验备注inspRemark  -->
+               <el-col :span="8">
+                <el-form-item label="检验备注" prop="inspRemark">
+                  <el-input v-model="orderForm.inspRemark" placeholder="请输入检验备注" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+        </el-card>
+
+
       <!-- ========== 检验项目部分 ========== -->
       <el-card shadow="never" class="section-card mt-4">
         <template #header>
@@ -93,7 +136,7 @@
             </div>
           </div>
         </template>
-
+        
         <el-table
           :data="items"
           border
@@ -180,7 +223,6 @@
       <div class="footer-bar">
         <el-button @click="handleClose">关闭</el-button>
         <el-button type="success" @click="submitInspection">提交检验</el-button>
-        <el-button type="info" @click="printReport">打印报告</el-button>
       </div>
     </template>
   </CustomDialog>
@@ -191,17 +233,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch,reactive } from 'vue'
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
 import CustomDialog from '@/components/common/CustomDialog.vue'
-import ItemSelectorDialog from '../components/ItemSelectorDialog.vue'
-import stdSelectDialog from '../components/stdSelectDialog.vue'
+import ItemSelectorDialog from '../../components/ItemSelectorDialog.vue'
+import stdSelectDialog from '../../components/stdSelectDialog.vue'
 import {
   saveInspResult,
   updateInspResult,
   getInspResultByOrderId,
   deleteInspResult
 } from '@/api/plinspection/inspResult'
+import { updateInspOrder } from '@/api/plinspection/inspOrder'
 import { baseURL } from '@/utils/request'
 
 /* ---------- Props & Emits ---------- */
@@ -214,6 +257,10 @@ const emit = defineEmits(['update:modelValue', 'submit'])
 // 使用内部状态管理弹窗显示和全屏状态
 const dialogVisible = ref(false)
 const isFullscreen = ref(true)
+
+
+
+
 
 // 监听 modelValue 变化
 watch(() => props.modelValue, (val) => {
@@ -229,6 +276,52 @@ watch(dialogVisible, (val) => {
 const handleClose = () => {
   dialogVisible.value = false
 }
+
+const orderForm = reactive({
+  id: null,
+  inspStandard: '',
+  matNo: '',
+  inspQuantity: null,
+  inspRemark: ''
+})
+
+watch(
+  () => props.orderData,
+  (newVal) => {
+    if (newVal?.id) {
+      orderForm.id = newVal.id
+      orderForm.inspStandard = newVal.inspStandard || ''
+      orderForm.matNo = newVal.matNo || ''
+      orderForm.inspQuantity = newVal.inspQuantity || null
+      orderForm.inspRemark = newVal.inspRemark || ''
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+const orderRef = ref(null)
+
+const rules = {
+  inspStandard: [{ required: true, message: '请输入检验标准', trigger: 'blur' }],
+  matNo: [{ required: true, message: '请输入牌号', trigger: 'blur' }],
+  inspQuantity: [
+    { required: true, message: '请输入检验数量', trigger: 'blur' },
+    { type: 'number', message: '必须为数字' }
+  ]
+}
+const updateOrderForm = () => {
+  orderRef.value.validate(async (valid) => {
+    if (!valid) return
+    try {
+      await updateInspOrder(orderForm)
+      ElMessage.success('保存成功')
+      emit('success')
+    } catch (err) {
+      ElMessage.error(err.message || '保存失败')
+    }
+  })
+}
+
 
 /* ---------- 日期格式化 ---------- */
 const formatDate = date => date
@@ -353,6 +446,8 @@ watch(
   { immediate: true }
 )
 
+
+
 /* ---------- 平行试验增删 ---------- */
 const addTest = (row) => {
   const nextIndex = Math.max(...row.tests.map(t => t.testIndex), 0) + 1
@@ -407,7 +502,7 @@ const handleItemsSelected = selected => {
     if (!isExist) {
       items.value.push({
         inspItemId: item.id,
-        inspStdItemId: '',
+        inspStdItemId: item.inspStdItemId,
         inspItemCode: item.inspItemCode || '',
         inspItemName: item.inspItemName,
         category: item.category || '',
@@ -458,6 +553,7 @@ const handleStdSelected = payload => {
     ElMessage.warning('所选标准没有检验项目')
     return
   }
+  console.log('payload', payload)
   let addCount = 0
   payload.items.forEach(it => {
     const isExist = items.value.some(row => row.inspItemId === it.inspItemId)
@@ -479,6 +575,8 @@ const handleStdSelected = payload => {
       addCount++
     }
   })
+  orderForm.inspStandard = payload.std.standardNo || ''
+  orderForm.matNo = payload.std.matNo || ''
   stdSelectorVisible.value = false
   addCount
     ? ElMessage.success(`已套用标准《${payload.std.standardNo}》，新增 ${addCount} 个检验项目`)
@@ -487,6 +585,12 @@ const handleStdSelected = payload => {
 
 /* ---------- 提交检验 ---------- */
 const submitInspection = async () => {
+  // 先验证主表表单
+  const valid = await orderRef.value?.validate().catch(() => false)
+  if (!valid) {
+    ElMessage.warning('请完善检验信息')
+    return
+  }
   if (!items.value.length) {
     ElMessage.warning('请至少添加一个检验项目')
     return
@@ -506,6 +610,16 @@ const submitInspection = async () => {
   })
 
   try {
+
+    // 1. 先更新主表（检验标准、牌号、检验数量）
+    await updateInspOrder({
+      id: orderForm.id,
+      inspStandard: orderForm.inspStandard,
+      matNo: orderForm.matNo,
+      inspQuantity: orderForm.inspQuantity,
+      inspRemark: orderForm.inspRemark
+    })
+
     const promises = []
     let addCount = 0, updateCount = 0
 
@@ -537,7 +651,6 @@ const submitInspection = async () => {
     await Promise.all(promises)
     emit('submit', { ...props.orderData, items: items.value })
     dialogVisible.value = false
-
     if (addCount && updateCount)
       ElMessage.success(`成功新增 ${addCount} 条，更新 ${updateCount} 条记录`)
     else if (addCount)
@@ -552,8 +665,6 @@ const submitInspection = async () => {
   }
 }
 
-/* ---------- 打印 ---------- */
-const printReport = () => window.print()
 </script>
 
 <style scoped>

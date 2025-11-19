@@ -125,6 +125,17 @@
                 />
               </el-form-item>
             </el-col>
+                <el-col :span="8">
+              <el-form-item label="交货时间" prop="deliverTime">
+                <el-date-picker 
+                  v-model="form.deliverTime" 
+                  type="date" 
+                  placeholder="请选择交货时间" 
+                  value-format="YYYY-MM-DD HH:mm:ss"
+                  style="width: 100%" 
+                />
+              </el-form-item>
+            </el-col>
           </el-row>
 
           <el-row :gutter="10">
@@ -558,6 +569,7 @@ const getInitialFormData = () => ({
   status: 10,
   memo: '',
   gridno: '',
+  deliverTime: '',
   ...props.initialData // Merge initialData to populate form
 });
 
@@ -574,7 +586,8 @@ const rules = {
   signdate: [{ required: true, message: '请选择签订时间', trigger: 'change' }],
   term: [{ required: true, message: '请选择合同所属期间', trigger: 'change' }],
   supplierCode: [{ required: true, message: '请输入供应商编码', trigger: 'blur' }],
-  supplierName: [{ required: true, message: '请输入供应商名称', trigger: 'blur' }]
+  supplierName: [{ required: true, message: '请输入供应商名称', trigger: 'blur' }],
+  deliverTime: [{ required: true, message: '请选择交货时间', trigger: 'change' }],
 };
 
 // 物料搜索表单

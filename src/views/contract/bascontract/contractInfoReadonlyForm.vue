@@ -111,6 +111,7 @@
                 <span>{{ form.signdate || '-' }}</span>
               </el-form-item>
             </el-col>
+
           </el-row>
 
           <el-row :gutter="10">
@@ -124,9 +125,9 @@
                 <span>{{ form.fax || '-' }}</span>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
-              <el-form-item label="接货人">
-                <span>{{ form.receiver || '-' }}</span>
+                        <el-col :span="8">
+              <el-form-item label="交货时间" >
+                <span>{{ form.deliverTime || '-' }}</span>
               </el-form-item>
             </el-col>
           </el-row>

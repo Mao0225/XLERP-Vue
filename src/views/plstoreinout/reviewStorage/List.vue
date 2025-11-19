@@ -1,3 +1,3 @@
 <template>
-    这是评库模块
+    评库功能
 </template>

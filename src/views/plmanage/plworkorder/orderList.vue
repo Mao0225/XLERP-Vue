@@ -1,845 +1,387 @@
 <template>
   <div class="production-work-orders">
-    <!-- 顶部筛选区（按模板样式统一） -->
+    <!-- 顶部筛选区 -->
     <el-card class="filter-card" shadow="never">
       <div class="filter-row">
-        <!-- 筛选项：统一标签+输入框布局 -->
         <div class="filter-item">
           <span class="filter-label">合同号：</span>
           <el-input v-model="filters.contractNo" placeholder="请输入合同号" clearable style="width: 200px;" />
         </div>
-
         <div class="filter-item">
-          <span class="filter-label">合同名称号：</span>
+          <span class="filter-label">合同名称：</span>
           <el-input v-model="filters.contractName" placeholder="请输入合同名称" clearable style="width: 200px;" />
         </div>
-
         <div class="filter-item">
           <span class="filter-label">生产工单号：</span>
           <el-input v-model="filters.woNo" placeholder="请输入生产工单号" clearable style="width: 200px;" />
         </div>
       </div>
 
-      <!-- 筛选操作（保持模板样式） -->
       <div class="filter-actions">
         <el-button type="primary" @click="handleSearch">
-          <el-icon>
-            <Search />
-          </el-icon> 查询
+          <el-icon><Search /></el-icon> 查询
         </el-button>
         <el-button @click="handleReset">
-          <el-icon>
-            <Refresh />
-          </el-icon> 重置
+          <el-icon><Refresh /></el-icon> 重置
         </el-button>
       </div>
     </el-card>
 
-    <!-- 主要内容区：左侧列表 + 右侧详情（与模板结构一致） -->
-    <div class="main-content">
-      <!-- 左侧生产工单列表 -->
-      <div class="order-list">
-        <el-card shadow="never">
-          <template #header>
-            <div class="card-header">
-              <span>生产工单列表</span>
-              <el-button type="primary" @click="showSelector = true">制定生产工单</el-button>
-            </div>
-          </template>
-
-          <!-- 列表表格（增加确认/反确认按钮，移除前端筛选） -->
-          <el-table :data="tableData" :highlight-current-row="true" @current-change="selectOrder" v-loading="loading"
-            height="600">
-            <el-table-column type="index" label="序号" width="60" />
-            <!-- 状态列（与模板样式统一） -->
-            <el-table-column label="状态" width="120">
-              <template #default="{ row }">
-                <el-tag :type="getStatusTagType(row.status)" size="small">
-                  <el-icon>
-                    <component :is="getStatusIcon(row.status)" />
-                  </el-icon>
-                  {{ getStatusText(row.status) }}
-                </el-tag>
-              </template>
-            </el-table-column>
-
-            <!-- 核心业务列 -->
-            <el-table-column prop="woNo" label="生产工单号" width="100" show-overflow-tooltip>
-              <template #default="{ row }">
-                <el-link type="primary" @click="selectOrder(row)">{{ row.woNo }}</el-link>
-              </template>
-            </el-table-column>
-            <el-table-column prop="materialsCode" label="物料编码" width="100" show-overflow-tooltip />
-            <el-table-column prop="materialsName" label="物料名称" width="100" show-overflow-tooltip />
-            <el-table-column prop="modelSpec" label="规格型号" width="100" show-overflow-tooltip />
-
-            <el-table-column label="生产数量" width="100">
-              <template #default="{ row }">
-                {{ row.amount }} {{ row.unit }}
-              </template>
-            </el-table-column>
-            <el-table-column label="计划日期" width="100">
-              <template #default="{ row }">
-                <div class="date-range">
-                  <div>{{ row.planStartDate }}</div>
-                  <div class="date-end">~ {{ row.planFinishDate }}</div>
-                </div>
-              </template>
-            </el-table-column>
-
-            <!-- 操作列（增加确认/反确认功能） -->
-            <el-table-column label="操作" width="280" fixed="right">
-              <template #default="{ row }">
-                <!-- 状态=20（确认）：显示反确认按钮 -->
-                <template v-if="row.status === '20'">
-                  <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, '10')">
-                    <el-icon>
-                      <CircleCloseFilled />
-                    </el-icon>
-                    反确认
-                  </el-button>
-                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 30)">
-                    <el-icon>
-                      <Select />
-                    </el-icon>
-                    审核通过
-                  </el-button>
-                </template>
-                <template v-if="row.status == 40">
-                   <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
-                    <el-icon>
-                      <Document />
-                    </el-icon>
-                    查看报工情况
-                  </el-button>
-                </template>
-                <template v-if="row.status === '30'">
-                  <el-button type="success" size="small" @click="handleStatusUpdate(row.id, 40)">
-                    <el-icon>
-                      <Select />
-                    </el-icon>
-                    确认工单完成
-                  </el-button>
-                  <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
-                    <el-icon>
-                      <Document />
-                    </el-icon>
-                    查看报工情况
-                  </el-button>
-                </template>
-
-                <!-- 状态=10（录入）：显示确认、编辑按钮 -->
-                <template v-if="row.status === '10'">
-                  <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '20')">
-                    <el-icon>
-                      <CircleCheckFilled />
-                    </el-icon>
-                    确认
-                  </el-button>
-                  <el-button size="small" @click="openEditDialog(row.id)">
-                    <el-icon>
-                      <Edit />
-                    </el-icon>
-                    编辑
-                  </el-button>
-                  <el-button type="danger" size="small" @click="deleteOrder(row)">
-                    <el-icon>
-                      <Delete />
-                    </el-icon>
-                    删除
-                  </el-button>
-                </template>
-
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <!-- 分页（保持模板结构） -->
-          <div class="pagination-container">
-            <el-pagination v-model:current-page="pagination.current" v-model:page-size="pagination.size"
-              :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next" :total="pagination.total"
-              @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+    <!-- 生产工单列表 -->
+    <div class="order-list-full">
+      <el-card shadow="never">
+        <template #header>
+          <div class="card-header">
+            <span>生产工单列表</span>
+            <el-button type="primary" @click="showSelector = true">制定生产工单</el-button>
           </div>
-        </el-card>
-      </div>
+        </template>
 
-      <!-- 右侧工单详情（与模板样式统一） -->
-      <div class="order-detail">
-        <el-card shadow="never" class="detail-card">
-          <template #header>
-            <div class="card-header">
-              <span>工单详情</span>
-              <el-button v-if="selectedOrder" size="small" @click="selectedOrder = null">
-                <el-icon>
-                  <Close />
-                </el-icon>
-              </el-button>
-            </div>
-          </template>
+        <el-table
+          :data="tableData"
+          highlight-current-row
+          v-loading="loading"
+          height="calc(100vh - 320px)"
+        >
+          <el-table-column type="index" label="序号" width="60" />
+          
+          <!-- 工单整体状态 -->
+          <el-table-column label="状态" width="140" align="center">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status)" size="small" effect="dark">
+                {{ getStatusText(row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
-          <!-- 详情内容（保持原数据，优化样式结构） -->
-          <div v-if="selectedOrder" class="detail-content">
-            <div class="detail-section">
-              <h4>基础信息</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="label">生产工单号：</span>
-                  <span class="value">{{ selectedOrder.woNo }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">供应商：</span>
-                  <span class="value">{{ selectedOrder.supplierName }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">物料名称：</span>
-                  <span class="value">{{ selectedOrder.materialsName }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">生产数量：</span>
-                  <span class="value">{{ selectedOrder.amount }} {{ selectedOrder.materialsUnit }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">物料批次：</span>
-                  <span class="value">{{ selectedOrder.materialsBatch || '无' }}</span>
+          <el-table-column prop="woNo" label="生产工单号" width="100" show-overflow-tooltip>
+            <template #default="{ row }">
+              <el-link type="primary">{{ row.woNo }}</el-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="materialsCode" label="物料编码" width="100" show-overflow-tooltip />
+          <el-table-column prop="materialsName" label="物料名称" width="100" show-overflow-tooltip />
+          <el-table-column prop="modelSpec" label="规格型号" width="100" show-overflow-tooltip />
+          <el-table-column label="生产数量" width="80" align="center">
+            <template #default="{ row }">
+              {{ row.amount }} {{ row.unit }}
+            </template>
+          </el-table-column>
+          <el-table-column label="计划日期" width="190" align="center">
+            <template #default="{ row }">
+              {{ row.planStartDate }} ~ {{ row.planFinishDate }}
+            </template>
+          </el-table-column>
+
+          <!-- 全部工序（纯文字版，无图标） -->
+          <el-table-column label="全部工序" width="360" align="left">
+            <template #default="{ row }">
+              <div class="process-list">
+                <div
+                  v-for="(proc, idx) in row.processes"
+                  :key="idx"
+                  class="process-item"
+                  :class="{
+                    finished: proc.status == 20,
+                    doing: proc.status == 10,
+                    todo: ![10, 20].includes(proc.status)
+                  }"
+                >
+                  <el-tag
+                    :type="proc.status == 20 ? 'success' : proc.status == 10 ? 'warning' : 'info'"
+                    size="small"
+                    effect="dark"
+                    style="width: 68px; text-align: center"
+                  >
+                    {{ proc.status == 20 ? '完成' : proc.status == 10 ? '进行中' : '未开始' }}
+                  </el-tag>
+                  <span class="process-name">{{ proc.name }}</span>
+                  <span class="workshop">{{ proc.workshop }}</span>
                 </div>
               </div>
-            </div>
+            </template>
+          </el-table-column>
 
-            <div class="detail-section">
-              <h4>物料信息</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="label">厂家物料编码：</span>
-                  <span class="value">{{ selectedOrder.materialsCode }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">厂家物料名称：</span>
-                  <span class="value">{{ selectedOrder.materialsName }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">厂家物料单位：</span>
-                  <span class="value">{{ selectedOrder.materialsUnit }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">厂家物料描述：</span>
-                  <span class="value">{{ selectedOrder.materialsDescription }}</span>
-                </div>
-              </div>
-            </div>
+          <!-- 操作列 -->
+          <el-table-column label="操作" width="250" fixed="right" align="center">
+            <template #default="{ row }">
+              <!-- 10 录入 -->
+              <template v-if="row.status === '10'">
+                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '20')">
+                  确认开始生产
+                </el-button>
+                <el-button size="small" @click="openEditDialog(row.id)">编辑</el-button>
+                <el-button type="danger" size="small" @click="deleteOrder(row)">删除</el-button>
+              </template>
 
-            <div class="detail-section">
-              <h4>时间信息</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="label">计划时间：</span>
-                  <span class="value">{{ selectedOrder.planStartDate }} ~ {{ selectedOrder.planFinishDate }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">实际时间：</span>
-                  <span class="value">{{ selectedOrder.actualStartDate || '未开始' }} ~ {{ selectedOrder.actualFinishDate
-                    ||
-                    '未完成' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">数据来源创建时间：</span>
-                  <span class="value">{{ selectedOrder.dataSourceCreateTime }}</span>
-                </div>
-              </div>
-            </div>
+              <!-- 20 已确认（生产中） -->
+              <template v-if="row.status === '20'">
+                <el-button type="primary" size="small" @click="openReportOrderList(row)">
+                  更新报工单
+                </el-button>
+                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '30')">
+                  完成生产
+                </el-button>
+                <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, '10')">
+                  反确认
+                </el-button>
+              </template>
 
-            <div class="detail-section">
-              <h4>图纸信息</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="label">通知编号：</span>
-                  <span class="value">{{ selectedOrder.noticeId || '无' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">图纸编号：</span>
-                  <span class="value">{{ selectedOrder.noticeDrawNo || '无' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">替代型号：</span>
-                  <span class="value">{{ selectedOrder.noticeInstead || '无' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">通知名称：</span>
-                  <span class="value">{{ selectedOrder.noticeName || '无' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">通知作者：</span>
-                  <span class="value">{{ selectedOrder.noticeAuthor || '无' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">通知制定日期：</span>
-                  <span class="value">{{ selectedOrder.noticeBuildDate || '无' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">通知备注：</span>
-                  <span class="value">{{ selectedOrder.noticeComment || '无' }}</span>
-                </div>
-              </div>
-              <!-- 图纸文件列表 -->
-              <!-- 图纸文件列表 -->
-              <div class="file-list-section">
-                <h5>图纸文件：</h5>
-                <div class="file-list">
-                  <div v-if="selectedOrder.tuzhiUrl && selectedOrder.tuzhiUrl.length > 0"
-                    v-for="(file, index) in selectedOrder.tuzhiUrl" :key="index">
-                    <span class="file-link" @click="downloadFile(file.url, file.name)">{{ file.name }}</span>
-                  </div>
-                  <span v-else>无</span>
-                </div>
-              </div>
-            </div>
-          </div>
+              <!-- 30 生产完成 → 申请报检 -->
+              <template v-if="row.status === '30'">
+                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '40')">
+                  申请报检
+                </el-button>
+              </template>
 
-          <el-empty v-else description="请选择列表中的生产工单查看详情" />
-        </el-card>
-      </div>
+              <!-- 40 申请报检 → 报检通过 -->
+              <template v-if="row.status === '40'">
+                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '41')">
+                  报检通过
+                </el-button>
+              </template>
+
+              <!-- 41 报检通过 → 开始检验 -->
+              <template v-if="row.status === '41'">
+                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '50')">
+                  开始检验
+                </el-button>
+              </template>
+
+              <!-- 50 开始检验 → 检验完成 -->
+              <template v-if="row.status === '50'">
+                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '51')">
+                  检验完成
+                </el-button>
+              </template>
+
+              <!-- 51 检验完成 → 检验审核完成 -->
+              <template v-if="row.status === '51'">
+                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '52')">
+                  检验审核完成
+                </el-button>
+              </template>
+
+              <!-- 52 检验审核完成 → 申请入库 -->
+              <template v-if="row.status === '52'">
+                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '60')">
+                  申请入库
+                </el-button>
+              </template>
+
+              <!-- 60 申请入库 → 入库成功 -->
+              <template v-if="row.status === '60'">
+                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '61')">
+                  入库成功
+                </el-button>
+              </template>
+
+              <!-- 已完成状态只看报工 -->
+              <template v-if="['30','40','41','50','51','52','60','61'].includes(row.status)">
+                <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
+                  查看报工情况
+                </el-button>
+              </template>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <div class="pagination-container">
+          <el-pagination
+            v-model:current-page="pagination.current"
+            v-model:page-size="pagination.size"
+            :page-sizes="[10, 20, 50, 100]"
+            layout="total, sizes, prev, pager, next"
+            :total="pagination.total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </el-card>
     </div>
 
-
-    <editOrder :visible="editDialogVisible" :initial-data="formData" @update:visible="editDialogVisible = $event"
-      @success="handleEditSuccess" />
-
-
+    <!-- 弹窗组件 -->
+    <editOrder
+      :visible="editDialogVisible"
+      :initial-data="formData"
+      @update:visible="editDialogVisible = $event"
+      @success="handleEditSuccess"
+    />
     <productionOrderSelector v-model:visible="showSelector" @close="loadData" />
-    <reportOrderList v-model:visible="showReportSelector" :woNo="selectWoNo" />
+    <reportOrderList v-model:visible="showReportSelector" :woNo="selectWoNo" :ipo-no="selectIpoNo" />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-// 图标按需引入（补充反确认所需图标）
-import {
-  Search, Refresh, Close, Edit, Delete, CircleCheck,
-  CircleCheckFilled, CircleCloseFilled, Clock, Select,
-  Document
-} from '@element-plus/icons-vue';
-// 接口与组件引用（保持原逻辑）
-import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById, updateOrderStatus } from '@/api/plmanage/plworkorder';
-import { baseURL } from '@/utils/request'
-import editOrder from './components/editOrder.vue';
-import productionOrderSelector from './components/productionOrderSelector.vue';
-import reportOrderList from './components/reportOrderList.vue';
-// 1. 基础状态（与模板结构对齐）
-const loading = ref(false);
-const selectedOrder = ref(null); // 选中的工单详情
-const editDialogVisible = ref(false); // 编辑弹窗显隐
-const formData = ref({}); // 编辑表单数据
-const showSelector = ref(false);
-const showReportSelector = ref(false);
-const selectWoNo = ref('');
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search, Refresh, Edit, Delete, Document } from '@element-plus/icons-vue'
+import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById, updateOrderStatus } from '@/api/plmanage/plworkorder'
 
-const openReportOrderList = (woNo) => {
-  selectWoNo.value = woNo;
-  showReportSelector.value = true;
-};
+import editOrder from './components/editOrder.vue'
+import productionOrderSelector from './components/productionOrderSelector.vue'
+import reportOrderList from './components/reportOrderList.vue'
 
-// 下载文件
-const downloadFile = (url, filename) => {
-  // 拼接 baseURL，确保 URL 是完整的
-  const fullUrl = url.startsWith('http') ? url : baseURL + url
-  const fileExtension = filename.split('.').pop().toLowerCase()
-  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf']
-
-  if (viewableTypes.includes(fileExtension)) {
-    window.open(fullUrl, '_blank')
-  } else {
-    const link = document.createElement('a')
-    link.href = fullUrl
-    link.download = filename
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-      document.body.removeChild(link)
-    }, 100)
-  }
+const loading = ref(false)
+const editDialogVisible = ref(false)
+const formData = ref({})
+const showSelector = ref(false)
+const showReportSelector = ref(false)
+const selectWoNo = ref('')
+const selectIpoNo = ref('')
+const openReportOrderList = (row) => {
+  selectWoNo.value = row.woNo,
+  selectIpoNo.value = row.ipoNo
+  showReportSelector.value = true
 }
 
-// 2. 筛选条件（改为单选状态，移除前端筛选字段）
-const filters = reactive({
-  contractNo: '',
-  contractName: '',
-  woNo: '',
-  status: '' // 改为单选，与模板RadioGroup匹配
-});
+const filters = reactive({ contractNo: '', contractName: '', woNo: '' })
+const pagination = reactive({ current: 1, size: 10, total: 0 })
+const tableData = ref([])
 
-// 3. 分页（保持模板固定结构）
-const pagination = reactive({
-  current: 1,
-  size: 10,
-  total: 0
-});
-
-
-// 6. 表格数据（纯后端返回，无前端筛选）
-const tableData = ref([]);
-
-
-// 加载列表数据（改为纯后端查询，移除前端筛选）
+// 加载数据（含模拟工序数据，实际使用时删掉 processes 部分即可）
 const loadData = async () => {
-  loading.value = true;
+  loading.value = true
   try {
-    // 构造后端查询参数（包含状态单选条件）
     const params = {
       pageNumber: pagination.current,
       pageSize: pagination.size,
       contractNo: filters.contractNo || undefined,
       contractName: filters.contractName || undefined,
-      woNo: filters.woNo || undefined,
-      // 状态：空表示查全部，否则查指定状态
-      status: filters.status || undefined,
-    };
+      woNo: filters.woNo || undefined
+    }
 
-    const res = await getPlWorkOrderList(params);
+    const res = await getPlWorkOrderList(params)
     if (res.code === 200 && res.success) {
-      const data = res.data.page.list.map(item => ({
+      tableData.value = res.data.page.list.map(item => ({
         id: item.id,
-        purchaserHqCode: item.purchaserHqCode,
-        supplierCode: item.supplierCode,
-        supplierName: item.supplierName,
         woNo: item.woNo,
-        categoryCode: item.categoryCode,
+        ipoNo: item.ipoNo,
         materialsCode: item.materialsCode,
         materialsName: item.materialsName,
-        materialsDescription: item.materialsDescription || '无',
-        materialsBatch: item.materialsBatch || '无',
+        modelSpec: item.modelSpec || '无',
         amount: item.amount,
-        materialsUnit: item.unit,
+        unit: item.unit,
         planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '',
         planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '',
-        actualStartDate: item.actualStartDate ? item.actualStartDate.split(' ')[0] : '',
-        actualFinishDate: item.actualFinishDate ? item.actualFinishDate.split(' ')[0] : '',
-        woStatus: item.woStatus || '未开始',
-        entityCode: item.entityCode || '无',
-        processRouteNo: item.processRouteNo || '无',
-        voltageLevel: item.voltageLevel || '无',
-        dataSource: item.dataSource,
-        dataSourceCreateTime: item.dataSourceCreateTime ? item.dataSourceCreateTime.split(' ')[0] : '',
-        modelSpec: item.modelSpec || '无',
-        status: item.status || '10', // 状态默认设为"录入"
-        writer: item.writer || '未知',
-        // 新增图纸信息字段
-        noticeId: item.noticeid || '无',
-        noticeDrawNo: item.noticedrawno || '无',
-        noticeInstead: item.noticeinstead || '无',
-        noticeName: item.noticename || '无',
-        noticeAuthor: item.noticeauther || '无',
-        noticeBuildDate: item.noticebuilddate ? item.noticebuilddate.split(' ')[0] : '无',
-        noticeComment: item.noticecomment || '无',
-        tuzhiUrl: JSON.parse(item.tuzhiurl || '[]')
-      }));
-      tableData.value = data;
-      pagination.total = res.data.page.totalRow;
-    } else {
-      throw new Error(res.msg || '获取数据失败');
+        status: item.status || '10',
+
+       processes: item.processes
+      ? item.processes.split(';').map(procStr => {
+          const [name, workshop, status, writer] = procStr.split('|')
+          return {
+            name,
+            workshop,
+            status: Number(status),
+            writer
+          }
+        })
+      : []
+        
+      }))
+      pagination.total = res.data.page.totalRow
     }
   } catch (err) {
-    ElMessage.error(err.message || '数据加载失败');
+    ElMessage.error('数据加载失败')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-// 搜索/重置（与模板逻辑一致）
-const handleSearch = () => {
-  pagination.current = 1;
-  loadData();
-};
+// 状态映射（统一维护）
+const getStatusText = (status) => ({
+  '10': '录入',
+  '20': '已确认',
+  '30': '生产完成',
+  '40': '申请报检',
+  '41': '报检通过',
+  '50': '开始检验',
+  '51': '检验完成',
+  '52': '检验审核完成',
+  '60': '申请入库',
+  '61': '入库成功'
+}[status] || '未知状态')
+
+const getStatusTagType = (status) => ({
+  '10': 'info',
+  '20': 'primary',
+  '30': 'success',
+  '40': 'warning',
+  '41': 'success',
+  '50': 'warning',
+  '51': 'success',
+  '52': 'success',
+  '60': 'warning',
+  '61': 'success'
+}[status] || 'info')
+
+// 其余函数（查询、重置、分页、编辑、删除、状态更新）保持不变
+const handleSearch = () => { pagination.current = 1; loadData() }
 const handleReset = () => {
-  Object.keys(filters).forEach(key => {
-    filters[key] = '';
-  });
-  pagination.current = 1;
-  selectedOrder.value = null;
-  loadData();
-  ElMessage.success('筛选条件已重置');
-};
-
-// 分页操作（保持模板结构）
-const handleSizeChange = (size) => {
-  pagination.size = size;
-  pagination.current = 1;
-  loadData();
-};
-const handleCurrentChange = (page) => {
-  pagination.current = page;
-  loadData();
-};
-
+  Object.keys(filters).forEach(k => filters[k] = '')
+  pagination.current = 1
+  loadData()
+}
+const handleSizeChange = (val) => { pagination.size = val; pagination.current = 1; loadData() }
+const handleCurrentChange = (val) => { pagination.current = val; loadData() }
 
 const openEditDialog = async (id) => {
-  const res = await getPlWorkOrderById({ id });
-  formData.value = res.data.order;
-  editDialogVisible.value = true;
-};
-
+  const res = await getPlWorkOrderById({ id })
+  formData.value = res.data.order
+  editDialogVisible.value = true
+}
 const handleEditSuccess = () => {
-  editDialogVisible.value = false;
-  ElMessage.success('编辑成功');
-  loadData();
-};
+  editDialogVisible.value = false
+  ElMessage.success('编辑成功')
+  loadData()
+}
 
-// 状态变更（确认/反确认功能）
 const handleStatusUpdate = async (id, newStatus) => {
-  try {
-
-    // 调试：打印 id 和 newStatus
-    console.log('id:', id, 'newStatus:', newStatus);
-
-    // 验证 id 和 newStatus 是否有效
-    if (!id || !newStatus) {
-      ElMessage.error('无效的工单ID或状态');
-      return;
-    }
-    const statusText = {
-      10: '反确认',
-      20: '确认',
-      30: '审核通过',
-      40: '已完成',
-    };
-
-    // 弹窗确认
-    await ElMessageBox.confirm(
-      `确定${statusText[newStatus] || '修改'}该生产工单吗？`,
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
-
-    // 用户确认后发送请求
-    const res = await updateOrderStatus({
-      id: id,
-      status: newStatus
-    });;
-    if (res.code === 200) {
-      ElMessage.success(`状态更新成功`);
-      loadData(); // 重新加载数据
-    } else {
-      ElMessage.error(res.msg || '修改失败');
-    }
-  } catch (error) {
-    // 如果用户取消或发生错误，不做处理
-    if (error !== 'cancel') {
-      ElMessage.error('操作失败，请重试');
-    }
+  const texts = {
+    '20': '确认开始生产', '30': '标记生产完成', '40': '申请报检',
+    '41': '标记报检通过', '50': '开始检验', '51': '标记检验完成',
+    '52': '检验审核完成', '60': '申请入库', '61': '入库成功', '10': '反确认'
   }
-};
+  try {
+    await ElMessageBox.confirm(`确定要“${texts[newStatus]}”吗？`, '操作确认', { type: 'warning' })
+    const res = await updateOrderStatus({ id, status: newStatus })
+    if (res.code === 200) {
+      ElMessage.success('操作成功')
+      loadData()
+    } else ElMessage.error(res.msg || '操作失败')
+  } catch { /* 取消不提示 */ }
+}
 
-
-// 删除操作（保持原逻辑）
 const deleteOrder = async (row) => {
   try {
-    await ElMessageBox.confirm(`确定要删除生产工单 ${row.woNo}吗？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    });
-
-    const res = await deletePlWorkOrder({ id: row.id });
+    await ElMessageBox.confirm(`确定删除工单 ${row.woNo} 吗？`, '删除确认', { type: 'warning' })
+    const res = await deletePlWorkOrder({ id: row.id })
     if (res.code === 200 && res.success) {
-      ElMessage.success('删除成功');
-      await loadData();
-      if (selectedOrder.value?.id === row.id) {
-        selectedOrder.value = null;
-      }
-    } else {
-      throw new Error(res.msg || '删除失败');
+      ElMessage.success('删除成功')
+      loadData()
     }
-  } catch (err) {
-    if (err !== 'cancel') ElMessage.error(err.message || '删除失败');
-  }
-};
-
-const getStatusTagType = (status) => {
-  const types = {
-    '10': 'info',
-    '20': 'primary',
-    '30': 'success',  // 新增这一行
-    '40': 'success',  // 新增这一行
-
-  };
-  return types[status] || '';
-};
-
-const getStatusIcon = (status) => {
-  const icons = {
-    '10': 'Clock',
-    '20': 'CircleCheck',
-    '30': 'Select', // 新增这一行，或者用其他合适的图标
-    '40': 'Select'
-  };
-  return icons[status] || 'Clock';
-};
-
-const getStatusText = (status) => {
-  const texts = {
-    '10': '录入',
-    '20': '确认',
-    '30': '审核通过',  // 新增这一行
-    '40': '已完成'
-  };
-  return texts[status] || '';
+  } catch { }
 }
-// 选中工单
-const selectOrder = (order) => {
-  selectedOrder.value = order;
-};
 
-// 初始化加载
-onMounted(() => {
-  loadData();
-});
+onMounted(loadData)
 </script>
 
 <style scoped>
-/* 统一使用模板样式，优化响应式布局 */
-.production-work-orders {
-  padding: 20px;
-  background-color: #f5f5f5;
-  min-height: 100vh;
-}
+.production-work-orders { padding: 20px; background: #f5f5f5; min-height: 100vh; }
+.filter-card { margin-bottom: 20px; }
+.filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.filter-item { display: flex; align-items: center; gap: 8px; }
+.filter-label { font-size: 13px; font-weight: 500; color: #606266; white-space: nowrap; }
+.filter-actions { display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid #ebeef5; }
+.card-header { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+.pagination-container { margin-top: 16px; text-align: right; }
 
-.filter-card {
-  margin-bottom: 20px;
-}
-
-/* 筛选区域样式（与模板完全一致） */
-.filter-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.filter-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #606266;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.filter-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.filter-row:last-child {
-  margin-bottom: 0;
-}
-
-.filter-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #ebeef5;
-}
-
-/* 主内容区样式（与模板一致） */
-.main-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  min-height: 600px;
-}
-
-.order-list,
-.order-detail {
-  min-height: 600px;
-  overflow: auto;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 500;
-}
-
-.date-range .date-end {
-  color: #909399;
-  font-size: 12px;
-}
-
-.pagination-container {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* 详情区域样式（与模板一致） */
-.detail-card {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-}
-
-.detail-content {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.detail-section {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.detail-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.detail-section h4 {
-  color: #303133;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 12px 0;
-}
-
-.file-list-section {
-  margin-top: 12px;
-}
-
-.file-list-section h5 {
-  color: #303133;
-  font-size: 13px;
-  font-weight: 500;
-  margin: 0 0 8px 0;
-}
-
-.file-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.file-link {
-  cursor: pointer;
-  color: #409eff;
-  text-decoration: underline;
-  font-size: 13px;
-}
-
-.file-link:hover {
-  color: #66b1ff;
-}
-
-.info-grid {
-  display: grid;
-  gap: 8px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 4px 0;
-}
-
-.info-item .label {
-  color: #909399;
-  font-size: 13px;
-  min-width: 100px;
-  flex-shrink: 0;
-}
-
-.info-item .value {
-  color: #303133;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: right;
-  word-break: break-word;
-}
-
-.status-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.schedule-text {
-  color: #606266;
-  font-size: 12px;
-}
-
-/* 审核通过状态样式 */
-.status-approved {
-  background-color: #f0f9ff;
-  color: #067f46;
-}
-
-/* 状态按钮样式（与模板一致） */
-:deep(.el-radio-button__inner) {
-  border-radius: 4px;
-  padding: 6px 16px;
-}
-
-:deep(.el-radio-button.is-checked .el-radio-button__inner) {
-  background-color: var(--el-color-primary);
-  border-color: var(--el-color-primary);
-}
-
-/* 响应式设计（与模板一致） */
-@media (max-width: 1200px) {
-  .main-content {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .detail-card {
-    position: static;
-  }
-}
-
-@media (max-width: 768px) {
-  .production-work-orders {
-    padding: 12px;
-  }
-
-  .filter-row {
-    grid-template-columns: 1fr;
-  }
-
-  .filter-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .filter-label {
-    text-align: left;
-    min-width: auto;
-  }
-
-  .filter-item .el-select,
-  .filter-item .el-cascader,
-  .filter-item .el-input {
-    width: 100% !important;
-  }
-
-  .info-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-  }
-
-  .info-item .label,
-  .info-item .value {
-    text-align: left;
-    min-width: auto;
-  }
-}
+/* 工序列表样式（纯文字） */
+.process-list { display: flex; flex-direction: column; gap: 7px; font-size: 13px; }
+.process-item { display: flex; align-items: center; gap: 10px; }
+.process-item.finished { color: #67c23a; }
+.process-item.doing    { color: #e6a23c; font-weight: 500; }
+.process-item.todo     { color: #909399; }
+.process-name { min-width: 50px; font-weight: 500; }
+.workshop { color: #999; font-size: 12px; }
 </style>

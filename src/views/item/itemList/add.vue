@@ -123,7 +123,13 @@
       </div>
     </el-form>
   </el-dialog>
-</template>
+
+    <TuzhiSelectDialog
+        v-model="tuzhiDialogVisible"
+        @select="onTuzhiSelected"
+        @close="tuzhiDialogVisible=false"
+      />
+  </template>
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
@@ -131,12 +137,14 @@ import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getBasItemClassTreeList } from '@/api/item/basitemclass'
 import { createBasItem } from '@/api/item/basitem'
+import TuzhiSelectDialog from '../components/tuzhiSelector.vue'
 
 // ---------- 外部参数（只保留必需） ----------
 const props = defineProps({
   modelValue: { type: Boolean, default: false }, // 弹窗显示控制（v-model绑定）
   unitOptions: { type: Array, default: () => [] } // 单位选项
 })
+
 
 // ---------- 事件派发（只保留两个核心事件） ----------
 const emit = defineEmits(['update:modelValue', 'success'])
@@ -150,7 +158,7 @@ const isOpen = computed({
 })
 const cascaderOptions = ref([])
 const cascaderValue = ref([])
-
+const tuzhiDialogVisible = ref(false)
 // 级联选择器配置
 const cascaderProps = {
   children: 'children',
@@ -158,6 +166,15 @@ const cascaderProps = {
   value: 'id',
   leaf: (node) => node.type === 3, // 仅允许选择第三级
   showAllLevels: false
+}
+// ---------- 图号选择（如需保留可留着，不影响核心事件） ----------
+const handleOpenDrawing = () => {
+  tuzhiDialogVisible.value = true
+}
+
+const onTuzhiSelected = (tuzhi) => {
+  form.drawing_standard_no = tuzhi.tuzhibianhao
+  tuzhiDialogVisible.value = false
 }
 
 // ---------- 表单数据 ----------
@@ -265,11 +282,6 @@ const handleClose = () => {
   resetForm() // 重置表单
 }
 
-// ---------- 图号选择（如需保留可留着，不影响核心事件） ----------
-const handleOpenDrawing = () => {
-  // 如需触发父组件图号选择逻辑，可在这里扩展，当前不影响核心事件
-  ElMessage.info('请在父组件实现图号选择逻辑')
-}
 
 // ---------- 重置表单 ----------
 const resetForm = () => {

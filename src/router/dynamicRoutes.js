@@ -78,15 +78,7 @@ const viewComponents = {
   'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
 
 
-    //原材料入库单据列表
-  'kucun/matInList': () => import('@/views/plstoreinout/matinout/matIn/matInList.vue'),
-  //原材料入库审核
-  'kucun/matInListReview': () => import('@/views/plstoreinout/matinout/matIn/matInListReview.vue'),
 
-      //原材料入库单据列表
-  'kucun/matOutList': () => import('@/views/plstoreinout/matinout/matOut/matOutList.vue'),
-  //原材料入库审核
-  'kucun/matOutListReview': () => import('@/views/plstoreinout/matinout/matOut/matOutListReview.vue'),
   //原材料出入库明细
   'kucun/matItemInoutPage': () => import('@/views/plstoreinout/matinout/matItemPage/matItemInoutPage.vue'),
 
@@ -103,30 +95,32 @@ const viewComponents = {
   'inspection/item': () => import('@/views/plinspection/inspItem/List.vue'),
   //检验标准维护
   'inspection/standard': () => import('@/views/plinspection/inspStd/List.vue'),
+
+
   //检验单维护
   'inspection/order': () => import('@/views/plinspection/inspOrder/List.vue'),
 
-    // 检验单 - 录入人（所有状态）
-  'inspection/order-entry': () => import('@/views/plinspection/inspOrder/InspOrderEntryList.vue'),
+    // 检验单 - 报检录入（所有状态）
+  'inspection/order-entry': () => import('@/views/plinspection/inspOrder/order/InspOrderEntryList.vue'),
 
   // 检验单 - 报检审核（>=10）
-  'inspection/order-audit': () => import('@/views/plinspection/inspOrder/InspOrderAuditList.vue'),
+  'inspection/order-audit': () => import('@/views/plinspection/inspOrder/order/InspOrderAuditList.vue'),
 
-  // 检验单 - 检验员（>=20）
-  'inspection/order-inspect': () => import('@/views/plinspection/inspOrder/InspDataEntryList.vue'),
+  // 检验单 - 检验数据录入员（>=20）
+  'inspection/order-inspect': () => import('@/views/plinspection/inspOrder/inspdata/InspDataEntryList.vue'),
 
   // 检验单 - 检验审核（>=21）
-  'inspection/order-review': () => import('@/views/plinspection/inspOrder/InspDataReviewList.vue'),
+  'inspection/order-review': () => import('@/views/plinspection/inspOrder/inspdata/InspDataReviewList.vue'),
 
   // 检验单 - 入库审核（>=30）
-  'inspection/order-stock': () => import('@/views/plinspection/inspOrder/InspOrderStockList.vue'),
+  'inspection/order-stock': () => import('@/views/plinspection/inspOrder/stock/InspOrderStockList.vue'),
 
 
   //制定通知--毛文斌重写
   'tongzhi/list': () => import('@/views/tongzhi/tongzhiList/list.vue'),
 
   //采购计划维护
-  'plmanage/purchaseOrderList': () => import('@/views/plmanage/plpurchaseorder/list.vue'),
+  'plmanage/purchaseOrderList': () => import('@/views/plmanage/plpurchaseorder/orderList.vue'),
 
 
 
