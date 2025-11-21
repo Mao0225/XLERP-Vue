@@ -1,10 +1,27 @@
-
 <template>
   <div class="tuzhi-management">
     <div class="action-bar">
       <el-input
         v-model="queryParams.tuzhimingcheng"
         placeholder="请输入图纸名称搜索"
+        style="width: 200px; margin-right: 10px;"
+        clearable
+        @clear="getTuzhiList"
+        @keyup.enter="getTuzhiList"
+      />
+      <!-- 新增：产品名称搜索 -->
+      <el-input
+        v-model="queryParams.itemName"
+        placeholder="请输入产品名称搜索"
+        style="width: 200px; margin-right: 10px;"
+        clearable
+        @clear="getTuzhiList"
+        @keyup.enter="getTuzhiList"
+      />
+      <!-- 新增：产品型号搜索 -->
+      <el-input
+        v-model="queryParams.itemSpec"
+        placeholder="请输入产品型号搜索"
         style="width: 200px; margin-right: 10px;"
         clearable
         @clear="getTuzhiList"
@@ -23,7 +40,11 @@
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="tuzhibianhao" label="图纸编号" />
       <el-table-column prop="tuzhimingcheng" label="图纸名称" />
-      <el-table-column prop="zicailiaoshuliang" label="子材料数量" />
+      <!-- 新增：产品名称列 -->
+      <el-table-column prop="itemName" label="产品名称" />
+      <!-- 新增：产品型号列 -->
+      <el-table-column prop="itemSpec" label="产品型号" />
+      <!-- <el-table-column prop="zicailiaoshuliang" label="子材料数量" /> -->
       <el-table-column prop="tuzhizuozhe" label="图纸作者" />
       <el-table-column prop="chuangzuoriqi" label="创作日期" />
       <el-table-column prop="tuzhimiaoshu" label="图纸描述" />
@@ -38,7 +59,7 @@
       <el-table-column prop="writer" label="录入者" />
       <el-table-column label="操作" width="300">
         <template #default="{ row }">
-          <el-button type="success" size="small" @click="handleCailiao(row)">材料管理</el-button>
+          <!-- <el-button type="success" size="small" @click="handleCailiao(row)">材料管理</el-button> -->
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
         </template>
@@ -70,6 +91,14 @@
         </el-form-item>
         <el-form-item label="图纸名称" prop="tuzhimingcheng">
           <el-input v-model="form.tuzhimingcheng" placeholder="请输入图纸名称" />
+        </el-form-item>
+        <!-- 新增：产品名称表单项 -->
+        <el-form-item label="产品名称" prop="itemName">
+          <el-input v-model="form.itemName" placeholder="请输入产品名称" />
+        </el-form-item>
+        <!-- 新增：产品型号表单项 -->
+        <el-form-item label="产品型号" prop="itemSpec">
+          <el-input v-model="form.itemSpec" placeholder="请输入产品型号" />
         </el-form-item>
         <el-form-item label="图纸作者" prop="tuzhizuozhe">
           <el-input v-model="form.tuzhizuozhe" placeholder="请输入图纸作者" @blur="autoFillAuthor" />
@@ -153,24 +182,22 @@ import ImportResultDialog from '@/views/tuzhi/components/ImportResultDialog.vue'
 // 引入用户store
 const userStore = useUserStore()
 
-// 查询参数
+// 查询参数：新增itemName和itemSpec
 const queryParams = reactive({
   pageNumber: 1,
   pageSize: 10,
-  tuzhimingcheng: ''
+  tuzhimingcheng: '',
+  itemName: '', // 新增：产品名称查询条件
+  itemSpec: ''  // 新增：产品型号查询条件
 })
 
-// 用户信息
-const userInfo = computed(() => ({
-  username: userStore.descr || '未知'
-}))
 
 // 图纸列表数据
 const tuzhiList = ref([])
 const total = ref(0)
 const loading = ref(false)
 
-// 弹窗表单相关
+// 弹窗表单相关：新增itemName和itemSpec字段
 const dialogVisible = ref(false)
 const dialogType = ref('add')
 const dialogTitle = computed(() => dialogType.value === 'add' ? '新增图纸' : '编辑图纸')
@@ -181,6 +208,8 @@ const form = reactive({
   id: undefined,
   tuzhibianhao: '',
   tuzhimingcheng: '',
+  itemName: '', // 新增：产品名称
+  itemSpec: '', // 新增：产品型号
   tuzhizuozhe: '',
   chuangzuoriqi: '',
   tuzhimiaoshu: '',
@@ -196,7 +225,7 @@ const cailiaoDialogVisible = ref(false)
 const currentTuzhiId = ref(null)
 const currentTuzhiBianhao = ref('')
 
-// 表单验证规则
+// 表单验证规则：新增itemName和itemSpec的验证
 const rules = {
   tuzhibianhao: [
     { required: true, message: '请输入图纸编号', trigger: 'blur' },
@@ -204,6 +233,14 @@ const rules = {
   ],
   tuzhimingcheng: [
     { required: true, message: '请输入图纸名称', trigger: 'blur' },
+    { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
+  ],
+  itemName: [ // 新增：产品名称验证
+    { required: true, message: '请输入产品名称', trigger: 'blur' },
+    { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
+  ],
+  itemSpec: [ // 新增：产品型号验证
+    { required: true, message: '请输入产品型号', trigger: 'blur' },
     { max: 100, message: '长度不能超过100个字符', trigger: 'blur' }
   ],
   tuzhizuozhe: [
@@ -222,7 +259,7 @@ const rules = {
   ]
 }
 
-// 获取图纸列表
+// 获取图纸列表（自动携带新增的查询参数）
 const getTuzhiList = async () => {
   loading.value = true
   try {
@@ -249,7 +286,7 @@ const handleCurrentChange = (page) => {
   getTuzhiList()
 }
 
-// 重置表单
+// 重置表单：新增itemName和itemSpec的重置
 const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
@@ -262,13 +299,15 @@ const resetForm = () => {
     id: undefined,
     tuzhibianhao: '',
     tuzhimingcheng: '',
-    tuzhizuozhe: userInfo.value.username,
+    itemName: '', // 新增：重置产品名称
+    itemSpec: '', // 新增：重置产品型号
+    tuzhizuozhe: userStore.realName,
     chuangzuoriqi: '',
     tuzhimiaoshu: '',
     memo: '',
     flag: 0,
     type: 0,
-    writer: userInfo.value.username,
+    writer: userStore.realName,
     tuzhiurl: '[]'
   })
 }
@@ -308,22 +347,24 @@ const handleTuzhiRemove = (file, fileList) => {
   ElMessage.success(`${file.name} 已移除`)
 }
 
-// 新增图纸
+// 新增图纸：初始化产品名称和型号为空
 const handleAdd = () => {
   dialogType.value = 'add'
   dialogVisible.value = true
   tuzhiFileList.value = []
-  form.writer = userInfo.value.username
+  form.writer = userStore.realName
+  form.tuzhizuozhe = userStore.realName
   form.chuangzuoriqi = new Date().toISOString().split('T')[0]
+  form.itemName = '' // 新增：初始化产品名称
+  form.itemSpec = '' // 新增：初始化产品型号
 }
 
-// 编辑图纸
+// 编辑图纸：新增itemName和itemSpec的赋值
 const handleEdit = async (row) => {
   dialogType.value = 'edit'
   try {
     const res = await getTuzhiById({ id: row.id })
     Object.assign(form, res.data.tuzhi)
-    
     // 确保tuzhiurl是JSON格式
     try {
       JSON.parse(form.tuzhiurl)
@@ -335,6 +376,9 @@ const handleEdit = async (row) => {
         form.tuzhiurl = '[]'
       }
     }
+    // 赋值产品名称和型号（从接口返回数据中获取）
+    form.itemName = res.data.tuzhi.itemName || ''
+    form.itemSpec = res.data.tuzhi.itemSpec || ''
     
     tuzhiFileList.value = JSON.parse(form.tuzhiurl).map(file => ({
       name: file.name,
@@ -396,11 +440,11 @@ const downloadFile = (url, filename) => {
 // 自动填充作者
 const autoFillAuthor = () => {
   if (!form.tuzhizuozhe || form.tuzhizuozhe.trim() === '' || form.tuzhizuozhe.trim().toLowerCase() === 'n/a') {
-    form.tuzhizuozhe = userInfo.value.username
+    form.tuzhizuozhe = userStore.realName
   }
 }
 
-// 提交表单
+// 提交表单（自动携带新增的itemName和itemSpec字段）
 const submitForm = () => {
   if (!formRef.value) return
   formRef.value.validate(async (valid) => {
@@ -409,7 +453,7 @@ const submitForm = () => {
         const submitForm = { ...form }
         if (dialogType.value === 'add') {
           if (!submitForm.writer) {
-            submitForm.writer = userInfo.value.username
+            submitForm.writer = userStore.realName
           }
           await createTuzhi(submitForm)
           ElMessage.success('新增成功')
@@ -441,95 +485,34 @@ const handleCailiaoDialogClosed = () => {
 }
 
 const handleRefresh = () => {
+  // 刷新时重置新增的查询参数
   queryParams.tuzhimingcheng = ''
+  queryParams.itemName = ''
+  queryParams.itemSpec = ''
   queryParams.pageNumber = 1
   getTuzhiList()
 }
 
-
 const importResultData = ref({});
 const importResultVisible = ref(false); // 新增：控制导入结果弹窗的显示/隐藏
-/**
- * 导入图纸数据
- */
-/* const importTuzhi = () => {
-  // 创建隐藏的文件输入元素
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.xls,.xlsx';
-  input.style.display = 'none';
 
-  // 添加 change 事件监听
-  input.addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) {
-      ElMessage.error('未选择文件');
-      return;
-    }
-
-    // 验证文件类型
-    const validTypes = [
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ];
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
-      ElMessage.error('请选择 Excel 文件 (.xls 或 .xlsx)');
-      return;
-    }
-
-    // 准备 FormData
-    const formData = new FormData();
-    formData.append('tuzhiListFile', file);
-
-    try {
-      // 调用导入接口
-      const res = await importTuzhiList(formData);
-
-      // 检查响应是否成功
-      if (res.code === 200 && res.data) {
-        // 显示导入结果弹窗
-        showImportResultDialog(res.data);
-        
-        // 显示简要成功消息
-        ElMessage.success(`文件导入完成，总计 ${res.data.totalRows} 条，成功 ${res.data.successCount} 条`);
-      } else {
-        ElMessage.error('导入失败：' + (res.msg || '未知错误'));
-      }
-    } catch (error) {
-      console.error('导入错误', error);
-      ElMessage.error('导入图纸失败');
-    } finally {
-      // 移除临时输入元素
-      document.body.removeChild(input);
-    }
-  });
-
-  // 触发文件选择对话框
-  document.body.appendChild(input);
-  input.click();
-};
- */
-
-// tuzhi.vue 中找到 importTuzhi 函数，替换为以下代码
+// 导入图纸（需同步修改Excel模板和导入接口，支持itemName和itemSpec字段）
 const importTuzhi = () => {
-  // 新增：导入前强制提示使用官方模板，避免表头错误
   ElMessageBox.confirm(
-    `请务必使用官方模板填写数据！\n1. 模板可通过「下载模板」按钮获取\n2. 表头不可修改（如"图纸编号"不可改为"编号"）\n3. 禁止合并单元格、表头空格`,
+    `请务必使用官方模板填写数据！\n1. 模板可通过「下载模板」按钮获取\n2. 表头不可修改（新增必填项：产品名称、产品型号）\n3. 禁止合并单元格、表头空格`,
     '重要：导入前须知',
     {
       confirmButtonText: '已确认，选择文件',
       cancelButtonText: '取消',
       type: 'warning',
-      dangerouslyUseHTMLString: true // 支持换行符\n
+      dangerouslyUseHTMLString: true
     }
   ).then(() => {
-    // 创建隐藏文件输入框（原逻辑保留）
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.xls,.xlsx';
     input.style.display = 'none';
 
-    // 文件选择后处理（原逻辑保留，新增错误详情展示）
     input.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) {
@@ -537,7 +520,6 @@ const importTuzhi = () => {
         return;
       }
 
-      // 验证文件类型（原逻辑保留）
       const validTypes = [
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -547,7 +529,6 @@ const importTuzhi = () => {
         return;
       }
 
-      // 准备FormData并调用接口（原逻辑保留，新增错误详情）
       const formData = new FormData();
       formData.append('tuzhiListFile', file);
 
@@ -560,21 +541,17 @@ const importTuzhi = () => {
           ElMessage.error('导入失败：' + (res.msg || '未知错误'));
         }
       } catch (error) {
-        // 新增：展示后端返回的具体错误（如“缺少表头”）
-        const errorMsg = error.response?.data?.msg || '文件解析失败，请检查模板是否正确';
+        const errorMsg = error.response?.data?.msg || '文件解析失败，请检查模板是否包含产品名称、产品型号字段';
         ElMessage.error(`导入错误：${errorMsg}`);
-        console.error('导入详细错误：', error); // 控制台打印完整错误，方便开发排查
+        console.error('导入详细错误：', error);
       } finally {
-        document.body.removeChild(input); // 移除临时元素
+        document.body.removeChild(input);
       }
     });
 
-    // 触发文件选择对话框
     document.body.appendChild(input);
     input.click();
-  }).catch(() => {
-    // 用户取消导入，不执行任何操作
-  });
+  }).catch(() => {});
 };
 
 /**
@@ -590,12 +567,10 @@ const showImportResultDialog = (data) => {
  * 导入结果确认回调
  */
 const handleImportResultConfirm = () => {
-  // 刷新合同信息
   getTuzhiList();
 };
 
-
-//下载模板。模板地址/xlsxTemplate/图纸.xlsx
+// 下载模板（需确保服务器上的Excel模板已新增产品名称、产品型号列）
 const downloadExsl = () => {
   try {
     const url = `${baseURL}/xlsxTemplates/图纸.xlsx`;
@@ -625,6 +600,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap; /* 新增：支持换行，避免搜索框过多时溢出 */
 }
 .pagination-container {
   margin-top: 20px;

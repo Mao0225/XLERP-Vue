@@ -88,12 +88,12 @@
                   }"
                 >
                   <el-tag
-                    :type="proc.status == 20 ? 'success' : proc.status == 10 ? 'warning' : 'info'"
+                    :type=" proc.status == 10 ? 'warning' : 'success'"
                     size="small"
                     effect="dark"
                     style="width: 68px; text-align: center"
                   >
-                    {{ proc.status == 20 ? '完成' : proc.status == 10 ? '进行中' : '未开始' }}
+                    {{  proc.status == 10 ? '进行中' : '完成' }}
                   </el-tag>
                   <span class="process-name">{{ proc.name }}</span>
                   <span class="workshop">{{ proc.workshop }}</span>
@@ -103,7 +103,7 @@
           </el-table-column>
 
           <!-- 操作列 -->
-          <el-table-column label="操作" width="250" fixed="right" align="center">
+          <el-table-column label="操作" width="300" fixed="right" align="center">
             <template #default="{ row }">
               <!-- 10 录入 -->
               <template v-if="row.status === '10'">

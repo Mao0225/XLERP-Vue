@@ -1,4 +1,3 @@
-<!-- basitem.vue -->
 <template>
   <div class="basitem-management">
     <!-- 操作栏（联动版分类筛选） -->
@@ -45,29 +44,58 @@
       </el-button>
 
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增物料</el-button>
-      <el-button type="primary" @click="importItem" >导入物料</el-button>
-      <el-button type="info" @click="downloadExsl">下载模板</el-button>
+      <!-- <el-button type="primary" @click="importItem" >导入物料</el-button>
+      <el-button type="info" @click="downloadExsl">下载模板</el-button> -->
     </div>
 
-    <!-- 物料列表（不变） -->
-    <el-table :data="basItemList" border v-loading="loading" style="width: 100%">
+    <!-- 物料列表（调整字段顺序，空值显示"-"） -->
+    <el-table :data="basItemList" border v-loading="loading" style="width: 100%" cell-class-name="table-cell">
       <el-table-column label="序号" width="60">
         <template #default="scope">
           {{ (queryParams.pageNumber - 1) * queryParams.pageSize + scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column prop="no" label="物料编号" />
-      <el-table-column prop="spec" label="规格型号" />
-      <el-table-column prop="name" label="物料名称" />
-      <el-table-column prop="unit" label="计量单位" />
-      <el-table-column prop="inclass" width="200" label="所属分类" />
-      <el-table-column label="技术备注" width="200" prop="tech_memo" show-overflow-tooltip />
-      <el-table-column label="物料描述" width="200" prop="description" show-overflow-tooltip />
-      <el-table-column label="备注" width="100" prop="memo" show-overflow-tooltip />
+      <!-- 必填项前置（物料编号、名称、分类、单位、规格、材质、执行标准） -->
+      <el-table-column prop="no" width="100" show-overflow-tooltip label="物料编号" />
+      <el-table-column prop="name" width="120" show-overflow-tooltip label="物料名称" />
+      <el-table-column prop="inclass" width="250" show-overflow-tooltip label="所属分类" />
+      <el-table-column prop="unit" width="80" show-overflow-tooltip label="单位" />
+      <el-table-column prop="spec" width="120" show-overflow-tooltip label="规格型号" />
+      <el-table-column prop="material" width="100" show-overflow-tooltip label="材质">
+        <template #default="scope">{{ scope.row.material || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="standard" width="150" show-overflow-tooltip label="执行标准">
+        <template #default="scope">{{ scope.row.standard || '-' }}</template>
+      </el-table-column>
+      <!-- 补充字段（按原有逻辑排序） -->
+      <el-table-column prop="drawing_standard_no" width="120" show-overflow-tooltip label="图号/标准号">
+        <template #default="scope">{{ scope.row.drawing_standard_no || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="tech_memo" width="150" show-overflow-tooltip label="技术备注">
+        <template #default="scope">{{ scope.row.tech_memo || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="description" width="150" show-overflow-tooltip label="物料描述">
+        <template #default="scope">{{ scope.row.description || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="color" width="80" show-overflow-tooltip label="颜色">
+        <template #default="scope">{{ scope.row.color || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="location" width="120" show-overflow-tooltip label="存放位置">
+        <template #default="scope">{{ scope.row.location || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="grade" width="80" show-overflow-tooltip label="等级">
+        <template #default="scope">{{ scope.row.grade || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="material_version" width="100" show-overflow-tooltip label="物料版本">
+        <template #default="scope">{{ scope.row.material_version || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="memo" width="100" show-overflow-tooltip label="备注">
+        <template #default="scope">{{ scope.row.memo || '-' }}</template>
+      </el-table-column>
 
-      <el-table-column label="操作" width="300" fixed="right">
+      <el-table-column label="操作" width="230" fixed="right">
         <template #default="{ row }">
-          <el-button type="success" size="small" @click="handleMaterialManage(row)">材料管理</el-button>
+          <el-button v-if="!row.inclass.includes('原材料')" type="success" size="small" @click="handleMaterialManage(row)">材料管理</el-button>
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
         </template>
@@ -105,7 +133,7 @@
       @success="handleSuccess"
     />
 
-     <!-- 物料分解弹窗组件 -->
+    <!-- 物料分解弹窗组件 -->
     <MaterialDecomposeDialog
       v-model:visible="DecomposeDialogVisible"
       :itemId="currentItemId"
@@ -162,6 +190,7 @@ const importResultVisible = ref(false)
 const importResultData = ref({})
 const DecomposeDialogVisible = ref(false)
 const currentItemId = ref(null)
+
 // 加载分类树：保存一级分类和「带父级ID的二级分类」
 const loadClassOptions = async () => {
   try {
@@ -368,9 +397,30 @@ onMounted(() => {
   margin-top: 20px;
   text-align: right;
 }
+/* 表格空值"-"样式优化：灰色、居中 */
+.table-cell .el-table__cell-content {
+  color: #666;
+}
+.table-cell .el-table__cell-content:empty::after,
+.table-cell .el-table__cell-content:contains("-") {
+  color: #999;
+  font-style: normal;
+}
+/* 调整表格列宽适配，避免文字溢出 */
+.el-table {
+  font-size: 14px;
+}
+.el-table-column {
+  overflow: hidden;
+}
 @media (max-width: 1200px) {
   .action-bar > * {
     margin-right: 0 !important;
+  }
+  /* 小屏幕下隐藏部分非关键列，优先显示必填项 */
+  .el-table-column[width="150"],
+  .el-table-column[width="120"]:not(.el-table__fixed-right) {
+    display: none !important;
   }
 }
 </style>
