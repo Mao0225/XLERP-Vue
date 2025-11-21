@@ -95,7 +95,7 @@
 
       <el-table-column label="操作" width="230" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="!row.inclass.includes('原材料')" type="success" size="small" @click="handleMaterialManage(row)">材料管理</el-button>
+          <el-button v-if="row.inclass.includes('成品')" type="success" size="small" @click="handleMaterialManage(row)">材料管理</el-button>
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
           <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
         </template>

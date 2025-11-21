@@ -34,16 +34,16 @@
               />
             </el-form-item>
 
+            <el-form-item label="录入人" prop="writer" class="compact-item">
+              <el-input v-model="form.writer" placeholder="录入人" clearable size="small" disabled />
+            </el-form-item>
+
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="规格型号" prop="spec" class="compact-item">
               <el-input v-model="form.spec" placeholder="规格型号" clearable size="small" />
             </el-form-item>
-
-
-
-           
 
             <el-form-item label="图号/标准号" prop="drawing_standard_no" class="compact-item">
               <el-input v-model="form.drawing_standard_no" readonly placeholder="选择图号" size="small">
@@ -61,6 +61,7 @@
               </el-select>
             </el-form-item>
           </el-col>
+
         </el-row>
       </el-card>
 
@@ -163,7 +164,9 @@ import { Search } from '@element-plus/icons-vue'
 import { getBasItemClassTreeList } from '@/api/item/basitemclass'
 import { createBasItem } from '@/api/item/basitem'
 import TuzhiSelectDialog from '../components/tuzhiSelector.vue'
+import { useUserStore } from '@/store/user'
 
+const userStore = useUserStore()
 // ---------- 外部参数（只保留必需） ----------
 const props = defineProps({
   modelValue: { type: Boolean, default: false }, // 弹窗显示控制（v-model绑定）
@@ -227,7 +230,8 @@ const initialForm = {
   memo: '',
   status: 0,
   isdelete: 0,
-  keeper_rule: ''
+  keeper_rule: '',
+  writer: userStore.realName,
 }
 
 const form = reactive({ ...initialForm })
@@ -241,7 +245,8 @@ const rules = {
   spec: [{ required: true, message: '请输入规格型号', trigger: 'blur' }, { max: 50, message: '不超过50字符', trigger: 'blur' }],
   // material: [{ required: true, message: '请输入材质', trigger: 'blur' }, { max: 50, message: '不超过50字符', trigger: 'blur' }], // 新增：材质验证
   // standard: [{ required: true, message: '请输入执行标准', trigger: 'blur' }, { max: 100, message: '不超过100字符', trigger: 'blur' }], // 新增：执行标准验证
-  memo: [{ max: 200, message: '不超过200字符', trigger: 'blur' }]
+  memo: [{ max: 200, message: '不超过200字符', trigger: 'blur' }],
+  writer: [{ required: true, message: '录入人获取失败请重新刷新表单', trigger: 'blur' }]
 }
 
 // ---------- 数据转换 ----------

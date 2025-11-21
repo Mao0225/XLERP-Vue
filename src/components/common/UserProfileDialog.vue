@@ -15,10 +15,10 @@
           class="profile-form"
         >
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="form.username" placeholder="请输入用户名" />
+            <el-input v-model="form.username" placeholder="请输入用户名" readonly />
           </el-form-item>
           <el-form-item label="姓名" prop="descr">
-            <el-input v-model="form.descr" placeholder="请输入姓名" />
+            <el-input v-model="form.descr" placeholder="请输入姓名" readonly />
           </el-form-item>
           <el-form-item label="手机号" prop="phone">
             <el-input v-model="form.phone" placeholder="请输入手机号" />
@@ -93,7 +93,7 @@ const dialogVisible = ref(false)
 const activeTab = ref('profile')
 const profileForm = ref(null)
 const passwordForm = ref(null)
-const baseUrl = 'http://127.0.0.1:8099'
+import { baseURL } from '@/utils/request';
 
 const form = ref({
   id: null,
@@ -146,7 +146,7 @@ const passwordRules = {
   ]
 }
 
-const avatarPreview = computed(() => form.value.avatar ? baseUrl + form.value.avatar : '')
+const avatarPreview = computed(() => form.value.avatar ? baseURL + form.value.avatar : '')
 
 const open = async () => {
   try {
