@@ -56,20 +56,6 @@ const viewComponents = {
   'plmanage/plgonghuodan': () => import('@/views/plmanage/plgonghuodan/gonghuodan.vue'),
 
 
-  //通知管理
-  'tongzhi/tongzhilist': () => import('@/views/tongzhi/tongzhilist.vue'),
-
-  //确认通知功能
-  'tongzhi/querentongzhi': () => import('@/views/tongzhi/querentongzhi.vue'),
-  //校验通知功能
-  'tongzhi/jiaoyantongzhi': () => import('@/views/tongzhi/jiaoyantongzhi.vue'),
-  //审核通知功能
-  'tongzhi/shenhetongzhi': () => import('@/views/tongzhi/shenhetongzhi.vue'),
-  //按照审核后通知生成提料单
-  'tongzhi/tongzhibeiliaodan': () => import('@/views/tongzhi/tongzhibeiliaodan.vue'),
-  //  'tongzhi/tongzhitiliaodan': () => import('@/views/tongzhi/tongzhitiliaodan.vue'), 
-
-
   //备品备件库存管理
   'kucun/beijian': () => import('@/views/kucun/beijian.vue'),
   //产成品库存管理
@@ -85,8 +71,6 @@ const viewComponents = {
   //评库功能
   'kucun/reviewStorage': () => import('@/views/plstoreinout/reviewStorage/List.vue'),
 
-  // 材料数据检验--学妹 芯
-  'clmanage/clproductiondata': () => import('@/views/clmanage/clproductiondata/clproductiondata.vue'),
 
   //刘国奇，出厂抽检检验
   'plchuchangchoujian/chuchangchoujian': () => import('@/views/plchuchangchoujian/chuchanchoujian.vue'),
@@ -118,6 +102,8 @@ const viewComponents = {
 
   //制定通知--毛文斌重写
   'tongzhi/list': () => import('@/views/tongzhi/tongzhiList/list.vue'),
+  //通知审核页面
+  'tongzhi/tongzhiAudit': () => import('@/views/tongzhi/tongzhiList/tongzhiAudit.vue'),
 
   //采购计划维护
   'plmanage/purchaseOrderList': () => import('@/views/plmanage/plpurchaseorder/orderList.vue'),

@@ -32,8 +32,8 @@
         <el-icon><Refresh /></el-icon> 刷新
       </el-button>
       <el-button type="primary" style="margin-left: auto;" @click="handleAdd">新增图纸</el-button>
-      <el-button type="primary" @click="importTuzhi" >导入图纸</el-button>
-      <el-button type="info" @click="downloadExsl">下载模板</el-button>
+      <!-- <el-button type="primary" @click="importTuzhi" >导入图纸</el-button> -->
+      <!-- <el-button type="info" @click="downloadExsl">下载模板</el-button> -->
     </div>
 
     <el-table :data="tuzhiList" border v-loading="loading" style="width: 100%">
@@ -57,7 +57,7 @@
       </el-table-column>
       <el-table-column prop="memo" label="备注" />
       <el-table-column prop="writer" label="录入者" />
-      <el-table-column label="操作" width="300">
+      <el-table-column label="操作" width="150">
         <template #default="{ row }">
           <!-- <el-button type="success" size="small" @click="handleCailiao(row)">材料管理</el-button> -->
           <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
@@ -141,22 +141,7 @@
       </template>
     </el-dialog>
 
-    <!-- 材料管理对话框 -->
-    <el-dialog
-      title="图纸材料管理"
-      v-model="cailiaoDialogVisible"
-      width="80%"
-      @closed="handleCailiaoDialogClosed"
-    >
-      <tuzhicailiao
-        :id="currentTuzhiId"
-        :tuzhibianhao="currentTuzhiBianhao"
-      ></tuzhicailiao>
-      <template #footer>
-        <el-button @click="cailiaoDialogVisible = false">关闭</el-button>
-      </template>
-    </el-dialog>
-
+   
     <ImportResultDialog 
       v-model="importResultVisible" 
       :import-data="importResultData"
@@ -172,7 +157,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getTuzhis, getTuzhiById, createTuzhi, updateTuzhi, deleteTuzhi, importTuzhiList } from '@/api/tuzhi/tuzhi'
 import { uploadFile } from '@/api/file/file'
 import { baseURL } from '@/utils/request'
-import Tuzhicailiao from './tuzhicailiao.vue'
 import { Refresh } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
 
@@ -220,10 +204,7 @@ const form = reactive({
   tuzhiurl: '[]'
 })
 
-// 材料管理对话框相关
-const cailiaoDialogVisible = ref(false)
-const currentTuzhiId = ref(null)
-const currentTuzhiBianhao = ref('')
+
 
 // 表单验证规则：新增itemName和itemSpec的验证
 const rules = {
@@ -472,17 +453,8 @@ const submitForm = () => {
   })
 }
 
-// 打开材料管理对话框
-const handleCailiao = (row) => {
-  currentTuzhiId.value = row.id
-  currentTuzhiBianhao.value = row.tuzhibianhao
-  cailiaoDialogVisible.value = true
-}
 
-// 材料管理对话框关闭时的回调
-const handleCailiaoDialogClosed = () => {
-  getTuzhiList()
-}
+
 
 const handleRefresh = () => {
   // 刷新时重置新增的查询参数

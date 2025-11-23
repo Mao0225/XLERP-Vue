@@ -45,8 +45,8 @@
               <el-input v-model="form.spec" placeholder="规格型号" clearable size="small" />
             </el-form-item>
 
-            <el-form-item label="图号/标准号" prop="drawing_standard_no" class="compact-item">
-              <el-input v-model="form.drawing_standard_no" readonly placeholder="选择图号" size="small">
+            <el-form-item label="图号" prop="tuzhiNo" class="compact-item">
+              <el-input v-model="form.tuzhiNo" readonly placeholder="选择图号" size="small">
                 <template #append>
                   <el-button :icon="Search" @click="handleOpenDrawing" size="small" />
                 </template>
@@ -201,7 +201,7 @@ const handleOpenDrawing = () => {
 }
 
 const onTuzhiSelected = (tuzhi) => {
-  form.drawing_standard_no = tuzhi.tuzhibianhao
+  form.tuzhiNo = tuzhi.tuzhibianhao
   tuzhiDialogVisible.value = false
 }
 
@@ -215,7 +215,7 @@ const initialForm = {
   spec: '',
   material: '', // 新增：材质
   standard: '', // 新增：执行标准
-  drawing_standard_no: '',
+  tuzhiNo: '',
   color: '',
   location: '',
   description: '',

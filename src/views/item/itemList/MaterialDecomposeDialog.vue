@@ -52,8 +52,8 @@
             <template #default="{ row }">
               <el-input-number
                 v-model.number="row.relationQuantity"
-                :min="1"
-                :step="1"
+                :min="0.01"
+                :step="0.01"
                 size="small"
                 @change="handleQuantityChange(row)"
               />

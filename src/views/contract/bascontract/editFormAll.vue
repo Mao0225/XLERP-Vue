@@ -131,7 +131,7 @@
                   v-model="form.deliverTime" 
                   type="date" 
                   placeholder="请选择交货时间" 
-                  value-format="YYYY-MM-DD HH:mm:ss"
+                  value-format="YYYY-MM-DD"
                   style="width: 100%" 
                 />
               </el-form-item>
@@ -283,8 +283,8 @@
                 :disabled="selectedRows.length === 0 || isConfirmed"
                 @click="batchDelete"
               >批量删除</el-button>
-              <el-button type="warning" @click="importProduct" :disabled="isConfirmed">导入产品</el-button>
-              <el-button type="primary" @click="downloadExsl">下载模板</el-button>
+              <!-- <el-button type="warning" @click="importProduct" :disabled="isConfirmed">导入产品</el-button>
+              <el-button type="primary" @click="downloadExsl">下载模板</el-button> -->
               <el-button type="primary" @click="addProduct" :disabled="isConfirmed">添加产品</el-button>
             </el-form-item>
             <el-form-item class="summary-info">
@@ -315,6 +315,7 @@
             <el-table-column prop="poItemNo" label="采购行项目号" width="100" />
             <el-table-column prop="poItemId" label="采购行项目ID" min-width="80" />
             <el-table-column prop="poItemCode" label="国网物料编码" min-width="80" />
+            <el-table-column prop="itemDeliverTime"  label="交货时间" min-width="80" />
             <el-table-column prop="itemnum" label="数量" min-width="80" />
             <el-table-column prop="itemunit" label="单位" min-width="80" />
             <el-table-column prop="itemRealPrice" label="销售单价" min-width="80" />
@@ -424,6 +425,18 @@
         </el-row>
 
         <el-row :gutter="20">
+          <!-- 交货时间年月日 -->
+           <el-col :span="10">
+                            <el-form-item label="交货时间" prop="itemDeliverTime">
+                <el-date-picker 
+                  v-model="currentProduct.itemDeliverTime" 
+                  type="date" 
+                  placeholder="请选择交货时间" 
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%" 
+                />
+              </el-form-item>
+          </el-col>
           <el-col :span="20">
             <el-form-item label="备注">
               <el-input v-model="currentProduct.itemmemo" type="textarea" :rows="3" placeholder="请输入备注" />
@@ -450,7 +463,6 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleCancel">取消</el-button>
-        <el-button @click="resetForm">重置</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitLoading">保存合同</el-button>
       </div>
     </template>
@@ -624,7 +636,8 @@ const currentProduct = reactive({
   itemgrossweight: 0,
   itemsum: 0,
   itemRealPrice: 0,
-  itemRealSum: 0
+  itemRealSum: 0,
+  itemDeliverTime: '',
 });
 
 // 产品验证规则
@@ -633,7 +646,8 @@ const productRules = {
   itemnum: [{ required: true, message: '请输入数量', trigger: 'blur' }],
   itemunit: [{ required: true, message: '请输入单位', trigger: 'blur' }],
   itemRealPrice: [{ required: true, message: '请输入销售单价', trigger: 'blur' }],
-  itemweight: [{ required: true, message: '请输入单重', trigger: 'blur' }]
+  itemweight: [{ required: true, message: '请输入单重', trigger: 'blur' }],
+  itemDeliverTime: [{ required: true, message: '请选择交货时间', trigger: 'change' }]
 };
 
 // 是否已确认
@@ -884,7 +898,8 @@ const addProduct = () => {
     itemgrossweight: 0,
     itemsum: 0,
     itemRealPrice: 0,
-    itemRealSum: 0
+    itemRealSum: 0,
+    itemDeliverTime: '',
   });
   productDialogVisible.value = true;
 };
@@ -913,7 +928,8 @@ const editProduct = async (index, row) => {
         itemgrossweight: item.itemgrossweight || 0,
         itemsum: item.itemsum || 0,
         itemRealPrice: item.itemRealPrice || 0,
-        itemRealSum: item.itemRealSum || 0
+        itemRealSum: item.itemRealSum || 0,
+        itemDeliverTime: item.itemDeliverTime || '',
       });
       isProductEdit.value = true;
       editingProductIndex.value = index;
@@ -940,7 +956,8 @@ const handleProductSelect = (product) => {
     itemSpec: product.spec || '',
     itemunit: product.unit || '个',
     itemprice: product.planned_price || 0,
-    itemweight: product.weight || 0
+    itemweight: product.weight || 0,
+    itemDeliverTime:form.deliverTime || '',
   });
   updateCalculations();
 };

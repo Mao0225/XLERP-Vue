@@ -81,7 +81,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getContractList } from '@/api/tongzhi/tongzhi.js'
+import { getContractList } from '@/api/contract/bascontract'
 import { useTermStore } from '@/store/term.js'
 
 // 定义组件的 props

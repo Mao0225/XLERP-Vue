@@ -36,6 +36,8 @@
         clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
       <el-input v-model="queryParams.itemName" placeholder="请输入物料名称查询" style="width: 200px; margin-right: 10px;"
         clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
+              <el-input v-model="queryParams.spec" placeholder="请输入规格型号查询" style="width: 200px; margin-right: 10px;"
+        clearable @clear="getBasItemList" @keyup.enter="getBasItemList" />
       <el-button type="primary" @click="getBasItemList">搜索</el-button>
       <el-button type="warning" @click="handleRefresh">
         <el-icon>
@@ -56,7 +58,7 @@
         </template>
       </el-table-column>
       <!-- 必填项前置（物料编号、名称、分类、单位、规格、材质、执行标准） -->
-      <el-table-column prop="no" width="100" show-overflow-tooltip label="物料编号" />
+      <el-table-column prop="no" width="120" show-overflow-tooltip label="物料编号" />
       <el-table-column prop="name" width="120" show-overflow-tooltip label="物料名称" />
       <el-table-column prop="inclass" width="250" show-overflow-tooltip label="所属分类" />
       <el-table-column prop="unit" width="80" show-overflow-tooltip label="单位" />
@@ -68,8 +70,11 @@
         <template #default="scope">{{ scope.row.standard || '-' }}</template>
       </el-table-column>
       <!-- 补充字段（按原有逻辑排序） -->
-      <el-table-column prop="drawing_standard_no" width="120" show-overflow-tooltip label="图号/标准号">
-        <template #default="scope">{{ scope.row.drawing_standard_no || '-' }}</template>
+      <el-table-column prop="tuzhiNo" width="120" show-overflow-tooltip label="图号">
+        <template #default="scope">{{ scope.row.tuzhiNo || '-' }}</template>
+      </el-table-column>
+            <el-table-column prop="grade" width="80" show-overflow-tooltip label="等级">
+        <template #default="scope">{{ scope.row.grade || '-' }}</template>
       </el-table-column>
       <el-table-column prop="tech_memo" width="150" show-overflow-tooltip label="技术备注">
         <template #default="scope">{{ scope.row.tech_memo || '-' }}</template>
@@ -83,9 +88,7 @@
       <el-table-column prop="location" width="120" show-overflow-tooltip label="存放位置">
         <template #default="scope">{{ scope.row.location || '-' }}</template>
       </el-table-column>
-      <el-table-column prop="grade" width="80" show-overflow-tooltip label="等级">
-        <template #default="scope">{{ scope.row.grade || '-' }}</template>
-      </el-table-column>
+
       <el-table-column prop="material_version" width="100" show-overflow-tooltip label="物料版本">
         <template #default="scope">{{ scope.row.material_version || '-' }}</template>
       </el-table-column>
@@ -163,6 +166,7 @@ const unitOptions = [
 const queryParams = reactive({
   itemNo: '',
   itemName: '',
+  spec: '',
   firstClassId: '', // 一级分类ID
   secondClassId: '', // 二级分类ID
   pageNumber: 1,
@@ -273,6 +277,7 @@ const handleCurrentChange = (page) => {
 const handleRefresh = () => {
   queryParams.itemNo = ''
   queryParams.itemName = ''
+  queryParams.spec = ''
   queryParams.firstClassId = ''
   queryParams.secondClassId = ''
   queryParams.pageNumber = 1

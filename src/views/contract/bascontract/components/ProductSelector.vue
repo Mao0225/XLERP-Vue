@@ -1,223 +1,303 @@
+<!-- BasItemSelector.vue -->
 <template>
   <el-dialog
-    title="选择产品"
-    v-model="visible"
-    width="80%"
-    @closed="handleClose"
+    title="选择物料"
+    :model-value="props.modelValue"
+    width="70%"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    @update:model-value="emit('update:modelValue', $event)"
+    destroy-on-close
   >
-    <div class="search-bar">
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-input
-            v-model="searchForm.itemNo"
-            placeholder="请输入产品编号"
-            @keyup.enter="handleSearch"
+    <div class="basitem-selector">
+      <!-- 操作栏（筛选） -->
+      <div class="action-bar">
+        <el-select
+          v-model="queryParams.firstClassId"
+          placeholder="一级分类"
+          style="width: 160px; margin-right: 10px;"
+          clearable
+          @change="handleFirstClassChange"
+          @clear="handleFirstClassClear"
+        >
+          <el-option
+            v-for="item in firstClassOptions"
+            :key="item.id"
+            :label="item.classname"
+            :value="item.id"
           />
-        </el-col>
-        <el-col :span="8">
-          <el-input
-            v-model="searchForm.itemName"
-            placeholder="请输入产品名称"
-            @keyup.enter="handleSearch"
+        </el-select>
+
+        <el-select
+          v-model="queryParams.secondClassId"
+          placeholder="二级分类"
+          style="width: 160px; margin-right: 10px;"
+          clearable
+          :disabled="!queryParams.firstClassId"
+          @change="getBasItemList"
+        >
+          <el-option
+            v-for="item in filteredSecondClassOptions"
+            :key="item.id"
+            :label="item.classname"
+            :value="item.id"
           />
-        </el-col>
-        <el-col :span="8">
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="resetSearch">重置</el-button>
-        </el-col>
-      </el-row>
+        </el-select>
+
+        <el-input
+          v-model="queryParams.itemNo"
+          placeholder="物料编号"
+          clearable
+          style="width: 180px; margin-right: 10px;"
+          @clear="getBasItemList"
+          @keyup.enter="getBasItemList"
+        />
+        <el-input
+          v-model="queryParams.itemName"
+          placeholder="物料名称"
+          clearable
+          style="width: 180px; margin-right: 10px;"
+          @clear="getBasItemList"
+          @keyup.enter="getBasItemList"
+        />
+                <el-input
+          v-model="queryParams.spec"
+          placeholder="规格型号"
+          clearable
+          style="width: 180px; margin-right: 10px;"
+          @clear="getBasItemList"
+          @keyup.enter="getBasItemList"
+        />
+        
+
+        <el-button type="primary" @click="getBasItemList">搜索</el-button>
+        <el-button @click="handleRefresh">
+          <el-icon><Refresh /></el-icon> 重置
+        </el-button>
+      </div>
+
+      <!-- 物料表格 -->
+      <el-table
+        :data="basItemList"
+        border
+        v-loading="loading"
+        height="500"
+        highlight-current-row
+        @row-click="handleRowClick"
+        style="margin-top: 16px;"
+      >
+        <el-table-column label="序号" width="70" align="center">
+          <template #default="scope">
+            {{ (queryParams.pageNumber - 1) * queryParams.pageSize + scope.$index + 1 }}
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="no" label="物料编号" width="130" show-overflow-tooltip />
+        <el-table-column prop="name" label="物料名称" width="180" show-overflow-tooltip />
+        <el-table-column prop="inclass" label="所属分类" width="220" show-overflow-tooltip />
+        <el-table-column prop="unit" label="单位" width="80" />
+        <el-table-column prop="spec" label="规格型号" width="140" show-overflow-tooltip />
+        <el-table-column prop="material" label="材质" width="100">
+          <template #default="scope">{{ scope.row.material || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="standard" label="执行标准" width="160">
+          <template #default="scope">{{ scope.row.standard || '-' }}</template>
+        </el-table-column>
+
+        <!-- 操作列：选择按钮 -->
+        <el-table-column label="操作" width="100" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" @click.stop="selectProduct(row)">
+              选择
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="queryParams.pageNumber"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
-    <el-table
-      :data="productList"
-      border
-      v-loading="loading"
-      style="width: 100%; margin-top: 20px;"
-      @row-click="handleRowClick"
-    >
-      <el-table-column prop="no" label="产品编号" width="120" />
-      <el-table-column prop="name" label="产品名称" />
-      <el-table-column prop="spec" label="规格型号" />
-      <el-table-column prop="unit" label="单位" width="80" />
-      <el-table-column prop="planned_price" label="单价" width="100">
-        <template #default="{ row }">
-          ¥{{ row.planned_price.toFixed(2) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="weight" label="单重" width="80" />
-      <el-table-column label="操作" width="100">
-        <template #default="{ row }">
-          <el-button type="primary" size="small" @click="selectProduct(row)">
-            选择
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="queryParams.pageNumber"
-        v-model:page-size="queryParams.pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+    <!-- 底部按钮 -->
+    <template #footer>
+      <el-button @click="emit('update:modelValue', false)">取消</el-button>
+    </template>
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getBasItems } from '@/api/item/basitem'
+import { getBasItemClassTreeList } from '@/api/item/basitemclass'
+import { Refresh } from '@element-plus/icons-vue'
 
-// 定义组件的 props，接收父组件传递的弹窗显示状态
+// ==================== Props & Emits ====================
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  }
+  modelValue: { type: Boolean, default: false }
 })
-
-// 定义组件发出的事件，用于更新弹窗状态和通知父组件选中产品
 const emit = defineEmits(['update:modelValue', 'select'])
 
-// 控制弹窗的显示状态（响应式）
-const visible = ref(false)
-
-// 监听父组件传入的 modelValue，同步弹窗显示状态并在打开时获取产品列表
-watch(() => props.modelValue, (val) => {
-  visible.value = val
-  if (val) {
-    getProductList()
-  }
-})
-
-// 监听弹窗显示状态的变化，通知父组件更新 modelValue
-watch(visible, (val) => {
-  emit('update:modelValue', val)
-})
-
-// 搜索表单数据，包含产品编号和名称
-const searchForm = reactive({
-  itemNo: '',
-  itemName: ''
-})
-
-// 查询参数，包含分页信息和搜索条件
+// ==================== 响应式数据 ====================
 const queryParams = reactive({
-  pageNumber: 1,
-  pageSize: 10,
   itemNo: '',
-  itemName: ''
+  itemName: '',
+  firstClassId: '',
+  spec: '',
+  secondClassId: '',
+  pageNumber: 1,
+  pageSize: 20
 })
 
-// 产品列表数据（响应式），用于表格显示
-const productList = ref([])
-// 总记录数（响应式），用于分页组件
+const basItemList = ref([])
 const total = ref(0)
-// 加载状态（响应式），控制表格的加载动画
 const loading = ref(false)
 
-// 获取产品列表
-// 功能：调用后端 API 获取分页后的产品列表，基于查询参数（包括 itemNo 和 itemName）
-const getProductList = async () => {
-  loading.value = true // 开始加载，显示加载动画
+const firstClassOptions = ref([])
+const allSecondClassOptions = ref([])
+
+const filteredSecondClassOptions = computed(() => {
+  if (!queryParams.firstClassId) return []
+  return allSecondClassOptions.value.filter(item => item.parentId === queryParams.firstClassId)
+})
+
+// ==================== 方法 ====================
+// 加载分类
+const loadClassOptions = async () => {
   try {
-    // 同步搜索表单的 itemNo 和 itemName 到查询参数
-    queryParams.itemNo = searchForm.itemNo
-    queryParams.itemName = searchForm.itemName
-    // 调用后端 API 获取分页数据
+    const res = await getBasItemClassTreeList('')
+    const classTree = res.data.list || []
+
+    const first = []
+    const second = []
+
+    const traverse = (nodes, parentId = 0) => {
+      nodes.forEach(node => {
+        const { itemClass } = node
+        if (itemClass.type === 1) {
+          first.push({ id: itemClass.id, classname: itemClass.classname })
+          if (node.children?.length) traverse(node.children, itemClass.id)
+        } else if (itemClass.type === 2) {
+          second.push({
+            id: itemClass.id,
+            classname: itemClass.classname,
+            parentId
+          })
+          if (node.children?.length) traverse(node.children, itemClass.id)
+        }
+      })
+    }
+
+    traverse(classTree)
+    firstClassOptions.value = first
+    allSecondClassOptions.value = second
+  } catch (e) {
+    console.error(e)
+    ElMessage.error('加载分类失败')
+  }
+}
+
+// 获取列表
+const getBasItemList = async () => {
+  loading.value = true
+  try {
     const res = await getBasItems(queryParams)
-    // 设置表格数据为后端返回的分页列表
-    productList.value = res.data.page.list
-    // 设置总记录数为后端返回的总条数
-    total.value = res.data.page.totalRow
-  } catch (error) {
-    // 显示错误提示
-    ElMessage.error('获取产品列表失败: ' + error.message)
+    basItemList.value = res.data.page.list || []
+    total.value = res.data.page.totalRow || 0
+  } catch (e) {
+    console.error(e)
+    ElMessage.error('获取物料列表失败')
   } finally {
-    // 结束加载，关闭加载动画
     loading.value = false
   }
 }
 
-// 处理搜索操作
-// 功能：将搜索条件应用到查询参数，重置页码为 1，并重新获取产品列表
-const handleSearch = () => {
-  queryParams.pageNumber = 1 // 重置到第一页
-  getProductList() // 触发数据获取
+// 一级分类变化
+const handleFirstClassChange = () => {
+  queryParams.secondClassId = ''
+  queryParams.pageNumber = 1
+  getBasItemList()
+}
+const handleFirstClassClear = () => {
+  queryParams.secondClassId = ''
+  queryParams.pageNumber = 1
+  getBasItemList()
 }
 
-// 重置搜索条件
-// 功能：清空搜索表单的 itemNo 和 itemName，重置页码为 1，并重新获取产品列表
-const resetSearch = () => {
-  searchForm.itemNo = '' // 清空产品编号搜索条件
-  searchForm.itemName = '' // 清空产品名称搜索条件
-  queryParams.pageNumber = 1 // 重置到第一页
-  getProductList() // 触发数据获取
+// 重置
+const handleRefresh = () => {
+  Object.assign(queryParams, {
+    itemNo: '',
+    itemName: '',
+    spec: '',
+    firstClassId: '',
+    secondClassId: '',
+    pageNumber: 1,
+    pageSize: 20
+  })
+  getBasItemList()
 }
 
-// 处理分页大小变化
-// 功能：当用户更改每页显示条数时，更新 pageSize，重置页码为 1，并重新获取数据
+// 分页
 const handleSizeChange = (size) => {
-  queryParams.pageSize = size // 更新每页条数
-  queryParams.pageNumber = 1 // 重置到第一页
-  getProductList() // 触发数据获取
+  queryParams.pageSize = size
+  queryParams.pageNumber = 1
+  getBasItemList()
 }
-
-// 处理当前页变化
-// 功能：当用户切换页码时，更新 pageNumber，并重新获取数据
 const handleCurrentChange = (page) => {
-  queryParams.pageNumber = page // 更新当前页码
-  getProductList() // 触发数据获取
+  queryParams.pageNumber = page
+  getBasItemList()
 }
 
-// 处理表格行点击事件
-// 功能：当点击表格行时，触发选择产品操作
+// 点击行快速选择
 const handleRowClick = (row) => {
-  selectProduct(row) // 调用选择产品方法
+  selectProduct(row)
 }
 
-// 选择产品
-// 功能：触发 select 事件，关闭弹窗
-const selectProduct = (product) => {
-  // 通知父组件选中了产品
-  emit('select', product)
-  // 关闭弹窗
-  visible.value = false
+// 核心：选择并关闭
+const selectProduct = (row) => {
+  emit('select', row)           // 把选中行抛给父组件
+  emit('update:modelValue', false)  // 关闭弹窗
 }
 
-// 处理弹窗关闭事件
-// 功能：清空搜索条件，重置页码为 1
-const handleClose = () => {
-  searchForm.itemNo = '' // 清空产品编号搜索条件
-  searchForm.itemName = '' // 清空产品名称搜索条件
-  queryParams.pageNumber = 1 // 重置到第一页
-}
+// 弹窗打开时重新加载（可选，也可以在父组件打开时手动调用 refresh）
+watch(() => props.modelValue, (val) => {
+  if (val) {
+    queryParams.pageNumber = 1
+    loadClassOptions()
+    getBasItemList()
+  }
+})
+
+// ==================== 生命周期 ====================
+onMounted(() => {
+  // 首次打开时不加载，等弹窗真的显示再加载（上面 watch 已处理）
+})
 </script>
 
 <style scoped>
-/* 搜索栏样式 */
-.search-bar {
-  margin-bottom: 20px;
+.basitem-selector {
+  padding: 0 20px 20px;
 }
-
-/* 分页容器样式 */
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding-bottom: 16px;
+}
 .pagination-container {
   margin-top: 20px;
   text-align: right;
-}
-
-/* 表格行鼠标悬停样式 */
-:deep(.el-table__row) {
-  cursor: pointer;
-}
-
-/* 表格行悬停背景色 */
-:deep(.el-table__row:hover) {
-  background-color: #f5f7fa;
 }
 </style>

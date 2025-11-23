@@ -56,7 +56,6 @@
             <el-button
               type="primary"
               size="small"
-              :disabled="!row.zicailiaoshuliang || row.zicailiaoshuliang <= 0"
               @click="handleSelect(row)"
             >
               选择
