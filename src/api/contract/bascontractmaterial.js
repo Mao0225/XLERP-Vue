@@ -46,3 +46,4 @@ export function generateContractMaterialList(data) {
 export function getContractMaterial(params) {
   return get('/bas_contract_material/getById', params)
 }
+

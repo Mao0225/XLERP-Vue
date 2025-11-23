@@ -83,6 +83,10 @@
 
                     查看合同材料单
                   </el-button>
+                  <el-button type="warning" size="small" @click="openMaterialPlan(row)">
+
+                    查看合同备料计划
+                  </el-button>
                 
               </template>
             </el-table-column>
@@ -98,6 +102,7 @@
     </div>
 
     <ContractInfoReadonlyForm :visible="showContractInfoDialog" :initial-data="selectedContract" @update:visible="showContractInfoDialog = $event" />
+    <MaterialPlan :visible="showMaterialPlanDialog" :contract-no="selectedContractNo"  @update:visible="showMaterialPlanDialog = $event" />
     <MaterialList :visible="showMaterialListDialog" :contract-no="selectedContractNo" :contract-name="selectedContractName"  @update:visible="showMaterialListDialog = $event" />
   </div>
 </template>
@@ -110,6 +115,7 @@ import { getContractList, getContractByNo } from '@/api/contract/bascontract.js'
 import { useTermStore } from '@/store/term.js';
 import ContractInfoReadonlyForm from './contractInfo.vue';
 import MaterialList from './contractMaterial.vue';
+import MaterialPlan from './materialPlan.vue';
 const termStore = useTermStore();
 const currentTerm = computed(() => termStore.currentTerm);
 
@@ -122,6 +128,8 @@ const total = ref(0);
 const showMaterialListDialog = ref(false);
 const selectedContractNo = ref('');
 const selectedContractName = ref('');
+const showMaterialPlanDialog = ref(false);
+
 
 // 筛选条件
 const filters = reactive({
@@ -138,6 +146,13 @@ const openMaterialList = (row) => {
     selectedContractNo.value = row.no;
 selectedContractName.value = row.name;
   showMaterialListDialog.value = true;
+};
+
+const openMaterialPlan = (row) => { 
+    selectedContractNo.value = row.no;
+    selectedContractName.value = row.name;
+    console.log("打开合同备料计划");
+  showMaterialPlanDialog.value = true;
 };
 
 // 获取合同列表

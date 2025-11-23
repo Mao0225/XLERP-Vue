@@ -12,3 +12,8 @@ export function updateNoticeStatusById(data) {
 export function updateNoticeStatusByNoticeId(data) {
   return get('/tongzhi/updateBatchStatus', data)
 }
+
+//获取备料计划列表即合同全部产品的材料列表，根据一个产品合并的
+export function getContractMaterialPlan(params) {
+  return get('/bas_contract_material/generateMaterialPlan', params)
+}

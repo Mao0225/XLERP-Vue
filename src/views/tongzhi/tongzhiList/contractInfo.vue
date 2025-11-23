@@ -1,6 +1,11 @@
 <template>
-  <CustomDialog :visible="dialogVisible" title="根据合同制定通知" :is-full-screen="isFullscreen" :header-height="60" width="90%"
-    @update:visible="dialogVisible = $event" @update:is-full-screen="isFullscreen = $event">
+  <CustomDialog 
+  :visible="dialogVisible" 
+  title="根据合同制定通知" 
+  :is-full-screen="isFullscreen" 
+  :header-height="60" width="90%"
+    @update:visible="dialogVisible = $event"
+     @update:is-full-screen="isFullscreen = $event">
     <div class="dialog-body">
       <!-- 合同基本信息（不分分类，紧凑布局） -->
       <el-card shadow="never" class="section-card">
@@ -91,7 +96,14 @@
 >
   <!-- ===== 多行表头：分组标题 + 字段 ===== -->
   <el-table-column type="index" label="序号" width="50" />
-
+<!-- 状态列（新增） -->
+  <el-table-column label="通知状态" width="110" align="center">
+    <template #default="{ row }">
+      <el-tag :type="getStatusTagType(row.noticestatus)" size="small" effect="dark">
+        {{ getStatusText(row.noticestatus) }}
+      </el-tag>
+    </template>
+  </el-table-column>
   <!-- 物料信息组 -->
   <el-table-column label="物料信息" :colspan="6">
     <template #header>
@@ -133,8 +145,10 @@
         </template>
         <template #default="{ row, $index }">
           <!-- <el-button type="primary" size="small" @click="openPrductEdit($index, row)">矫正产品</el-button> -->
-          <el-button type="success" size="small" @click="openMaterialList(row)">查看材料</el-button>
-          <el-button type="warning" size="small" @click="openSetNotice(row)">制定通知</el-button>
+          <el-button type="primary" size="small" @click="openMaterialList(row)">查看材料</el-button>
+          <el-button v-if="row.noticestatus == 10" type="warning" size="small" @click="openSetNotice(row)">制定通知</el-button>
+          <el-button v-if="row.noticestatus == 10" type="success" size="small" @click="updateStatus(row.id,20)">确定通知</el-button>
+          <el-button v-if="row.noticestatus == 20" type="danger" size="small" @click="updateStatus(row.id,10)">撤销确认</el-button>
           <!-- <el-button type="warning" size="small" @click="deleteProduct($index, row)">确认产品</el-button> -->
         </template>
       </el-table-column>
@@ -158,11 +172,12 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage,ElMessageBox } from 'element-plus';
 import { getContractItemList, getContractItemTotal } from '@/api/contract/bascontract'; // 只保留需要的接口
 import CustomDialog from '@/components/common/CustomDialog.vue';
 import { useTermStore } from '@/store/term.js';
 import { useUserStore } from '@/store/user.js';
+import { updateNoticeStatusById } from '@/api/tongzhi/tongzhi';
 import MaterialDecomposeDialog from '../components/MaterialDecomposeDialog.vue';
 import setNotice from './setNotice.vue';
 
@@ -208,11 +223,31 @@ const noticeDialogVisible = ref(false);
 
 // 动态行类名：如果 noticeid 为空，则整行标红
 const tableRowClassName = ({ row }) => {
-  if (!row.noticeid || row.noticeid.trim() == 'N/A') {
+  if (!row.noticeauther || row.noticeauther.trim() == 'N/A') {
     return 'warning-row';
   }
   return '';
 };
+
+
+// 状态文字与颜色映射
+const statusMap = {
+  10: { text: '草稿', type: 'info' },
+  20: { text: '确认', type: 'primary' },
+  30: { text: '待审核', type: 'warning' },
+  31: { text: '审核通过', type: 'success' },
+  32: { text: '审核拒绝', type: 'danger' },
+  40: { text: '已提料', type: 'success' }
+}
+
+const getStatusText = (status) => {
+  return statusMap[status]?.text || '-'
+}
+
+const getStatusTagType = (status) => {
+  return statusMap[status]?.type || ''
+}
+
 const openMaterialList = (item) => {
   selectedItemId.value = item.itemid;//这个是产品关联的basitem表的id因为物料分解是在basitem里面关联的
   selectedQuantity.value = item.itemnum;
@@ -222,6 +257,42 @@ const openMaterialList = (item) => {
 const openSetNotice = (item) => {
   selectedItemId.value = item.id;//这个是合同产品表的id
   noticeDialogVisible.value = true;
+};
+
+
+// 修复后的 updateStatus 函数
+const updateStatus = async (id, status) => {
+  try {
+    // 关键修复：用 ElMessageBox.confirm 替代 ElMessage.confirm
+    await ElMessageBox.confirm(
+      `确定要${status === 20 ? '确定' : '撤销'}此通知吗？`,
+      '操作确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }
+    );
+
+    // 接口请求（保持原逻辑，用 await 优化）
+    await updateNoticeStatusById({ id, status });
+    
+    // 成功提示
+    ElMessage.success(`成功${status === 20 ? '确定' : '撤销'}此通知！`);
+    
+    // 重新加载列表
+    loadMaterialList();
+
+  } catch (error) {
+    // 捕获取消操作或接口异常
+    // 取消时，Element Plus 会抛出 'cancel' 字符串（新版本）或包含 message: 'cancel' 的 Error 对象（旧版本）
+    const isCancel = error === 'cancel' || (error instanceof Error && error.message === 'cancel');
+    if (!isCancel) {
+      ElMessage.error('操作失败！');
+      console.error('通知状态更新失败：', error);
+    }
+  }
 };
 
 // 初始表单数据

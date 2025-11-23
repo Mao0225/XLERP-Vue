@@ -3,67 +3,96 @@
   <el-dialog
     v-model="dialogVisible"
     title="通知信息"
-    width="50%"
+    width="60%" 
     :close-on-click-modal="false"
     :before-close="handleClose"
     :loading="loading"
+    class="custom-notice-dialog"
   >
     <!-- 物料信息（只读） -->
     <div class="section">
-      <h4 class="section-title">物料信息</h4>
-      <el-table
-        :data="[form]"
-        border
-        size="small"
-        style="width: 100%"
-        :show-header="false"
-      >
-        <el-table-column prop="itemNo" label="产品编号" width="120" show-overflow-tooltip />
-        <el-table-column prop="itemName" label="产品名称" width="140" show-overflow-tooltip />
-        <el-table-column prop="itemSpec" label="规格型号" width="120" show-overflow-tooltip />
-        <el-table-column prop="itemnum" label="数量" width="80" align="center" />
-        <el-table-column prop="itemunit" label="单位" width="80" align="center" />
-        <el-table-column prop="itemmemo" label="产品备注" min-width="120" show-overflow-tooltip />
-      </el-table>
+      <h4 class="section-title">
+        <i class="el-icon-box section-icon"></i> 物料信息
+      </h4>
+      <div class="info-card">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">产品编号：</span>
+            <span class="info-value" :title="form.itemNo">{{ form.itemNo || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">产品名称：</span>
+            <span class="info-value" :title="form.itemName">{{ form.itemName || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">规格型号：</span>
+            <span class="info-value" :title="form.itemSpec">{{ form.itemSpec || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">数量：</span>
+            <span class="info-value">{{ form.itemnum || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">单位：</span>
+            <span class="info-value">{{ form.itemunit || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">产品备注：</span>
+            <span class="info-value" :title="form.itemmemo">{{ form.itemmemo || '-' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 图纸信息（只读） -->
     <div class="section">
-      <h4 class="section-title">图纸信息</h4>
-      <el-table
-        :data="[form]"
-        border
-        size="small"
-        style="width: 100%"
-        :show-header="false"
-      >
-        <el-table-column prop="tuzhiNo" label="图纸编号" width="120" show-overflow-tooltip />
-      </el-table>
+      <h4 class="section-title">
+        <i class="el-icon-document section-icon"></i> 图纸信息
+      </h4>
+      <div class="info-card">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">图纸编号：</span>
+            <span class="info-value" :title="form.tuzhiNo">{{ form.tuzhiNo || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">图纸名称：</span>
+            <span class="info-value" :title="form.tuzhiName">{{ form.tuzhiName || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">图纸备注：</span>
+            <span class="info-value" :title="form.tuzhizuozhe">{{ form.tuzhizuozhe || '-' }}</span>
+          </div>
+          <div class="info-item info-item-full">
+            <span class="info-label">图纸文件：</span>
+            <div class="info-value file-list">
+              <template v-if="JSON.parse(form.tuzhiurl || '[]').length">
+                <div v-for="(file, index) in JSON.parse(form.tuzhiurl || '[]')" :key="index">
+                  <span class="file-link" @click="downloadFile(file.url, file.name)">
+                    <i class="el-icon-file"></i> {{ file.name }}
+                  </span>
+                </div>
+              </template>
+              <span v-else>-</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 通知信息（可编辑） -->
     <div class="section">
-      <h4 class="section-title">通知信息</h4>
+      <h4 class="section-title">
+        <i class="el-icon-bell section-icon"></i> 通知信息
+      </h4>
       <el-form
         ref="noticeFormRef"
         :model="form"
         label-width="120px"
         :rules="noticeRules"
         size="small"
+        class="notice-form"
       >
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="通知编号" prop="noticeid">
-              <el-input v-model="form.noticeid" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="通知名称" prop="noticename">
-              <el-input v-model="form.noticename" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="通知替代型号" prop="noticeinstead">
@@ -80,18 +109,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="通知作者" prop="noticeauther">
-              <el-input v-model="form.noticeauther" placeholder="请输入" />
+              <el-input v-model="form.noticeauther" placeholder="请输入" readonly class="readonly-input" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="通知制定时间" prop="noticebuilddate">
-              <el-date-picker
-                v-model="form.noticebuilddate"
-                type="date"
-                placeholder="选择日期"
-                style="width: 100%"
-                value-format="YYYY-MM-DD"
-              />
+             <el-input v-model="form.noticebuilddate" placeholder="请输入" readonly class="readonly-input" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -101,8 +124,8 @@
     <!-- 按钮区 -->
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" :loading="saving" @click="handleSave">
+        <el-button @click="handleClose" class="cancel-btn">取 消</el-button>
+        <el-button type="primary" :loading="saving" @click="handleSave" class="save-btn">
           保 存
         </el-button>
       </div>
@@ -111,9 +134,12 @@
 </template>
 
 <script setup>
+// 保持原有脚本不变
 import { ref, watch, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getBasContractItem, updateBasContractItem } from '@/api/contract/bascontract'
+import { useUserStore } from '@/store/user'
+import { baseURL } from '@/utils/request'
 
 // ---------- Props ----------
 const props = defineProps({
@@ -121,6 +147,7 @@ const props = defineProps({
   visible: { type: Boolean, default: false }
 })
 
+const userStore = useUserStore()
 const emit = defineEmits(['update:visible'])
 
 // ---------- 弹窗控制 ----------
@@ -144,6 +171,9 @@ const defaultForm = {
   itemunit: '',
   itemmemo: '',
   tuzhiNo: '',
+  tuzhiName: '',
+  tuzhizuozhe: '',
+  tuzhiurl: '',
   noticeid: '',
   noticename: '',
   noticeinstead: '',
@@ -175,6 +205,27 @@ const checkAndLoadData = () => {
   fetchItemInfo(id)
 }
 
+// 下载文件
+const downloadFile = (url, filename) => {
+  // 拼接 baseURL，确保 URL 是完整的
+  const fullUrl = url.startsWith('http') ? url : baseURL + url
+  const fileExtension = filename.split('.').pop().toLowerCase()
+  const viewableTypes = ['jpg', 'jpeg', 'png', 'pdf']
+  
+  if (viewableTypes.includes(fileExtension)) {
+    window.open(fullUrl, '_blank')
+  } else {
+    const link = document.createElement('a')
+    link.href = fullUrl
+    link.download = filename
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+      document.body.removeChild(link)
+    }, 100)
+  }
+}
 // ---------- 加载数据 ----------
 const fetchItemInfo = async (id) => {
   loading.value = true
@@ -183,6 +234,9 @@ const fetchItemInfo = async (id) => {
     const item = res.data.item || {}
     // 直接覆盖所有字段
     Object.assign(form, defaultForm, item)
+    form.noticeauther = userStore.realName;
+    form.noticebuilddate = new Date().toISOString().split('T')[0]
+
   } catch (e) {
     ElMessage.error('获取信息失败')
     console.error(e)
@@ -236,16 +290,195 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-.section {
-  margin-bottom: 24px;
+/* 基础样式优化 */
+.custom-notice-dialog {
+  --el-dialog-padding: 24px;
 }
+
+.section {
+  margin-bottom: 28px;
+  position: relative;
+}
+
+/* 标题样式优化 */
 .section-title {
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: #1989fa; /* 主色调 */
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  border-left: 3px solid #1989fa;
 }
+
+.section-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+/* 信息卡片样式 - 重点优化部分 */
+.info-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f2f5;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.info-item-full {
+  grid-column: 1 / -1; /* 占满整行 */
+}
+
+.info-label {
+  font-weight: 500;
+  color: #4e5969;
+  min-width: 80px;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.info-value {
+  flex: 1;
+  color: #1d2129;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+/* 文件列表样式 */
+.file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.file-link {
+  color: #409eff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background-color: #f0f9ff;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.file-link:hover {
+  color: #1989fa;
+  background-color: #e0f2fe;
+  text-decoration: none;
+}
+
+.file-link i {
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+/* 表单样式优化 */
+.notice-form {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f2f5;
+}
+
+/* 只读输入框样式 */
+.readonly-input {
+  background-color: #f9fafb !important;
+  color: #6b7280 !important;
+  cursor: not-allowed;
+}
+
+/* 按钮样式优化 */
 .dialog-footer {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn {
+  border-color: #d1d5db;
+  color: #4b5563;
+  transition: all 0.3s;
+}
+
+.cancel-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.save-btn {
+  background-color: #1989fa;
+  border-color: #1989fa;
+  transition: all 0.3s;
+}
+
+.save-btn:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+  .custom-notice-dialog {
+    width: 80% !important;
+  }
+  
+  .info-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-notice-dialog {
+    width: 95% !important;
+  }
+  
+  .el-row {
+    flex-direction: column;
+  }
+  
+  .el-col {
+    width: 100% !important;
+    margin-bottom: 8px;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-item {
+    align-items: flex-start;
+  }
+  
+  .info-label {
+    min-width: 70px;
+  }
+}
+
+/* 空值样式优化 */
+.info-value:empty::after,
+.info-value:contains('-') {
+  color: #909399;
+}
+
+/* 修复hover效果 */
+::v-deep(.el-input__inner:read-only:hover) {
+  border-color: #dcdfe6 !important;
 }
 </style>
