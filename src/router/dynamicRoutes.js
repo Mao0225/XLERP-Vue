@@ -100,10 +100,13 @@ const viewComponents = {
   'inspection/order-stock': () => import('@/views/plinspection/inspOrder/stock/InspOrderStockList.vue'),
 
 
-  //制定通知--毛文斌重写
-  'tongzhi/list': () => import('@/views/tongzhi/tongzhiList/list.vue'),
+  //制定通知合同列表页面--毛文斌重写
+  'tongzhi/contractList': () => import('@/views/tongzhi/contractList/list.vue'),
   //通知审核页面
   'tongzhi/tongzhiAudit': () => import('@/views/tongzhi/tongzhiList/tongzhiAudit.vue'),
+
+  //通知列表页面
+  'tongzhi/tongzhiList': () => import('@/views/tongzhi/tongzhiList/tongzhiAllList.vue'),
 
   //采购计划维护
   'plmanage/purchaseOrderList': () => import('@/views/plmanage/plpurchaseorder/orderList.vue'),

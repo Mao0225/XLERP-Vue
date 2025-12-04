@@ -1,6 +1,6 @@
 import { get, post, put,del} from '@/utils/request'
 
-// 根据合同编号获取备料列表
+// 根据通知编号获取备料列表
 export function getContractMaterialList(params) {
   return get('/bas_contract_material/getMaterialList', params)
 }
@@ -33,8 +33,8 @@ export function deleteContractMaterial(params) {
 }
 
 //根据合同号删除备料记录
-export function deleteMaterialByContractNo(params) {
-  return del('/bas_contract_material/deleteByContractNo', params)
+export function deleteMaterialByNoticeId(params) {
+  return del('/bas_contract_material/deleteByNoticeId', params)
 }
 
 //一键生成备料记录

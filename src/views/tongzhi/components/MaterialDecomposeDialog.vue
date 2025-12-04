@@ -7,23 +7,13 @@
     :close-on-click-modal="false"
     @close="handleClose"
   >
-    <!-- 操作栏：仅刷新 -->
-    <!-- <div class="action-bar">
-      <el-button 
-        type="warning" 
-        @click="fetchMaterialTree"
-        :loading="loading"
-      >
-        <RefreshCw class="icon" />
-        刷新
-      </el-button>
-    </div> -->
-
-    <!-- 加载状态 -->
-    <el-loading v-if="loading" target=".content" text="加载中..." />
-
-    <!-- 内容区域 -->
-    <div class="content">
+    <!-- 内容区域：添加 v-loading 指令 -->
+    <div 
+      class="content" 
+      v-loading="loading" 
+      element-loading-text="正在加载物料结构..."
+      element-loading-background="rgba(255, 255, 255, 0.8)"
+    >
       <!-- 第一级子物料列表（只读） -->
       <div class="list-container">
         <h3 class="section-title">第一级子物料</h3>
@@ -61,65 +51,61 @@
       <div class="tree-container">
         <h3 class="section-title">全层级物料分解关系</h3>
         <el-tree
-  v-if="!loading && treeData.length"
-  :data="treeData"
-  :props="treeProps"
-  :expand-on-click-node="false"
-  :default-expand-all="true"
-  class="tree-view"
->
-  <template #default="{ node, data }">
-    <div class="tree-node" :class="`level-${node.level}`">
-      <div class="node-info">
-        <span class="node-name">{{ data.name }}</span>
-        <span class="node-no">(编号：{{ data.no }})</span>
-        <span class="node-spec">规格：{{ data.spec || '-' }}</span>
-        <span class="node-class">(分类：{{ data.inclass }})</span>
-      </div>
-      <div class="node-quantity" v-if="data.relationQuantity !== undefined">
-        用量：{{ data.relationQuantity }} {{ data.unit || '个' }}
-      </div>
-    </div>
-  </template>
-</el-tree>
+          v-if="!loading && treeData.length"
+          :data="treeData"
+          :props="treeProps"
+          :expand-on-click-node="false"
+          :default-expand-all="true"
+          class="tree-view"
+        >
+          <template #default="{ node, data }">
+            <div class="tree-node" :class="`level-${node.level}`">
+              <div class="node-info">
+                <span class="node-name">{{ data.name }}</span>
+                <span class="node-no">(编号：{{ data.no }})</span>
+                <span class="node-spec">规格：{{ data.spec || '-' }}</span>
+                <span class="node-class">(分类：{{ data.inclass }})</span>
+              </div>
+              <div class="node-quantity" v-if="data.relationQuantity !== undefined">
+                用量：{{ data.relationQuantity }} {{ data.unit || '个' }}
+              </div>
+            </div>
+          </template>
+        </el-tree>
 
         <div class="empty-state" v-if="!loading && !treeData.length">
           <el-empty description="暂无物料分解关系" />
         </div>
       </div>
 
-         <!-- 合并子材料数量统计 -->
-<div class="summary-container" v-if="!loading && summaryData.length">
-  <h3 class="section-title">合并子材料数量</h3>
-  <el-table
-    :data="summaryData"
-    border
-    stripe
-    class="summary-table"
-    :header-cell-style="{ 'background-color': '#e6f7ff' }"
-  >
-    <el-table-column label="序号" type="index"  />
-    <el-table-column label="物料编号" prop="no"  />
-    <el-table-column label="物料名称" prop="name"  />
-    <el-table-column label="规格型号" prop="spec" />
-    <el-table-column label="分类" prop="inclass" />
-    <el-table-column label="总用量" >
-      <template #default="{ row }">
-        <strong>{{ row.totalQuantity }}</strong> {{ row.unit || '个' }}
-      </template>
-    </el-table-column>
-    <!-- <el-table-column label="计量单位" prop="unit" width="100" /> -->
-  </el-table>
-</div>
+      <!-- 合并子材料数量统计 -->
+      <div class="summary-container" v-if="!loading && summaryData.length">
+        <h3 class="section-title">合并子材料数量</h3>
+        <el-table
+          :data="summaryData"
+          border
+          stripe
+          class="summary-table"
+          :header-cell-style="{ 'background-color': '#e6f7ff' }"
+        >
+          <el-table-column label="序号" type="index"  />
+          <el-table-column label="物料编号" prop="no"  />
+          <el-table-column label="物料名称" prop="name"  />
+          <el-table-column label="规格型号" prop="spec" />
+          <el-table-column label="分类" prop="inclass" />
+          <el-table-column label="总用量" >
+            <template #default="{ row }">
+              <strong>{{ row.totalQuantity }}</strong> {{ row.unit || '个' }}
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
 
-<!-- 无数据时 -->
-<div class="empty-state" v-if="!loading && !summaryData.length && treeData.length">
-  <el-empty description="暂无可合并的子材料" />
-</div>
+      <!-- 无数据时 -->
+      <div class="empty-state" v-if="!loading && !summaryData.length && treeData.length">
+        <el-empty description="暂无可合并的子材料" />
+      </div>
     </div>
-
-
- 
 
     <!-- 底部按钮 -->
     <template #footer>
@@ -129,16 +115,15 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted,computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { RefreshCw } from 'lucide-vue-next'
 import { getMaterialTree } from '@/api/item/basitemrelation'
 
 // Props
 const props = defineProps({
   visible: { type: Boolean, required: true, default: false },
   itemId: { type: [Number, String], required: true },
-  itemQuantity: { type: [Number, String], required: true,default:1 }
+  itemQuantity: { type: [Number, String], required: true, default: 1 }
 })
 
 const emit = defineEmits(['update:visible', 'close'])
@@ -159,8 +144,20 @@ const treeProps = {
 // 监听 visible 变化
 watch(() => props.visible, (val) => {
   isVisible.value = val
-  if (val && props.itemId) {
-    fetchMaterialTree()
+  if (val) {
+    // 1. 打开时立即清空旧数据，防止闪烁
+    treeData.value = []
+    firstLevelChildren.value = []
+    
+    // 2. 立即开启 loading
+    loading.value = true
+    
+    // 3. 开始请求
+    if (props.itemId) {
+      fetchMaterialTree()
+    } else {
+      loading.value = false
+    }
   }
 }, { immediate: true })
 
@@ -170,9 +167,11 @@ watch(isVisible, (val) => {
 
 // 获取物料树
 const fetchMaterialTree = async () => {
-  if (!props.itemId) return
-  loading.value = true
+  loading.value = true // 确保请求开始时为 true
   try {
+    // 为了展示动画效果，如果接口太快，可以人为加一点延迟（可选，生产环境通常不需要）
+    // await new Promise(resolve => setTimeout(resolve, 300)) 
+
     const res = await getMaterialTree({ id: props.itemId })
     if (res.success && res.data.tree) {
       treeData.value = [res.data.tree]
@@ -256,12 +255,10 @@ onMounted(() => {
     fetchMaterialTree()
   }
 })
-
-
 </script>
 
 <style scoped>
-/* 保留原有美观样式，精简注释 */
+/* 保持原有样式不变 */
 .el-dialog {
   border-radius: 12px;
   overflow: hidden;
@@ -285,34 +282,14 @@ onMounted(() => {
   padding: 0;
 }
 
-.action-bar {
-  display: flex;
-  justify-content: flex-start;
-  padding: 16px 24px;
-  background: #f8f9fc;
-  border-bottom: 1px solid #ebeef5;
-  gap: 12px;
-}
-
-.action-bar .el-button {
-  border-radius: 8px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.icon {
-  width: 16px;
-  height: 16px;
-}
-
 .content {
   min-height: 600px;
   max-height: 720px;
   overflow-y: auto;
   padding: 20px 24px;
   background: #ffffff;
+  /* 确保 loading 遮罩层能正确定位 */
+  position: relative; 
 }
 
 .content::-webkit-scrollbar {
@@ -400,7 +377,7 @@ onMounted(() => {
 /* 根节点（成品） */
 .level-1 {
   font-weight: 700;
-  border-left-color: #1e3a8a; /* 深蓝 */
+  border-left-color: #1e3a8a; 
 }
 .level-1 .node-name { color: #1e3a8a; }
 .level-1 .node-quantity { 
@@ -411,7 +388,7 @@ onMounted(() => {
 
 /* 第一级子物料（半成品） */
 .level-2 {
-  border-left-color: #3b82f6; /* 亮蓝 */
+  border-left-color: #3b82f6; 
 }
 .level-2 .node-name { color: #3b82f6; }
 .level-2 .node-quantity { 
@@ -421,7 +398,7 @@ onMounted(() => {
 
 /* 第二级子物料（原材料） */
 .level-3 {
-  border-left-color: #10b981; /* 绿色 */
+  border-left-color: #10b981; 
 }
 .level-3 .node-name { color: #10b981; }
 .level-3 .node-quantity { 
@@ -470,12 +447,6 @@ onMounted(() => {
   text-align: center;
 }
 
-.divider {
-  height: 1px;
-  background: linear-gradient(to right, transparent, #dcdfe6, transparent);
-  margin: 24px 0;
-}
-
 /* 合并统计表 */
 .summary-container {
   margin-top: 32px;
@@ -517,14 +488,6 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .action-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .action-bar .el-button {
-    width: 100%;
-    justify-content: center;
-  }
   .content {
     padding: 16px;
   }

@@ -13,7 +13,7 @@
 
     <!-- 无数据 - 显示生成按钮 -->
     <div v-else-if="materialLeafList.length === 0" class="no-data">
-      <el-empty description="该合同暂无备料单数据">
+      <el-empty description="该通知暂无备料单数据">
         <el-button 
           type="primary" 
           :loading="generating"
@@ -177,7 +177,7 @@ import {
   getContractMaterialList, 
   generateContractMaterialList,
   updateContractMaterial,
-  deleteMaterialByContractNo
+  deleteMaterialByNoticeId
 } from '@/api/contract/bascontractmaterial';
 
 import { useUserStore } from '@/store/user';
@@ -199,6 +199,11 @@ const props = defineProps({
     type: String, 
     required: true, 
     default: '' 
+  },
+  noticeid:{
+    type: String, 
+    required: true, 
+    default: ''
   }
 });
 
@@ -249,11 +254,11 @@ const formatQuantity = (quantity) => {
 
 // ==================== 获取已保存的备料单列表 ====================
 const fetchMaterialList = async () => {
-  if (!props.contractNo) return;
+  if (!props.noticeid) return;
   loading.value = true;
   try {
     // 查询是否已有保存的备料单数据
-    const savedRes = await getContractMaterialList({ contractNo: props.contractNo });
+    const savedRes = await getContractMaterialList({ noticeid: props.noticeid });
     if (savedRes.success && Array.isArray(savedRes.data?.record) && savedRes.data.record.length > 0) {
       // 标记为已生成
       isGenerated.value = true;
@@ -293,7 +298,7 @@ const fetchMaterialList = async () => {
 const handleGenerateMaterialList = async () => {
   generating.value = true;
   try {
-    const generateRes = await generateContractMaterialList({ contractNo: props.contractNo });
+    const generateRes = await generateContractMaterialList({ contractNo: props.contractNo,noticeid:props.noticeid });
     // console.log('生成备料单接口返回：', generateRes); // 调试日志
     
     if (generateRes.success && Array.isArray(generateRes.data?.record) && generateRes.data.record.length > 0) {
@@ -375,6 +380,7 @@ const handleBatchSave = async () => {
         materialLeafList.value[index].saving = true;
 
         const payload = {
+          noticeid: props.noticeid,
           planQuantity: row.quantity,
           contractItemIds: row.contractItemIds || [],
           contractItemNames: row.itemNames || [],
@@ -450,6 +456,7 @@ const handleSaveMemo = async (row) => {
       contractNo: props.contractNo,
       contractName: props.contractName,
       writer: userStore.realName || '未知用户',
+      noticeid: props.noticeid,
       memo: (row.tempMemo || '').trim()
     };
 
@@ -493,7 +500,7 @@ const handleRegenerate = async () => {
         // console.log('开始批量删除，合同编号：', props.contractNo); // 调试日志
         
         try {
-          const deleteRes = await deleteMaterialByContractNo({ contractNo: props.contractNo });
+          const deleteRes = await deleteMaterialByNoticeId({ noticeid: props.noticeid });
           // console.log('批量删除结果：', deleteRes); // 调试日志
           
           if (!deleteRes.success) {
@@ -526,7 +533,7 @@ const handleRegenerate = async () => {
 
       // 3. 重新生成备料单（只有删除成功或无需删除时才执行）
       // console.log('开始重新生成备料单，合同编号：', props.contractNo); // 调试日志
-      const generateRes = await generateContractMaterialList({ contractNo: props.contractNo });
+      const generateRes = await generateContractMaterialList({ contractNo: props.contractNo,noticeid:props.noticeid });
       // console.log('重新生成接口返回：', generateRes); // 调试日志
       
       if (generateRes.success && Array.isArray(generateRes.data?.record) && generateRes.data.record.length > 0) {

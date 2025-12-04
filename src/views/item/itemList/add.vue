@@ -93,8 +93,8 @@
 
           <!-- 右侧列 -->
           <el-col :span="12">
-             <el-form-item label="执行标准" prop="standard" class="compact-item">
-              <el-input v-model="form.standard" placeholder="执行标准" clearable size="small" />
+             <el-form-item label="图号/标准" prop="standard" class="compact-item">
+              <el-input v-model="form.standard" placeholder="零件图号/执行标准" clearable size="small" />
             </el-form-item>
             <el-form-item label="物料属性" prop="material_attribute" class="compact-item">
               <el-input v-model="form.material_attribute" placeholder="物料属性" clearable size="small" />

@@ -77,15 +77,15 @@
               <template #default="{ row }">
                   <el-button type="primary" size="small" @click="openContractInfoDialog(row.no)">
 
-                    查看合同信息
+                    制定通知
                   </el-button>
-                  <el-button type="success" size="small" @click="openMaterialList(row)">
+                  <!-- <el-button type="success" size="small" @click="openMaterialList(row)">
 
                     查看合同材料单
-                  </el-button>
+                  </el-button> -->
                   <el-button type="warning" size="small" @click="openMaterialPlan(row)">
 
-                    查看合同备料计划
+                    查看备料计划
                   </el-button>
                 
               </template>
@@ -114,11 +114,10 @@ import { Search, Refresh,Document } from '@element-plus/icons-vue';
 import { getContractList, getContractByNo } from '@/api/contract/bascontract.js';
 import { useTermStore } from '@/store/term.js';
 import ContractInfoReadonlyForm from './contractInfo.vue';
-import MaterialList from './contractMaterial.vue';
-import MaterialPlan from './materialPlan.vue';
+import MaterialList from '../components/contractMaterial.vue';
+import MaterialPlan from '../components/materialPlan.vue';
 const termStore = useTermStore();
 const currentTerm = computed(() => termStore.currentTerm);
-
 // 状态管理
 const loading = ref(false);
 const showContractInfoDialog = ref(false);

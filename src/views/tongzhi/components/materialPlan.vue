@@ -9,12 +9,20 @@
     @update:is-full-screen="isFullscreen = $event"
   >
     <div class="dialog-title">合同产品备料计划</div>
-    <!-- 嵌套表格：主产品 + 原材料 -->
+    
+    <!-- 
+      修改点：
+      1. 添加 v-loading="loading" 实现表格内部等待动画
+      2. 添加 element-loading 配置提升体验
+    -->
     <el-table
+      v-loading="loading"
+      element-loading-text="正在加载备料计划..."
+      element-loading-background="rgba(255, 255, 255, 0.8)"
       :data="tableData"
       border
       :span-method="objectSpanMethod"
-      style="width: 100%; margin-top: 16px"
+      style="width: 100%; margin-top: 16px; min-height: 200px;" 
       :header-cell-style="{ 'background-color': '#f5f7fa', 'font-weight': 500 }"
     >
       <!-- 主产品列 -->
@@ -40,12 +48,12 @@
           {{ scope.row.actualQuantity ? scope.row.actualQuantity.toFixed(2) : '0.00' }}
         </template>
       </el-table-column>
+      
+      <!-- 空数据插槽 (当加载完成且无数据时显示) -->
+      <template #empty>
+        <div v-if="!loading" class="empty-tip">暂无备料计划数据</div>
+      </template>
     </el-table>
-
-    <!-- 加载状态 -->
-    <el-loading v-if="loading" target=".el-table" text="加载中..." />
-    <!-- 空数据提示 -->
-    <div v-if="!loading && tableData.length === 0" class="empty-tip">暂无备料计划数据</div>
   </CustomDialog>
 </template>
 
@@ -78,63 +86,70 @@ const dialogVisible = computed({
 });
 const isFullscreen = ref(true);
 const loading = ref(false);
-const rawData = ref([]); // 原始接口返回数据（主产品数组）
-const tableData = ref([]); // 处理后的表格渲染数据（主产品+原材料平级数组）
-const spanArr = ref([]); // 合并行计算结果
+const rawData = ref([]); 
+const tableData = ref([]); 
+const spanArr = ref([]); 
 
-// 监听父组件visible变化，控制弹窗显示/隐藏
+// 监听父组件visible变化
 watch(
   () => props.visible,
   (newVal) => {
     dialogVisible.value = newVal;
-    if (newVal && props.contractNo) {
-      fetchData(); // 弹窗显示时加载数据
+    if (newVal) {
+      // 修改点：每次打开弹窗时，先清空数据，并开启loading
+      clearData(); 
+      loading.value = true;
+      
+      if (props.contractNo) {
+        fetchData(); 
+      } else {
+        loading.value = false; // 如果没有合同号，直接结束loading
+      }
     }
   },
   { immediate: true }
 );
 
+// 修改点：独立的清空数据方法
+const clearData = () => {
+  tableData.value = [];
+  rawData.value = [];
+  spanArr.value = [];
+};
 
 // 加载备料计划数据
 const fetchData = async () => {
-  if (!props.contractNo) {
-    ElMessage.warning('合同编号不能为空');
-    return;
-  }
-
-  loading.value = true;
+  // 注意：这里不需要再设置 loading.value = true，因为 watch 中已经设置了
   try {
-    const res = await getContractMaterialPlan({ contractNo:props.contractNo });
+    const res = await getContractMaterialPlan({ contractNo: props.contractNo });
     if (res.success && res.data?.record) {
       rawData.value = res.data.record;
       formatTableData(); // 格式化表格数据
     } else {
-      ElMessage.warning('获取备料计划失败');
-      rawData.value = [];
-      tableData.value = [];
-      spanArr.value = [];
+      // 如果接口返回成功但无数据，保持 tableData 为空即可
+      ElMessage.warning(res.message || '未获取到备料计划数据');
     }
   } catch (error) {
     ElMessage.error('获取备料计划异常');
     console.error('备料计划查询失败：', error);
   } finally {
+    // 无论成功失败，最终关闭加载动画
     loading.value = false;
   }
 };
 
 /**
- * 格式化表格数据：将主产品和原材料平级化，便于合并行渲染
- * 逻辑：1个主产品 + N个原材料 → 生成 N+1 行数据，主产品行携带原材料信息（为空），原材料行携带主产品信息（复用）
+ * 格式化表格数据
  */
 const formatTableData = () => {
   const result = [];
   const spanTemp = [];
 
   rawData.value.forEach((mainProduct) => {
-    const { child = [], ...mainProps } = mainProduct; // 分离主产品属性和原材料数组
-    const materialCount = child.length; // 原材料数量
+    const { child = [], ...mainProps } = mainProduct; 
+    const materialCount = child.length; 
 
-    // 1. 主产品行：主产品属性完整，原材料属性为空
+    // 1. 主产品行
     const mainRow = {
       ...mainProps,
       no: '',
@@ -146,47 +161,42 @@ const formatTableData = () => {
     };
     result.push(mainRow);
 
-    // 2. 原材料行：复用主产品属性，填充原材料属性
+    // 2. 原材料行
     child.forEach((material) => {
       const materialRow = {
-        ...mainProps, // 主产品属性复用（用于合并行）
-        ...material, // 原材料属性
+        ...mainProps, 
+        ...material, 
       };
       result.push(materialRow);
     });
 
-    // 3. 计算合并行：主产品列合并 materialCount + 1 行
+    // 3. 计算合并行
     spanTemp.push(materialCount + 1);
   });
 
-  // 计算合并行的跨度数组（Element Plus 要求格式）
   calculateSpanArr(spanTemp);
   tableData.value = result;
 };
 
 /**
- * 修复：计算合并行跨度（给所有主产品列设置合并规则）
- * @param {Array} spanTemp - 每个主产品对应的总行数（主产品行+原材料行）
+ * 计算合并行跨度
  */
 const calculateSpanArr = (spanTemp) => {
   const arr = [];
   spanTemp.forEach((val) => {
-    // 主产品行：前6列都合并 val 行（主产品行+原材料行总数）
+    // 主产品行
     for (let i = 0; i < 6; i++) {
       arr.push({ rowspan: val, colspan: 1 });
     }
-    // 主产品行的原材料列：隐藏（合并 0 行）
     for (let i = 0; i < 6; i++) {
       arr.push({ rowspan: 0, colspan: 0 });
     }
 
-    // 原材料行：前6列（主产品列）隐藏（合并 0 行），循环 val-1 次（原材料行数）
+    // 原材料行
     for (let i = 1; i < val; i++) {
-      // 原材料行的主产品列：隐藏
       for (let j = 0; j < 6; j++) {
         arr.push({ rowspan: 0, colspan: 0 });
       }
-      // 原材料行的原材料列：不合并（默认 1 行 1 列）
       for (let j = 0; j < 6; j++) {
         arr.push({ rowspan: 1, colspan: 1 });
       }
@@ -196,18 +206,25 @@ const calculateSpanArr = (spanTemp) => {
 };
 
 /**
- * 修复：表格合并行方法（直接从 spanArr 取对应位置的规则）
+ * 表格合并行方法
  */
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }) => {
-  // 计算当前单元格在 spanArr 中的索引：rowIndex（行号） * 总列数（12） + columnIndex（列号）
+  // 如果没有数据或正在加载，不进行合并计算，防止报错
+  if (tableData.value.length === 0 || spanArr.value.length === 0) {
+    return { rowspan: 1, colspan: 1 };
+  }
   const index = rowIndex * 12 + columnIndex;
   return spanArr.value[index] || { rowspan: 1, colspan: 1 };
 };
 
-// 初始化时如果弹窗已显示且有合同编号，直接加载数据
 onMounted(() => {
   if (dialogVisible.value && props.contractNo) {
-    fetchData();
+    // 这里如果 mounted 时弹窗是开着的，也执行一次清空+加载逻辑
+    // 但通常由 watch 接管，这里保留是为了保险
+    if(tableData.value.length === 0) {
+        loading.value = true;
+        fetchData();
+    }
   }
 });
 </script>
@@ -229,7 +246,6 @@ onMounted(() => {
   font-size: 14px;
 }
 
-// 表格样式优化
 ::v-deep(.el-table) {
   --el-table-header-text-color: #333;
   --el-table-row-hover-bg-color: #fafafa;
@@ -242,7 +258,6 @@ onMounted(() => {
     border-bottom: 1px solid #f0f2f5;
   }
 
-  // 主产品行样式（可选，突出显示主产品）
   .el-table__row:first-child,
   .el-table__row:nth-child(n + 1):not(.el-table__row:nth-child(n + 1) ~ .el-table__row) {
     background-color: #f9fafb;

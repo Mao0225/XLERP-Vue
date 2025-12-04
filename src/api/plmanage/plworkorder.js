@@ -86,3 +86,14 @@ return get ('/pl_work_order/updateStatus', data)
 export function getWorkOrderByIpoNo (params) {
 return get ('/pl_work_order/getListByIpoNo', params)
 }
+
+
+/**
+ * 传入物料id和生产订单号，生成所有需要生产的工单就是包括半成品，成品
+ * @param {Object} params - 获取参数
+ * @param {string} params.itemId - 主产品id
+ * @param {string} params.amount - 主产品数量
+ */
+export function generatorWorkOrder (params) {
+return get ('/pl_work_order/generateWorkOrder', params)
+}

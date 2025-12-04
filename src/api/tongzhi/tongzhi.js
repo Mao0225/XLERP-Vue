@@ -17,3 +17,14 @@ export function updateNoticeStatusByNoticeId(data) {
 export function getContractMaterialPlan(params) {
   return get('/bas_contract_material/generateMaterialPlan', params)
 }
+
+
+//根据ids批量设置通知的编号和名称
+export function updateBatchNotice(data) {
+  return get('/tongzhi/updateBatchNotice', data)
+}
+
+//获取根据通知编号分组的通知列表
+export function getNoticeGroup(params) {
+  return get('/tongzhi/getNoticeGroup', params)
+}

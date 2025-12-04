@@ -51,7 +51,7 @@
                     <el-table-column label="用量" width="150" >
             <template #default="{ row }">
               <el-input-number
-                v-model.number="row.relationQuantity"
+                v-model="row.relationQuantity"
                 :min="0.01"
                 :step="0.01"
                 size="small"
@@ -100,9 +100,9 @@
                     <el-table-column label="用量" width="180">
             <template #default="{ row }">
               <el-input-number
-                v-model.number="row.relationQuantity"
-                :min="1"
-                :step="1"
+                v-model="row.relationQuantity"
+                :min="0.01"
+                :step="0.01"
                 :disabled="!row.isEditing"
                 size="small"
                 style="width: 120px;"

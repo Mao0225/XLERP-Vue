@@ -66,7 +66,7 @@
       <el-table-column prop="material" width="100" show-overflow-tooltip label="材质">
         <template #default="scope">{{ scope.row.material || '-' }}</template>
       </el-table-column>
-      <el-table-column prop="standard" width="150" show-overflow-tooltip label="执行标准">
+      <el-table-column prop="standard" width="150" show-overflow-tooltip label="零件图号/执行标准">
         <template #default="scope">{{ scope.row.standard || '-' }}</template>
       </el-table-column>
       <!-- 补充字段（按原有逻辑排序） -->
