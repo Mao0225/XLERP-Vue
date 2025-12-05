@@ -97,3 +97,11 @@ return get ('/pl_work_order/getListByIpoNo', params)
 export function generatorWorkOrder (params) {
 return get ('/pl_work_order/generateWorkOrder', params)
 }
+
+
+/**
+ * 获取工单各个工序的完成情况
+ */
+export function getWorkOrderComplete (params) {
+return get ('/pl_work_order/getWorkOrderComplete', params)
+}

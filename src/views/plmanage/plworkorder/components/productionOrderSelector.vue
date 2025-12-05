@@ -121,6 +121,33 @@
               <el-input v-model="row.memo" size="small" placeholder="请输入备注" />
             </template>
           </el-table-column>
+          <!-- 【新增】工序流程列 -->
+          <el-table-column label="生产工序流程" min-width="380">
+            <template #default="{ row }">
+              <div class="process-container">
+                <template v-if="row.processRoutes && row.processRoutes.length">
+                  <div 
+                    v-for="(proc, index) in row.processRoutes" 
+                    :key="proc.id" 
+                    class="process-node"
+                  >
+                    <!-- 工序胶囊 -->
+                    <div class="process-capsule">
+                      <span class="proc-code">{{ proc.processCode }}</span>
+                      <span class="proc-name">{{ proc.processName }}</span>
+                    </div>
+                    
+                    <!-- 连接箭头 (不是最后一个时显示) -->
+                    <el-icon v-if="index < row.processRoutes.length - 1" class="proc-arrow">
+                      <Right />
+                    </el-icon>
+                  </div>
+                </template>
+                
+                <span v-else class="no-process-text">无特定工序</span>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
 
@@ -149,9 +176,8 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Check } from '@element-plus/icons-vue'
+import { Search, Refresh, Check, Right } from '@element-plus/icons-vue'
 import CustomDialog from '@/components/common/CustomDialog.vue'
-
 // API 引入
 import { getConfirmOrderList } from '@/api/plmanage/plproductionorder'
 import { generatorWorkOrder, createPlWorkOrder } from '@/api/plmanage/plworkorder'
@@ -245,14 +271,10 @@ const generateBatchNo = () => {
 const preparePreviewData = async () => {
   globalLoading.value = true
   try {
-    // 1. 生成批次号
     generatedBatchNo.value = generateBatchNo()
 
-    // 2. 调用生成工单列表接口
-    // 注意：这里传递的是Step 1选中的basItemId和Step 2填写的数量
-    // 假设 selectedRow 中有 basItemId 或 itemId 字段，请根据实际情况调整
     const params = {
-      basItemId: selectedRow.value.basItemId, // 或者是 selectedRow.value.basItemId
+      basItemId: selectedRow.value.basItemId, 
       ipoNo: selectedRow.value.ipoNo,
       amount: formData.produceAmount
     }
@@ -260,36 +282,38 @@ const preparePreviewData = async () => {
     const res = await generatorWorkOrder(params)
     
     if (res.code === 200 && res.success) {
-      // 3. 数据映射：将接口返回的数据转换为 createPlWorkOrder 需要的格式
-      previewList.value = res.data.list.map(item => ({
-        // 原始字段保存 (如果需要)
-        _originId: item.id, 
+      previewList.value = res.data.list.map(item => {
         
-        // 映射字段
-        itemId: item.id,                 // id -> itemId
-        materialsCode: item.no,          // no -> materialsCode
-        materialsName: item.name,        // name -> materialsName
-        modelSpec: item.spec,            // spec -> modelSpec
-        materialsUnit: item.unit,        // unit -> materialsUnit
-        amount: item.requiredQuantity,   // requiredQuantity -> amount
-        
-        // 继承自上一步的字段
-        planStartDate: formData.planStartDate,
-        planFinishDate: formData.planFinishDate,
-        ipoNo: selectedRow.value.ipoNo,
-        woBatchNo: generatedBatchNo.value,
-        
-        // 额外字段
-        memo: '',                        // 允许用户填写
-        nodeType: item.nodeType          // 用于UI展示颜色区分
-      }))
+        // 1. 处理工序：判空 -> 排序
+        let sortedRoutes = []
+        if (item.processRoutes && item.processRoutes.length > 0) {
+          sortedRoutes = item.processRoutes.sort((a, b) => a.sort - b.sort)
+        }
+
+        return {
+          _originId: item.id, 
+          itemId: item.id,
+          materialsCode: item.no,
+          materialsName: item.name,
+          modelSpec: item.spec,
+          materialsUnit: item.unit,
+          amount: item.requiredQuantity,
+          
+          // 2. 将处理好的工序放入对象
+          processRoutes: sortedRoutes, 
+
+          planStartDate: formData.planStartDate,
+          planFinishDate: formData.planFinishDate,
+          ipoNo: selectedRow.value.ipoNo,
+          woBatchNo: generatedBatchNo.value,
+          memo: '',
+          nodeType: item.nodeType
+        }
+      })
     } else {
       throw new Error(res.msg || '生成失败')
     }
-    
-    // 成功后进入下一步
     activeStep.value = 2
-    
   } catch (error) {
     ElMessage.error(error.message || '获取工单预览失败')
   } finally {
@@ -438,5 +462,63 @@ watch(dialogVisible, (val) => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+/* 工序容器：允许换行，垂直居中 */
+.process-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px; /* 行间距 */
+  padding: 4px 0;
+}
+
+/* 单个节点：包含胶囊和箭头 */
+.process-node {
+  display: flex;
+  align-items: center;
+}
+
+/* 胶囊样式主体 */
+.process-capsule {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
+  font-size: 12px;
+  height: 24px;
+  line-height: 22px; /* 减去边框 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* 左侧编号：深色背景 */
+.proc-code {
+  background-color: #00d31c; /* 或者是 #409EFF 主题色 */
+  color: #fff;
+  padding: 0 6px;
+  font-family: monospace; /* 等宽字体显得更像编号 */
+  font-weight: bold;
+}
+
+/* 右侧名称：浅色背景 */
+.proc-name {
+  background-color: #f4f5f5;
+  color: #606665;
+  padding: 0 8px;
+  font-weight: 500;
+}
+
+/* 箭头样式 */
+.proc-arrow {
+  margin-left: 6px;
+  color: #c0c4cc;
+  font-size: 14px;
+}
+
+/* 空状态文字 */
+.no-process-text {
+  color: #909399;
+  font-size: 12px;
+  font-style: italic;
 }
 </style>

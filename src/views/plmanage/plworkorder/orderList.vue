@@ -46,7 +46,7 @@
           <el-table-column type="index" label="序号" width="60" />
           
           <!-- 工单整体状态 -->
-          <el-table-column label="状态" width="140" align="center">
+          <el-table-column label="状态" width="100" align="center">
             <template #default="{ row }">
               <el-tag :type="getStatusTagType(row.status)" size="small" effect="dark">
                 {{ getStatusText(row.status) }}
@@ -54,13 +54,13 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="woNo" label="生产工单号" width="100" show-overflow-tooltip>
+          <el-table-column prop="woNo" label="生产工单号" width="150" show-overflow-tooltip>
             <template #default="{ row }">
               <el-link type="primary">{{ row.woNo }}</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="materialsCode" label="物料编码" width="100" show-overflow-tooltip />
-          <el-table-column prop="materialsName" label="物料名称" width="100" show-overflow-tooltip />
+          <el-table-column prop="materialsName" label="物料名称" width="150" show-overflow-tooltip />
           <el-table-column prop="modelSpec" label="规格型号" width="100" show-overflow-tooltip />
           <el-table-column label="生产数量" width="80" align="center">
             <template #default="{ row }">
@@ -73,115 +73,63 @@
             </template>
           </el-table-column>
 
-          <!-- 全部工序（纯文字版，无图标） -->
-          <el-table-column label="全部工序" width="360" align="left">
+          <!-- 【修改】生产工序流程列 -->
+          <el-table-column label="生产工序流程" min-width="380">
             <template #default="{ row }">
-              <div class="process-list">
-                <div
-                  v-for="(proc, idx) in row.processes"
-                  :key="idx"
-                  class="process-item"
-                  :class="{
-                    finished: proc.status == 20,
-                    doing: proc.status == 10,
-                    todo: ![10, 20].includes(proc.status)
-                  }"
-                >
-                  <el-tag
-                    :type=" proc.status == 10 ? 'warning' : 'success'"
-                    size="small"
-                    effect="dark"
-                    style="width: 68px; text-align: center"
+              <div class="process-container">
+                <template v-if="row.processRoutes && row.processRoutes.length">
+                  <div 
+                    v-for="(proc, index) in row.processRoutes" 
+                    :key="proc.id || index" 
+                    class="process-node"
                   >
-                    {{  proc.status == 10 ? '进行中' : '完成' }}
-                  </el-tag>
-                  <span class="process-name">{{ proc.name }}</span>
-                  <span class="workshop">{{ proc.workshop }}</span>
-                </div>
+                    <!-- 工序胶囊 -->
+                    <div class="process-capsule">
+                      <span class="proc-code">{{ proc.processCode }}</span>
+                      <span class="proc-name">{{ proc.processName }}</span>
+                    </div>
+                    
+                    <!-- 连接箭头 (不是最后一个时显示) -->
+                    <el-icon v-if="index < row.processRoutes.length - 1" class="proc-arrow">
+                      <Right />
+                    </el-icon>
+                  </div>
+                </template>
+                
+                <span v-else class="no-process-text">暂无工序</span>
               </div>
             </template>
           </el-table-column>
 
           <!-- 操作列 -->
-          <el-table-column label="操作" width="300" fixed="right" align="center">
+          <el-table-column label="操作" width="110" fixed="right" align="center">
             <template #default="{ row }">
               <!-- 10 录入 -->
               <template v-if="row.status === '10'">
-                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '20')">
-                  确认开始生产
+                <el-button type="primary" link size="small" @click="handleStatusUpdate(row.id, '20')">
+                  确认生产
                 </el-button>
-                <el-button size="small" @click="openEditDialog(row.id)">编辑</el-button>
-                <el-button type="danger" size="small" @click="deleteOrder(row)">删除</el-button>
+                <el-button link size="small" @click="openEditDialog(row.id)">编辑</el-button>
+                <el-button type="danger" link size="small" @click="deleteOrder(row)">删除</el-button>
               </template>
 
               <!-- 20 已确认（生产中） -->
               <template v-if="row.status === '20'">
-                <el-button type="primary" size="small" @click="openReportOrderList(row)">
-                  更新报工单
+                <el-button type="primary" link size="small" @click="openReportOrderList(row)">
+                  报工录入
                 </el-button>
-                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '30')">
-                  完成生产
-                </el-button>
-                <el-button type="warning" size="small" @click="handleStatusUpdate(row.id, '10')">
-                  反确认
+                <el-button type="primary" link size="small" @click="openProcessDialog(row)">
+                  查看进度
                 </el-button>
               </template>
 
-              <!-- 30 生产完成 → 申请报检 -->
-              <template v-if="row.status === '30'">
-                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '40')">
-                  申请报检
+              <!-- 其他状态根据实际需求保留按钮，此处简化展示逻辑，避免按钮过多挤压 -->
+              <template v-if="!['10', '20'].includes(row.status)">
+                 <el-button type="primary" link size="small" @click="openProcessDialog(row)">
+                  查看进度
                 </el-button>
               </template>
 
-              <!-- 40 申请报检 → 报检通过 -->
-              <template v-if="row.status === '40'">
-                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '41')">
-                  报检通过
-                </el-button>
-              </template>
-
-              <!-- 41 报检通过 → 开始检验 -->
-              <template v-if="row.status === '41'">
-                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '50')">
-                  开始检验
-                </el-button>
-              </template>
-
-              <!-- 50 开始检验 → 检验完成 -->
-              <template v-if="row.status === '50'">
-                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '51')">
-                  检验完成
-                </el-button>
-              </template>
-
-              <!-- 51 检验完成 → 检验审核完成 -->
-              <template v-if="row.status === '51'">
-                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '52')">
-                  检验审核完成
-                </el-button>
-              </template>
-
-              <!-- 52 检验审核完成 → 申请入库 -->
-              <template v-if="row.status === '52'">
-                <el-button type="primary" size="small" @click="handleStatusUpdate(row.id, '60')">
-                  申请入库
-                </el-button>
-              </template>
-
-              <!-- 60 申请入库 → 入库成功 -->
-              <template v-if="row.status === '60'">
-                <el-button type="success" size="small" @click="handleStatusUpdate(row.id, '61')">
-                  入库成功
-                </el-button>
-              </template>
-
-              <!-- 已完成状态只看报工 -->
-              <template v-if="['30','40','41','50','51','52','60','61'].includes(row.status)">
-                <el-button type="primary" size="small" @click="openReportOrderList(row.woNo)">
-                  查看报工情况
-                </el-button>
-              </template>
             </template>
           </el-table-column>
         </el-table>
@@ -209,14 +157,21 @@
     />
     <productionOrderSelector v-model:visible="showSelector" @close="loadData" />
     <reportOrderList v-model:visible="showReportSelector" :woNo="selectWoNo" :ipo-no="selectIpoNo" />
+
+    <WorkOrderProcessDialog
+      v-model:visible="processDialogVisible"
+      :wo-no="selectWoNo"
+      :item-id="selectItemId"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Edit, Delete, Document } from '@element-plus/icons-vue'
+import { Search, Refresh, Edit, Delete, Document, Right } from '@element-plus/icons-vue' // 引入 Right 图标
 import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById, updateOrderStatus } from '@/api/plmanage/plworkorder'
+import WorkOrderProcessDialog from './components/WorkOrderProcessDialog.vue'; 
 
 import editOrder from './components/editOrder.vue'
 import productionOrderSelector from './components/productionOrderSelector.vue'
@@ -229,17 +184,26 @@ const showSelector = ref(false)
 const showReportSelector = ref(false)
 const selectWoNo = ref('')
 const selectIpoNo = ref('')
+const processDialogVisible = ref(false)
+const selectItemId = ref(null)
+
 const openReportOrderList = (row) => {
-  selectWoNo.value = row.woNo,
+  selectWoNo.value = row.woNo
   selectIpoNo.value = row.ipoNo
   showReportSelector.value = true
+}
+
+const openProcessDialog = (row) => {
+  selectWoNo.value = row.woNo;
+  selectItemId.value = row.itemId;
+  processDialogVisible.value = true;
 }
 
 const filters = reactive({ contractNo: '', contractName: '', woNo: '' })
 const pagination = reactive({ current: 1, size: 10, total: 0 })
 const tableData = ref([])
 
-// 加载数据（含模拟工序数据，实际使用时删掉 processes 部分即可）
+// 加载数据
 const loadData = async () => {
   loading.value = true
   try {
@@ -253,6 +217,7 @@ const loadData = async () => {
 
     const res = await getPlWorkOrderList(params)
     if (res.code === 200 && res.success) {
+      // 数据映射
       tableData.value = res.data.page.list.map(item => ({
         id: item.id,
         woNo: item.woNo,
@@ -265,30 +230,21 @@ const loadData = async () => {
         planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '',
         planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '',
         status: item.status || '10',
-
-       processes: item.processes
-      ? item.processes.split(';').map(procStr => {
-          const [name, workshop, status, writer] = procStr.split('|')
-          return {
-            name,
-            workshop,
-            status: Number(status),
-            writer
-          }
-        })
-      : []
-        
+        itemId: item.itemId,
+        // 【修改】直接获取后端传回来的 processRoutes 列表
+        processRoutes: item.processRoutes || [] 
       }))
       pagination.total = res.data.page.totalRow
     }
   } catch (err) {
+    console.error(err)
     ElMessage.error('数据加载失败')
   } finally {
     loading.value = false
   }
 }
 
-// 状态映射（统一维护）
+// 状态映射
 const getStatusText = (status) => ({
   '10': '录入',
   '20': '已确认',
@@ -315,7 +271,7 @@ const getStatusTagType = (status) => ({
   '61': 'success'
 }[status] || 'info')
 
-// 其余函数（查询、重置、分页、编辑、删除、状态更新）保持不变
+// 查询与操作
 const handleSearch = () => { pagination.current = 1; loadData() }
 const handleReset = () => {
   Object.keys(filters).forEach(k => filters[k] = '')
@@ -376,12 +332,61 @@ onMounted(loadData)
 .card-header { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
 .pagination-container { margin-top: 16px; text-align: right; }
 
-/* 工序列表样式（纯文字） */
-.process-list { display: flex; flex-direction: column; gap: 7px; font-size: 13px; }
-.process-item { display: flex; align-items: center; gap: 10px; }
-.process-item.finished { color: #67c23a; }
-.process-item.doing    { color: #e6a23c; font-weight: 500; }
-.process-item.todo     { color: #909399; }
-.process-name { min-width: 50px; font-weight: 500; }
-.workshop { color: #999; font-size: 12px; }
+/* 工序容器：允许换行，垂直居中 */
+.process-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px; /* 行间距 */
+  padding: 4px 0;
+}
+
+/* 单个节点：包含胶囊和箭头 */
+.process-node {
+  display: flex;
+  align-items: center;
+}
+
+/* 胶囊样式主体 */
+.process-capsule {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
+  font-size: 12px;
+  height: 24px;
+  line-height: 22px; /* 减去边框高度 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* 左侧编号：绿色背景 */
+.proc-code {
+  background-color: #00d31c; 
+  color: #fff;
+  padding: 0 6px;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* 右侧名称：浅灰背景 */
+.proc-name {
+  background-color: #f4f5f5;
+  color: #606665;
+  padding: 0 8px;
+  font-weight: 500;
+}
+
+/* 箭头样式 */
+.proc-arrow {
+  margin-left: 6px;
+  color: #c0c4cc;
+  font-size: 14px;
+}
+
+/* 空状态文字 */
+.no-process-text {
+  color: #909399;
+  font-size: 12px;
+  font-style: italic;
+}
 </style>
