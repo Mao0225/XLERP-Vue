@@ -115,9 +115,6 @@
 
               <!-- 20 已确认（生产中） -->
               <template v-if="row.status === '20'">
-                <el-button type="primary" link size="small" @click="openReportOrderList(row)">
-                  报工录入
-                </el-button>
                 <el-button type="primary" link size="small" @click="openProcessDialog(row)">
                   查看进度
                 </el-button>
@@ -149,19 +146,22 @@
     </div>
 
     <!-- 弹窗组件 -->
+     <!-- 修改工单弹窗 -->
     <editOrder
       :visible="editDialogVisible"
       :initial-data="formData"
       @update:visible="editDialogVisible = $event"
       @success="handleEditSuccess"
     />
+    <!-- 制定工单选择弹窗 -->
     <productionOrderSelector v-model:visible="showSelector" @close="loadData" />
-    <reportOrderList v-model:visible="showReportSelector" :woNo="selectWoNo" :ipo-no="selectIpoNo" />
-
+    <!-- 生产进度弹窗 -->
     <WorkOrderProcessDialog
       v-model:visible="processDialogVisible"
       :wo-no="selectWoNo"
       :item-id="selectItemId"
+      :ipo-no="selectIpoNo"
+      :wo-amount="selectAmount"
     />
   </div>
 </template>
@@ -175,26 +175,23 @@ import WorkOrderProcessDialog from './components/WorkOrderProcessDialog.vue';
 
 import editOrder from './components/editOrder.vue'
 import productionOrderSelector from './components/productionOrderSelector.vue'
-import reportOrderList from './components/reportOrderList.vue'
 
 const loading = ref(false)
 const editDialogVisible = ref(false)
 const formData = ref({})
 const showSelector = ref(false)
-const showReportSelector = ref(false)
 const selectWoNo = ref('')
 const selectIpoNo = ref('')
+const selectAmount = ref(null)
 const processDialogVisible = ref(false)
 const selectItemId = ref(null)
 
-const openReportOrderList = (row) => {
-  selectWoNo.value = row.woNo
-  selectIpoNo.value = row.ipoNo
-  showReportSelector.value = true
-}
+
 
 const openProcessDialog = (row) => {
   selectWoNo.value = row.woNo;
+  selectAmount.value = row.amount;
+  selectIpoNo.value = row.ipoNo;
   selectItemId.value = row.itemId;
   processDialogVisible.value = true;
 }

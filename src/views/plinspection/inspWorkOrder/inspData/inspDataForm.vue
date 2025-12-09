@@ -28,47 +28,16 @@
               {{ statusInfo.label }}
             </el-tag>
           </el-descriptions-item> -->
-                    <el-descriptions-item label="牌号">{{ orderData.matNo || '-' }}</el-descriptions-item>
-
-          <el-descriptions-item label="到货时间">{{ formatDate(orderData.deliveryTime) }}</el-descriptions-item>
-
           <el-descriptions-item label="物料名称">{{ orderData.itemName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料编码">{{ orderData.itemCode || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料型号">{{ orderData.itemSpec || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验标准">{{ orderData.inspStandard || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="炉批号">{{ orderData.batchNo || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="批次号">{{ orderData.batchNumber || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="到货型号">{{ orderData.actualSpec || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验数量">{{ orderData.inspQuantity || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="实际到货数量">{{ orderData.actualQuantity || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="实际到货重量">{{ orderData.actualWeight || '-' }}   {{orderData.unit}}</el-descriptions-item>
-
-          <el-descriptions-item label="检验录入时间">{{ formatDate(orderData.inspectTime) }}</el-descriptions-item>
           <el-descriptions-item label="检验完成时间">{{ formatDate(orderData.inspectFinishTime) }}</el-descriptions-item>
           <el-descriptions-item label="报检人">{{ orderData.reporter || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验人">{{ orderData.inspector || '-' }}</el-descriptions-item>
-
-          <el-descriptions-item label="入库审核人">{{ orderData.storageReviewer || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="报检审核人">{{ orderData.reportReviewer || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验审核人">{{ orderData.inspectReviewer || '-' }}</el-descriptions-item>
-
           <el-descriptions-item label="入库时间">{{ formatDate(orderData.inStockTime) }}</el-descriptions-item>
-
-          <!-- 质量证明书：可点击打开 -->
-          <el-descriptions-item label="质量证明书" :span="3">
-            <template v-if="certificateFiles.length">
-              <div class="file-container">
-                <div v-for="(f, i) in certificateFiles" :key="i">
-                  <el-tooltip :content="f.name">
-                    <span class="file-link inline-block px-1" @click="openFileInNewWindow(f.url)">
-                      {{ f.name }}
-                    </span>
-                  </el-tooltip>
-                </div>
-              </div>
-            </template>
-            <span v-else>-</span>
-          </el-descriptions-item>
 
           <el-descriptions-item label="整单备注" :span="3">
             <span class="text-gray-700">{{ orderData.remark || '-' }}</span>
@@ -99,26 +68,21 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="牌号" prop="matNo">
-                  <el-input v-model="orderForm.matNo" placeholder="请输入牌号" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
                 <el-form-item label="检验数量" prop="inspQuantity">
                   <el-input v-model.number="orderForm.inspQuantity" placeholder="请输入检验数量">
                     <template #append>件</template>
                   </el-input>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row :gutter="20">
-               <!--检验备注inspRemark  -->
+
+                             <!--检验备注inspRemark  -->
                <el-col :span="8">
                 <el-form-item label="检验备注" prop="inspRemark">
                   <el-input v-model="orderForm.inspRemark" placeholder="请输入检验备注" />
                 </el-form-item>
               </el-col>
             </el-row>
+
           </el-form>
         </el-card>
 
@@ -244,7 +208,7 @@ import {
   getInspResultByOrderId,
   deleteInspResult
 } from '@/api/plinspection/inspResult'
-import { updateInspOrder } from '@/api/plinspection/inspOrder'
+import { updateInspWorkOrder } from '@/api/plinspection/inspWorkOrder'
 import { baseURL } from '@/utils/request'
 
 /* ---------- Props & Emits ---------- */
@@ -280,7 +244,6 @@ const handleClose = () => {
 const orderForm = reactive({
   id: null,
   inspStandard: '',
-  matNo: '',
   inspQuantity: null,
   inspRemark: ''
 })
@@ -291,7 +254,6 @@ watch(
     if (newVal?.id) {
       orderForm.id = newVal.id
       orderForm.inspStandard = newVal.inspStandard || ''
-      orderForm.matNo = newVal.matNo || ''
       orderForm.inspQuantity = newVal.inspQuantity || null
       orderForm.inspRemark = newVal.inspRemark || ''
     }
@@ -303,7 +265,6 @@ const orderRef = ref(null)
 
 const rules = {
   inspStandard: [{ required: true, message: '请输入检验标准', trigger: 'blur' }],
-  matNo: [{ required: true, message: '请输入牌号', trigger: 'blur' }],
   inspQuantity: [
     { required: true, message: '请输入检验数量', trigger: 'blur' },
     { type: 'number', message: '必须为数字' }
@@ -313,7 +274,7 @@ const updateOrderForm = () => {
   orderRef.value.validate(async (valid) => {
     if (!valid) return
     try {
-      await updateInspOrder(orderForm)
+      await updateInspWorkOrder(orderForm)
       ElMessage.success('保存成功')
       emit('success')
     } catch (err) {
@@ -334,9 +295,7 @@ const formatDate = date => date
 /* ---------- 状态映射 ---------- */
 const statusOptions = [
   { label: '草稿', value: 0 },
-  { label: '报检确认，待审核', value: 10 },
-  { label: '报检通过', value: 11 },
-  { label: '报检拒绝', value: 12 },
+  { label: '报检确认，待检验', value: 10 },
   { label: '检验中', value: 20 },
   { label: '检验完成，待审核', value: 21 },
   { label: '检验合格，待入库', value: 22 },
@@ -389,7 +348,7 @@ const items = ref([])
 const loadInspectionResult = async () => {
   if (!props.orderData?.id) return
   try {
-    const { data } = await getInspResultByOrderId({ orderId: props.orderData.id ,type: '1'})
+    const { data } = await getInspResultByOrderId({ orderId: props.orderData.id ,type: '2'})
     const list = data?.list || []
 
     const groupMap = {}
@@ -576,7 +535,6 @@ const handleStdSelected = payload => {
     }
   })
   orderForm.inspStandard = payload.std.standardNo || ''
-  orderForm.matNo = payload.std.matNo || ''
   stdSelectorVisible.value = false
   addCount
     ? ElMessage.success(`已套用标准《${payload.std.standardNo}》，新增 ${addCount} 个检验项目`)
@@ -611,11 +569,10 @@ const submitInspection = async () => {
 
   try {
 
-    // 1. 先更新主表（检验标准、牌号、检验数量）
-    await updateInspOrder({
+    // 1. 先更新主表（检验标准、检验数量）
+    await updateInspWorkOrder({
       id: orderForm.id,
       inspStandard: orderForm.inspStandard,
-      matNo: orderForm.matNo,
       inspQuantity: orderForm.inspQuantity,
       inspRemark: orderForm.inspRemark
     })
@@ -635,7 +592,7 @@ const submitInspection = async () => {
           minValue: row.minValue,
           maxValue: row.maxValue,
           unit: row.unit || '',
-          type:1,//说明为原材料检验数据，2的话就是成品
+          type:2,//说明为成品检验数据，1的话就是原材料
           category: row.category || '',
           dataType: row.dataType || ''
         }

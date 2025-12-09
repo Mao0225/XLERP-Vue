@@ -62,7 +62,7 @@ const viewComponents = {
   //备品备件库存管理
   'kucun/beijian': () => import('@/views/kucun/beijian.vue'),
   //产成品库存管理
-  'kucun/chengpin': () => import('@/views/kucun/chengpin.vue'),
+  'kucun/chengpin': () => import('@/views/plstoreinout/finishInout/finishItemPage.vue'),
   //重点原材料库存管理
   'kucun/yuancailiao': () => import('@/views/kucun/yuancailiao.vue'),
 
@@ -83,9 +83,6 @@ const viewComponents = {
   //检验标准维护
   'inspection/standard': () => import('@/views/plinspection/inspStd/List.vue'),
 
-
-  //检验单维护
-  'inspection/order': () => import('@/views/plinspection/inspOrder/List.vue'),
 
     // 检验单 - 报检录入（所有状态）
   'inspection/order-entry': () => import('@/views/plinspection/inspOrder/order/InspOrderEntryList.vue'),
@@ -113,6 +110,19 @@ const viewComponents = {
 
   //采购计划维护
   'plmanage/purchaseOrderList': () => import('@/views/plmanage/plpurchaseorder/orderList.vue'),
+
+  //产成品报检列表
+  'plinspection/workOrderList': () => import('@/views/plinspection/inspWorkOrder/order/orderList.vue'),
+
+
+    // 产成品检验单 - 检验数据录入员（>=10）
+  'inspection/work-order-inspect': () => import('@/views/plinspection/inspWorkOrder/inspData/InspDataEntryList.vue'),
+
+  //产成品 检验单 - 检验审核（>=21）
+  'inspection/work-order-review': () => import('@/views/plinspection/inspWorkOrder/inspData/InspDataReviewList.vue'),
+
+  // 产成品检验单 - 入库审核（>=30）
+  'inspection/work-order-stock': () => import('@/views/plinspection/inspWorkOrder/stock/InspOrderStockList.vue'),
 
 
 

@@ -16,73 +16,6 @@
             <span class="title">基本信息</span>
           </div>
         </template>
-
-        <!-- ============ 物料选择展示区（必填） - 使用 el-descriptions ============ -->
-        <div class="mb-6">
-          <div class="text-lg font-semibold mb-3 text-gray-800">
-            采购计划信息
-          </div>
-
-          <el-descriptions
-            v-if="selectedMat"
-            :column="3"
-            border
-            size="small"
-            class="info-desc"
-          >
-            <el-descriptions-item label="合同编号">
-              {{ selectedMat.contractNo || '-' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="合同名称">
-              <el-tooltip :content="selectedMat.contractName" placement="top">
-                <span class="truncate-line">{{ selectedMat.contractName || '-' }}</span>
-              </el-tooltip>
-            </el-descriptions-item>
-            <el-descriptions-item label="物料编号">
-              {{ selectedMat.itemNo || '-' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="物料名称">
-              <el-tooltip :content="selectedMat.itemName" placement="top">
-                <span class="truncate-line">{{ selectedMat.itemName || '-' }}</span>
-              </el-tooltip>
-            </el-descriptions-item>
-            <el-descriptions-item label="规格型号">
-              <el-tooltip :content="selectedMat.itemSpec" placement="top">
-                <span class="truncate-line">{{ selectedMat.itemSpec || '-' }}</span>
-              </el-tooltip>
-            </el-descriptions-item>
-            <el-descriptions-item label="物料分类">
-              {{ selectedMat.inclass || '-' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="采购计划编号">
-              {{ selectedMat.purchaseOrderNo || '-' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="采购计划名称">
-              <el-tooltip :content="selectedMat.orderName" placement="top">
-                <span class="truncate-line">{{ selectedMat.orderName || '-' }}</span>
-              </el-tooltip>
-            </el-descriptions-item>
-            <el-descriptions-item label="采购计划备注" :span="2">
-              <el-tooltip :content="selectedMat.orderFormMemo" placement="top">
-                <span class="truncate-line">{{ selectedMat.orderFormMemo || '无' }}</span>
-              </el-tooltip>
-            </el-descriptions-item>
-            <el-descriptions-item label="制定人">
-              {{ selectedMat.orderWriter || '-' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="单位">
-              {{ selectedMat.unit || '-' }}
-            </el-descriptions-item>
-            <el-descriptions-item label="计划数量">
-              {{ selectedMat.planQuantity || '-' }}
-            </el-descriptions-item>
-          </el-descriptions>
-
-          <div v-else-if="props.orderData.purchaseId" class="text-gray-500 text-sm pl-4 mt-2">
-            采购物料信息加载中或暂无数据
-          </div>
-        </div>
-
         <!-- ============ 原有检验单基本信息 ============ -->
           <div class="text-lg font-semibold mb-3 text-gray-800">
             检验单信息
@@ -94,43 +27,18 @@
           <!-- <el-descriptions-item label="状态">
             <el-tag :type="statusInfo.type">{{ statusInfo.label }}</el-tag>
           </el-descriptions-item> -->
-                    <el-descriptions-item label="牌号">{{ orderData.matNo || '-' }}</el-descriptions-item>
 
-          <el-descriptions-item label="到货时间">{{ formatDate(orderData.deliveryTime) }}</el-descriptions-item>
           <el-descriptions-item label="物料名称">{{ orderData.itemName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料编码">{{ orderData.itemCode || '-' }}</el-descriptions-item>
           <el-descriptions-item label="物料型号">{{ orderData.itemSpec || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验标准">{{ orderData.inspStandard || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="炉批号">{{ orderData.batchNo || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="批次号">{{ orderData.batchNumber || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="到货型号">{{ orderData.actualSpec || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="实际到货数量">{{ orderData.actualQuantity || '-' }} </el-descriptions-item>
-          <el-descriptions-item label="实际到货重量">{{ orderData.actualWeight || '-' }}  {{orderData.unit}}</el-descriptions-item>
           <el-descriptions-item label="检验数量">{{ orderData.inspQuantity || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="检验录入时间">{{ formatDate(orderData.inspectTime) }}</el-descriptions-item>
           <el-descriptions-item label="检验完成时间">{{ formatDate(orderData.inspectFinishTime) }}</el-descriptions-item>
           <el-descriptions-item label="报检人">{{ orderData.reporter || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验人">{{ orderData.inspector || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="入库审核人">{{ orderData.storageReviewer || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="报检审核人">{{ orderData.reportReviewer || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验审核人">{{ orderData.inspectReviewer || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="入库时间">{{ formatDate(orderData.inStockTime) }}</el-descriptions-item>
-
-          <!-- 质量证明书 -->
-          <el-descriptions-item label="质量证明书" :span="3">
-            <template v-if="certificateFiles.length">
-              <div class="file-container">
-                <div v-for="(f, i) in certificateFiles" :key="i">
-                  <el-tooltip :content="f.name">
-                    <span class="file-link inline-block px-1" @click="openFileInNewWindow(f.url)">
-                      {{ f.name }}
-                    </span>
-                  </el-tooltip>
-                </div>
-              </div>
-            </template>
-            <span v-else>-</span>
-          </el-descriptions-item>
+          <el-descriptions-item label="库管员">{{ orderData.stockInPerson || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="入库时间">{{ formatDate(orderData.inStockFinishTime) }}</el-descriptions-item>
 
           <el-descriptions-item label="整单备注" :span="3">
             <span class="text-gray-700">{{ orderData.remark || '-' }}</span>
@@ -273,50 +181,15 @@ const getStatusInfo = (val) => {
 }
 const statusInfo = computed(() => getStatusInfo(props.orderData.status))
 
-/* ---------- 质量证明书 ---------- */
-const parseCertificate = s => {
-  if (!s) return []
-  try {
-    const arr = JSON.parse(s)
-    return Array.isArray(arr) ? arr.map(url => ({
-      name: url.split('/').pop() || '未知文件',
-      url
-    })) : []
-  } catch { return [] }
-}
-const certificateFiles = computed(() => parseCertificate(props.orderData.certificate))
-const openFileInNewWindow = url => {
-  if (!url) return
-  const full = url.startsWith('http') ? url : `${baseURL.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-  window.open(full, '_blank')
-}
 
-/* ---------- 采购物料信息加载 ---------- */
-const selectedMat = ref(null)
-const loadPurchaseMaterial = async () => {
-  if (!props.orderData?.purchaseId) {
-    selectedMat.value = null
-    return
-  }
-  try {
-    const res = await getContractMaterial({ id: props.orderData.purchaseId })
-    if (res.success && res.data?.record) {
-      selectedMat.value = res.data.record
-    } else {
-      selectedMat.value = null
-    }
-  } catch (e) {
-    console.error('加载采购物料失败', e)
-    selectedMat.value = null
-  }
-}
+
 
 /* ---------- 检验项目加载 ---------- */
 const items = ref([])
 const loadInspectionResult = async () => {
   if (!props.orderData?.id) return
   try {
-    const { data } = await getInspResultByOrderId({ orderId: props.orderData.id,type: '1' })
+    const { data } = await getInspResultByOrderId({ orderId: props.orderData.id ,type: '2'})
     const list = data?.list || []
     const groupMap = {}
     list.forEach(item => {
@@ -359,7 +232,6 @@ watch(
   ([newId, newPurchaseId, isVisible]) => {
     if (isVisible) {
       if (newId) loadInspectionResult()
-      if (newPurchaseId) loadPurchaseMaterial()
     }
   },
   { immediate: true }
