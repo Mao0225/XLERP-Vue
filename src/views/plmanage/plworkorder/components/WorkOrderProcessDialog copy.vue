@@ -15,7 +15,7 @@
       <div class="process-section" v-loading="loading" element-loading-text="正在加载工序信息...">
         <div class="section-title">
           <span>工序流程 (点击工序查看详情)</span>
-          <!-- 生产工序(type=1) 显示新增报工 -->
+          <!-- 【修改】按钮仅在生产工序(type=1)下显示，或根据需求调整 -->
           <el-button 
             type="primary" 
             class="add-report-btn"
@@ -24,18 +24,6 @@
           >
             新增报工
           </el-button>
-          
-          <!-- 检验工序(type=2) 显示发起报检 -->
-          <el-button 
-             v-if="currentProcessType == 2"
-             type="warning" 
-             class="add-report-btn"
-             style="background: linear-gradient(135deg, #E6A23C 0%, #f7ba2a 100%); box-shadow: 0 4px 10px rgba(230, 162, 60, 0.3);"
-             icon="Tickets" 
-             @click="openInspDialog"
-           >
-             发起报检
-           </el-button>
         </div>
         
         <div v-if="processList.length > 0" class="process-steps">
@@ -50,6 +38,7 @@
             <div class="p-info">
               <span class="label">编码:</span> {{ item.processCode }}
             </div>
+            <!-- 显示类型标签，方便区分 -->
             <div class="p-type" style="font-size: 10px; margin-bottom: 4px;">
               <el-tag v-if="item.processType == '1'" size="mini">生产流程</el-tag>
               <el-tag type="warning" v-if="item.processType == '2'" size="mini">检验流程</el-tag>
@@ -99,6 +88,7 @@
           <!-- ================= 检验/入库工序 (Type 2 or 3) 列定义 ================= -->
           <template v-else-if="currentProcessType == 2 || currentProcessType == 3">
             <el-table-column prop="orderNo" label="单号" width="140" align="center" show-overflow-tooltip />
+            
             <el-table-column prop="status" label="当前状态" width="120" align="center">
                 <template #default="scope">
                     <el-tag :type="getStatusInfo(scope.row.status).type" effect="light">
@@ -106,29 +96,35 @@
                     </el-tag>
                 </template>
             </el-table-column>
+
             <el-table-column prop="amount" label="数量" width="100" align="center">
                 <template #default="scope">
                 <span style="color: #E6A23C; font-weight: bold">{{ scope.row.amount }}</span>
                 </template>
             </el-table-column>
+
             <el-table-column prop="reporter" label="报检人" width="110" align="center" />
             <el-table-column prop="inspector" label="检验员" width="110" align="center">
                  <template #default="scope">{{ scope.row.inspector || '-' }}</template>
             </el-table-column>
-            <el-table-column prop="inspectReviewer" label="检验审核员" width="110" align="center">
+
+                        <el-table-column prop="inspectReviewer" label="检验审核员" width="110" align="center">
                  <template #default="scope">{{ scope.row.inspectReviewer || '-' }}</template>
             </el-table-column>
             <el-table-column prop="inspectFinishTime" label="检验完成时间"  align="center"></el-table-column>
-            <el-table-column prop="stockInPerson" label="入库审核人"  align="center">
+                        <el-table-column prop="stockInPerson" label="入库审核人"  align="center">
                  <template #default="scope">{{ scope.row.inspector || '-' }}</template>
             </el-table-column>
             <el-table-column prop="inStockFinishTime" label="入库时间"  align="center"></el-table-column>
+
             <el-table-column prop="createTime" label="创建时间" width="160" align="center" />
             <el-table-column label="操作" width="120" align="center"> 
-               <template #default="scope">
-                  <el-button type="primary" @click="handleDetail(scope.row)">详情</el-button>
-               </template>
+                           <template #default="scope">
+              <el-button type="primary" @click="handleDetail(scope.row)">详情</el-button>
+            </template>
             </el-table-column>
+            <!-- 操作列查看详情按钮 -->
+
           </template>
           
           <template #empty>
@@ -136,6 +132,7 @@
           </template>
         </el-table>
       </div>
+
     </div>
 
     <template #footer>
@@ -144,43 +141,123 @@
       </div>
     </template>
 
-    <!-- 子组件：报工弹窗 -->
-    <ReportWorkDialog
+    <!-- 报工弹窗 (只在 Type 1 时调用，逻辑保持不变) -->
+    <el-dialog
       v-model="reportDialogVisible"
-      :form-data="props.formData"
-      :process-list="processList"
-      :default-process-code="currentProcessCode"
-      @success="handleReportSuccess"
-    />
+      title="新增工序报工"
+      width="550px"
+      append-to-body
+      :close-on-click-modal="false"
+      class="report-custom-dialog"
+      @close="resetReportForm"
+    >
+        <!-- ... 弹窗内容保持不变，省略 ... -->
+         <el-form 
+        ref="reportFormRef" 
+        :model="reportForm" 
+        :rules="reportRules" 
+        label-width="90px"
+        class="styled-form"
+      >
+        <div class="info-block">
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="工单号" style="margin-bottom: 0;">
+                <span class="info-text">{{ props.formData.woNo }}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="订单号" style="margin-bottom: 0;">
+                <span class="info-text">{{ props.formData.ipoNo || '-' }}</span>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
 
-    <!-- 子组件：报检弹窗 -->
-    <ReportInspectionDialog
-      v-model="inspDialogVisible"
-      :form-data="props.formData"
-      @success="handleReportSuccess"
-    />
+        <div class="form-divider">填写报工信息</div>
 
-    <!-- 子组件：检验详情只读弹窗 -->
-    <InspDataReadonly
-      v-model="showReadDialog"
-      :order-data="currentOrder"
-    />
+        <el-form-item label="选择工序" prop="processCode">
+          <el-select 
+            v-model="reportForm.processCode" 
+            placeholder="请选择工序" 
+            style="width: 100%"
+            @change="handleReportProcessChange"
+          >
+            <template #prefix><el-icon><Operation /></el-icon></template>
+            <!-- 过滤下拉框，只允许选择生产工序 -->
+            <el-option
+              v-for="item in processList.filter(p => p.processType == 1)"
+              :key="item.processCode"
+              :label="item.processName"
+              :value="item.processCode"
+            >
+              <span style="float: left">{{ item.processName }}</span>
+              <span style="float: right; color: #8492a6; font-size: 12px">{{ item.processCode }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-row :gutter="20">
+            <el-col :span="12">
+                <el-form-item label="工序编号">
+                    <el-input v-model="reportForm.processCode" disabled placeholder="自动显示">
+                        <template #prefix><el-icon><CollectionTag /></el-icon></template>
+                    </el-input>
+                </el-form-item>
+            </el-col>
+            <el-col :span="12">
+                <el-form-item label="报工数量" prop="amount">
+                  <el-input-number 
+                    v-model="reportForm.amount" 
+                    :min="1" 
+                    style="width: 100%" 
+                    controls-position="right"
+                    placeholder="请输入"
+                  />
+                </el-form-item>
+            </el-col>
+        </el-row>
+
+        <el-form-item label="报工人员" prop="writer">
+          <el-input v-model="reportForm.writer" placeholder="请输入报工人员姓名">
+            <template #prefix><el-icon><User /></el-icon></template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item label="生产车间" prop="workshopName">
+          <el-input v-model="reportForm.workshopName" placeholder="请输入车间名称">
+            <template #prefix><el-icon><House /></el-icon></template>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="reportDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="submitReport" :loading="submitLoading">确 定 提 交</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+        <InspDataReadonly
+  v-model="showReadDialog"
+  :order-data="currentOrder"
+  />
 
   </CustomDialog>
+
+
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, reactive, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
-import { getPlReportWorkOrderListByWoNo } from '@/api/plmanage/plreportworkorder';
+import { Operation, CollectionTag, User, House, Plus } from '@element-plus/icons-vue';
+import { getPlReportWorkOrderListByWoNo, createPlReportWorkOrder } from '@/api/plmanage/plreportworkorder';
 import { getWorkOrderComplete } from '@/api/plmanage/plworkorder'; 
 import CustomDialog from '@/components/common/CustomDialog.vue';
-import { Plus, Tickets } from '@element-plus/icons-vue';
+import InspDataReadonly from './inspDataFormReadonly.vue'
 
-// 引入拆分出去的组件
-import ReportWorkDialog from './ReportWorkDialog.vue';
-import ReportInspectionDialog from './ReportInspectionDialog.vue';
-import InspDataReadonly from './inspDataFormReadonly.vue';
 
 // --- Props & Emits ---
 const props = defineProps({
@@ -194,17 +271,35 @@ const emit = defineEmits(['update:visible', 'close']);
 const isFullscreen = ref(false);
 const loading = ref(false);       
 const detailLoading = ref(false); 
+const showReadDialog = ref(false);
+const currentOrder = ref(false);
+
 const processList = ref([]);      
 const reportList = ref([]);       
 const currentProcessCode = ref(null); 
 const currentProcessName = ref('');
+// 【新增】当前工序类型：1-生产，2-检验/入库
 const currentProcessType = ref(1); 
 
-// 弹窗状态
+// --- 报工相关 State ---
 const reportDialogVisible = ref(false);
-const inspDialogVisible = ref(false);
-const showReadDialog = ref(false);
-const currentOrder = ref({});
+const submitLoading = ref(false);
+const reportFormRef = ref(null);
+
+const reportForm = reactive({
+  processCode: '',
+  processName: '',
+  amount: undefined,
+  writer: '',
+  workshopName: ''
+});
+
+const reportRules = {
+  processCode: [{ required: true, message: '请选择工序', trigger: 'change' }],
+  amount: [{ required: true, message: '请输入报工数量', trigger: 'blur' }],
+  writer: [{ required: true, message: '请输入报工人员', trigger: 'blur' }],
+  workshopName: [{ required: true, message: '请输入车间名称', trigger: 'blur' }]
+};
 
 // --- Computed & Watchers ---
 const dialogVisible = computed({
@@ -224,7 +319,7 @@ watch(() => props.visible, (val) => {
   }
 });
 
-// --- Methods ---
+// --- 【新增】状态字典映射 ---
 const statusMap = {
     '0':  { label: '草稿', type: 'info' },
     '10': { label: '发起报检', type: 'primary' },
@@ -236,11 +331,20 @@ const statusMap = {
     '31': { label: '入库完成', type: 'success' }
 };
 
+//---- 打开检验数据弹窗 -- 
+const handleDetail = (row) => { 
+  showReadDialog.value = true;
+  currentOrder.value = row;
+};
+
+// --- 【新增】获取状态显示信息 ---
 const getStatusInfo = (statusCode) => {
+    // 确保 statusCode 是字符串处理，防止数字/字符串不匹配
     const key = String(statusCode);
     return statusMap[key] || { label: '未知状态', type: 'info' };
 };
 
+// --- Methods ---
 const initData = async () => {
   loading.value = true;
   processList.value = [];
@@ -248,9 +352,11 @@ const initData = async () => {
     const res = await getWorkOrderComplete({ woNo: props.formData.woNo, itemId: props.formData.itemId });
     if (res.code === 200 && res.data && res.data.list) {
       processList.value = res.data.list;
+      // 默认选中第一个
       if (!currentProcessCode.value && processList.value.length > 0) {
         handleProcessClick(processList.value[0]);
       } else if (currentProcessCode.value) {
+        // 如果有缓存的选中项，刷新时保持选中
         const currentItem = processList.value.find(p => p.processCode === currentProcessCode.value);
         if (currentItem) handleProcessClick(currentItem);
         else if (processList.value.length > 0) handleProcessClick(processList.value[0]);
@@ -269,11 +375,13 @@ const initData = async () => {
 const handleProcessClick = async (item) => {
   currentProcessCode.value = item.processCode;
   currentProcessName.value = item.processName;
+  // 【新增】保存当前的工序类型
   currentProcessType.value = item.processType;
   
   detailLoading.value = true;
   reportList.value = []; 
   try {
+    // 后端接口：根据 processType 不同，返回的 orderList 结构不同
     const res = await getPlReportWorkOrderListByWoNo({
       woNo: props.formData.woNo,
       processCode: item.processCode,
@@ -295,7 +403,7 @@ const clearData = () => {
   reportList.value = [];
   currentProcessCode.value = null;
   currentProcessName.value = '';
-  currentProcessType.value = 1; 
+  currentProcessType.value = 1; // 重置
 };
 
 const handleVisibleUpdate = (val) => {
@@ -307,39 +415,78 @@ const handleClose = () => {
   handleVisibleUpdate(false);
 };
 
-const handleDetail = (row) => { 
-  showReadDialog.value = true;
-  currentOrder.value = row;
-};
-
-// --- 操作弹窗逻辑 ---
+// --- 报工逻辑 (仅针对 Type 1) ---
 const openReportDialog = () => {
   if (currentProcessType.value != 1) {
     ElMessage.warning('当前工序类型不支持手动报工');
     return;
   }
   reportDialogVisible.value = true;
-};
-
-const openInspDialog = () => {
-  inspDialogVisible.value = true;
-};
-
-// 子组件提交成功后的回调
-const handleReportSuccess = () => {
-  // 刷新当前选中的工序详情
-  const currentItem = processList.value.find(p => p.processCode === currentProcessCode.value);
-  if (currentItem) {
-      handleProcessClick(currentItem);
-      // 可选：如果报工影响了总进度，可能需要重新initData刷新左侧数字
-      // initData(); 
-  } else {
-      initData();
+  if (currentProcessCode.value) {
+    nextTick(() => {
+        reportForm.processCode = currentProcessCode.value;
+        handleReportProcessChange(currentProcessCode.value);
+    });
   }
+};
+
+const handleReportProcessChange = (val) => {
+  const selectedProcess = processList.value.find(item => item.processCode === val);
+  reportForm.processName = selectedProcess ? selectedProcess.processName : '';
+};
+
+const resetReportForm = () => {
+  if (reportFormRef.value) reportFormRef.value.resetFields();
+  reportForm.processName = '';
+  reportForm.amount = undefined;
+};
+
+const submitReport = async () => {
+  if (!reportFormRef.value) return;
+  
+  await reportFormRef.value.validate(async (valid) => {
+    if (valid) {
+      submitLoading.value = true;
+      try {
+        const params = {
+          woNo: props.formData.woNo,
+          ipoNo: props.formData.ipoNo, 
+          itemId: props.formData.itemId,
+          processCode: reportForm.processCode,
+          processName: reportForm.processName,
+          amount: reportForm.amount,
+          writer: reportForm.writer,
+          workshopName: reportForm.workshopName
+        };
+
+        const res = await createPlReportWorkOrder(params);
+        if (res.code === 200) {
+          ElMessage.success('报工成功');
+          reportDialogVisible.value = false;
+          // 重新加载数据
+          const currentItem = processList.value.find(p => p.processCode === currentProcessCode.value);
+          if (currentItem) {
+              handleProcessClick(currentItem);
+              // 可能还需要刷新上面的总进度，这里简单起见只刷新列表
+          } else {
+              initData();
+          }
+        } else {
+          ElMessage.error(res.msg || '报工失败');
+        }
+      } catch (error) {
+        console.error(error);
+        ElMessage.error('系统异常，请稍后重试');
+      } finally {
+        submitLoading.value = false;
+      }
+    }
+  });
 };
 </script>
 
 <style scoped lang="scss">
+/* ... 保留原有样式 ... */
 .dialog-content {
   display: flex;
   flex-direction: column;
@@ -431,7 +578,7 @@ const handleReportSuccess = () => {
   .p-name {
     font-weight: bold;
     color: #303133;
-    margin-bottom: 4px;
+    margin-bottom: 4px; /* 微调 */
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -494,5 +641,36 @@ const handleReportSuccess = () => {
   text-align: center;
   padding: 30px 0;
   color: #999;
+}
+
+.info-block {
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-left: 3px solid #67C23A; 
+  
+  .info-text {
+    font-weight: bold;
+    color: #303133;
+    font-size: 14px;
+  }
+}
+
+.form-divider {
+  font-size: 13px;
+  color: #909399;
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e4e7ed;
+  }
+  &::before { margin-right: 10px; }
+  &::after { margin-left: 10px; }
 }
 </style>

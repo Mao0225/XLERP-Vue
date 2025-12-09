@@ -158,10 +158,7 @@
     <!-- 生产进度弹窗 -->
     <WorkOrderProcessDialog
       v-model:visible="processDialogVisible"
-      :wo-no="selectWoNo"
-      :item-id="selectItemId"
-      :ipo-no="selectIpoNo"
-      :wo-amount="selectAmount"
+      :form-data="selectRow"
     />
   </div>
 </template>
@@ -180,19 +177,13 @@ const loading = ref(false)
 const editDialogVisible = ref(false)
 const formData = ref({})
 const showSelector = ref(false)
-const selectWoNo = ref('')
-const selectIpoNo = ref('')
-const selectAmount = ref(null)
+const selectRow = ref('')
 const processDialogVisible = ref(false)
-const selectItemId = ref(null)
 
 
 
 const openProcessDialog = (row) => {
-  selectWoNo.value = row.woNo;
-  selectAmount.value = row.amount;
-  selectIpoNo.value = row.ipoNo;
-  selectItemId.value = row.itemId;
+  selectRow.value = row;
   processDialogVisible.value = true;
 }
 

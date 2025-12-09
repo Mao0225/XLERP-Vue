@@ -37,8 +37,8 @@
           <el-descriptions-item label="报检人">{{ orderData.reporter || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验人">{{ orderData.inspector || '-' }}</el-descriptions-item>
           <el-descriptions-item label="检验审核人">{{ orderData.inspectReviewer || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="库管员">{{ orderData.inStockPerson || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="入库时间">{{ formatDate(orderData.inStockTime) }}</el-descriptions-item>
+          <el-descriptions-item label="库管员">{{ orderData.stockInPerson || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="入库时间">{{ formatDate(orderData.inStockFinishTime) }}</el-descriptions-item>
 
           <el-descriptions-item label="整单备注" :span="3">
             <span class="text-gray-700">{{ orderData.remark || '-' }}</span>
@@ -181,17 +181,6 @@ const getStatusInfo = (val) => {
 }
 const statusInfo = computed(() => getStatusInfo(props.orderData.status))
 
-/* ---------- 质量证明书 ---------- */
-const parseCertificate = s => {
-  if (!s) return []
-  try {
-    const arr = JSON.parse(s)
-    return Array.isArray(arr) ? arr.map(url => ({
-      name: url.split('/').pop() || '未知文件',
-      url
-    })) : []
-  } catch { return [] }
-}
 
 
 
