@@ -42,10 +42,21 @@
 
       <div class="form-divider">填写报检信息</div>
 
+      <!-- 检验单号 -->
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item label="检验单号" prop="orderNo">
+            <el-input v-model="inspForm.orderNo" placeholder="请输入检验单号" disabled>
+              <template #prefix><el-icon><Document /></el-icon></template>
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
       <el-row :gutter="20">
           <el-col :span="12">
               <el-form-item label="报检人" prop="reporter">
-                <el-input v-model="inspForm.reporter" placeholder="请输入姓名">
+                <el-input v-model="inspForm.reporter" placeholder="请输入姓名" disabled>
                   <template #prefix><el-icon><User /></el-icon></template>
                 </el-input>
               </el-form-item>
@@ -75,12 +86,20 @@
                   />
               </el-form-item>
           </el-col>
-          <el-col :span="12">
-              <el-form-item label="送货单位" prop="deliveryUnit">
-                <el-input v-model="inspForm.deliveryUnit" placeholder="请输入单位名称">
-                   <template #prefix><el-icon><House /></el-icon></template>
-                </el-input>
-              </el-form-item>
+<el-col :span="12">
+            <el-form-item label="送货单位" prop="deliveryUnit">
+              <el-select 
+                v-model="inspForm.deliveryUnit" 
+                placeholder="请选择送货单位"
+                style="width: 100%"
+              >
+                <template #prefix>
+                   <el-icon><House /></el-icon>
+                </template>
+                <el-option label="机锻分厂" value="机锻分厂" />
+                <el-option label="铝加工分厂" value="铝加工分厂" />
+              </el-select>
+            </el-form-item>
           </el-col>
       </el-row>
 
@@ -110,9 +129,12 @@ import { ElMessage } from 'element-plus';
 import { createInspWorkOrder } from '@/api/plinspection/inspWorkOrder';
 import { User, House } from '@element-plus/icons-vue';
 
+import { useUserStore } from '@/store/user'
+const userStore = useUserStore()
 const props = defineProps({
   modelValue: { type: Boolean, default: false }, // v-model
-  formData: { type: Object, default: () => ({}) }
+  formData: { type: Object, default: () => ({}) },
+  newCode: { type: String, default: '' }
 });
 
 const emit = defineEmits(['update:modelValue', 'success']);
@@ -126,20 +148,22 @@ const inspSubmitLoading = ref(false);
 const inspFormRef = ref(null);
 
 const inspForm = reactive({
+  orderNo:'',
   woNo: '',
   ipoNo: '',
   itemId: '',
   contractNo: '',
   contractName: '',
-  reporter: '',
+  reporter: userStore.realName,
   reportApplyTime: '',
   amount: undefined,
   deliveryUnit: '',
-  remark: '',
+  remark: '无',
   status: '0' 
 });
 
 const inspRules = {
+  orderNo: [{ required: true, message: '请输入检验单号', trigger: 'blur' }],
   reporter: [{ required: true, message: '请输入报检人', trigger: 'blur' }],
   amount: [{ required: true, message: '请输入报检数量', trigger: 'blur' }],
   deliveryUnit: [{ required: true, message: '请输入送货单位', trigger: 'blur' }],
@@ -151,14 +175,14 @@ watch(() => props.modelValue, (val) => {
   if (val) {
     nextTick(() => {
       if (inspFormRef.value) inspFormRef.value.resetFields();
-      
       // 填充基础信息
+      inspForm.orderNo = props.newCode;
       inspForm.woNo = props.formData.woNo;
       inspForm.ipoNo = props.formData.ipoNo;
       inspForm.itemId = props.formData.itemId;
       inspForm.contractNo = props.formData.contractNo || '';
       inspForm.contractName = props.formData.contractName || '';
-      
+      console.log('inspForm', props.formData);
       inspForm.status = '0';
       inspForm.reportApplyTime = new Date(); // 当前时间
     });

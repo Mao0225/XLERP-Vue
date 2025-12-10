@@ -1,6 +1,5 @@
 <template>
   <div class="production-work-orders">
-    <!-- 顶部筛选区 -->
     <el-card class="filter-card" shadow="never">
       <div class="filter-row">
         <div class="filter-item">
@@ -27,7 +26,6 @@
       </div>
     </el-card>
 
-    <!-- 生产工单列表 -->
     <div class="order-list-full">
       <el-card shadow="never">
         <template #header>
@@ -45,11 +43,10 @@
         >
           <el-table-column type="index" label="序号" width="60" />
           
-          <!-- 工单整体状态 -->
           <el-table-column label="状态" width="100" align="center">
             <template #default="{ row }">
-              <el-tag :type="getStatusTagType(row.status)" size="small" effect="dark">
-                {{ getStatusText(row.status) }}
+              <el-tag :type="getStatusTagType(row.status || '10')" size="small" effect="dark">
+                {{ getStatusText(row.status || '10') }}
               </el-tag>
             </template>
           </el-table-column>
@@ -61,19 +58,25 @@
           </el-table-column>
           <el-table-column prop="materialsCode" label="物料编码" width="100" show-overflow-tooltip />
           <el-table-column prop="materialsName" label="物料名称" width="150" show-overflow-tooltip />
-          <el-table-column prop="modelSpec" label="规格型号" width="100" show-overflow-tooltip />
+          
+          <el-table-column prop="modelSpec" label="规格型号" width="100" show-overflow-tooltip>
+             <template #default="{ row }">
+               {{ row.modelSpec || '无' }}
+             </template>
+          </el-table-column>
+
           <el-table-column label="生产数量" width="80" align="center">
             <template #default="{ row }">
               {{ row.amount }} {{ row.unit }}
             </template>
           </el-table-column>
+          
           <el-table-column label="计划日期" width="190" align="center">
             <template #default="{ row }">
-              {{ row.planStartDate }} ~ {{ row.planFinishDate }}
+              {{ formatDate(row.planStartDate) }} ~ {{ formatDate(row.planFinishDate) }}
             </template>
           </el-table-column>
 
-          <!-- 【修改】生产工序流程列 -->
           <el-table-column label="生产工序流程" min-width="380">
             <template #default="{ row }">
               <div class="process-container">
@@ -83,13 +86,11 @@
                     :key="proc.id || index" 
                     class="process-node"
                   >
-                    <!-- 工序胶囊 -->
                     <div class="process-capsule">
                       <span class="proc-code">{{ proc.processCode }}</span>
                       <span class="proc-name">{{ proc.processName }}</span>
                     </div>
                     
-                    <!-- 连接箭头 (不是最后一个时显示) -->
                     <el-icon v-if="index < row.processRoutes.length - 1" class="proc-arrow">
                       <Right />
                     </el-icon>
@@ -101,11 +102,9 @@
             </template>
           </el-table-column>
 
-          <!-- 操作列 -->
           <el-table-column label="操作" width="110" fixed="right" align="center">
             <template #default="{ row }">
-              <!-- 10 录入 -->
-              <template v-if="row.status === '10'">
+              <template v-if="row.status === '10' || !row.status">
                 <el-button type="primary" link size="small" @click="handleStatusUpdate(row.id, '20')">
                   确认生产
                 </el-button>
@@ -113,15 +112,13 @@
                 <el-button type="danger" link size="small" @click="deleteOrder(row)">删除</el-button>
               </template>
 
-              <!-- 20 已确认（生产中） -->
               <template v-if="row.status === '20'">
                 <el-button type="primary" link size="small" @click="openProcessDialog(row)">
                   查看进度
                 </el-button>
               </template>
 
-              <!-- 其他状态根据实际需求保留按钮，此处简化展示逻辑，避免按钮过多挤压 -->
-              <template v-if="!['10', '20'].includes(row.status)">
+              <template v-if="row.status && !['10', '20'].includes(row.status)">
                  <el-button type="primary" link size="small" @click="openProcessDialog(row)">
                   查看进度
                 </el-button>
@@ -145,17 +142,13 @@
       </el-card>
     </div>
 
-    <!-- 弹窗组件 -->
-     <!-- 修改工单弹窗 -->
     <editOrder
       :visible="editDialogVisible"
       :initial-data="formData"
       @update:visible="editDialogVisible = $event"
       @success="handleEditSuccess"
     />
-    <!-- 制定工单选择弹窗 -->
     <productionOrderSelector v-model:visible="showSelector" @close="loadData" />
-    <!-- 生产进度弹窗 -->
     <WorkOrderProcessDialog
       v-model:visible="processDialogVisible"
       :form-data="selectRow"
@@ -166,10 +159,9 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Edit, Delete, Document, Right } from '@element-plus/icons-vue' // 引入 Right 图标
+import { Search, Refresh, Edit, Delete, Document, Right } from '@element-plus/icons-vue' 
 import { getPlWorkOrderList, deletePlWorkOrder, getPlWorkOrderById, updateOrderStatus } from '@/api/plmanage/plworkorder'
 import WorkOrderProcessDialog from './components/WorkOrderProcessDialog.vue'; 
-
 import editOrder from './components/editOrder.vue'
 import productionOrderSelector from './components/productionOrderSelector.vue'
 
@@ -177,10 +169,8 @@ const loading = ref(false)
 const editDialogVisible = ref(false)
 const formData = ref({})
 const showSelector = ref(false)
-const selectRow = ref('')
+const selectRow = ref({}) // 初始化为空对象更安全
 const processDialogVisible = ref(false)
-
-
 
 const openProcessDialog = (row) => {
   selectRow.value = row;
@@ -191,7 +181,7 @@ const filters = reactive({ contractNo: '', contractName: '', woNo: '' })
 const pagination = reactive({ current: 1, size: 10, total: 0 })
 const tableData = ref([])
 
-// 加载数据
+// 加载数据 - 修改后：直接赋值，不进行映射
 const loadData = async () => {
   loading.value = true
   try {
@@ -205,23 +195,8 @@ const loadData = async () => {
 
     const res = await getPlWorkOrderList(params)
     if (res.code === 200 && res.success) {
-      // 数据映射
-      tableData.value = res.data.page.list.map(item => ({
-        id: item.id,
-        woNo: item.woNo,
-        ipoNo: item.ipoNo,
-        materialsCode: item.materialsCode,
-        materialsName: item.materialsName,
-        modelSpec: item.modelSpec || '无',
-        amount: item.amount,
-        unit: item.unit,
-        planStartDate: item.planStartDate ? item.planStartDate.split(' ')[0] : '',
-        planFinishDate: item.planFinishDate ? item.planFinishDate.split(' ')[0] : '',
-        status: item.status || '10',
-        itemId: item.itemId,
-        // 【修改】直接获取后端传回来的 processRoutes 列表
-        processRoutes: item.processRoutes || [] 
-      }))
+      // 【修改点】直接拿到后端返回的 List，包含所有字段
+      tableData.value = res.data.page.list || []
       pagination.total = res.data.page.totalRow
     }
   } catch (err) {
@@ -230,6 +205,12 @@ const loadData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 辅助函数：格式化日期（仅保留 YYYY-MM-DD）
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return dateStr.split(' ')[0]
 }
 
 // 状态映射
@@ -311,6 +292,7 @@ onMounted(loadData)
 </script>
 
 <style scoped>
+/* 样式保持不变，直接复用你原来的即可 */
 .production-work-orders { padding: 20px; background: #f5f5f5; min-height: 100vh; }
 .filter-card { margin-bottom: 20px; }
 .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 16px; }
@@ -320,22 +302,19 @@ onMounted(loadData)
 .card-header { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
 .pagination-container { margin-top: 16px; text-align: right; }
 
-/* 工序容器：允许换行，垂直居中 */
 .process-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px; /* 行间距 */
+  gap: 6px;
   padding: 4px 0;
 }
 
-/* 单个节点：包含胶囊和箭头 */
 .process-node {
   display: flex;
   align-items: center;
 }
 
-/* 胶囊样式主体 */
 .process-capsule {
   display: flex;
   border-radius: 4px;
@@ -343,11 +322,10 @@ onMounted(loadData)
   border: 1px solid #dcdfe6;
   font-size: 12px;
   height: 24px;
-  line-height: 22px; /* 减去边框高度 */
+  line-height: 22px; 
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* 左侧编号：绿色背景 */
 .proc-code {
   background-color: #00d31c; 
   color: #fff;
@@ -356,7 +334,6 @@ onMounted(loadData)
   font-weight: bold;
 }
 
-/* 右侧名称：浅灰背景 */
 .proc-name {
   background-color: #f4f5f5;
   color: #606665;
@@ -364,14 +341,12 @@ onMounted(loadData)
   font-weight: 500;
 }
 
-/* 箭头样式 */
 .proc-arrow {
   margin-left: 6px;
   color: #c0c4cc;
   font-size: 14px;
 }
 
-/* 空状态文字 */
 .no-process-text {
   color: #909399;
   font-size: 12px;
